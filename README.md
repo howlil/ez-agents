@@ -47,6 +47,92 @@ npx get-shit-done-cc@latest
 
 ---
 
+## 🚀 What's New in GSDM (Multi-Model Fork)
+
+**GSDM** is an enhanced fork of GSD with **multi-model support** and **enterprise-grade reliability**.
+
+### New Features
+
+| Feature | Parent GSD | GSDM Fork |
+|---------|------------|-----------|
+| **Multi-Model** | Anthropic only | ✓ Anthropic, Qwen, Kimi, OpenAI |
+| **Security** | Basic | ✓ Command allowlist, path validation |
+| **Error Handling** | Basic | ✓ Retry with backoff, circuit breaker |
+| **Cross-Platform** | Unix commands | ✓ JS implementations (Windows-safe) |
+| **Git Safety** | Direct calls | ✓ Atomic commits, branch automation |
+| **Update Command** | Manual | ✓ `gsdm-update` |
+
+### 17 New Libraries Added
+
+```
+get-shit-done/bin/lib/
+├── safe-exec.cjs         # Command injection prevention
+├── safe-path.cjs         # Path traversal prevention
+├── auth.cjs              # Secure credential storage (keytar)
+├── audit-exec.cjs        # Command audit logging
+├── git-utils.cjs         # Safe git operations
+├── fs-utils.cjs          # Cross-platform file utilities
+├── retry.cjs             # Exponential backoff retry
+├── circuit-breaker.cjs   # Cascading failure prevention
+├── model-provider.cjs    # Multi-model API abstraction
+├── assistant-adapter.cjs # AI assistant abstraction
+├── logger.cjs            # Centralized logging
+├── health-check.cjs      # Environment validation
+├── timeout-exec.cjs      # Command timeout handling
+├── file-lock.cjs         # Concurrent write protection
+├── temp-file.cjs         # Secure temp file handling
+├── index.cjs             # Central library export
+└── update.js             # Update command
+```
+
+### Multi-Model Support
+
+Use different AI providers per agent or task:
+
+```json
+// .planning/config.json
+{
+  "provider": {
+    "default": "alibaba",
+    "anthropic": { "models": { "opus": "claude-3-opus-20240229" } },
+    "alibaba": { "models": { "high": "qwen-max" } },
+    "moonshot": { "models": { "high": "moonshot-v1-128k" } },
+    "openai": { "models": { "high": "gpt-4-turbo-preview" } }
+  },
+  "agent_overrides": {
+    "gsd-planner": { "provider": "alibaba", "model": "qwen-max" },
+    "gsd-executor": { "provider": "anthropic", "model": "sonnet" }
+  }
+}
+```
+
+### Quick Commands
+
+```bash
+# Install GSDM (Multi-Model Fork)
+npm install -g gsdm
+
+# Setup
+gsdm --claude --global
+
+# Update
+gsdm-update
+
+# Check version
+gsdm --version
+```
+
+### Install from Fork
+
+```bash
+# From GitHub
+npm install -g git+https://github.com/howlil/gsd-multi-model.git#feature/qwen-model
+
+# Package name: gsdm (short for "GSD Multi-Model")
+```
+
+---
+
 ## Why I Built This
 
 I'm a solo developer. I don't write code — Claude Code does.
