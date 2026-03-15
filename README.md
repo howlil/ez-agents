@@ -17,7 +17,7 @@
 <br>
 
 ```bash
-npm install -g gsdm
+npx github:howlil/gsd-multi-model
 ```
 
 **Works on Mac, Windows, and Linux.**
@@ -155,12 +155,32 @@ gsdm --help
 
 ### Install
 
-```bash
-# From npm (when published)
-npm install -g gsdm
+**Option 1: Use npx (No Installation)**
 
-# From GitHub (current)
-npm install -g git+https://github.com/howlil/gsd-multi-model.git#feature/qwen-model
+```bash
+# Run installer directly without installing
+npx github:howlil/gsd-multi-model
+
+# Or with flags
+npx github:howlil/gsd-multi-model --claude --global
+```
+
+**Option 2: Install Globally (Recommended)**
+
+```bash
+# Install from GitHub
+npm install -g git+https://github.com/howlil/gsd-multi-model.git
+
+# Then use
+gsdm --claude --global
+gsdm-update
+```
+
+**Option 3: Install from npm (Future)**
+
+```bash
+# When published to npm
+npm install -g gsdm
 ```
 
 ---
