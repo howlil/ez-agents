@@ -1,9 +1,10 @@
 {
   "name": "get-shit-done-cc",
-  "version": "1.22.4",
-  "description": "A meta-prompting, context engineering and spec-driven development system for Claude Code, OpenCode, Gemini and Codex by TÂCHES.",
+  "version": "2.0.0",
+  "description": "A meta-prompting, context engineering and spec-driven development system for Claude Code, OpenCode, Gemini and Codex by TÂCHES. Fork with multi-model support (Qwen, Kimi, OpenAI).",
   "bin": {
-    "get-shit-done-cc": "bin/install.js"
+    "get-shit-done-cc": "bin/install.js",
+    "gsd-install": "bin/install.js"
   },
   "files": [
     "bin",
