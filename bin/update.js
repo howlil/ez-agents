@@ -1,0 +1,214 @@
+#!/usr/bin/env node
+
+/**
+ * GSDM Update — Check and install updates
+ * 
+ * Usage:
+ *   gsdm-update              # Check for updates
+ *   gsdm-update --check      # Check only
+ *   gsdm-update --force      # Force reinstall
+ *   gsdm-update --changelog  # Show changelog
+ */
+
+const { execSync } = require('child_process');
+const path = require('path');
+
+const PACKAGE_NAME = 'gsdm';
+const REPO_URL = 'https://github.com/howlil/gsd-multi-model.git';
+
+// Colors for output
+const colors = {
+  reset: '\x1b[0m',
+  green: '\x1b[32m',
+  yellow: '\x1b[33m',
+  blue: '\x1b[34m',
+  red: '\x1b[31m',
+  bold: '\x1b[1m'
+};
+
+function log(message, color = 'reset') {
+  console.log(`${colors[color]}${message}${colors.reset}`);
+}
+
+/**
+ * Get current installed version
+ */
+function getCurrentVersion() {
+  try {
+    const pkg = require('./package.json');
+    return pkg.version;
+  } catch {
+    return 'unknown';
+  }
+}
+
+/**
+ * Get latest version from npm
+ */
+function getLatestVersion() {
+  try {
+    const output = execSync(`npm view ${PACKAGE_NAME} version`, {
+      encoding: 'utf-8',
+      stdio: ['pipe', 'pipe', 'ignore']
+    });
+    return output.trim();
+  } catch {
+    // Fallback: check GitHub repo
+    try {
+      const output = execSync(`npm view git+${REPO_URL} version`, {
+        encoding: 'utf-8',
+        stdio: ['pipe', 'pipe', 'ignore']
+      });
+      return output.trim();
+    } catch {
+      return null;
+    }
+  }
+}
+
+/**
+ * Check if update is available
+ */
+function checkUpdate() {
+  const current = getCurrentVersion();
+  const latest = getLatestVersion();
+  
+  log('\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━', 'blue');
+  log(' GSDM Update Check', 'bold');
+  log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n', 'blue');
+  
+  log(`Current version: ${colors.bold}v${current}${colors.reset}`);
+  
+  if (!latest) {
+    log('Unable to check for updates (no network or repo unavailable)', 'yellow');
+    return;
+  }
+  
+  log(`Latest version:  ${colors.bold}v${latest}${colors.reset}\n`);
+  
+  if (current === latest) {
+    log('✓ You are on the latest version!\n', 'green');
+    return false;
+  }
+  
+  log(`⚡ Update available: v${current} → v${latest}\n`, 'yellow');
+  log('To update, run:\n', 'blue');
+  log(`  npm install -g ${PACKAGE_NAME}@latest\n`, 'green');
+  log('Or force reinstall:\n', 'blue');
+  log(`  gsdm-update --force\n`, 'green');
+  
+  return true;
+}
+
+/**
+ * Install update
+ */
+function installUpdate(force = false) {
+  log('\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━', 'blue');
+  log(' GSDM Update', 'bold');
+  log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n', 'blue');
+  
+  const current = getCurrentVersion();
+  const latest = getLatestVersion();
+  
+  if (!latest) {
+    log('Unable to check for updates', 'red');
+    process.exit(1);
+  }
+  
+  if (current === latest && !force) {
+    log('Already on latest version', 'green');
+    return;
+  }
+  
+  log(`Updating: v${current} → v${latest}...\n`, 'blue');
+  
+  try {
+    execSync(`npm install -g ${PACKAGE_NAME}@latest`, {
+      stdio: 'inherit'
+    });
+    
+    log('\n✓ Update complete!\n', 'green');
+    log('Restart your terminal or run:\n', 'blue');
+    log(`  gsdm --version\n`, 'green');
+  } catch (err) {
+    log('\n✗ Update failed\n', 'red');
+    log('Try manual install:\n', 'yellow');
+    log(`  npm install -g ${PACKAGE_NAME}@latest\n`, 'blue');
+    process.exit(1);
+  }
+}
+
+/**
+ * Show changelog
+ */
+function showChangelog() {
+  log('\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━', 'blue');
+  log(' GSDM Changelog', 'bold');
+  log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n', 'blue');
+  
+  try {
+    const fs = require('fs');
+    const changelogPath = path.join(__dirname, 'CHANGELOG.md');
+    
+    if (fs.existsSync(changelogPath)) {
+      const content = fs.readFileSync(changelogPath, 'utf-8');
+      // Show first 50 lines
+      const lines = content.split('\n').slice(0, 50);
+      log(lines.join('\n'));
+    } else {
+      log('CHANGELOG.md not found', 'yellow');
+      log(`\nView online: ${REPO_URL}/blob/main/CHANGELOG.md\n`, 'blue');
+    }
+  } catch (err) {
+    log('Unable to read changelog', 'red');
+  }
+}
+
+/**
+ * Show help
+ */
+function showHelp() {
+  log(`
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+ GSDM Update — Check and Install Updates
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Usage:
+  gsdm-update [options]
+
+Options:
+  --check      Check for updates (don't install)
+  --force      Force reinstall even if up-to-date
+  --changelog  Show changelog
+  --help       Show this help message
+
+Examples:
+  gsdm-update              # Check and prompt to update
+  gsdm-update --check      # Check only
+  gsdm-update --force      # Force reinstall
+  gsdm-update --changelog  # View changelog
+
+Manual Update:
+  npm install -g gsdm@latest
+`);
+}
+
+// Main
+const args = process.argv.slice(2);
+
+if (args.includes('--help') || args.includes('-h')) {
+  showHelp();
+} else if (args.includes('--changelog')) {
+  showChangelog();
+} else if (args.includes('--check')) {
+  checkUpdate();
+} else if (args.includes('--force')) {
+  installUpdate(true);
+} else {
+  const hasUpdate = checkUpdate();
+  if (hasUpdate) {
+    // Auto-prompt (simple version)
+    log('Run "gsdm-update --force" to update now\n');
+  }
+}
