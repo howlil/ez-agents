@@ -1,33 +1,30 @@
 <div align="center">
 
-# GET SHIT DONE
+# GSD Multi-Model
+
+**GSDM** — *Get Shit Done, Multi-Model Edition*
 
 **English** · [简体中文](README.zh-CN.md)
 
-**A light-weight and powerful meta-prompting, context engineering and spec-driven development system for Claude Code, OpenCode, Gemini CLI, and Codex.**
+**An independent fork of GSD with multi-model support (Qwen, Kimi, OpenAI, Claude) and enhanced reliability features.**
 
-**Solves context rot — the quality degradation that happens as Claude fills its context window.**
+**Solves context rot — with added security, error handling, and cross-platform support.**
 
-[![npm version](https://img.shields.io/npm/v/get-shit-done-cc?style=for-the-badge&logo=npm&logoColor=white&color=CB3837)](https://www.npmjs.com/package/get-shit-done-cc)
-[![npm downloads](https://img.shields.io/npm/dm/get-shit-done-cc?style=for-the-badge&logo=npm&logoColor=white&color=CB3837)](https://www.npmjs.com/package/get-shit-done-cc)
-[![Tests](https://img.shields.io/github/actions/workflow/status/glittercowboy/get-shit-done/test.yml?branch=main&style=for-the-badge&logo=github&label=Tests)](https://github.com/glittercowboy/get-shit-done/actions/workflows/test.yml)
-[![Discord](https://img.shields.io/badge/Discord-Join-5865F2?style=for-the-badge&logo=discord&logoColor=white)](https://discord.gg/gsd)
-[![X (Twitter)](https://img.shields.io/badge/X-@gsd__foundation-000000?style=for-the-badge&logo=x&logoColor=white)](https://x.com/gsd_foundation)
-[![$GSD Token](https://img.shields.io/badge/$GSD-Dexscreener-1C1C1C?style=for-the-badge&logo=data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjQiIGhlaWdodD0iMjQiIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48Y2lyY2xlIGN4PSIxMiIgY3k9IjEyIiByPSIxMCIgZmlsbD0iIzAwRkYwMCIvPjwvc3ZnPg==&logoColor=00FF00)](https://dexscreener.com/solana/dwudwjvan7bzkw9zwlbyv6kspdlvhwzrqy6ebk8xzxkv)
-[![GitHub stars](https://img.shields.io/github/stars/glittercowboy/get-shit-done?style=for-the-badge&logo=github&color=181717)](https://github.com/glittercowboy/get-shit-done)
+[![GitHub forks](https://img.shields.io/github/forks/howlil/gsd-multi-model?style=for-the-badge&logo=github&color=blue)](https://github.com/howlil/gsd-multi-model/network)
+[![GitHub stars](https://img.shields.io/github/stars/howlil/gsd-multi-model?style=for-the-badge&logo=github&color=yellow)](https://github.com/howlil/gsd-multi-model/stargazers)
 [![License](https://img.shields.io/badge/license-MIT-blue?style=for-the-badge)](LICENSE)
 
 <br>
 
 ```bash
-npx get-shit-done-cc@latest
+npm install -g gsdm
 ```
 
 **Works on Mac, Windows, and Linux.**
 
 <br>
 
-![GSD Install](assets/terminal.svg)
+**Original GSD by** [TÂCHES](https://github.com/glittercowboy/get-shit-done) | **Multi-Model Fork by** [@howlil](https://github.com/howlil)
 
 <br>
 
@@ -39,71 +36,97 @@ npx get-shit-done-cc@latest
 
 <br>
 
-**Trusted by engineers at Amazon, Google, Shopify, and Webflow.**
-
-[Why I Built This](#why-i-built-this) · [How It Works](#how-it-works) · [Commands](#commands) · [Why It Works](#why-it-works) · [User Guide](docs/USER-GUIDE.md)
+[Features](#-whats-new-in-gsdm) · [Install](#install) · [Commands](#commands) · [Multi-Model](#multi-model-support) · [User Guide](docs/USER-GUIDE.md)
 
 </div>
 
 ---
 
-## 🚀 What's New in GSDM (Multi-Model Fork)
+## 🚀 What's New in GSDM
 
-> **Note:** This is an **independent fork** of GSD with multi-model support and enhanced reliability features. Not affiliated with the original GSD project.
+> **Note:** This is an **independent fork** of GSD. Not affiliated with the original GSD project.
+> 
+> **Original GSD:** [glittercowboy/get-shit-done](https://github.com/glittercowboy/get-shit-done) by TÂCHES
+> 
+> **This Fork:** [howlil/gsd-multi-model](https://github.com/howlil/gsd-multi-model) with multi-model support & enhancements
 
-**GSDM** is an enhanced fork of GSD with **multi-model support** and **enterprise-grade reliability**.
+**GSDM** adds **multi-model support** and **enterprise-grade reliability** to GSD.
 
-### New Features
+### Why This Fork Exists
 
-| Feature | Parent GSD | GSDM Fork |
-|---------|------------|-----------|
+I needed GSD to work with multiple AI providers (not just Anthropic) and run reliably on Windows. This fork adds:
+
+- 🌍 **Multi-Model**: Qwen (Alibaba), Kimi (Moonshot), OpenAI, and Anthropic
+- 🔒 **Security**: Command injection prevention, path validation, audit logging
+- 🛡️ **Error Handling**: Retry with backoff, circuit breaker for failing operations
+- 🪟 **Windows Support**: Cross-platform file utilities (no Unix dependencies)
+- 🔄 **Easy Updates**: `gsdm-update` command to stay current
+
+### Features Comparison
+
+| Feature | Original GSD | GSDM Fork |
+|---------|--------------|-----------|
 | **Multi-Model** | Anthropic only | ✓ Anthropic, Qwen, Kimi, OpenAI |
-| **Security** | Basic | ✓ Command allowlist, path validation |
+| **Security** | Basic | ✓ Command allowlist, path validation, audit log |
 | **Error Handling** | Basic | ✓ Retry with backoff, circuit breaker |
-| **Cross-Platform** | Unix commands | ✓ JS implementations (Windows-safe) |
+| **Cross-Platform** | Unix commands | ✓ Pure JavaScript (Windows-safe) |
 | **Git Safety** | Direct calls | ✓ Atomic commits, branch automation |
-| **Update Command** | Manual | ✓ `gsdm-update` |
+| **Update Command** | Manual npm | ✓ `gsdm-update` |
+| **Credential Storage** | Plain text | ✓ System keychain (keytar) |
 
-### 17 New Libraries Added
+### 17 New Libraries
 
 ```
 get-shit-done/bin/lib/
-├── safe-exec.cjs         # Command injection prevention
+├── safe-exec.cjs         # Command injection prevention (allowlist + validation)
 ├── safe-path.cjs         # Path traversal prevention
-├── auth.cjs              # Secure credential storage (keytar)
-├── audit-exec.cjs        # Command audit logging
-├── git-utils.cjs         # Safe git operations
-├── fs-utils.cjs          # Cross-platform file utilities
-├── retry.cjs             # Exponential backoff retry
-├── circuit-breaker.cjs   # Cascading failure prevention
+├── auth.cjs              # Secure credential storage (keytar + fallback)
+├── audit-exec.cjs        # Command audit logging (.planning/logs/)
+├── git-utils.cjs         # Safe git operations (atomic commits)
+├── fs-utils.cjs          # Cross-platform file utils (find/grep/head/tail replacement)
+├── retry.cjs             # Exponential backoff retry logic
+├── circuit-breaker.cjs   # Prevent cascading failures
 ├── model-provider.cjs    # Multi-model API abstraction
-├── assistant-adapter.cjs # AI assistant abstraction
-├── logger.cjs            # Centralized logging
+├── assistant-adapter.cjs # AI assistant abstraction (Claude/OpenCode/Gemini/Codex)
+├── logger.cjs            # Centralized logging (ERROR/WARN/INFO/DEBUG)
 ├── health-check.cjs      # Environment validation
-├── timeout-exec.cjs      # Command timeout handling
+├── timeout-exec.cjs      # Command timeout with fallback
 ├── file-lock.cjs         # Concurrent write protection
 ├── temp-file.cjs         # Secure temp file handling
 ├── index.cjs             # Central library export
-└── update.js             # Update command
+└── update.js             # gsdm-update command
 ```
 
 ### Multi-Model Support
 
-Use different AI providers per agent or task:
+Configure different AI providers per agent:
 
 ```json
 // .planning/config.json
 {
   "provider": {
     "default": "alibaba",
-    "anthropic": { "models": { "opus": "claude-3-opus-20240229" } },
-    "alibaba": { "models": { "high": "qwen-max" } },
-    "moonshot": { "models": { "high": "moonshot-v1-128k" } },
-    "openai": { "models": { "high": "gpt-4-turbo-preview" } }
+    "anthropic": {
+      "api_key": "env:ANTHROPIC_API_KEY",
+      "models": { "opus": "claude-3-opus-20240229", "sonnet": "claude-3-sonnet-20240229" }
+    },
+    "alibaba": {
+      "api_key": "env:DASHSCOPE_API_KEY",
+      "models": { "high": "qwen-max", "balanced": "qwen-plus" }
+    },
+    "moonshot": {
+      "api_key": "env:MOONSHOT_API_KEY",
+      "models": { "high": "moonshot-v1-128k" }
+    },
+    "openai": {
+      "api_key": "env:OPENAI_API_KEY",
+      "models": { "high": "gpt-4-turbo-preview" }
+    }
   },
   "agent_overrides": {
     "gsd-planner": { "provider": "alibaba", "model": "qwen-max" },
-    "gsd-executor": { "provider": "anthropic", "model": "sonnet" }
+    "gsd-executor": { "provider": "anthropic", "model": "sonnet" },
+    "gsd-verifier": { "provider": "moonshot", "model": "balanced" }
   }
 }
 ```
@@ -111,31 +134,36 @@ Use different AI providers per agent or task:
 ### Quick Commands
 
 ```bash
-# Install GSDM (Multi-Model Fork)
+# Install GSDM
 npm install -g gsdm
 
-# Setup
+# Setup (Claude Code)
 gsdm --claude --global
 
 # Update
 gsdm-update
 
+# Force update
+gsdm-update --force
+
 # Check version
 gsdm --version
+
+# Help
+gsdm --help
 ```
 
-### Install from Fork
+### Install
 
 ```bash
-# From GitHub
-npm install -g git+https://github.com/howlil/gsd-multi-model.git#feature/qwen-model
+# From npm (when published)
+npm install -g gsdm
 
-# Package name: gsdm (short for "GSD Multi-Model")
+# From GitHub (current)
+npm install -g git+https://github.com/howlil/gsd-multi-model.git#feature/qwen-model
 ```
 
 ---
-
-## Why I Built This
 
 I'm a solo developer. I don't write code — Claude Code does.
 
