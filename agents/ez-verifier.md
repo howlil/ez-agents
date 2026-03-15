@@ -453,7 +453,7 @@ human_verification: # Only if status: human_needed
 ---
 
 _Verified: {timestamp}_
-_Verifier: Claude (gsd-verifier)_
+_Verifier: Claude (ez-verifier)_
 ```
 
 ## Return to Orchestrator

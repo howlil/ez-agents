@@ -72,7 +72,7 @@ Goal-backward verification works backwards from outcome:
 Then verify each level against the actual plan files.
 
 **The difference:**
-- `gsd-verifier`: Verifies code DID achieve goal (after execution)
+- `ez-verifier`: Verifies code DID achieve goal (after execution)
 - `ez-plan-checker`: Verifies plans WILL achieve goal (before execution)
 
 Same methodology (goal-backward), different timing, different subject matter.
@@ -666,7 +666,7 @@ Plans verified. Run `/ez:execute-phase {phase}` to proceed.
 
 <anti_patterns>
 
-**DO NOT** check code existence — that's gsd-verifier's job. You verify plans, not codebase.
+**DO NOT** check code existence — that's ez-verifier's job. You verify plans, not codebase.
 
 **DO NOT** run the application. Static plan analysis only.
 

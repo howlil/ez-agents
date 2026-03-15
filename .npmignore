@@ -1,0 +1,36 @@
+# Git
+.git
+.gitignore
+.github
+
+# Planning & Docs
+.planning
+docs
+CHANGELOG.md
+README.md
+README.zh-CN.md
+SECURITY.md
+
+# Tests
+tests
+*.test.js
+*.test.cjs
+*.spec.js
+*.spec.cjs
+
+# Development
+scripts
+.hooks
+*.log
+npm-debug.log*
+
+# IDE
+.vscode
+.idea
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db

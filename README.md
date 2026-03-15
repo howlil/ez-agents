@@ -6,7 +6,7 @@
 
 **English** · [简体中文](README.zh-CN.md)
 
-**An independent fork of GSD with multi-model support (Qwen, Kimi, OpenAI, Claude) and enhanced reliability features.**
+**An independent fork of GSD (Get Shit Done) with multi-model support (Qwen, Kimi, OpenAI, Claude) and enhanced reliability features.**
 
 **Solves context rot — with added security, error handling, and cross-platform support.**
 
@@ -24,7 +24,7 @@ npx github:howlil/ez-agents
 
 <br>
 
-**Original GSD by** [TÂCHES](https://github.com/glittercowboy/get-shit-done) | **EZ Agents Fork by** [@howlil](https://github.com/howlil)
+**Original GSD (Get Shit Done) by** [TÂCHES](https://github.com/glittercowboy/get-shit-done) | **EZ Agents Fork by** [@howlil](https://github.com/howlil)
 
 <br>
 
@@ -44,17 +44,17 @@ npx github:howlil/ez-agents
 
 ## 🚀 What's New in EZ Agents
 
-> **Note:** This is an **independent fork** of GSD. Not affiliated with the original GSD project.
+> **Note:** This is an **independent fork** of GSD (Get Shit Done). Not affiliated with the original GSD project.
 >
-> **Original GSD:** [glittercowboy/get-shit-done](https://github.com/glittercowboy/get-shit-done) by TÂCHES
+> **Original GSD (Get Shit Done):** [glittercowboy/get-shit-done](https://github.com/glittercowboy/get-shit-done) by TÂCHES
 >
 > **This Fork:** [howlil/ez-agents](https://github.com/howlil/ez-agents) with multi-model support & enhancements
 
-**EZ Agents** adds **multi-model support** and **enterprise-grade reliability** to GSD.
+**EZ Agents** adds **multi-model support** and **enterprise-grade reliability** to GSD (Get Shit Done).
 
 ### Why This Fork Exists
 
-I needed GSD to work with multiple AI providers (not just Anthropic) and run reliably on Windows. This fork adds:
+I needed GSD (Get Shit Done) to work with multiple AI providers (not just Anthropic) and run reliably on Windows. This fork adds:
 
 - 🌍 **Multi-Model**: Qwen (Alibaba), Kimi (Moonshot), OpenAI, and Anthropic
 - 🔒 **Security**: Command injection prevention, path validation, audit logging
@@ -64,8 +64,8 @@ I needed GSD to work with multiple AI providers (not just Anthropic) and run rel
 
 ### Features Comparison
 
-| Feature | Original GSD | EZ Agents Fork |
-|---------|--------------|-----------|
+| Feature | Original GSD (Get Shit Done) | EZ Agents Fork |
+|---------|------------------------------|-----------|
 | **Multi-Model** | Anthropic only | ✓ Anthropic, Qwen, Kimi, OpenAI |
 | **Security** | Basic | ✓ Command allowlist, path validation, audit log |
 | **Error Handling** | Basic | ✓ Retry with backoff, circuit breaker |
@@ -815,8 +815,8 @@ These community ports pioneered multi-runtime support:
 
 | Project | Platform | Description |
 |---------|----------|-------------|
-| [gsd-opencode](https://github.com/rokicool/gsd-opencode) | OpenCode | Original OpenCode adaptation |
-| gsd-gemini (archived) | Gemini CLI | Original Gemini adaptation by uberfuzzy |
+| [ez-opencode](https://github.com/rokicool/gsd-opencode) | OpenCode | Original OpenCode adaptation |
+| ez-gemini (archived) | Gemini CLI | Original Gemini adaptation by uberfuzzy |
 
 ---
 
