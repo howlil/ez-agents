@@ -20,6 +20,8 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # Fetch all history for tags
 
       - name: Set up Node.js
         uses: actions/setup-node@v4
@@ -38,22 +40,24 @@ jobs:
         id: version-check
         run: |
           PKG_VERSION=$(node -p "require('./package.json').version")
-          PREV_VERSION=$(git describe --tags --abbrev=0 2>/dev/null || echo "")
+          PREV_VERSION=$(git tag -l "v$PKG_VERSION" || echo "")
           
-          # Remove 'v' prefix from tag if exists
-          PREV_VERSION=${PREV_VERSION#v}
-          
-          if [ "$PKG_VERSION" = "$PREV_VERSION" ]; then
+          if [ -n "$PREV_VERSION" ]; then
             echo "changed=false" >> $GITHUB_OUTPUT
-            echo "Version unchanged ($PKG_VERSION) - skipping publish"
+            echo "Version $PKG_VERSION already tagged - skipping publish"
           else
             echo "changed=true" >> $GITHUB_OUTPUT
-            echo "Version changed: $PREV_VERSION → $PKG_VERSION"
+            echo "New version: $PKG_VERSION"
           fi
 
       - name: Publish to npm
         if: steps.version-check.outputs.changed == 'true'
-        run: npm publish --access public --provenance
+        run: |
+          echo "Publishing to npm..."
+          npm publish --access public --provenance || {
+            echo "::error::Failed to publish to npm. Check NPM_TOKEN secret."
+            exit 1
+          }
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
 
