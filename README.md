@@ -214,11 +214,11 @@ People who want to describe what they want and have it built correctly — witho
 ## Getting Started
 
 ```bash
-npx get-shit-done-cc@latest
+npx gsdm
 ```
 
 The installer prompts you to choose:
-1. **Runtime** — Claude Code, OpenCode, Gemini, Codex, or all
+1. **Runtime** — Claude Code, OpenCode, Gemini, Codex, Copilot, or all
 2. **Location** — Global (all projects) or local (current project only)
 
 Verify with:
@@ -234,7 +234,7 @@ Verify with:
 GSD evolves fast. Update periodically:
 
 ```bash
-npx get-shit-done-cc@latest
+gsdm-update
 ```
 
 <details>
@@ -242,21 +242,21 @@ npx get-shit-done-cc@latest
 
 ```bash
 # Claude Code
-npx get-shit-done-cc --claude --global   # Install to ~/.claude/
-npx get-shit-done-cc --claude --local    # Install to ./.claude/
+gsdm --claude --global   # Install to ~/.claude/
+gsdm --claude --local    # Install to ./.claude/
 
 # OpenCode (open source, free models)
-npx get-shit-done-cc --opencode --global # Install to ~/.config/opencode/
+gsdm --opencode --global # Install to ~/.config/opencode/
 
 # Gemini CLI
-npx get-shit-done-cc --gemini --global   # Install to ~/.gemini/
+gsdm --gemini --global   # Install to ~/.gemini/
 
 # Codex (skills-first)
-npx get-shit-done-cc --codex --global    # Install to ~/.codex/
-npx get-shit-done-cc --codex --local     # Install to ./.codex/
+gsdm --codex --global    # Install to ~/.codex/
+gsdm --codex --local     # Install to ./.codex/
 
 # All runtimes
-npx get-shit-done-cc --all --global      # Install to all directories
+gsdm --all --global      # Install to all directories
 ```
 
 Use `--global` (`-g`) or `--local` (`-l`) to skip the location prompt.
@@ -270,8 +270,8 @@ Use `--claude`, `--opencode`, `--gemini`, `--codex`, or `--all` to skip the runt
 Clone the repository and run the installer locally:
 
 ```bash
-git clone https://github.com/glittercowboy/get-shit-done.git
-cd get-shit-done
+git clone https://github.com/howlil/gsd-multi-model.git
+cd gsd-multi-model
 node bin/install.js --claude --local
 ```
 
@@ -772,18 +772,18 @@ This prevents Claude from reading these files entirely, regardless of what comma
 
 **Commands not working as expected?**
 - Run `/gsd:help` to verify installation
-- Re-run `npx get-shit-done-cc` to reinstall
+- Re-run `gsdm` to reinstall
 
 **Updating to the latest version?**
 ```bash
-npx get-shit-done-cc@latest
+gsdm-update
 ```
 
 **Using Docker or containerized environments?**
 
 If file reads fail with tilde paths (`~/.claude/...`), set `CLAUDE_CONFIG_DIR` before installing:
 ```bash
-CLAUDE_CONFIG_DIR=/home/youruser/.claude npx get-shit-done-cc --global
+CLAUDE_CONFIG_DIR=/home/youruser/.claude gsdm --global
 ```
 This ensures absolute paths are used instead of `~` which may not expand correctly in containers.
 
@@ -793,14 +793,14 @@ To remove GSD completely:
 
 ```bash
 # Global installs
-npx get-shit-done-cc --claude --global --uninstall
-npx get-shit-done-cc --opencode --global --uninstall
-npx get-shit-done-cc --codex --global --uninstall
+gsdm --claude --global --uninstall
+gsdm --opencode --global --uninstall
+gsdm --codex --global --uninstall
 
 # Local installs (current project)
-npx get-shit-done-cc --claude --local --uninstall
-npx get-shit-done-cc --opencode --local --uninstall
-npx get-shit-done-cc --codex --local --uninstall
+gsdm --claude --local --uninstall
+gsdm --opencode --local --uninstall
+gsdm --codex --local --uninstall
 ```
 
 This removes all GSD commands, agents, hooks, and settings while preserving your other configurations.
@@ -809,7 +809,7 @@ This removes all GSD commands, agents, hooks, and settings while preserving your
 
 ## Community Ports
 
-OpenCode, Gemini CLI, and Codex are now natively supported via `npx get-shit-done-cc`.
+OpenCode, Gemini CLI, and Codex are now natively supported via `gsdm`.
 
 These community ports pioneered multi-runtime support:
 
