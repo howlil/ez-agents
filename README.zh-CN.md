@@ -1,6 +1,6 @@
 <div align="center">
 
-# GET SHIT DONE
+# EZ Agents
 
 [English](README.md) · **简体中文**
 
@@ -8,26 +8,21 @@
 
 **它解决的是 context rot：随着 Claude 的上下文窗口被填满，输出质量逐步劣化的问题。**
 
-[![npm version](https://img.shields.io/npm/v/get-shit-done-cc?style=for-the-badge&logo=npm&logoColor=white&color=CB3837)](https://www.npmjs.com/package/get-shit-done-cc)
-[![npm downloads](https://img.shields.io/npm/dm/get-shit-done-cc?style=for-the-badge&logo=npm&logoColor=white&color=CB3837)](https://www.npmjs.com/package/get-shit-done-cc)
-[![Tests](https://img.shields.io/github/actions/workflow/status/glittercowboy/get-shit-done/test.yml?branch=main&style=for-the-badge&logo=github&label=Tests)](https://github.com/glittercowboy/get-shit-done/actions/workflows/test.yml)
-[![Discord](https://img.shields.io/badge/Discord-Join-5865F2?style=for-the-badge&logo=discord&logoColor=white)](https://discord.gg/gsd)
-[![X (Twitter)](https://img.shields.io/badge/X-@gsd__foundation-000000?style=for-the-badge&logo=x&logoColor=white)](https://x.com/gsd_foundation)
-[![$GSD Token](https://img.shields.io/badge/$GSD-Dexscreener-1C1C1C?style=for-the-badge&logo=data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjQiIGhlaWdodD0iMjQiIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48Y2lyY2xlIGN4PSIxMiIgY3k9IjEyIiByPSIxMCIgZmlsbD0iIzAwRkYwMCIvPjwvc3ZnPg==&logoColor=00FF00)](https://dexscreener.com/solana/dwudwjvan7bzkw9zwlbyv6kspdlvhwzrqy6ebk8xzxkv)
-[![GitHub stars](https://img.shields.io/github/stars/glittercowboy/get-shit-done?style=for-the-badge&logo=github&color=181717)](https://github.com/glittercowboy/get-shit-done)
+[![GitHub forks](https://img.shields.io/github/forks/howlil/ez-agents?style=for-the-badge&logo=github&color=blue)](https://github.com/howlil/ez-agents/network)
+[![GitHub stars](https://img.shields.io/github/stars/howlil/ez-agents?style=for-the-badge&logo=github&color=yellow)](https://github.com/howlil/ez-agents/stargazers)
 [![License](https://img.shields.io/badge/license-MIT-blue?style=for-the-badge)](LICENSE)
 
 <br>
 
 ```bash
-npx get-shit-done-cc@latest
+npx github:howlil/ez-agents
 ```
 
 **支持 Mac、Windows 和 Linux。**
 
 <br>
 
-![GSD Install](assets/terminal.svg)
+**Original GSD by** [TÂCHES](https://github.com/glittercowboy/get-shit-done) | **EZ Agents Fork by** [@howlil](https://github.com/howlil)
 
 <br>
 
@@ -38,8 +33,6 @@ npx get-shit-done-cc@latest
 *"这是我给 Claude Code 加过最强的增强。没有过度设计，是真的把事做完。"*
 
 <br>
-
-**已被 Amazon、Google、Shopify 和 Webflow 的工程师采用。**
 
 [我为什么做这个](#我为什么做这个) · [它是怎么工作的](#它是怎么工作的) · [命令](#命令) · [为什么它有效](#为什么它有效) · [用户指南](docs/USER-GUIDE.md)
 
@@ -65,7 +58,7 @@ npx get-shit-done-cc@latest
 
 Vibecoding 的名声不算好。你描述需求，AI 生成代码，结果往往是质量不稳定、规模一上来就散架的垃圾。
 
-GSD 解决的就是这个问题。它是让 Claude Code 变得可靠的上下文工程层。你只要描述想法，系统会自动提取它需要知道的一切，然后让 Claude Code 去干活。
+EZ Agents 解决的就是这个问题。它是让 Claude Code 变得可靠的上下文工程层。你只要描述想法，系统会自动提取它需要知道的一切，然后让 Claude Code 去干活。
 
 ---
 
@@ -78,7 +71,7 @@ GSD 解决的就是这个问题。它是让 Claude Code 变得可靠的上下文
 ## 快速开始
 
 ```bash
-npx get-shit-done-cc@latest
+npx ez-agents
 ```
 
 安装器会提示你选择：
@@ -86,19 +79,19 @@ npx get-shit-done-cc@latest
 2. **安装位置**：全局（所有项目）或本地（仅当前项目）
 
 安装后可这样验证：
-- Claude Code / Gemini：`/gsd:help`
-- OpenCode：`/gsd-help`
-- Codex：`$gsd-help`
+- Claude Code / Gemini：`/ez:help`
+- OpenCode：`/ez-help`
+- Codex：`$ez-help`
 
 > [!NOTE]
-> Codex 安装走的是 skill 机制（`skills/gsd-*/SKILL.md`），不是自定义 prompt。
+> Codex 安装走的是 skill 机制（`skills/ez-*/SKILL.md`），不是自定义 prompt。
 
 ### 保持更新
 
-GSD 迭代很快，建议定期更新：
+EZ Agents 迭代很快，建议定期更新：
 
 ```bash
-npx get-shit-done-cc@latest
+ez-agents-update
 ```
 
 <details>
@@ -106,21 +99,21 @@ npx get-shit-done-cc@latest
 
 ```bash
 # Claude Code
-npx get-shit-done-cc --claude --global   # 安装到 ~/.claude/
-npx get-shit-done-cc --claude --local    # 安装到 ./.claude/
+ez-agents --claude --global   # 安装到 ~/.claude/
+ez-agents --claude --local    # 安装到 ./.claude/
 
 # OpenCode（开源，可用免费模型）
-npx get-shit-done-cc --opencode --global # 安装到 ~/.config/opencode/
+ez-agents --opencode --global # 安装到 ~/.config/opencode/
 
 # Gemini CLI
-npx get-shit-done-cc --gemini --global   # 安装到 ~/.gemini/
+ez-agents --gemini --global   # 安装到 ~/.gemini/
 
 # Codex（以 skills 为主）
-npx get-shit-done-cc --codex --global    # 安装到 ~/.codex/
-npx get-shit-done-cc --codex --local     # 安装到 ./.codex/
+ez-agents --codex --global    # 安装到 ~/.codex/
+ez-agents --codex --local     # 安装到 ./.codex/
 
 # 所有运行时
-npx get-shit-done-cc --all --global      # 安装到所有目录
+ez-agents --all --global      # 安装到所有目录
 ```
 
 使用 `--global`（`-g`）或 `--local`（`-l`）可以跳过安装位置提示。
@@ -134,8 +127,8 @@ npx get-shit-done-cc --all --global      # 安装到所有目录
 克隆仓库并在本地运行安装器：
 
 ```bash
-git clone https://github.com/glittercowboy/get-shit-done.git
-cd get-shit-done
+git clone https://github.com/howlil/ez-agents.git
+cd ez-agents
 node bin/install.js --claude --local
 ```
 
@@ -145,14 +138,14 @@ node bin/install.js --claude --local
 
 ### 推荐：跳过权限确认模式
 
-GSD 的设计目标是无摩擦自动化。运行 Claude Code 时建议使用：
+EZ Agents 的设计目标是无摩擦自动化。运行 Claude Code 时建议使用：
 
 ```bash
 claude --dangerously-skip-permissions
 ```
 
 > [!TIP]
-> 这才是 GSD 的预期用法。连 `date` 和 `git commit` 都要来回确认 50 次，整个体验就废了。
+> 这才是 EZ Agents 的预期用法。连 `date` 和 `git commit` 都要来回确认 50 次，整个体验就废了。
 
 <details>
 <summary><strong>替代方案：细粒度权限</strong></summary>

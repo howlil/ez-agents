@@ -45,7 +45,7 @@ Present to the user with this format:
 - **Project age:** N days
 ```
 
-If no `.planning/` directory exists, inform the user to run `/gsd:new-project` first.
+If no `.planning/` directory exists, inform the user to run `/ez:new-project` first.
 </step>
 
 </process>

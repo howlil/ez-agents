@@ -17,7 +17,7 @@ First, derive `PREFERRED_RUNTIME` from the invoking prompt's `execution_context`
 - Path contains `/.config/opencode/` or `/.opencode/` -> `opencode`
 - Otherwise -> `claude`
 
-Use `PREFERRED_RUNTIME` as the first runtime checked so `/gsd:update` targets the runtime that invoked it.
+Use `PREFERRED_RUNTIME` as the first runtime checked so `/ez:update` targets the runtime that invoked it.
 
 ```bash
 # Runtime candidates: "<runtime>:<config-dir>"
@@ -227,7 +227,7 @@ Your custom files in other locations are preserved:
 - Custom hooks ✓
 - Your CLAUDE.md files ✓
 
-If you've modified any GSD files directly, they'll be automatically backed up to `gsd-local-patches/` and can be reapplied with `/gsd:reapply-patches` after the update.
+If you've modified any GSD files directly, they'll be automatically backed up to `gsd-local-patches/` and can be reapplied with `/ez:reapply-patches` after the update.
 ```
 
 Use AskUserQuestion:
@@ -301,7 +301,7 @@ Check for gsd-local-patches/backup-meta.json in the config directory.
 
 ```
 Local patches were backed up before the update.
-Run /gsd:reapply-patches to merge your modifications into the new version.
+Run /ez:reapply-patches to merge your modifications into the new version.
 ```
 
 **If no patches:** Continue normally.

@@ -1,10 +1,10 @@
 {
-  "name": "gsdm",
+  "name": "ez-agents",
   "version": "2.0.0",
-  "description": "GSD Multi-Model — GSD fork with Qwen, Kimi, OpenAI support",
+  "description": "EZ Agents — Meta-prompting with multi-model support (Qwen, Kimi, OpenAI)",
   "bin": {
-    "gsdm": "bin/install.js",
-    "gsdm-update": "bin/update.js"
+    "ez-agents": "bin/install.js",
+    "ez-agents-update": "bin/update.js"
   },
   "files": [
     "bin",
@@ -24,17 +24,19 @@
     "gemini",
     "gemini-cli",
     "codex",
-    "codex-cli"
+    "codex-cli",
+    "ez-agents",
+    "agent-orchestration"
   ],
   "author": "TÂCHES",
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/howlil/gsd-multi-model.git"
+    "url": "git+https://github.com/howlil/ez-agents.git"
   },
-  "homepage": "https://github.com/howlil/gsd-multi-model",
+  "homepage": "https://github.com/howlil/ez-agents",
   "bugs": {
-    "url": "https://github.com/howlil/gsd-multi-model/issues"
+    "url": "https://github.com/howlil/ez-agents/issues"
   },
   "engines": {
     "node": ">=16.7.0"

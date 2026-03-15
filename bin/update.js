@@ -1,20 +1,20 @@
 #!/usr/bin/env node
 
 /**
- * GSDM Update — Check and install updates
- * 
+ * EZ Agents Update — Check and install updates
+ *
  * Usage:
- *   gsdm-update              # Check for updates
- *   gsdm-update --check      # Check only
- *   gsdm-update --force      # Force reinstall
- *   gsdm-update --changelog  # Show changelog
+ *   ez-agents-update              # Check for updates
+ *   ez-agents-update --check      # Check only
+ *   ez-agents-update --force      # Force reinstall
+ *   ez-agents-update --changelog  # Show changelog
  */
 
 const { execSync } = require('child_process');
 const path = require('path');
 
-const PACKAGE_NAME = 'gsdm';
-const REPO_URL = 'https://github.com/howlil/gsd-multi-model.git';
+const PACKAGE_NAME = 'ez-agents';
+const REPO_URL = 'https://github.com/howlil/ez-agents.git';
 
 // Colors for output
 const colors = {
@@ -74,7 +74,7 @@ function checkUpdate() {
   const latest = getLatestVersion();
   
   log('\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━', 'blue');
-  log(' GSDM Update Check', 'bold');
+  log(' EZ Agents Update Check', 'bold');
   log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n', 'blue');
   
   log(`Current version: ${colors.bold}v${current}${colors.reset}`);
@@ -95,7 +95,7 @@ function checkUpdate() {
   log('To update, run:\n', 'blue');
   log(`  npm install -g ${PACKAGE_NAME}@latest\n`, 'green');
   log('Or force reinstall:\n', 'blue');
-  log(`  gsdm-update --force\n`, 'green');
+  log(`  ez-agents-update --force\n`, 'green');
   
   return true;
 }
@@ -105,7 +105,7 @@ function checkUpdate() {
  */
 function installUpdate(force = false) {
   log('\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━', 'blue');
-  log(' GSDM Update', 'bold');
+  log(' EZ Agents Update', 'bold');
   log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n', 'blue');
   
   const current = getCurrentVersion();
@@ -130,7 +130,7 @@ function installUpdate(force = false) {
     
     log('\n✓ Update complete!\n', 'green');
     log('Restart your terminal or run:\n', 'blue');
-    log(`  gsdm --version\n`, 'green');
+    log(`  ez-agents --version\n`, 'green');
   } catch (err) {
     log('\n✗ Update failed\n', 'red');
     log('Try manual install:\n', 'yellow');
@@ -144,7 +144,7 @@ function installUpdate(force = false) {
  */
 function showChangelog() {
   log('\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━', 'blue');
-  log(' GSDM Changelog', 'bold');
+  log(' EZ Agents Changelog', 'bold');
   log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n', 'blue');
   
   try {
@@ -171,11 +171,11 @@ function showChangelog() {
 function showHelp() {
   log(`
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
- GSDM Update — Check and Install Updates
+ EZ Agents Update — Check and Install Updates
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 Usage:
-  gsdm-update [options]
+  ez-agents-update [options]
 
 Options:
   --check      Check for updates (don't install)
@@ -184,13 +184,13 @@ Options:
   --help       Show this help message
 
 Examples:
-  gsdm-update              # Check and prompt to update
-  gsdm-update --check      # Check only
-  gsdm-update --force      # Force reinstall
-  gsdm-update --changelog  # View changelog
+  ez-agents-update              # Check and prompt to update
+  ez-agents-update --check      # Check only
+  ez-agents-update --force      # Force reinstall
+  ez-agents-update --changelog  # View changelog
 
 Manual Update:
-  npm install -g gsdm@latest
+  npm install -g ez-agents@latest
 `);
 }
 
@@ -209,6 +209,6 @@ if (args.includes('--help') || args.includes('-h')) {
   const hasUpdate = checkUpdate();
   if (hasUpdate) {
     // Auto-prompt (simple version)
-    log('Run "gsdm-update --force" to update now\n');
+    log('Run "ez-agents-update --force" to update now\n');
   }
 }

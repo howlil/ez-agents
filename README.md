@@ -1,8 +1,8 @@
 <div align="center">
 
-# GSD Multi-Model
+# EZ Agents
 
-**GSDM** — *Get Shit Done, Multi-Model Edition*
+**ez-agents** — *Meta-prompting & Agent Orchestration, but ez*
 
 **English** · [简体中文](README.zh-CN.md)
 
@@ -10,21 +10,21 @@
 
 **Solves context rot — with added security, error handling, and cross-platform support.**
 
-[![GitHub forks](https://img.shields.io/github/forks/howlil/gsd-multi-model?style=for-the-badge&logo=github&color=blue)](https://github.com/howlil/gsd-multi-model/network)
-[![GitHub stars](https://img.shields.io/github/stars/howlil/gsd-multi-model?style=for-the-badge&logo=github&color=yellow)](https://github.com/howlil/gsd-multi-model/stargazers)
+[![GitHub forks](https://img.shields.io/github/forks/howlil/ez-agents?style=for-the-badge&logo=github&color=blue)](https://github.com/howlil/ez-agents/network)
+[![GitHub stars](https://img.shields.io/github/stars/howlil/ez-agents?style=for-the-badge&logo=github&color=yellow)](https://github.com/howlil/ez-agents/stargazers)
 [![License](https://img.shields.io/badge/license-MIT-blue?style=for-the-badge)](LICENSE)
 
 <br>
 
 ```bash
-npx github:howlil/gsd-multi-model
+npx github:howlil/ez-agents
 ```
 
 **Works on Mac, Windows, and Linux.**
 
 <br>
 
-**Original GSD by** [TÂCHES](https://github.com/glittercowboy/get-shit-done) | **Multi-Model Fork by** [@howlil](https://github.com/howlil)
+**Original GSD by** [TÂCHES](https://github.com/glittercowboy/get-shit-done) | **EZ Agents Fork by** [@howlil](https://github.com/howlil)
 
 <br>
 
@@ -32,25 +32,25 @@ npx github:howlil/gsd-multi-model
 
 *"I've done SpecKit, OpenSpec and Taskmaster — this has produced the best results for me."*
 
-*"By far the most powerful addition to my Claude Code. Nothing over-engineered. Literally just gets shit done."*
+*"By far the most powerful addition to my Claude Code. Nothing over-engineered. Literally ez mode activated."*
 
 <br>
 
-[Features](#-whats-new-in-gsdm) · [Install](#install) · [Commands](#commands) · [Multi-Model](#multi-model-support) · [User Guide](docs/USER-GUIDE.md)
+[Features](#-whats-new-in-ez-agents) · [Install](#install) · [Commands](#commands) · [Multi-Model](#multi-model-support) · [User Guide](docs/USER-GUIDE.md)
 
 </div>
 
 ---
 
-## 🚀 What's New in GSDM
+## 🚀 What's New in EZ Agents
 
 > **Note:** This is an **independent fork** of GSD. Not affiliated with the original GSD project.
-> 
+>
 > **Original GSD:** [glittercowboy/get-shit-done](https://github.com/glittercowboy/get-shit-done) by TÂCHES
-> 
-> **This Fork:** [howlil/gsd-multi-model](https://github.com/howlil/gsd-multi-model) with multi-model support & enhancements
+>
+> **This Fork:** [howlil/ez-agents](https://github.com/howlil/ez-agents) with multi-model support & enhancements
 
-**GSDM** adds **multi-model support** and **enterprise-grade reliability** to GSD.
+**EZ Agents** adds **multi-model support** and **enterprise-grade reliability** to GSD.
 
 ### Why This Fork Exists
 
@@ -60,18 +60,18 @@ I needed GSD to work with multiple AI providers (not just Anthropic) and run rel
 - 🔒 **Security**: Command injection prevention, path validation, audit logging
 - 🛡️ **Error Handling**: Retry with backoff, circuit breaker for failing operations
 - 🪟 **Windows Support**: Cross-platform file utilities (no Unix dependencies)
-- 🔄 **Easy Updates**: `gsdm-update` command to stay current
+- 🔄 **Easy Updates**: `ez-agents-update` command to stay current
 
 ### Features Comparison
 
-| Feature | Original GSD | GSDM Fork |
+| Feature | Original GSD | EZ Agents Fork |
 |---------|--------------|-----------|
 | **Multi-Model** | Anthropic only | ✓ Anthropic, Qwen, Kimi, OpenAI |
 | **Security** | Basic | ✓ Command allowlist, path validation, audit log |
 | **Error Handling** | Basic | ✓ Retry with backoff, circuit breaker |
 | **Cross-Platform** | Unix commands | ✓ Pure JavaScript (Windows-safe) |
 | **Git Safety** | Direct calls | ✓ Atomic commits, branch automation |
-| **Update Command** | Manual npm | ✓ `gsdm-update` |
+| **Update Command** | Manual npm | ✓ `ez-agents-update` |
 | **Credential Storage** | Plain text | ✓ System keychain (keytar) |
 
 ### 17 New Libraries
@@ -94,7 +94,7 @@ get-shit-done/bin/lib/
 ├── file-lock.cjs         # Concurrent write protection
 ├── temp-file.cjs         # Secure temp file handling
 ├── index.cjs             # Central library export
-└── update.js             # gsdm-update command
+└── update.js             # ez-agents-update command
 ```
 
 ### Multi-Model Support
@@ -134,23 +134,23 @@ Configure different AI providers per agent:
 ### Quick Commands
 
 ```bash
-# Install GSDM
-npm install -g gsdm
+# Install EZ Agents
+npm install -g ez-agents
 
 # Setup (Claude Code)
-gsdm --claude --global
+ez-agents --claude --global
 
 # Update
-gsdm-update
+ez-agents-update
 
 # Force update
-gsdm-update --force
+ez-agents-update --force
 
 # Check version
-gsdm --version
+ez-agents --version
 
 # Help
-gsdm --help
+ez-agents --help
 ```
 
 ### Install
@@ -159,28 +159,28 @@ gsdm --help
 
 ```bash
 # Run installer directly without installing
-npx github:howlil/gsd-multi-model
+npx github:howlil/ez-agents
 
 # Or with flags
-npx github:howlil/gsd-multi-model --claude --global
+npx github:howlil/ez-agents --claude --global
 ```
 
 **Option 2: Install Globally (Recommended)**
 
 ```bash
 # Install from GitHub
-npm install -g git+https://github.com/howlil/gsd-multi-model.git
+npm install -g git+https://github.com/howlil/ez-agents.git
 
 # Then use
-gsdm --claude --global
-gsdm-update
+ez-agents --claude --global
+ez-agents-update
 ```
 
 **Option 3: Install from npm (Future)**
 
 ```bash
 # When published to npm
-npm install -g gsdm
+npm install -g ez-agents
 ```
 
 ---
@@ -214,7 +214,7 @@ People who want to describe what they want and have it built correctly — witho
 ## Getting Started
 
 ```bash
-npx gsdm
+npx ez-agents
 ```
 
 The installer prompts you to choose:
@@ -222,19 +222,19 @@ The installer prompts you to choose:
 2. **Location** — Global (all projects) or local (current project only)
 
 Verify with:
-- Claude Code / Gemini: `/gsd:help`
-- OpenCode: `/gsd-help`
-- Codex: `$gsd-help`
+- Claude Code / Gemini: `/ez:help`
+- OpenCode: `/ez-help`
+- Codex: `$ez-help`
 
 > [!NOTE]
-> Codex installation uses skills (`skills/gsd-*/SKILL.md`) rather than custom prompts.
+> Codex installation uses skills (`skills/ez-*/SKILL.md`) rather than custom prompts.
 
 ### Staying Updated
 
-GSD evolves fast. Update periodically:
+EZ Agents evolves fast. Update periodically:
 
 ```bash
-gsdm-update
+ez-agents-update
 ```
 
 <details>
@@ -242,21 +242,21 @@ gsdm-update
 
 ```bash
 # Claude Code
-gsdm --claude --global   # Install to ~/.claude/
-gsdm --claude --local    # Install to ./.claude/
+ez-agents --claude --global   # Install to ~/.claude/
+ez-agents --claude --local    # Install to ./.claude/
 
 # OpenCode (open source, free models)
-gsdm --opencode --global # Install to ~/.config/opencode/
+ez-agents --opencode --global # Install to ~/.config/opencode/
 
 # Gemini CLI
-gsdm --gemini --global   # Install to ~/.gemini/
+ez-agents --gemini --global   # Install to ~/.gemini/
 
 # Codex (skills-first)
-gsdm --codex --global    # Install to ~/.codex/
-gsdm --codex --local     # Install to ./.codex/
+ez-agents --codex --global    # Install to ~/.codex/
+ez-agents --codex --local     # Install to ./.codex/
 
 # All runtimes
-gsdm --all --global      # Install to all directories
+ez-agents --all --global      # Install to all directories
 ```
 
 Use `--global` (`-g`) or `--local` (`-l`) to skip the location prompt.
@@ -270,8 +270,8 @@ Use `--claude`, `--opencode`, `--gemini`, `--codex`, or `--all` to skip the runt
 Clone the repository and run the installer locally:
 
 ```bash
-git clone https://github.com/howlil/gsd-multi-model.git
-cd gsd-multi-model
+git clone https://github.com/howlil/ez-agents.git
+cd ez-agents
 node bin/install.js --claude --local
 ```
 
