@@ -2300,6 +2300,15 @@ function install(isGlobal, runtime = 'claude') {
     }
   }
 
+  // Copy bin/update.js for gsdm-update command
+  const updateSrc = path.join(src, 'bin', 'update.js');
+  if (fs.existsSync(updateSrc)) {
+    const updateDest = path.join(targetDir, 'bin', 'update.js');
+    fs.mkdirSync(path.dirname(updateDest), { recursive: true });
+    fs.copyFileSync(updateSrc, updateDest);
+    console.log(`  ${green}✓${reset} Installed gsdm-update command`);
+  }
+
   // Copy get-shit-done skill with path replacement
   const skillSrc = path.join(src, 'get-shit-done');
   const skillDest = path.join(targetDir, 'get-shit-done');
