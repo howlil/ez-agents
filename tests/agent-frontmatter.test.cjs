@@ -14,11 +14,11 @@ const fs = require('fs');
 const path = require('path');
 
 const AGENTS_DIR = path.join(__dirname, '..', 'agents');
-const WORKFLOWS_DIR = path.join(__dirname, '..', 'get-shit-done', 'workflows');
+const WORKFLOWS_DIR = path.join(__dirname, '..', 'ez-agents', 'workflows');
 const COMMANDS_DIR = path.join(__dirname, '..', 'commands', 'gsd');
 
 const ALL_AGENTS = fs.readdirSync(AGENTS_DIR)
-  .filter(f => f.startsWith('gsd-') && f.endsWith('.md'))
+  .filter(f => f.startsWith('ez-') && f.endsWith('.md'))
   .map(f => f.replace('.md', ''));
 
 const FILE_WRITING_AGENTS = ALL_AGENTS.filter(name => {
@@ -109,7 +109,7 @@ describe('SPAWN: spawn type consistency', () => {
       const files = fs.readdirSync(dir).filter(f => f.endsWith('.md'));
       for (const file of files) {
         const content = fs.readFileSync(path.join(dir, file), 'utf-8');
-        const hasWorkaround = content.includes('First, read ~/.claude/agents/gsd-');
+        const hasWorkaround = content.includes('First, read ~/.claude/agents/ez-');
         assert.ok(
           !hasWorkaround,
           `${file} still has "First, read agent .md" workaround — use named subagent_type instead`
@@ -142,13 +142,13 @@ describe('SPAWN: spawn type consistency', () => {
     }
   });
 
-  test('diagnose-issues uses gsd-debugger (not general-purpose)', () => {
+  test('diagnose-issues uses ez-debugger (not general-purpose)', () => {
     const content = fs.readFileSync(
       path.join(WORKFLOWS_DIR, 'diagnose-issues.md'), 'utf-8'
     );
     assert.ok(
-      content.includes('subagent_type="gsd-debugger"'),
-      'diagnose-issues should spawn gsd-debugger, not general-purpose'
+      content.includes('subagent_type="ez-debugger"'),
+      'diagnose-issues should spawn ez-debugger, not general-purpose'
     );
   });
 });

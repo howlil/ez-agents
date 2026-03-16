@@ -14,11 +14,11 @@ const dim = '\x1b[2m';
 const reset = '\x1b[0m';
 
 // Codex config.toml constants
-const EZ_CODEX_MARKER = '# EZ Agents Agent Configuration \u2014 managed by ez-agents installer';
+const EZ_CODEX_MARKER = '# EZ_Agents Agent Configuration \u2014 managed by ez-agents installer';
 
 // Copilot instructions marker constants
-const EZ_COPILOT_INSTRUCTIONS_MARKER = '<!-- EZ Agents Configuration \u2014 managed by ez-agents installer -->';
-const EZ_COPILOT_INSTRUCTIONS_CLOSE_MARKER = '<!-- /EZ Agents Configuration -->';
+const EZ_COPILOT_INSTRUCTIONS_MARKER = '<!-- EZ_Agents Configuration \u2014 managed by ez-agents installer -->';
+const EZ_COPILOT_INSTRUCTIONS_CLOSE_MARKER = '<!-- /EZ_Agents Configuration -->';
 
 const CODEX_AGENT_SANDBOX = {
   'ez-executor': 'workspace-write',
@@ -256,7 +256,7 @@ const banner = '\n' +
   '  ███████╗██╔╝╚██╗\n' +
   '  ╚══════╝╚═╝ ╚═╝' + reset + '\n' +
   '\n' +
-  '  EZ Agents ' + dim + 'v' + pkg.version + reset + '\n' +
+  '  EZ_Agents ' + dim + 'v' + pkg.version + reset + '\n' +
   '  ' + dim + 'Multi-Model Edition' + reset + '\n' +
   '  A meta-prompting, context engineering and spec-driven\n' +
   '  development system for Claude Code, OpenCode, Gemini, Codex, Copilot,\n' +
@@ -299,7 +299,7 @@ if (hasUninstall) {
 
 // Show help if requested
 if (hasHelp) {
-  console.log(`  ${yellow}Usage:${reset} npx ez-agents [options]\n\n  ${yellow}Options:${reset}\n    ${cyan}-g, --global${reset}              Install globally (to config directory)\n    ${cyan}-l, --local${reset}               Install locally (to current directory)\n    ${cyan}--claude${reset}                  Install for Claude Code only\n    ${cyan}--opencode${reset}                Install for OpenCode only\n    ${cyan}--gemini${reset}                  Install for Gemini only\n    ${cyan}--codex${reset}                   Install for Codex only\n    ${cyan}--copilot${reset}                 Install for Copilot only\n    ${cyan}--all${reset}                     Install for all runtimes\n    ${cyan}-u, --uninstall${reset}           Uninstall EZ Agents (remove all EZ Agents files)\n    ${cyan}-c, --config-dir <path>${reset}   Specify custom config directory\n    ${cyan}-h, --help${reset}                Show this help message\n    ${cyan}--force-statusline${reset}        Replace existing statusline config\n\n  ${yellow}Examples:${reset}\n    ${dim}# Interactive install (prompts for runtime and location)${reset}\n    npx ez-agents\n\n    ${dim}# Install for Claude Code globally${reset}\n    npx ez-agents --claude --global\n\n    ${dim}# Install for all runtimes globally${reset}\n    npx ez-agents --all --global\n\n    ${dim}# Uninstall EZ Agents globally${reset}\n    npx ez-agents --all --global --uninstall\n\n  ${yellow}Notes:${reset}\n    The --config-dir option is useful when you have multiple configurations.\n    It takes priority over CLAUDE_CONFIG_DIR / GEMINI_CONFIG_DIR / CODEX_HOME / COPILOT_CONFIG_DIR environment variables.\n`);
+  console.log(`  ${yellow}Usage:${reset} npx ez-agents [options]\n\n  ${yellow}Options:${reset}\n    ${cyan}-g, --global${reset}              Install globally (to config directory)\n    ${cyan}-l, --local${reset}               Install locally (to current directory)\n    ${cyan}--claude${reset}                  Install for Claude Code only\n    ${cyan}--opencode${reset}                Install for OpenCode only\n    ${cyan}--gemini${reset}                  Install for Gemini only\n    ${cyan}--codex${reset}                   Install for Codex only\n    ${cyan}--copilot${reset}                 Install for Copilot only\n    ${cyan}--all${reset}                     Install for all runtimes\n    ${cyan}-u, --uninstall${reset}           Uninstall EZ_Agents (remove all EZ_Agents files)\n    ${cyan}-c, --config-dir <path>${reset}   Specify custom config directory\n    ${cyan}-h, --help${reset}                Show this help message\n    ${cyan}--force-statusline${reset}        Replace existing statusline config\n\n  ${yellow}Examples:${reset}\n    ${dim}# Interactive install (prompts for runtime and location)${reset}\n    npx ez-agents\n\n    ${dim}# Install for Claude Code globally${reset}\n    npx ez-agents --claude --global\n\n    ${dim}# Install for all runtimes globally${reset}\n    npx ez-agents --all --global\n\n    ${dim}# Uninstall EZ_Agents globally${reset}\n    npx ez-agents --all --global --uninstall\n\n  ${yellow}Notes:${reset}\n    The --config-dir option is useful when you have multiple configurations.\n    It takes priority over CLAUDE_CONFIG_DIR / GEMINI_CONFIG_DIR / CODEX_HOME / COPILOT_CONFIG_DIR environment variables.\n`);
   process.exit(0);
 }
 
@@ -666,7 +666,7 @@ function getCodexSkillAdapterHeader(skillName) {
 - If no arguments are present, treat \`{{EZ_ARGS}}\` as empty.
 
 ## B. AskUserQuestion → request_user_input Mapping
-EZ Agents workflows use \`AskUserQuestion\` (Claude Code syntax). Translate to Codex \`request_user_input\`:
+EZ_Agents workflows use \`AskUserQuestion\` (Claude Code syntax). Translate to Codex \`request_user_input\`:
 
 Parameter mapping:
 - \`header\` → \`header\`
@@ -684,12 +684,12 @@ Execute mode fallback:
 - When \`request_user_input\` is rejected (Execute mode), present a plain-text numbered list and pick a reasonable default.
 
 ## C. Task() → spawn_agent Mapping
-EZ Agents workflows use \`Task(...)\` (Claude Code syntax). Translate to Codex collaboration tools:
+EZ_Agents workflows use \`Task(...)\` (Claude Code syntax). Translate to Codex collaboration tools:
 
 Direct mapping:
 - \`Task(subagent_type="X", prompt="Y")\` → \`spawn_agent(agent_type="X", message="Y")\`
 - \`Task(model="...")\` → omit (Codex uses per-role config, not inline model selection)
-- \`fork_context: false\` by default — EZ Agents agents load their own context via \`<files_to_read>\` blocks
+- \`fork_context: false\` by default — EZ_Agents agents load their own context via \`<files_to_read>\` blocks
 
 Parallel fan-out:
 - Spawn multiple agents → collect agent IDs → \`wait(ids)\` for all to complete
@@ -703,7 +703,7 @@ Result parsing:
 function convertClaudeCommandToCodexSkill(content, skillName) {
   const converted = convertClaudeToCodexMarkdown(content);
   const { frontmatter, body } = extractFrontmatterAndBody(converted);
-  let description = `Run EZ Agents workflow ${skillName}.`;
+  let description = `Run EZ_Agents workflow ${skillName}.`;
   if (frontmatter) {
     const maybeDescription = extractFrontmatterField(frontmatter, 'description');
     if (maybeDescription) {
@@ -764,7 +764,7 @@ function generateCodexAgentToml(agentName, agentContent) {
 }
 
 /**
- * Generate the EZ Agents config block for Codex config.toml.
+ * Generate the EZ_Agents config block for Codex config.toml.
  * @param {Array<{name: string, description: string}>} agents
  */
 function generateCodexConfigBlock(agents) {
@@ -784,16 +784,16 @@ function generateCodexConfigBlock(agents) {
 }
 
 /**
- * Strip EZ Agents sections from Codex config.toml content.
+ * Strip EZ_Agents sections from Codex config.toml content.
  * Returns cleaned content, or null if file would be empty.
  */
-function stripGsdFromCodexConfig(content) {
+function stripEzAgentsFromCodexConfig(content) {
   const markerIndex = content.indexOf(EZ_CODEX_MARKER);
 
   if (markerIndex !== -1) {
-    // Has EZ Agents marker — remove everything from marker to EOF
+    // Has EZ_Agents marker — remove everything from marker to EOF
     let before = content.substring(0, markerIndex).trimEnd();
-    // Also strip EZ Agents-injected feature keys above the marker (Case 3 inject)
+    // Also strip EZ-injected feature keys above the marker (Case 3 inject)
     before = before.replace(/^multi_agent\s*=\s*true\s*\n?/m, '');
     before = before.replace(/^default_mode_request_user_input\s*=\s*true\s*\n?/m, '');
     before = before.replace(/^\[features\]\s*\n(?=\[|$)/m, '');
@@ -802,7 +802,7 @@ function stripGsdFromCodexConfig(content) {
     return before + '\n';
   }
 
-  // No marker but may have EZ Agents-injected feature keys
+  // No marker but may have EZ-injected feature keys
   let cleaned = content;
   cleaned = cleaned.replace(/^multi_agent\s*=\s*true\s*\n?/m, '');
   cleaned = cleaned.replace(/^default_mode_request_user_input\s*=\s*true\s*\n?/m, '');
@@ -824,56 +824,56 @@ function stripGsdFromCodexConfig(content) {
 }
 
 /**
- * Merge EZ Agents config block into an existing or new config.toml.
- * Three cases: new file, existing with EZ Agents marker, existing without marker.
+ * Merge EZ_Agents config block into an existing or new config.toml.
+ * Three cases: new file, existing with EZ_Agents marker, existing without marker.
  */
-function mergeCodexConfig(configPath, gsdBlock) {
+function mergeCodexConfig(configPath, EZ_AgentsBlock) {
   // Case 1: No config.toml — create fresh
   if (!fs.existsSync(configPath)) {
-    fs.writeFileSync(configPath, gsdBlock + '\n');
+    fs.writeFileSync(configPath, EZ_AgentsBlock + '\n');
     return;
   }
 
   const existing = fs.readFileSync(configPath, 'utf8');
   const markerIndex = existing.indexOf(EZ_CODEX_MARKER);
 
-  // Case 2: Has EZ Agents marker — truncate and re-append
+  // Case 2: Has EZ_Agents marker — truncate and re-append
   if (markerIndex !== -1) {
     let before = existing.substring(0, markerIndex).trimEnd();
     if (before) {
-      // Strip any EZ Agents-managed sections that leaked above the marker from previous installs
+      // Strip any EZ-managed sections that leaked above the marker from previous installs
       before = before.replace(/^\[agents\.ez-[^\]]+\]\n(?:(?!\[)[^\n]*\n?)*/gm, '');
       before = before.replace(/^\[agents\]\n(?:(?!\[)[^\n]*\n?)*/m, '');
       before = before.replace(/\n{3,}/g, '\n\n').trimEnd();
 
-      fs.writeFileSync(configPath, before + '\n\n' + gsdBlock + '\n');
+      fs.writeFileSync(configPath, before + '\n\n' + EZ_AgentsBlock + '\n');
     } else {
-      fs.writeFileSync(configPath, gsdBlock + '\n');
+      fs.writeFileSync(configPath, EZ_AgentsBlock + '\n');
     }
     return;
   }
 
-  // Case 3: No marker — append EZ Agents block
+  // Case 3: No marker — append EZ_Agents block
   let content = existing;
-  content = content.trimEnd() + '\n\n' + gsdBlock + '\n';
+  content = content.trimEnd() + '\n\n' + EZ_AgentsBlock + '\n';
 
   fs.writeFileSync(configPath, content);
 }
 
 /**
- * Merge EZ Agents instructions into copilot-instructions.md.
+ * Merge EZ_Agents instructions into copilot-instructions.md.
  * Three cases: new file, existing with markers, existing without markers.
  * @param {string} filePath - Full path to copilot-instructions.md
- * @param {string} gsdContent - Template content (without markers)
+ * @param {string} EZ_AgentsContent - Template content (without markers)
  */
-function mergeCopilotInstructions(filePath, gsdContent) {
-  const gsdBlock = EZ_COPILOT_INSTRUCTIONS_MARKER + '\n' +
-    gsdContent.trim() + '\n' +
+function mergeCopilotInstructions(filePath, EZ_AgentsContent) {
+  const EZ_AgentsBlock = EZ_COPILOT_INSTRUCTIONS_MARKER + '\n' +
+    EZ_AgentsContent.trim() + '\n' +
     EZ_COPILOT_INSTRUCTIONS_CLOSE_MARKER;
 
   // Case 1: No file — create fresh
   if (!fs.existsSync(filePath)) {
-    fs.writeFileSync(filePath, gsdBlock + '\n');
+    fs.writeFileSync(filePath, EZ_AgentsBlock + '\n');
     return;
   }
 
@@ -881,13 +881,13 @@ function mergeCopilotInstructions(filePath, gsdContent) {
   const openIndex = existing.indexOf(EZ_COPILOT_INSTRUCTIONS_MARKER);
   const closeIndex = existing.indexOf(EZ_COPILOT_INSTRUCTIONS_CLOSE_MARKER);
 
-  // Case 2: Has EZ Agents markers — replace between markers
+  // Case 2: Has EZ_Agents markers — replace between markers
   if (openIndex !== -1 && closeIndex !== -1) {
     const before = existing.substring(0, openIndex).trimEnd();
     const after = existing.substring(closeIndex + EZ_COPILOT_INSTRUCTIONS_CLOSE_MARKER.length).trimStart();
     let newContent = '';
     if (before) newContent += before + '\n\n';
-    newContent += gsdBlock;
+    newContent += EZ_AgentsBlock;
     if (after) newContent += '\n\n' + after;
     newContent += '\n';
     fs.writeFileSync(filePath, newContent);
@@ -895,17 +895,17 @@ function mergeCopilotInstructions(filePath, gsdContent) {
   }
 
   // Case 3: No markers — append at end
-  const content = existing.trimEnd() + '\n\n' + gsdBlock + '\n';
+  const content = existing.trimEnd() + '\n\n' + EZ_AgentsBlock + '\n';
   fs.writeFileSync(filePath, content);
 }
 
 /**
- * Strip EZ Agents section from copilot-instructions.md content.
- * Returns cleaned content, or null if file should be deleted (was GSD-only).
+ * Strip EZ_Agents section from copilot-instructions.md content.
+ * Returns cleaned content, or null if file should be deleted (was EZ-only).
  * @param {string} content - File content
  * @returns {string|null} - Cleaned content or null if empty
  */
-function stripGsdFromCopilotInstructions(content) {
+function stripEzAgentsFromCopilotInstructions(content) {
   const openIndex = content.indexOf(EZ_COPILOT_INSTRUCTIONS_MARKER);
   const closeIndex = content.indexOf(EZ_COPILOT_INSTRUCTIONS_CLOSE_MARKER);
 
@@ -930,7 +930,7 @@ function installCodexConfig(targetDir, agentsSrc) {
   const agentsTomlDir = path.join(targetDir, 'agents');
   fs.mkdirSync(agentsTomlDir, { recursive: true });
 
-  const agentEntries = fs.readdirSync(agentsSrc).filter(f => f.startsWith('gsd-') && f.endsWith('.md'));
+  const agentEntries = fs.readdirSync(agentsSrc).filter(f => f.startsWith('EZ-') && f.endsWith('.md'));
   const agents = [];
 
   // Compute the Codex pathPrefix for replacing .claude paths
@@ -952,8 +952,8 @@ function installCodexConfig(targetDir, agentsSrc) {
     fs.writeFileSync(path.join(agentsTomlDir, `${name}.toml`), tomlContent);
   }
 
-  const gsdBlock = generateCodexConfigBlock(agents);
-  mergeCodexConfig(configPath, gsdBlock);
+  const EZ_AgentsBlock = generateCodexConfigBlock(agents);
+  mergeCodexConfig(configPath, EZ_AgentsBlock);
 
   return agents.length;
 }
@@ -1062,7 +1062,7 @@ function convertClaudeToGeminiAgent(content) {
   // Escape ${VAR} patterns in agent body for Gemini CLI compatibility.
   // Gemini's templateString() treats all ${word} patterns as template variables
   // and throws "Template validation failed: Missing required input parameters"
-  // when they can't be resolved. EZ Agents agents use ${PHASE}, ${PLAN}, etc. as
+  // when they can't be resolved. EZ_Agents agents use ${PHASE}, ${PLAN}, etc. as
   // shell variables in bash code blocks — convert to $VAR (no braces) which
   // is equivalent bash and invisible to Gemini's /\$\{(\w+)\}/g regex.
   const escapedBody = body.replace(/\$\{(\w+)\}/g, '$$$1');
@@ -1543,8 +1543,8 @@ function cleanupOrphanedHooks(settings) {
 }
 
 /**
- * Uninstall EZ Agents from the specified directory for a specific runtime
- * Removes only EZ Agents-specific files/directories, preserves user content
+ * Uninstall EZ_Agents from the specified directory for a specific runtime
+ * Removes only EZ-specific files/directories, preserves user content
  * @param {boolean} isGlobal - Whether to uninstall from global or local
  * @param {string} runtime - Target runtime ('claude', 'opencode', 'gemini', 'codex', 'copilot')
  */
@@ -1569,7 +1569,7 @@ function uninstall(isGlobal, runtime = 'claude') {
   if (runtime === 'codex') runtimeLabel = 'Codex';
   if (runtime === 'copilot') runtimeLabel = 'Copilot';
 
-  console.log(`  Uninstalling EZ Agents from ${cyan}${runtimeLabel}${reset} at ${cyan}${locationLabel}${reset}\n`);
+  console.log(`  Uninstalling EZ_Agents from ${cyan}${runtimeLabel}${reset} at ${cyan}${locationLabel}${reset}\n`);
 
   // Check if target directory exists
   if (!fs.existsSync(targetDir)) {
@@ -1592,7 +1592,7 @@ function uninstall(isGlobal, runtime = 'claude') {
           removedCount++;
         }
       }
-      console.log(`  ${green}✓${reset} Removed EZ Agents commands from command/`);
+      console.log(`  ${green}✓${reset} Removed EZ_Agents commands from command/`);
     }
   } else if (isCodex) {
     // Codex: remove skills/ez-*/SKILL.md skill directories
@@ -1633,16 +1633,16 @@ function uninstall(isGlobal, runtime = 'claude') {
     const configPath = path.join(targetDir, 'config.toml');
     if (fs.existsSync(configPath)) {
       const content = fs.readFileSync(configPath, 'utf8');
-      const cleaned = stripGsdFromCodexConfig(content);
+      const cleaned = stripEzAgentsFromCodexConfig(content);
       if (cleaned === null) {
         // File is empty after stripping — delete it
         fs.unlinkSync(configPath);
         removedCount++;
-        console.log(`  ${green}✓${reset} Removed config.toml (was EZ Agents-only)`);
+        console.log(`  ${green}✓${reset} Removed config.toml (was EZ-only)`);
       } else if (cleaned !== content) {
         fs.writeFileSync(configPath, cleaned);
         removedCount++;
-        console.log(`  ${green}✓${reset} Cleaned EZ Agents sections from config.toml`);
+        console.log(`  ${green}✓${reset} Cleaned EZ_Agents sections from config.toml`);
       }
     }
   } else if (isCopilot) {
@@ -1667,15 +1667,15 @@ function uninstall(isGlobal, runtime = 'claude') {
     const instructionsPath = path.join(targetDir, 'copilot-instructions.md');
     if (fs.existsSync(instructionsPath)) {
       const content = fs.readFileSync(instructionsPath, 'utf8');
-      const cleaned = stripGsdFromCopilotInstructions(content);
+      const cleaned = stripEzAgentsFromCopilotInstructions(content);
       if (cleaned === null) {
         fs.unlinkSync(instructionsPath);
         removedCount++;
-        console.log(`  ${green}✓${reset} Removed copilot-instructions.md (was EZ Agents-only)`);
+        console.log(`  ${green}✓${reset} Removed copilot-instructions.md (was EZ-only)`);
       } else if (cleaned !== content) {
         fs.writeFileSync(instructionsPath, cleaned);
         removedCount++;
-        console.log(`  ${green}✓${reset} Cleaned EZ Agents section from copilot-instructions.md`);
+        console.log(`  ${green}✓${reset} Cleaned EZ_Agents section from copilot-instructions.md`);
       }
     }
   } else {
@@ -1687,15 +1687,15 @@ function uninstall(isGlobal, runtime = 'claude') {
     }
   }
 
-  // 2. Remove get-shit-done directory
-  const ezDir = path.join(targetDir, 'get-shit-done');
+  // 2. Remove ez-agents directory
+  const ezDir = path.join(targetDir, 'ez-agents');
   if (fs.existsSync(ezDir)) {
     fs.rmSync(ezDir, { recursive: true });
     removedCount++;
-    console.log(`  ${green}✓${reset} Removed get-shit-done/`);
+    console.log(`  ${green}✓${reset} Removed ez-agents/`);
   }
 
-  // 3. Remove EZ Agents agents (ez-*.md files only)
+  // 3. Remove EZ_Agents agents (ez-*.md files only)
   const agentsDir = path.join(targetDir, 'agents');
   if (fs.existsSync(agentsDir)) {
     const files = fs.readdirSync(agentsDir);
@@ -1708,7 +1708,7 @@ function uninstall(isGlobal, runtime = 'claude') {
     }
     if (agentCount > 0) {
       removedCount++;
-      console.log(`  ${green}✓${reset} Removed ${agentCount} EZ Agents agents`);
+      console.log(`  ${green}✓${reset} Removed ${agentCount} EZ_Agents agents`);
     }
   }
 
@@ -1836,7 +1836,7 @@ function uninstall(isGlobal, runtime = 'claude') {
             if (config.permission[permType]) {
               const keys = Object.keys(config.permission[permType]);
               for (const key of keys) {
-                if (key.includes('get-shit-done')) {
+                if (key.includes('ez-agents')) {
                   delete config.permission[permType][key];
                   modified = true;
                 }
@@ -1864,11 +1864,11 @@ function uninstall(isGlobal, runtime = 'claude') {
   }
 
   if (removedCount === 0) {
-    console.log(`  ${yellow}⚠${reset} No EZ Agents files found to remove.`);
+    console.log(`  ${yellow}⚠${reset} No EZ_Agents files found to remove.`);
   }
 
   console.log(`
-  ${green}Done!${reset} EZ Agents has been uninstalled from ${runtimeLabel}.
+  ${green}Done!${reset} EZ_Agents has been uninstalled from ${runtimeLabel}.
   Your other files and settings have been preserved.
 `);
 }
@@ -1936,7 +1936,7 @@ function parseJsonc(content) {
 
 /**
  * Configure OpenCode permissions to allow reading EZ reference docs
- * This prevents permission prompts when EZ accesses the get-shit-done directory
+ * This prevents permission prompts when EZ accesses the ez-agents directory
  * @param {boolean} isGlobal - Whether this is a global or local install
  */
 function configureOpencodePermissions(isGlobal = true) {
@@ -1974,8 +1974,8 @@ function configureOpencodePermissions(isGlobal = true) {
   // Use ~ shorthand if it's in the default location, otherwise use full path
   const defaultConfigDir = path.join(os.homedir(), '.config', 'opencode');
   const ezPath = opencodeConfigDir === defaultConfigDir
-    ? '~/.config/opencode/get-shit-done/*'
-    : `${opencodeConfigDir.replace(/\\/g, '/')}/get-shit-done/*`;
+    ? '~/.config/opencode/ez-agents/*'
+    : `${opencodeConfigDir.replace(/\\/g, '/')}/ez-agents/*`;
 
   let modified = false;
 
@@ -2003,7 +2003,7 @@ function configureOpencodePermissions(isGlobal = true) {
 
   // Write config back
   fs.writeFileSync(configPath, JSON.stringify(config, null, 2) + '\n');
-  console.log(`  ${green}✓${reset} Configured read permission for EZ Agents docs`);
+  console.log(`  ${green}✓${reset} Configured read permission for EZ_Agents docs`);
 }
 
 /**
@@ -2086,7 +2086,7 @@ function writeManifest(configDir, runtime = 'claude') {
   const isOpencode = runtime === 'opencode';
   const isCodex = runtime === 'codex';
   const isCopilot = runtime === 'copilot';
-  const ezDir = path.join(configDir, 'get-shit-done');
+  const ezDir = path.join(configDir, 'ez-agents');
   const commandsDir = path.join(configDir, 'commands', 'ez');
   const opencodeCommandDir = path.join(configDir, 'command');
   const codexSkillsDir = path.join(configDir, 'skills');
@@ -2095,7 +2095,7 @@ function writeManifest(configDir, runtime = 'claude') {
 
   const ezHashes = generateManifest(ezDir);
   for (const [rel, hash] of Object.entries(ezHashes)) {
-    manifest.files['get-shit-done/' + rel] = hash;
+    manifest.files['ez-agents/' + rel] = hash;
   }
   if (!isOpencode && !isCodex && !isCopilot && fs.existsSync(commandsDir)) {
     const cmdHashes = generateManifest(commandsDir);
@@ -2132,7 +2132,7 @@ function writeManifest(configDir, runtime = 'claude') {
 }
 
 /**
- * Detect user-modified EZ Agents files by comparing against install manifest.
+ * Detect user-modified EZ_Agents files by comparing against install manifest.
  * Backs up modified files to ez-local-patches/ for reapply after update.
  */
 function saveLocalPatches(configDir) {
@@ -2239,7 +2239,7 @@ function install(isGlobal, runtime = 'claude') {
   // Track installation failures
   const failures = [];
 
-  // Save any locally modified EZ Agents files before they get wiped
+  // Save any locally modified EZ_Agents files before they get wiped
   saveLocalPatches(targetDir);
 
   // Clean up orphaned files from previous versions
@@ -2309,14 +2309,14 @@ function install(isGlobal, runtime = 'claude') {
     console.log(`  ${green}✓${reset} Installed ez-agents-update command`);
   }
 
-  // Copy get-shit-done skill with path replacement
-  const skillSrc = path.join(src, 'get-shit-done');
-  const skillDest = path.join(targetDir, 'get-shit-done');
+  // Copy ez-agents skill with path replacement
+  const skillSrc = path.join(src, 'ez-agents');
+  const skillDest = path.join(targetDir, 'ez-agents');
   copyWithPathReplacement(skillSrc, skillDest, pathPrefix, runtime, false, isGlobal);
-  if (verifyInstalled(skillDest, 'get-shit-done')) {
-    console.log(`  ${green}✓${reset} Installed get-shit-done`);
+  if (verifyInstalled(skillDest, 'ez-agents')) {
+    console.log(`  ${green}✓${reset} Installed ez-agents`);
   } else {
-    failures.push('get-shit-done');
+    failures.push('ez-agents');
   }
 
   // Copy agents to agents directory
@@ -2325,7 +2325,7 @@ function install(isGlobal, runtime = 'claude') {
     const agentsDest = path.join(targetDir, 'agents');
     fs.mkdirSync(agentsDest, { recursive: true });
 
-    // Remove old EZ Agents agents (ez-*.md) before copying new ones
+    // Remove old EZ_Agents agents (ez-*.md) before copying new ones
     if (fs.existsSync(agentsDest)) {
       for (const file of fs.readdirSync(agentsDest)) {
         if (file.startsWith('ez-') && file.endsWith('.md')) {
@@ -2370,7 +2370,7 @@ function install(isGlobal, runtime = 'claude') {
 
   // Copy CHANGELOG.md
   const changelogSrc = path.join(src, 'CHANGELOG.md');
-  const changelogDest = path.join(targetDir, 'get-shit-done', 'CHANGELOG.md');
+  const changelogDest = path.join(targetDir, 'ez-agents', 'CHANGELOG.md');
   if (fs.existsSync(changelogSrc)) {
     fs.copyFileSync(changelogSrc, changelogDest);
     if (verifyFileInstalled(changelogDest, 'CHANGELOG.md')) {
@@ -2381,7 +2381,7 @@ function install(isGlobal, runtime = 'claude') {
   }
 
   // Write VERSION file
-  const versionDest = path.join(targetDir, 'get-shit-done', 'VERSION');
+  const versionDest = path.join(targetDir, 'ez-agents', 'VERSION');
   fs.writeFileSync(versionDest, pkg.version);
   if (verifyFileInstalled(versionDest, 'VERSION')) {
     console.log(`  ${green}✓${reset} Wrote VERSION (${pkg.version})`);
@@ -2482,7 +2482,7 @@ function install(isGlobal, runtime = 'claude') {
 
   if (isCopilot) {
     // Generate copilot-instructions.md
-    const templatePath = path.join(targetDir, 'get-shit-done', 'templates', 'copilot-instructions.md');
+    const templatePath = path.join(targetDir, 'ez-agents', 'templates', 'copilot-instructions.md');
     const instructionsPath = path.join(targetDir, 'copilot-instructions.md');
     if (fs.existsSync(templatePath)) {
       const template = fs.readFileSync(templatePath, 'utf8');
@@ -2647,13 +2647,13 @@ function handleStatusline(settings, isInteractive, callback) {
   Your current statusline:
     ${dim}command: ${existingCmd}${reset}
 
-  EZ Agents includes a statusline showing:
+  EZ_Agents includes a statusline showing:
     • Model name
     • Current task (from todo list)
     • Context window usage (color-coded)
 
   ${cyan}1${reset}) Keep existing
-  ${cyan}2${reset}) Replace with EZ Agents statusline
+  ${cyan}2${reset}) Replace with EZ_Agents statusline
 `);
 
   rl.question(`  Choice ${dim}[1]${reset}: `, (answer) => {
@@ -2756,7 +2756,7 @@ function promptLocation(runtimes) {
 }
 
 /**
- * Install EZ Agents for all selected runtimes
+ * Install EZ_Agents for all selected runtimes
  */
 function installAllRuntimes(runtimes, isGlobal, isInteractive) {
   const results = [];
@@ -2791,14 +2791,14 @@ function installAllRuntimes(runtimes, isGlobal, isInteractive) {
 }
 
 // Test-only exports — skip main logic when loaded as a module for testing
-if (process.env.GSD_TEST_MODE) {
+if (process.env.EZ_AGENTS_TEST_MODE) {
   module.exports = {
     getCodexSkillAdapterHeader,
     convertClaudeToGeminiAgent,
     convertClaudeAgentToCodexAgent,
     generateCodexAgentToml,
     generateCodexConfigBlock,
-    stripGsdFromCodexConfig,
+    stripEzAgentsFromCodexConfig,
     mergeCodexConfig,
     installCodexConfig,
     convertClaudeCommandToCodexSkill,
@@ -2816,7 +2816,7 @@ if (process.env.GSD_TEST_MODE) {
     EZ_COPILOT_INSTRUCTIONS_MARKER,
     EZ_COPILOT_INSTRUCTIONS_CLOSE_MARKER,
     mergeCopilotInstructions,
-    stripGsdFromCopilotInstructions,
+    stripEzAgentsFromCopilotInstructions,
     writeManifest,
     reportLocalPatches,
   };
@@ -2859,4 +2859,4 @@ if (hasGlobal && hasLocal) {
   }
 }
 
-} // end of else block for GSD_TEST_MODE
+} // end of else block for EZ_AGENTS_TEST_MODE

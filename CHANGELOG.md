@@ -1,8 +1,54 @@
 # Changelog
 
-All notable changes to GSD will be documented in this file.
+All notable changes to EZ Agents (forked from EZ Agents) will be documented in this file.
 
 Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
+
+---
+
+## Migration Guide: EZ Agents → EZ Agents
+
+**This fork has been rebranded from EZ Agents (Get Shit Done) to EZ Agents.**
+
+### What Changed
+
+| Category | Before (EZ Agents) | After (EZ Agents) |
+|----------|-------------|-------------------|
+| **NPM Package** | `ez-agents-cc` | `@howlil/ez-agents` |
+| **Command Prefix** | `/EZ Agents:` | `/ez:` |
+| **Install Command** | `npx ez-agents-cc` | `npx ez-agents` |
+| **Update Command** | `/EZ Agents:update` | `/ez:update` |
+| **Agent Prefix** | `ez-*` | `ez-*` |
+| **Folder Structure** | `ez-agents/` (internal) | `ez-agents/` (unchanged) |
+
+### Migration Steps
+
+1. **Uninstall EZ Agents** (if installed globally):
+   ```bash
+   npx ez-agents-cc --all --global --uninstall
+   ```
+
+2. **Install EZ Agents**:
+   ```bash
+   npx ez-agents --all --global
+   ```
+
+3. **Update your workflows**:
+   - Replace `/EZ Agents:` with `/ez:` in your notes and documentation
+   - Update any custom scripts that reference `ez-agents-cc`
+
+### What Stayed the Same
+
+- **Core functionality**: All EZ Agents workflows, agents, and commands work identically
+- **Planning files**: `.planning/` directory structure unchanged
+- **Configuration**: `.planning/config.json` format unchanged
+- **Internal folder**: `ez-agents/` folder name preserved for backward compatibility
+
+### Why the Fork?
+
+EZ Agents adds **multi-model support** (Qwen, Kimi, OpenAI, Anthropic) and **enterprise-grade reliability** features to the original EZ Agents system. See [README.md](README.md) for full details.
+
+---
 
 ## [Unreleased]
 
@@ -12,11 +58,11 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 ## [1.22.4] - 2026-03-03
 
 ### Added
-- `--discuss` flag for `/gsd:quick` — lightweight pre-planning discussion to gather context before quick tasks
+- `--discuss` flag for `/EZ Agents:quick` — lightweight pre-planning discussion to gather context before quick tasks
 
 ### Fixed
 - Windows: `@file:` protocol resolution for large init payloads (>50KB) — all 32 workflow/agent files now resolve temp file paths instead of letting agents hallucinate `/tmp` paths (#841)
-- Missing `skills` frontmatter on gsd-nyquist-auditor agent
+- Missing `skills` frontmatter on ez-nyquist-auditor agent
 
 ## [1.22.3] - 2026-03-03
 
@@ -33,7 +79,7 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ### Fixed
 - Codex installer no longer creates duplicate `[features]` and `[agents]` sections on re-install (#902, #882)
-- Context monitor hook is advisory instead of blocking non-GSD workflows
+- Context monitor hook is advisory instead of blocking non-EZ Agents workflows
 - Hooks respect `CLAUDE_CONFIG_DIR` for custom config directories
 - Hooks include stdin timeout guard to prevent hanging on pipe errors
 - Statusline context scaling matches autocompact buffer thresholds
@@ -75,7 +121,7 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 - Codex multi-agent support: `request_user_input` mapping, multi-agent config, and agent role generation for Codex runtime
 - Analysis paralysis guard in agents to prevent over-deliberation during planning
 - Exhaustive cross-check and task-level TDD patterns in agent workflows
-- Code-aware discuss phase with codebase scouting — `/gsd:discuss-phase` now analyzes relevant source files before asking questions
+- Code-aware discuss phase with codebase scouting — `/EZ Agents:discuss-phase` now analyzes relevant source files before asking questions
 
 ### Fixed
 - Update checker clears both cache paths to prevent stale version notifications
@@ -106,21 +152,21 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ### Added
 - YAML frontmatter sync to STATE.md for machine-readable status tracking
-- `/gsd:add-tests` command for post-phase test generation
+- `/EZ Agents:add-tests` command for post-phase test generation
 - Codex runtime support with skills-first installation
-- Standard `project_context` block in gsd-verifier output
+- Standard `project_context` block in ez-verifier output
 - Codex changelog and usage documentation
 
 ### Changed
-- Improved onboarding UX: installer now suggests `/gsd:new-project` instead of `/gsd:help`
-- Updated Discord invite to vanity URL (discord.gg/gsd)
-- Compressed Nyquist validation layer to align with GSD meta-prompt conventions
+- Improved onboarding UX: installer now suggests `/EZ Agents:new-project` instead of `/EZ Agents:help`
+- Updated Discord invite to vanity URL (discord.gg/EZ Agents)
+- Compressed Nyquist validation layer to align with EZ Agents meta-prompt conventions
 - Requirements propagation now includes `phase_req_ids` from ROADMAP to workflow agents
 - Debug sessions require human verification before resolution
 
 ### Fixed
 - Multi-level decimal phase handling (e.g., 72.1.1) with proper regex escaping
-- `/gsd:update` always installs latest package version
+- `/EZ Agents:update` always installs latest package version
 - STATE.md decision corruption and dollar sign handling
 - STATE.md frontmatter mapping for requirements-completed status
 - Progress bar percent clamping to prevent RangeError crashes
@@ -144,7 +190,7 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 ## [1.20.5] - 2026-02-19
 
 ### Fixed
-- `/gsd:health --repair` now creates timestamped backup before regenerating STATE.md (#657)
+- `/EZ Agents:health --repair` now creates timestamped backup before regenerating STATE.md (#657)
 
 ### Changed
 - Subagents now discover and load project CLAUDE.md and skills at spawn time for better project context (#671, #672)
@@ -192,21 +238,21 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 ## [1.20.0] - 2026-02-15
 
 ### Added
-- `/gsd:health` command — validates `.planning/` directory integrity with `--repair` flag for auto-fixing config.json and STATE.md
-- `--full` flag for `/gsd:quick` — enables plan-checking (max 2 iterations) and post-execution verification on quick tasks
-- `--auto` flag wired from `/gsd:new-project` through the full phase chain (discuss → plan → execute)
+- `/EZ Agents:health` command — validates `.planning/` directory integrity with `--repair` flag for auto-fixing config.json and STATE.md
+- `--full` flag for `/EZ Agents:quick` — enables plan-checking (max 2 iterations) and post-execution verification on quick tasks
+- `--auto` flag wired from `/EZ Agents:new-project` through the full phase chain (discuss → plan → execute)
 - Auto-advance chains phase execution across full milestones when `workflow.auto_advance` is enabled
 
 ### Fixed
-- Plans created without user context — `/gsd:plan-phase` warns when no CONTEXT.md exists, `/gsd:discuss-phase` warns when plans already exist (#253)
+- Plans created without user context — `/EZ Agents:plan-phase` warns when no CONTEXT.md exists, `/EZ Agents:discuss-phase` warns when plans already exist (#253)
 - OpenCode installer converts `general-purpose` subagent type to OpenCode's `general`
-- `/gsd:complete-milestone` respects `commit_docs` setting when merging branches
+- `/EZ Agents:complete-milestone` respects `commit_docs` setting when merging branches
 - Phase directories tracked in git via `.gitkeep` files
 
 ## [1.19.2] - 2026-02-15
 
 ### Added
-- User-level default settings via `~/.gsd/defaults.json` — set GSD defaults across all projects
+- User-level default settings via `~/.EZ Agents/defaults.json` — set EZ Agents defaults across all projects
 - Per-agent model overrides — customize which Claude model each agent uses
 
 ### Changed
@@ -218,7 +264,7 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 - Large JSON payloads write to temp files to prevent truncation in tool calls
 - Phase heading matching now supports `####` depth
 - Phase padding normalized in insert command
-- ESM conflicts prevented by renaming gsd-tools.js to .cjs
+- ESM conflicts prevented by renaming ez-tools.js to .cjs
 - Config directory paths quoted in hook templates for local installs
 - Settings file corruption prevented by using Write tool for file creation
 - Plan-phase autocomplete fixed by removing "execution" from description
@@ -257,26 +303,26 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 ## [1.18.0] - 2026-02-08
 
 ### Added
-- `--auto` flag for `/gsd:new-project` — runs research → requirements → roadmap automatically after config questions. Expects idea document via @ reference (e.g., `/gsd:new-project --auto @prd.md`)
+- `--auto` flag for `/EZ Agents:new-project` — runs research → requirements → roadmap automatically after config questions. Expects idea document via @ reference (e.g., `/EZ Agents:new-project --auto @prd.md`)
 
 ### Fixed
 - Windows: SessionStart hook now spawns detached process correctly
 - Windows: Replaced HEREDOC with literal newlines for git commit compatibility
-- Research decision from `/gsd:new-milestone` now persists to config.json
+- Research decision from `/EZ Agents:new-milestone` now persists to config.json
 
 ## [1.17.0] - 2026-02-08
 
 ### Added
-- **gsd-tools verification suite**: `verify plan-structure`, `verify phase-completeness`, `verify references`, `verify commits`, `verify artifacts`, `verify key-links` — deterministic structural checks
-- **gsd-tools frontmatter CRUD**: `frontmatter get/set/merge/validate` — safe YAML frontmatter operations with schema validation
-- **gsd-tools template fill**: `template fill summary/plan/verification` — pre-filled document skeletons
-- **gsd-tools state progression**: `state advance-plan`, `state update-progress`, `state record-metric`, `state add-decision`, `state add-blocker`, `state resolve-blocker`, `state record-session` — automates STATE.md updates
-- **Local patch preservation**: Installer now detects locally modified GSD files, backs them up to `gsd-local-patches/`, and creates a manifest for restoration
-- `/gsd:reapply-patches` command to merge local modifications back after GSD updates
+- **ez-tools verification suite**: `verify plan-structure`, `verify phase-completeness`, `verify references`, `verify commits`, `verify artifacts`, `verify key-links` — deterministic structural checks
+- **ez-tools frontmatter CRUD**: `frontmatter get/set/merge/validate` — safe YAML frontmatter operations with schema validation
+- **ez-tools template fill**: `template fill summary/plan/verification` — pre-filled document skeletons
+- **ez-tools state progression**: `state advance-plan`, `state update-progress`, `state record-metric`, `state add-decision`, `state add-blocker`, `state resolve-blocker`, `state record-session` — automates STATE.md updates
+- **Local patch preservation**: Installer now detects locally modified EZ Agents files, backs them up to `ez-local-patches/`, and creates a manifest for restoration
+- `/EZ Agents:reapply-patches` command to merge local modifications back after EZ Agents updates
 
 ### Changed
-- Agents (executor, planner, plan-checker, verifier) now use gsd-tools for state updates and verification instead of manual markdown parsing
-- `/gsd:update` workflow now notifies about backed-up local patches and suggests `/gsd:reapply-patches`
+- Agents (executor, planner, plan-checker, verifier) now use ez-tools for state updates and verification instead of manual markdown parsing
+- `/EZ Agents:update` workflow now notifies about backed-up local patches and suggests `/EZ Agents:reapply-patches`
 
 ### Fixed
 - Added workaround for Claude Code `classifyHandoffIfNeeded` bug that causes false agent failures — execute-phase and quick workflows now spot-check actual output before reporting failure
@@ -284,7 +330,7 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 ## [1.16.0] - 2026-02-08
 
 ### Added
-- 10 new gsd-tools CLI commands that replace manual AI orchestration of mechanical operations:
+- 10 new ez-tools CLI commands that replace manual AI orchestration of mechanical operations:
   - `phase add <desc>` — append phase to roadmap + create directory
   - `phase insert <after> <desc>` — insert decimal phase
   - `phase remove <N> [--force]` — remove phase with full renumbering
@@ -297,7 +343,7 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
   - `scaffold [context|uat|verification|phase-dir]` — template generation
 
 ### Changed
-- Workflows now delegate deterministic operations to gsd-tools CLI, reducing token usage and errors:
+- Workflows now delegate deterministic operations to ez-tools CLI, reducing token usage and errors:
   - `remove-phase.md`: 13 manual steps → 1 CLI call + confirm + commit
   - `add-phase.md`: 6 manual steps → 1 CLI call + state update
   - `insert-phase.md`: 7 manual steps → 1 CLI call + state update
@@ -305,10 +351,10 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
   - `progress.md`: roadmap parsing delegated to `roadmap analyze`
 
 ### Fixed
-- Execute-phase now correctly spawns `gsd-executor` subagents instead of generic task agents
-- `commit_docs=false` setting now respected in all `.planning/` commit paths (execute-plan, debugger, reference docs all route through gsd-tools CLI)
+- Execute-phase now correctly spawns `ez-executor` subagents instead of generic task agents
+- `commit_docs=false` setting now respected in all `.planning/` commit paths (execute-plan, debugger, reference docs all route through ez-tools CLI)
 - Execute-phase orchestrator no longer bloats context by embedding file content — passes paths instead, letting subagents read in their fresh context
-- Windows: Normalized backslash paths in gsd-tools invocations (contributed by @rmindel)
+- Windows: Normalized backslash paths in ez-tools invocations (contributed by @rmindel)
 
 ## [1.15.0] - 2026-02-08
 
@@ -318,7 +364,7 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 ## [1.14.0] - 2026-02-08
 
 ### Added
-- Context-optimizing parsing commands in gsd-tools (`phase-plan-index`, `state-snapshot`, `summary-extract`) — reduces agent context usage by returning structured JSON instead of raw file content
+- Context-optimizing parsing commands in ez-tools (`phase-plan-index`, `state-snapshot`, `summary-extract`) — reduces agent context usage by returning structured JSON instead of raw file content
 
 ### Fixed
 - Installer no longer deletes opencode.json on JSONC parse errors — now handles comments, trailing commas, and BOM correctly (#474)
@@ -326,18 +372,18 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 ## [1.13.0] - 2026-02-08
 
 ### Added
-- `gsd-tools history-digest` — Compiles phase summaries into structured JSON for faster context loading
-- `gsd-tools phases list` — Lists phase directories with filtering (replaces fragile `ls | sort -V` patterns)
-- `gsd-tools roadmap get-phase` — Extracts phase sections from ROADMAP.md
-- `gsd-tools phase next-decimal` — Calculates next decimal phase number for insert operations
-- `gsd-tools state get/patch` — Atomic STATE.md field operations
-- `gsd-tools template select` — Chooses summary template based on plan complexity
+- `ez-tools history-digest` — Compiles phase summaries into structured JSON for faster context loading
+- `ez-tools phases list` — Lists phase directories with filtering (replaces fragile `ls | sort -V` patterns)
+- `ez-tools roadmap get-phase` — Extracts phase sections from ROADMAP.md
+- `ez-tools phase next-decimal` — Calculates next decimal phase number for insert operations
+- `ez-tools state get/patch` — Atomic STATE.md field operations
+- `ez-tools template select` — Chooses summary template based on plan complexity
 - Summary template variants: minimal (~30 lines), standard (~60 lines), complex (~100 lines)
 - Test infrastructure with 22 tests covering new commands
 
 ### Changed
 - Planner uses two-step context assembly: digest for selection, full SUMMARY for understanding
-- Agents migrated from bash patterns to structured gsd-tools commands
+- Agents migrated from bash patterns to structured ez-tools commands
 - Nested YAML frontmatter parsing now handles `dependency-graph.provides`, `tech-stack.added` correctly
 
 ## [1.12.1] - 2026-02-08
@@ -350,12 +396,12 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ### Changed
 - **Architecture: Thin orchestrator pattern** — Commands now delegate to workflows, reducing command file size by ~75% and improving maintainability
-- **Centralized utilities** — New `gsd-tools.cjs` (11 functions) replaces repetitive bash patterns across 50+ files
+- **Centralized utilities** — New `ez-tools.cjs` (11 functions) replaces repetitive bash patterns across 50+ files
 - **Token reduction** — ~22k characters removed from affected command/workflow/agent files
 - **Condensed agent prompts** — Same behavior with fewer words (executor, planner, verifier, researcher agents)
 
 ### Added
-- `gsd-tools.cjs` CLI utility with functions: state load/update, resolve-model, find-phase, commit, verify-summary, generate-slug, current-timestamp, list-todos, verify-path-exists, config-ensure-section
+- `ez-tools.cjs` CLI utility with functions: state load/update, resolve-model, find-phase, commit, verify-summary, generate-slug, current-timestamp, list-todos, verify-path-exists, config-ensure-section
 
 ## [1.11.2] - 2026-02-05
 
@@ -366,30 +412,30 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 - Install respects `attribution.commit` setting for OpenCode compatibility (#286)
 
 ### Fixed
-- **CRITICAL:** Prevent API keys from being committed via `/gsd:map-codebase` (#429)
+- **CRITICAL:** Prevent API keys from being committed via `/EZ Agents:map-codebase` (#429)
 - Enforce context fidelity in planning pipeline - agents now honor CONTEXT.md decisions (#326, #216, #206)
 - Executor verifies task completion to prevent hallucinated success (#315)
-- Auto-create `config.json` when missing during `/gsd:settings` (#264)
-- `/gsd:update` respects local vs global install location
+- Auto-create `config.json` when missing during `/EZ Agents:settings` (#264)
+- `/EZ Agents:update` respects local vs global install location
 - Researcher writes RESEARCH.md regardless of `commit_docs` setting
 - Statusline crash handling, color validation, git staging rules
 - Statusline.js reference updated during install (#330)
 - Parallelization config setting now respected (#379)
 - ASCII box-drawing vs text content with diacritics (#289)
-- Removed broken gsd-gemini link (404)
+- Removed broken ez-gemini link (404)
 
 ## [1.11.1] - 2026-01-31
 
 ### Added
 - Git branching strategy configuration with three options:
   - `none` (default): commit to current branch
-  - `phase`: create branch per phase (`gsd/phase-{N}-{slug}`)
-  - `milestone`: create branch per milestone (`gsd/{version}-{slug}`)
+  - `phase`: create branch per phase (`EZ Agents/phase-{N}-{slug}`)
+  - `milestone`: create branch per milestone (`EZ Agents/{version}-{slug}`)
 - Squash merge option at milestone completion (recommended) with merge-with-history alternative
 - Context compliance verification dimension in plan checker — flags if plans contradict user decisions
 
 ### Fixed
-- CONTEXT.md from `/gsd:discuss-phase` now properly flows to all downstream agents (researcher, planner, checker, revision loop)
+- CONTEXT.md from `/EZ Agents:discuss-phase` now properly flows to all downstream agents (researcher, planner, checker, revision loop)
 
 ## [1.10.1] - 2025-01-30
 
@@ -408,7 +454,7 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 ## [1.9.12] - 2025-01-23
 
 ### Removed
-- `/gsd:whats-new` command — use `/gsd:update` instead (shows changelog with cancel option)
+- `/EZ Agents:whats-new` command — use `/EZ Agents:update` instead (shows changelog with cancel option)
 
 ### Fixed
 - Restored auto-release GitHub Actions workflow
@@ -429,12 +475,12 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 ## [1.9.9] - 2026-01-23
 
 ### Added
-- `/gsd:join-discord` command to quickly access the GSD Discord community invite link
+- `/EZ Agents:join-discord` command to quickly access the EZ Agents Discord community invite link
 
 ## [1.9.8] - 2025-01-22
 
 ### Added
-- Uninstall flag (`--uninstall`) to cleanly remove GSD from global or local installations
+- Uninstall flag (`--uninstall`) to cleanly remove EZ Agents from global or local installations
 
 ### Fixed
 - Context file detection now matches filename variants (handles both `CONTEXT.md` and `{phase}-CONTEXT.md` patterns)
@@ -443,16 +489,16 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ### Fixed
 - OpenCode installer now uses correct XDG-compliant config path (`~/.config/opencode/`) instead of `~/.opencode/`
-- OpenCode commands use flat structure (`command/gsd-help.md`) matching OpenCode's expected format
+- OpenCode commands use flat structure (`command/ez-help.md`) matching OpenCode's expected format
 - OpenCode permissions written to `~/.config/opencode/opencode.json`
 
 ## [1.9.6] - 2026-01-22
 
 ### Added
 - Interactive runtime selection: installer now prompts to choose Claude Code, OpenCode, or both
-- Native OpenCode support: `--opencode` flag converts GSD to OpenCode format automatically
+- Native OpenCode support: `--opencode` flag converts EZ Agents to OpenCode format automatically
 - `--both` flag to install for both Claude Code and OpenCode in one command
-- Auto-configures `~/.opencode.json` permissions for seamless GSD doc access
+- Auto-configures `~/.opencode.json` permissions for seamless EZ Agents doc access
 
 ### Changed
 - Installation flow now asks for runtime first, then location
@@ -464,7 +510,7 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 - Subagents can now access MCP tools (Context7, etc.) - workaround for Claude Code bug #13898
 - Installer: Escape/Ctrl+C now cancels instead of installing globally
 - Installer: Fixed hook paths on Windows
-- Removed stray backticks in `/gsd:new-project` output
+- Removed stray backticks in `/EZ Agents:new-project` output
 
 ### Changed
 - Condensed verbose documentation in templates and workflows (-170 lines)
@@ -483,10 +529,10 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ### Removed
 - **Codebase Intelligence System** — Removed due to overengineering concerns
-  - Deleted `/gsd:analyze-codebase` command
-  - Deleted `/gsd:query-intel` command
+  - Deleted `/EZ Agents:analyze-codebase` command
+  - Deleted `/EZ Agents:query-intel` command
   - Removed SQLite graph database and sql.js dependency (21MB)
-  - Removed intel hooks (gsd-intel-index.js, gsd-intel-session.js, gsd-intel-prune.js)
+  - Removed intel hooks (ez-intel-index.js, ez-intel-session.js, ez-intel-prune.js)
   - Removed entity file generation and templates
 
 ### Fixed
@@ -495,19 +541,19 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 ## [1.9.0] - 2025-01-20
 
 ### Added
-- **Model Profiles** — `/gsd:set-profile` for quality/balanced/budget agent configurations
-- **Workflow Settings** — `/gsd:settings` command for toggling workflow behaviors interactively
+- **Model Profiles** — `/EZ Agents:set-profile` for quality/balanced/budget agent configurations
+- **Workflow Settings** — `/EZ Agents:settings` command for toggling workflow behaviors interactively
 
 ### Fixed
 - Orchestrators now inline file contents in Task prompts (fixes context issues with @ references)
 - Tech debt from milestone audit addressed
-- All hooks now use `gsd-` prefix for consistency (statusline.js → gsd-statusline.js)
+- All hooks now use `ez-` prefix for consistency (statusline.js → ez-statusline.js)
 
 ## [1.8.0] - 2026-01-19
 
 ### Added
 - Uncommitted planning mode: Keep `.planning/` local-only (not committed to git) via `planning.commit_docs: false` in config.json. Useful for OSS contributions, client work, or privacy preferences.
-- `/gsd:new-project` now asks about git tracking during initial setup, letting you opt out of committing planning docs from the start
+- `/EZ Agents:new-project` now asks about git tracking during initial setup, letting you opt out of committing planning docs from the start
 
 ## [1.7.1] - 2026-01-19
 
@@ -517,11 +563,11 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 ## [1.7.0] - 2026-01-19
 
 ### Added
-- **Quick Mode** (`/gsd:quick`) — Execute small, ad-hoc tasks with GSD guarantees but skip optional agents (researcher, checker, verifier). Quick tasks live in `.planning/quick/` with their own tracking in STATE.md.
+- **Quick Mode** (`/EZ Agents:quick`) — Execute small, ad-hoc tasks with EZ Agents guarantees but skip optional agents (researcher, checker, verifier). Quick tasks live in `.planning/quick/` with their own tracking in STATE.md.
 
 ### Changed
 - Improved progress bar calculation to clamp values within 0-100 range
-- Updated documentation with comprehensive Quick Mode sections in help.md, README.md, and GSD-STYLE.md
+- Updated documentation with comprehensive Quick Mode sections in help.md, README.md, and ez-STYLE.md
 
 ### Fixed
 - Console window flash on Windows when running hooks
@@ -529,7 +575,7 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 - Consistent `allowed-tools` YAML format across agents
 - Corrected agent name in research-phase heading
 - Removed hardcoded 2025 year from search query examples
-- Removed dead gsd-researcher agent references
+- Removed dead ez-researcher agent references
 - Integrated unused reference files into documentation
 
 ### Housekeeping
@@ -540,12 +586,12 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 ### Fixed
 - Installation on WSL2/non-TTY terminals now works correctly - detects non-interactive stdin and falls back to global install automatically
 - Installation now verifies files were actually copied before showing success checkmarks
-- Orphaned `gsd-notify.sh` hook from previous versions is now automatically removed during install (both file and settings.json registration)
+- Orphaned `ez-notify.sh` hook from previous versions is now automatically removed during install (both file and settings.json registration)
 
 ## [1.6.3] - 2025-01-17
 
 ### Added
-- `--gaps-only` flag for `/gsd:execute-phase` — executes only gap closure plans after verify-work finds issues, eliminating redundant state discovery
+- `--gaps-only` flag for `/EZ Agents:execute-phase` — executes only gap closure plans after verify-work finds issues, eliminating redundant state discovery
 
 ## [1.6.2] - 2025-01-17
 
@@ -559,29 +605,29 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 ## [1.6.1] - 2025-01-17
 
 ### Changed
-- Installer performs clean install of GSD folders, removing orphaned files from previous versions
-- `/gsd:update` shows changelog and asks for confirmation before updating, with clear warning about what gets replaced
+- Installer performs clean install of EZ Agents folders, removing orphaned files from previous versions
+- `/EZ Agents:update` shows changelog and asks for confirmation before updating, with clear warning about what gets replaced
 
 ## [1.6.0] - 2026-01-17
 
 ### Changed
-- **BREAKING:** Unified `/gsd:new-milestone` flow — now mirrors `/gsd:new-project` with questioning → research → requirements → roadmap in a single command
+- **BREAKING:** Unified `/EZ Agents:new-milestone` flow — now mirrors `/EZ Agents:new-project` with questioning → research → requirements → roadmap in a single command
 - Roadmapper agent now references templates instead of inline structures for easier maintenance
 
 ### Removed
-- **BREAKING:** `/gsd:discuss-milestone` — consolidated into `/gsd:new-milestone`
-- **BREAKING:** `/gsd:create-roadmap` — integrated into project/milestone flows
-- **BREAKING:** `/gsd:define-requirements` — integrated into project/milestone flows
-- **BREAKING:** `/gsd:research-project` — integrated into project/milestone flows
+- **BREAKING:** `/EZ Agents:discuss-milestone` — consolidated into `/EZ Agents:new-milestone`
+- **BREAKING:** `/EZ Agents:create-roadmap` — integrated into project/milestone flows
+- **BREAKING:** `/EZ Agents:define-requirements` — integrated into project/milestone flows
+- **BREAKING:** `/EZ Agents:research-project` — integrated into project/milestone flows
 
 ### Added
-- `/gsd:verify-work` now includes next-step routing after verification completes
+- `/EZ Agents:verify-work` now includes next-step routing after verification completes
 
 ## [1.5.30] - 2026-01-17
 
 ### Fixed
 - Output templates in `plan-phase`, `execute-phase`, and `audit-milestone` now render markdown correctly instead of showing literal backticks
-- Next-step suggestions now consistently recommend `/gsd:discuss-phase` before `/gsd:plan-phase` across all routing paths
+- Next-step suggestions now consistently recommend `/EZ Agents:discuss-phase` before `/EZ Agents:plan-phase` across all routing paths
 
 ## [1.5.29] - 2025-01-16
 
@@ -591,14 +637,14 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 ### Fixed
 - Windows hooks now work via Node.js conversion (statusline, update-check)
 - Phase input normalization at command entry points
-- Removed blocking notification popups (gsd-notify) on all platforms
+- Removed blocking notification popups (ez-notify) on all platforms
 
 ## [1.5.28] - 2026-01-16
 
 ### Changed
 - Consolidated milestone workflow into single command
 - Merged domain expertise skills into agent configurations
-- **BREAKING:** Removed `/gsd:execute-plan` command (use `/gsd:execute-phase` instead)
+- **BREAKING:** Removed `/EZ Agents:execute-plan` command (use `/EZ Agents:execute-phase` instead)
 
 ### Fixed
 - Phase directory matching now handles both zero-padded (05-*) and unpadded (5-*) folder names
@@ -636,12 +682,12 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 - Consistent zero-padding for phase directories (01-name, not 1-name)
 - Plan file naming: `{phase}-{plan}-PLAN.md` pattern restored across all agents
 - Double-path bug in researcher git add command
-- Removed `/gsd:research-phase` from next-step suggestions (use `/gsd:plan-phase` instead)
+- Removed `/EZ Agents:research-phase` from next-step suggestions (use `/EZ Agents:plan-phase` instead)
 
 ## [1.5.22] - 2025-01-16
 
 ### Added
-- Statusline update indicator — shows `⬆ /gsd:update` when a new version is available
+- Statusline update indicator — shows `⬆ /EZ Agents:update` when a new version is available
 
 ### Fixed
 - Planner now updates ROADMAP.md placeholders after planning completes
@@ -649,13 +695,13 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 ## [1.5.21] - 2026-01-16
 
 ### Added
-- GSD brand system for consistent UI (checkpoint boxes, stage banners, status symbols)
+- EZ Agents brand system for consistent UI (checkpoint boxes, stage banners, status symbols)
 - Research synthesizer agent that consolidates parallel research into SUMMARY.md
 
 ### Changed
-- **Unified `/gsd:new-project` flow** — Single command now handles questions → research → requirements → roadmap (~10 min)
+- **Unified `/EZ Agents:new-project` flow** — Single command now handles questions → research → requirements → roadmap (~10 min)
 - Simplified README to reflect streamlined workflow: new-project → plan-phase → execute-phase
-- Added optional `/gsd:discuss-phase` documentation for UI/UX/behavior decisions before planning
+- Added optional `/EZ Agents:discuss-phase` documentation for UI/UX/behavior decisions before planning
 
 ### Fixed
 - verify-work now shows clear checkpoint box with action prompt ("Type 'pass' or describe what's wrong")
@@ -678,36 +724,36 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 ## [1.5.19] - 2026-01-16
 
 ### Changed
-- `/gsd:discuss-phase` redesigned with intelligent gray area analysis — analyzes phase to identify discussable areas (UI, UX, Behavior, etc.), presents multi-select for user control, deep-dives each area with focused questioning
+- `/EZ Agents:discuss-phase` redesigned with intelligent gray area analysis — analyzes phase to identify discussable areas (UI, UX, Behavior, etc.), presents multi-select for user control, deep-dives each area with focused questioning
 - Explicit scope guardrail prevents scope creep during discussion — captures deferred ideas without acting on them
 - CONTEXT.md template restructured for decisions (domain boundary, decisions by category, Claude's discretion, deferred ideas)
 - Downstream awareness: discuss-phase now explicitly documents that CONTEXT.md feeds researcher and planner agents
-- `/gsd:plan-phase` now integrates research — spawns `gsd-phase-researcher` before planning unless research exists or `--skip-research` flag used
+- `/EZ Agents:plan-phase` now integrates research — spawns `ez-phase-researcher` before planning unless research exists or `--skip-research` flag used
 
 ## [1.5.18] - 2026-01-16
 
 ### Added
 - **Plan verification loop** — Plans are now verified before execution with a planner → checker → revise cycle
-  - New `gsd-plan-checker` agent (744 lines) validates plans will achieve phase goals
+  - New `ez-plan-checker` agent (744 lines) validates plans will achieve phase goals
   - Six verification dimensions: requirement coverage, task completeness, dependency correctness, key links, scope sanity, must_haves derivation
   - Max 3 revision iterations before user escalation
   - `--skip-verify` flag for experienced users who want to bypass verification
-- **Dedicated planner agent** — `gsd-planner` (1,319 lines) consolidates all planning expertise
+- **Dedicated planner agent** — `ez-planner` (1,319 lines) consolidates all planning expertise
   - Complete methodology: discovery levels, task breakdown, dependency graphs, scope estimation, goal-backward analysis
   - Revision mode for handling checker feedback
   - TDD integration and checkpoint patterns
 - **Statusline integration** — Context usage, model, and current task display
 
 ### Changed
-- `/gsd:plan-phase` refactored to thin orchestrator pattern (310 lines)
-  - Spawns `gsd-planner` for planning, `gsd-plan-checker` for verification
+- `/EZ Agents:plan-phase` refactored to thin orchestrator pattern (310 lines)
+  - Spawns `ez-planner` for planning, `ez-plan-checker` for verification
   - User sees status between agent spawns (not a black box)
-- Planning references deprecated with redirects to `gsd-planner` agent sections
+- Planning references deprecated with redirects to `ez-planner` agent sections
   - `plan-format.md`, `scope-estimation.md`, `goal-backward.md`, `principles.md`
   - `workflows/plan-phase.md`
 
 ### Fixed
-- Removed zombie `gsd-milestone-auditor` agent (was accidentally re-added after correct deletion)
+- Removed zombie `ez-milestone-auditor` agent (was accidentally re-added after correct deletion)
 
 ### Removed
 - Phase 99 throwaway test files
@@ -715,48 +761,48 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 ## [1.5.17] - 2026-01-15
 
 ### Added
-- New `/gsd:update` command — check for updates, install, and display changelog of what changed (better UX than raw `npx get-shit-done-cc`)
+- New `/EZ Agents:update` command — check for updates, install, and display changelog of what changed (better UX than raw `npx ez-agents-cc`)
 
 ## [1.5.16] - 2026-01-15
 
 ### Added
-- New `gsd-researcher` agent (915 lines) with comprehensive research methodology, 4 research modes (ecosystem, feasibility, implementation, comparison), source hierarchy, and verification protocols
-- New `gsd-debugger` agent (990 lines) with scientific debugging methodology, hypothesis testing, and 7+ investigation techniques
-- New `gsd-codebase-mapper` agent for brownfield codebase analysis
+- New `ez-researcher` agent (915 lines) with comprehensive research methodology, 4 research modes (ecosystem, feasibility, implementation, comparison), source hierarchy, and verification protocols
+- New `ez-debugger` agent (990 lines) with scientific debugging methodology, hypothesis testing, and 7+ investigation techniques
+- New `ez-codebase-mapper` agent for brownfield codebase analysis
 - Research subagent prompt template for context-only spawning
 
 ### Changed
-- `/gsd:research-phase` refactored to thin orchestrator — now injects rich context (key insight framing, downstream consumer info, quality gates) to gsd-researcher agent
-- `/gsd:research-project` refactored to spawn 4 parallel gsd-researcher agents with milestone-aware context (greenfield vs v1.1+) and roadmap implications guidance
-- `/gsd:debug` refactored to thin orchestrator (149 lines) — spawns gsd-debugger agent with full debugging expertise
-- `/gsd:new-milestone` now explicitly references MILESTONE-CONTEXT.md
+- `/EZ Agents:research-phase` refactored to thin orchestrator — now injects rich context (key insight framing, downstream consumer info, quality gates) to ez-researcher agent
+- `/EZ Agents:research-project` refactored to spawn 4 parallel ez-researcher agents with milestone-aware context (greenfield vs v1.1+) and roadmap implications guidance
+- `/EZ Agents:debug` refactored to thin orchestrator (149 lines) — spawns ez-debugger agent with full debugging expertise
+- `/EZ Agents:new-milestone` now explicitly references MILESTONE-CONTEXT.md
 
 ### Deprecated
-- `workflows/research-phase.md` — consolidated into gsd-researcher agent
-- `workflows/research-project.md` — consolidated into gsd-researcher agent
-- `workflows/debug.md` — consolidated into gsd-debugger agent
-- `references/research-pitfalls.md` — consolidated into gsd-researcher agent
-- `references/debugging.md` — consolidated into gsd-debugger agent
-- `references/debug-investigation.md` — consolidated into gsd-debugger agent
+- `workflows/research-phase.md` — consolidated into ez-researcher agent
+- `workflows/research-project.md` — consolidated into ez-researcher agent
+- `workflows/debug.md` — consolidated into ez-debugger agent
+- `references/research-pitfalls.md` — consolidated into ez-researcher agent
+- `references/debugging.md` — consolidated into ez-debugger agent
+- `references/debug-investigation.md` — consolidated into ez-debugger agent
 
 ## [1.5.15] - 2025-01-15
 
 ### Fixed
-- **Agents now install correctly** — The `agents/` folder (gsd-executor, gsd-verifier, gsd-integration-checker, gsd-milestone-auditor) was missing from npm package, now included
+- **Agents now install correctly** — The `agents/` folder (ez-executor, ez-verifier, ez-integration-checker, ez-milestone-auditor) was missing from npm package, now included
 
 ### Changed
-- Consolidated `/gsd:plan-fix` into `/gsd:plan-phase --gaps` for simpler workflow
+- Consolidated `/EZ Agents:plan-fix` into `/EZ Agents:plan-phase --gaps` for simpler workflow
 - UAT file writes now batched instead of per-response for better performance
 
 ## [1.5.14] - 2025-01-15
 
 ### Fixed
-- Plan-phase now always routes to `/gsd:execute-phase` after planning, even for single-plan phases
+- Plan-phase now always routes to `/EZ Agents:execute-phase` after planning, even for single-plan phases
 
 ## [1.5.13] - 2026-01-15
 
 ### Fixed
-- `/gsd:new-milestone` now presents research and requirements paths as equal options, matching `/gsd:new-project` format
+- `/EZ Agents:new-milestone` now presents research and requirements paths as equal options, matching `/EZ Agents:new-project` format
 
 ## [1.5.12] - 2025-01-15
 
@@ -771,7 +817,7 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ### Fixed
 - `MILESTONE-AUDIT.md` now versioned as `v{version}-MILESTONE-AUDIT.md` and archived on completion
-- `progress` now correctly routes to `/gsd:discuss-milestone` when between milestones (Route F)
+- `progress` now correctly routes to `/EZ Agents:discuss-milestone` when between milestones (Route F)
 
 ## [1.5.11] - 2025-01-15
 
@@ -789,12 +835,12 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 ## [1.5.9] - 2025-01-15
 
 ### Added
-- Milestone audit system (`/gsd:audit-milestone`) for verifying milestone completion with parallel verification agents
+- Milestone audit system (`/EZ Agents:audit-milestone`) for verifying milestone completion with parallel verification agents
 
 ### Changed
 - Checkpoint display format improved with box headers and unmissable "→ YOUR ACTION:" prompts
 - Subagent colors updated (executor: yellow, integration-checker: blue)
-- Execute-phase now recommends `/gsd:audit-milestone` when milestone completes
+- Execute-phase now recommends `/EZ Agents:audit-milestone` when milestone completes
 
 ### Fixed
 - Research-phase no longer gatekeeps by domain type
@@ -808,25 +854,25 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 - Verification loop: When gaps are found, verifier generates fix plans that execute automatically before re-verifying
 
 ### Changed
-- `gsd-executor` subagent color changed from red to blue
+- `ez-executor` subagent color changed from red to blue
 
 ## [1.5.7] - 2025-01-15
 
 ### Added
-- `gsd-executor` subagent: Dedicated agent for plan execution with full workflow logic built-in
-- `gsd-verifier` subagent: Goal-backward verification that checks if phase goals are actually achieved (not just tasks completed)
+- `ez-executor` subagent: Dedicated agent for plan execution with full workflow logic built-in
+- `ez-verifier` subagent: Goal-backward verification that checks if phase goals are actually achieved (not just tasks completed)
 - Phase verification: Automatic verification runs when a phase completes to catch stubs and incomplete implementations
 - Goal-backward planning reference: Documentation for deriving must-haves from goals
 
 ### Changed
-- execute-plan and execute-phase now spawn `gsd-executor` subagent instead of using inline workflow
+- execute-plan and execute-phase now spawn `ez-executor` subagent instead of using inline workflow
 - Roadmap and planning workflows enhanced with goal-backward analysis
 
 ### Removed
 - Obsolete templates (`checkpoint-resume.md`, `subagent-task-prompt.md`) — logic now lives in subagents
 
 ### Fixed
-- Updated remaining `general-purpose` subagent references to use `gsd-executor`
+- Updated remaining `general-purpose` subagent references to use `ez-executor`
 
 ## [1.5.6] - 2025-01-15
 
@@ -857,7 +903,7 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 - **define-requirements**: Works without prior research. Gathers requirements through conversation when FEATURES.md doesn't exist.
 
 ### Removed
-- Dead `/gsd:status` command (referenced abandoned background agent model)
+- Dead `/EZ Agents:status` command (referenced abandoned background agent model)
 - Unused `agent-history.md` template
 - `_archive/` directory with old execute-phase version
 
@@ -885,8 +931,8 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 ## [1.5.0] - 2026-01-14
 
 ### Added
-- New `/gsd:research-project` command for pre-roadmap ecosystem research — spawns parallel agents to investigate stack, features, architecture, and pitfalls before you commit to a roadmap
-- New `/gsd:define-requirements` command for scoping v1 requirements from research findings — transforms "what exists in this domain" into "what we're building"
+- New `/EZ Agents:research-project` command for pre-roadmap ecosystem research — spawns parallel agents to investigate stack, features, architecture, and pitfalls before you commit to a roadmap
+- New `/EZ Agents:define-requirements` command for scoping v1 requirements from research findings — transforms "what exists in this domain" into "what we're building"
 - Requirements traceability: phases now map to specific requirement IDs with 100% coverage validation
 
 ### Changed
@@ -922,7 +968,7 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 ## [1.4.25] - 2026-01-14
 
 ### Added
-- New `/gsd:whats-new` command shows changes since your installed version
+- New `/EZ Agents:whats-new` command shows changes since your installed version
 - VERSION file written during installation for version tracking
 - CHANGELOG.md now included in package installation
 
@@ -1055,7 +1101,7 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 ## [1.4.3] - 2026-01-13
 
 ### Added
-- `/gsd:debug` command for systematic debugging with persistent state
+- `/EZ Agents:debug` command for systematic debugging with persistent state
 
 ## [1.4.2] - 2026-01-13
 
@@ -1065,9 +1111,9 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 ## [1.4.1] - 2026-01-13
 
 ### Added
-- Parallel phase execution via `/gsd:execute-phase`
-- Parallel-aware planning in `/gsd:plan-phase`
-- `/gsd:status` command for parallel agent monitoring
+- Parallel phase execution via `/EZ Agents:execute-phase`
+- Parallel-aware planning in `/EZ Agents:plan-phase`
+- `/EZ Agents:status` command for parallel agent monitoring
 - Parallelization configuration in config.json
 - Wave-based parallel execution with dependency graphs
 
@@ -1090,7 +1136,7 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 ## [1.3.34] - 2026-01-11
 
 ### Added
-- `/gsd:add-todo` and `/gsd:check-todos` for mid-session idea capture
+- `/EZ Agents:add-todo` and `/EZ Agents:check-todos` for mid-session idea capture
 
 ## [1.3.33] - 2026-01-11
 
@@ -1103,7 +1149,7 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 ## [1.3.32] - 2026-01-10
 
 ### Added
-- `/gsd:resume-task` for resuming interrupted subagent executions
+- `/EZ Agents:resume-task` for resuming interrupted subagent executions
 
 ## [1.3.31] - 2026-01-08
 
@@ -1119,15 +1165,15 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 ## [1.3.29] - 2026-01-08
 
 ### Added
-- `/gsd:verify-work` for conversational UAT validation
-- `/gsd:plan-fix` for fixing UAT issues
+- `/EZ Agents:verify-work` for conversational UAT validation
+- `/EZ Agents:plan-fix` for fixing UAT issues
 - UAT issues template
 
 ## [1.3.28] - 2026-01-07
 
 ### Added
 - `--config-dir` CLI argument for multi-account setups
-- `/gsd:remove-phase` command
+- `/EZ Agents:remove-phase` command
 
 ### Fixed
 - Validation for --config-dir edge cases
@@ -1275,15 +1321,15 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 ## [1.3.1] - 2025-12-17
 
 ### Added
-- `/gsd:map-codebase` documentation in help and README
+- `/EZ Agents:map-codebase` documentation in help and README
 
 ## [1.3.0] - 2025-12-17
 
 ### Added
-- `/gsd:map-codebase` command for brownfield project analysis
+- `/EZ Agents:map-codebase` command for brownfield project analysis
 - Codebase map templates (stack, architecture, structure, conventions, testing, integrations, concerns)
 - Parallel Explore agent orchestration for codebase analysis
-- Brownfield integration into GSD workflows
+- Brownfield integration into EZ Agents workflows
 
 ### Changed
 - Improved continuation UI with context and visual hierarchy
@@ -1376,9 +1422,9 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ### Added
 - Pre-roadmap research workflow
-- `/gsd:research-phase` for niche domain ecosystem discovery
-- `/gsd:research-project` command with workflow and templates
-- `/gsd:create-roadmap` command with research-aware workflow
+- `/EZ Agents:research-phase` for niche domain ecosystem discovery
+- `/EZ Agents:research-project` command with workflow and templates
+- `/EZ Agents:create-roadmap` command with research-aware workflow
 - Research subagent prompt templates
 
 ### Changed
@@ -1388,7 +1434,7 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 ## [1.0.11] - 2025-12-15
 
 ### Added
-- `/gsd:research-phase` for niche domain ecosystem discovery
+- `/EZ Agents:research-phase` for niche domain ecosystem discovery
 
 ## [1.0.10] - 2025-12-15
 
@@ -1447,184 +1493,184 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 ## [1.0.0] - 2025-12-14
 
 ### Added
-- Initial release of GSD (Get Shit Done) meta-prompting system
-- Core slash commands: `/gsd:new-project`, `/gsd:discuss-phase`, `/gsd:plan-phase`, `/gsd:execute-phase`
+- Initial release of EZ Agents (Get Shit Done) meta-prompting system
+- Core slash commands: `/EZ Agents:new-project`, `/EZ Agents:discuss-phase`, `/EZ Agents:plan-phase`, `/EZ Agents:execute-phase`
 - PROJECT.md and STATE.md templates
 - Phase-based development workflow
 - YOLO mode for autonomous execution
 - Interactive mode with checkpoints
 
-[Unreleased]: https://github.com/glittercowboy/get-shit-done/compare/v1.22.4...HEAD
-[1.22.4]: https://github.com/glittercowboy/get-shit-done/releases/tag/v1.22.4
-[1.22.3]: https://github.com/glittercowboy/get-shit-done/releases/tag/v1.22.3
-[1.22.2]: https://github.com/glittercowboy/get-shit-done/releases/tag/v1.22.2
-[1.22.1]: https://github.com/glittercowboy/get-shit-done/releases/tag/v1.22.1
-[1.22.0]: https://github.com/glittercowboy/get-shit-done/releases/tag/v1.22.0
-[1.21.1]: https://github.com/glittercowboy/get-shit-done/releases/tag/v1.21.1
-[1.21.0]: https://github.com/glittercowboy/get-shit-done/releases/tag/v1.21.0
-[1.20.6]: https://github.com/glittercowboy/get-shit-done/releases/tag/v1.20.6
-[1.20.5]: https://github.com/glittercowboy/get-shit-done/releases/tag/v1.20.5
-[1.20.4]: https://github.com/glittercowboy/get-shit-done/releases/tag/v1.20.4
-[1.20.3]: https://github.com/glittercowboy/get-shit-done/releases/tag/v1.20.3
-[1.20.2]: https://github.com/glittercowboy/get-shit-done/releases/tag/v1.20.2
-[1.20.1]: https://github.com/glittercowboy/get-shit-done/releases/tag/v1.20.1
-[1.20.0]: https://github.com/glittercowboy/get-shit-done/releases/tag/v1.20.0
-[1.19.2]: https://github.com/glittercowboy/get-shit-done/releases/tag/v1.19.2
-[1.19.1]: https://github.com/glittercowboy/get-shit-done/releases/tag/v1.19.1
-[1.19.0]: https://github.com/glittercowboy/get-shit-done/releases/tag/v1.19.0
-[1.18.0]: https://github.com/glittercowboy/get-shit-done/releases/tag/v1.18.0
-[1.17.0]: https://github.com/glittercowboy/get-shit-done/releases/tag/v1.17.0
-[1.16.0]: https://github.com/glittercowboy/get-shit-done/releases/tag/v1.16.0
-[1.15.0]: https://github.com/glittercowboy/get-shit-done/releases/tag/v1.15.0
-[1.14.0]: https://github.com/glittercowboy/get-shit-done/releases/tag/v1.14.0
-[1.13.0]: https://github.com/glittercowboy/get-shit-done/releases/tag/v1.13.0
-[1.12.1]: https://github.com/glittercowboy/get-shit-done/releases/tag/v1.12.1
-[1.12.0]: https://github.com/glittercowboy/get-shit-done/releases/tag/v1.12.0
-[1.11.2]: https://github.com/glittercowboy/get-shit-done/releases/tag/v1.11.2
-[1.11.1]: https://github.com/glittercowboy/get-shit-done/releases/tag/v1.11.0
-[1.10.1]: https://github.com/glittercowboy/get-shit-done/releases/tag/v1.10.1
-[1.10.0]: https://github.com/glittercowboy/get-shit-done/releases/tag/v1.10.0
-[1.9.12]: https://github.com/glittercowboy/get-shit-done/releases/tag/v1.9.12
-[1.9.11]: https://github.com/glittercowboy/get-shit-done/releases/tag/v1.9.11
-[1.9.10]: https://github.com/glittercowboy/get-shit-done/releases/tag/v1.9.10
-[1.9.9]: https://github.com/glittercowboy/get-shit-done/releases/tag/v1.9.9
-[1.9.8]: https://github.com/glittercowboy/get-shit-done/releases/tag/v1.9.8
-[1.9.7]: https://github.com/glittercowboy/get-shit-done/releases/tag/v1.9.7
-[1.9.6]: https://github.com/glittercowboy/get-shit-done/releases/tag/v1.9.6
-[1.9.5]: https://github.com/glittercowboy/get-shit-done/releases/tag/v1.9.5
-[1.9.4]: https://github.com/glittercowboy/get-shit-done/releases/tag/v1.9.4
-[1.9.2]: https://github.com/glittercowboy/get-shit-done/releases/tag/v1.9.2
-[1.9.0]: https://github.com/glittercowboy/get-shit-done/releases/tag/v1.9.0
-[1.8.0]: https://github.com/glittercowboy/get-shit-done/releases/tag/v1.8.0
-[1.7.1]: https://github.com/glittercowboy/get-shit-done/releases/tag/v1.7.1
-[1.7.0]: https://github.com/glittercowboy/get-shit-done/releases/tag/v1.7.0
-[1.6.4]: https://github.com/glittercowboy/get-shit-done/releases/tag/v1.6.4
-[1.6.3]: https://github.com/glittercowboy/get-shit-done/releases/tag/v1.6.3
-[1.6.2]: https://github.com/glittercowboy/get-shit-done/releases/tag/v1.6.2
-[1.6.1]: https://github.com/glittercowboy/get-shit-done/releases/tag/v1.6.1
-[1.6.0]: https://github.com/glittercowboy/get-shit-done/releases/tag/v1.6.0
-[1.5.30]: https://github.com/glittercowboy/get-shit-done/releases/tag/v1.5.30
-[1.5.29]: https://github.com/glittercowboy/get-shit-done/releases/tag/v1.5.29
-[1.5.28]: https://github.com/glittercowboy/get-shit-done/releases/tag/v1.5.28
-[1.5.27]: https://github.com/glittercowboy/get-shit-done/releases/tag/v1.5.27
-[1.5.26]: https://github.com/glittercowboy/get-shit-done/releases/tag/v1.5.26
-[1.5.25]: https://github.com/glittercowboy/get-shit-done/releases/tag/v1.5.25
-[1.5.24]: https://github.com/glittercowboy/get-shit-done/releases/tag/v1.5.24
-[1.5.23]: https://github.com/glittercowboy/get-shit-done/releases/tag/v1.5.23
-[1.5.22]: https://github.com/glittercowboy/get-shit-done/releases/tag/v1.5.22
-[1.5.21]: https://github.com/glittercowboy/get-shit-done/releases/tag/v1.5.21
-[1.5.20]: https://github.com/glittercowboy/get-shit-done/releases/tag/v1.5.20
-[1.5.19]: https://github.com/glittercowboy/get-shit-done/releases/tag/v1.5.19
-[1.5.18]: https://github.com/glittercowboy/get-shit-done/releases/tag/v1.5.18
-[1.5.17]: https://github.com/glittercowboy/get-shit-done/releases/tag/v1.5.17
-[1.5.16]: https://github.com/glittercowboy/get-shit-done/releases/tag/v1.5.16
-[1.5.15]: https://github.com/glittercowboy/get-shit-done/releases/tag/v1.5.15
-[1.5.14]: https://github.com/glittercowboy/get-shit-done/releases/tag/v1.5.14
-[1.5.13]: https://github.com/glittercowboy/get-shit-done/releases/tag/v1.5.13
-[1.5.12]: https://github.com/glittercowboy/get-shit-done/releases/tag/v1.5.12
-[1.5.11]: https://github.com/glittercowboy/get-shit-done/releases/tag/v1.5.11
-[1.5.10]: https://github.com/glittercowboy/get-shit-done/releases/tag/v1.5.10
-[1.5.9]: https://github.com/glittercowboy/get-shit-done/releases/tag/v1.5.9
-[1.5.8]: https://github.com/glittercowboy/get-shit-done/releases/tag/v1.5.8
-[1.5.7]: https://github.com/glittercowboy/get-shit-done/releases/tag/v1.5.7
-[1.5.6]: https://github.com/glittercowboy/get-shit-done/releases/tag/v1.5.6
-[1.5.5]: https://github.com/glittercowboy/get-shit-done/releases/tag/v1.5.5
-[1.5.4]: https://github.com/glittercowboy/get-shit-done/releases/tag/v1.5.4
-[1.5.3]: https://github.com/glittercowboy/get-shit-done/releases/tag/v1.5.3
-[1.5.2]: https://github.com/glittercowboy/get-shit-done/releases/tag/v1.5.2
-[1.5.1]: https://github.com/glittercowboy/get-shit-done/releases/tag/v1.5.1
-[1.5.0]: https://github.com/glittercowboy/get-shit-done/releases/tag/v1.5.0
-[1.4.29]: https://github.com/glittercowboy/get-shit-done/releases/tag/v1.4.29
-[1.4.28]: https://github.com/glittercowboy/get-shit-done/releases/tag/v1.4.28
-[1.4.27]: https://github.com/glittercowboy/get-shit-done/releases/tag/v1.4.27
-[1.4.26]: https://github.com/glittercowboy/get-shit-done/releases/tag/v1.4.26
-[1.4.25]: https://github.com/glittercowboy/get-shit-done/releases/tag/v1.4.25
-[1.4.24]: https://github.com/glittercowboy/get-shit-done/releases/tag/v1.4.24
-[1.4.23]: https://github.com/glittercowboy/get-shit-done/releases/tag/v1.4.23
-[1.4.22]: https://github.com/glittercowboy/get-shit-done/releases/tag/v1.4.22
-[1.4.21]: https://github.com/glittercowboy/get-shit-done/releases/tag/v1.4.21
-[1.4.20]: https://github.com/glittercowboy/get-shit-done/releases/tag/v1.4.20
-[1.4.19]: https://github.com/glittercowboy/get-shit-done/releases/tag/v1.4.19
-[1.4.18]: https://github.com/glittercowboy/get-shit-done/releases/tag/v1.4.18
-[1.4.17]: https://github.com/glittercowboy/get-shit-done/releases/tag/v1.4.17
-[1.4.16]: https://github.com/glittercowboy/get-shit-done/releases/tag/v1.4.16
-[1.4.15]: https://github.com/glittercowboy/get-shit-done/releases/tag/v1.4.15
-[1.4.14]: https://github.com/glittercowboy/get-shit-done/releases/tag/v1.4.14
-[1.4.13]: https://github.com/glittercowboy/get-shit-done/releases/tag/v1.4.13
-[1.4.12]: https://github.com/glittercowboy/get-shit-done/releases/tag/v1.4.12
-[1.4.11]: https://github.com/glittercowboy/get-shit-done/releases/tag/v1.4.11
-[1.4.10]: https://github.com/glittercowboy/get-shit-done/releases/tag/v1.4.10
-[1.4.9]: https://github.com/glittercowboy/get-shit-done/releases/tag/v1.4.9
-[1.4.8]: https://github.com/glittercowboy/get-shit-done/releases/tag/v1.4.8
-[1.4.7]: https://github.com/glittercowboy/get-shit-done/releases/tag/v1.4.7
-[1.4.6]: https://github.com/glittercowboy/get-shit-done/releases/tag/v1.4.6
-[1.4.5]: https://github.com/glittercowboy/get-shit-done/releases/tag/v1.4.5
-[1.4.4]: https://github.com/glittercowboy/get-shit-done/releases/tag/v1.4.4
-[1.4.3]: https://github.com/glittercowboy/get-shit-done/releases/tag/v1.4.3
-[1.4.2]: https://github.com/glittercowboy/get-shit-done/releases/tag/v1.4.2
-[1.4.1]: https://github.com/glittercowboy/get-shit-done/releases/tag/v1.4.1
-[1.4.0]: https://github.com/glittercowboy/get-shit-done/releases/tag/v1.4.0
-[1.3.34]: https://github.com/glittercowboy/get-shit-done/releases/tag/v1.3.34
-[1.3.33]: https://github.com/glittercowboy/get-shit-done/releases/tag/v1.3.33
-[1.3.32]: https://github.com/glittercowboy/get-shit-done/releases/tag/v1.3.32
-[1.3.31]: https://github.com/glittercowboy/get-shit-done/releases/tag/v1.3.31
-[1.3.30]: https://github.com/glittercowboy/get-shit-done/releases/tag/v1.3.30
-[1.3.29]: https://github.com/glittercowboy/get-shit-done/releases/tag/v1.3.29
-[1.3.28]: https://github.com/glittercowboy/get-shit-done/releases/tag/v1.3.28
-[1.3.27]: https://github.com/glittercowboy/get-shit-done/releases/tag/v1.3.27
-[1.3.26]: https://github.com/glittercowboy/get-shit-done/releases/tag/v1.3.26
-[1.3.25]: https://github.com/glittercowboy/get-shit-done/releases/tag/v1.3.25
-[1.3.24]: https://github.com/glittercowboy/get-shit-done/releases/tag/v1.3.24
-[1.3.23]: https://github.com/glittercowboy/get-shit-done/releases/tag/v1.3.23
-[1.3.22]: https://github.com/glittercowboy/get-shit-done/releases/tag/v1.3.22
-[1.3.21]: https://github.com/glittercowboy/get-shit-done/releases/tag/v1.3.21
-[1.3.20]: https://github.com/glittercowboy/get-shit-done/releases/tag/v1.3.20
-[1.3.19]: https://github.com/glittercowboy/get-shit-done/releases/tag/v1.3.19
-[1.3.18]: https://github.com/glittercowboy/get-shit-done/releases/tag/v1.3.18
-[1.3.17]: https://github.com/glittercowboy/get-shit-done/releases/tag/v1.3.17
-[1.3.16]: https://github.com/glittercowboy/get-shit-done/releases/tag/v1.3.16
-[1.3.15]: https://github.com/glittercowboy/get-shit-done/releases/tag/v1.3.15
-[1.3.14]: https://github.com/glittercowboy/get-shit-done/releases/tag/v1.3.14
-[1.3.13]: https://github.com/glittercowboy/get-shit-done/releases/tag/v1.3.13
-[1.3.12]: https://github.com/glittercowboy/get-shit-done/releases/tag/v1.3.12
-[1.3.11]: https://github.com/glittercowboy/get-shit-done/releases/tag/v1.3.11
-[1.3.10]: https://github.com/glittercowboy/get-shit-done/releases/tag/v1.3.10
-[1.3.9]: https://github.com/glittercowboy/get-shit-done/releases/tag/v1.3.9
-[1.3.8]: https://github.com/glittercowboy/get-shit-done/releases/tag/v1.3.8
-[1.3.7]: https://github.com/glittercowboy/get-shit-done/releases/tag/v1.3.7
-[1.3.6]: https://github.com/glittercowboy/get-shit-done/releases/tag/v1.3.6
-[1.3.5]: https://github.com/glittercowboy/get-shit-done/releases/tag/v1.3.5
-[1.3.4]: https://github.com/glittercowboy/get-shit-done/releases/tag/v1.3.4
-[1.3.3]: https://github.com/glittercowboy/get-shit-done/releases/tag/v1.3.3
-[1.3.2]: https://github.com/glittercowboy/get-shit-done/releases/tag/v1.3.2
-[1.3.1]: https://github.com/glittercowboy/get-shit-done/releases/tag/v1.3.1
-[1.3.0]: https://github.com/glittercowboy/get-shit-done/releases/tag/v1.3.0
-[1.2.13]: https://github.com/glittercowboy/get-shit-done/releases/tag/v1.2.13
-[1.2.12]: https://github.com/glittercowboy/get-shit-done/releases/tag/v1.2.12
-[1.2.11]: https://github.com/glittercowboy/get-shit-done/releases/tag/v1.2.11
-[1.2.10]: https://github.com/glittercowboy/get-shit-done/releases/tag/v1.2.10
-[1.2.9]: https://github.com/glittercowboy/get-shit-done/releases/tag/v1.2.9
-[1.2.8]: https://github.com/glittercowboy/get-shit-done/releases/tag/v1.2.8
-[1.2.7]: https://github.com/glittercowboy/get-shit-done/releases/tag/v1.2.7
-[1.2.6]: https://github.com/glittercowboy/get-shit-done/releases/tag/v1.2.6
-[1.2.5]: https://github.com/glittercowboy/get-shit-done/releases/tag/v1.2.5
-[1.2.4]: https://github.com/glittercowboy/get-shit-done/releases/tag/v1.2.4
-[1.2.3]: https://github.com/glittercowboy/get-shit-done/releases/tag/v1.2.3
-[1.2.2]: https://github.com/glittercowboy/get-shit-done/releases/tag/v1.2.2
-[1.2.1]: https://github.com/glittercowboy/get-shit-done/releases/tag/v1.2.1
-[1.2.0]: https://github.com/glittercowboy/get-shit-done/releases/tag/v1.2.0
-[1.1.2]: https://github.com/glittercowboy/get-shit-done/releases/tag/v1.1.2
-[1.1.1]: https://github.com/glittercowboy/get-shit-done/releases/tag/v1.1.1
-[1.1.0]: https://github.com/glittercowboy/get-shit-done/releases/tag/v1.1.0
-[1.0.11]: https://github.com/glittercowboy/get-shit-done/releases/tag/v1.0.11
-[1.0.10]: https://github.com/glittercowboy/get-shit-done/releases/tag/v1.0.10
-[1.0.9]: https://github.com/glittercowboy/get-shit-done/releases/tag/v1.0.9
-[1.0.8]: https://github.com/glittercowboy/get-shit-done/releases/tag/v1.0.8
-[1.0.7]: https://github.com/glittercowboy/get-shit-done/releases/tag/v1.0.7
-[1.0.6]: https://github.com/glittercowboy/get-shit-done/releases/tag/v1.0.6
-[1.0.5]: https://github.com/glittercowboy/get-shit-done/releases/tag/v1.0.5
-[1.0.4]: https://github.com/glittercowboy/get-shit-done/releases/tag/v1.0.4
-[1.0.3]: https://github.com/glittercowboy/get-shit-done/releases/tag/v1.0.3
-[1.0.2]: https://github.com/glittercowboy/get-shit-done/releases/tag/v1.0.2
-[1.0.1]: https://github.com/glittercowboy/get-shit-done/releases/tag/v1.0.1
-[1.0.0]: https://github.com/glittercowboy/get-shit-done/releases/tag/v1.0.0
+[Unreleased]: https://github.com/glittercowboy/ez-agents/compare/v1.22.4...HEAD
+[1.22.4]: https://github.com/glittercowboy/ez-agents/releases/tag/v1.22.4
+[1.22.3]: https://github.com/glittercowboy/ez-agents/releases/tag/v1.22.3
+[1.22.2]: https://github.com/glittercowboy/ez-agents/releases/tag/v1.22.2
+[1.22.1]: https://github.com/glittercowboy/ez-agents/releases/tag/v1.22.1
+[1.22.0]: https://github.com/glittercowboy/ez-agents/releases/tag/v1.22.0
+[1.21.1]: https://github.com/glittercowboy/ez-agents/releases/tag/v1.21.1
+[1.21.0]: https://github.com/glittercowboy/ez-agents/releases/tag/v1.21.0
+[1.20.6]: https://github.com/glittercowboy/ez-agents/releases/tag/v1.20.6
+[1.20.5]: https://github.com/glittercowboy/ez-agents/releases/tag/v1.20.5
+[1.20.4]: https://github.com/glittercowboy/ez-agents/releases/tag/v1.20.4
+[1.20.3]: https://github.com/glittercowboy/ez-agents/releases/tag/v1.20.3
+[1.20.2]: https://github.com/glittercowboy/ez-agents/releases/tag/v1.20.2
+[1.20.1]: https://github.com/glittercowboy/ez-agents/releases/tag/v1.20.1
+[1.20.0]: https://github.com/glittercowboy/ez-agents/releases/tag/v1.20.0
+[1.19.2]: https://github.com/glittercowboy/ez-agents/releases/tag/v1.19.2
+[1.19.1]: https://github.com/glittercowboy/ez-agents/releases/tag/v1.19.1
+[1.19.0]: https://github.com/glittercowboy/ez-agents/releases/tag/v1.19.0
+[1.18.0]: https://github.com/glittercowboy/ez-agents/releases/tag/v1.18.0
+[1.17.0]: https://github.com/glittercowboy/ez-agents/releases/tag/v1.17.0
+[1.16.0]: https://github.com/glittercowboy/ez-agents/releases/tag/v1.16.0
+[1.15.0]: https://github.com/glittercowboy/ez-agents/releases/tag/v1.15.0
+[1.14.0]: https://github.com/glittercowboy/ez-agents/releases/tag/v1.14.0
+[1.13.0]: https://github.com/glittercowboy/ez-agents/releases/tag/v1.13.0
+[1.12.1]: https://github.com/glittercowboy/ez-agents/releases/tag/v1.12.1
+[1.12.0]: https://github.com/glittercowboy/ez-agents/releases/tag/v1.12.0
+[1.11.2]: https://github.com/glittercowboy/ez-agents/releases/tag/v1.11.2
+[1.11.1]: https://github.com/glittercowboy/ez-agents/releases/tag/v1.11.0
+[1.10.1]: https://github.com/glittercowboy/ez-agents/releases/tag/v1.10.1
+[1.10.0]: https://github.com/glittercowboy/ez-agents/releases/tag/v1.10.0
+[1.9.12]: https://github.com/glittercowboy/ez-agents/releases/tag/v1.9.12
+[1.9.11]: https://github.com/glittercowboy/ez-agents/releases/tag/v1.9.11
+[1.9.10]: https://github.com/glittercowboy/ez-agents/releases/tag/v1.9.10
+[1.9.9]: https://github.com/glittercowboy/ez-agents/releases/tag/v1.9.9
+[1.9.8]: https://github.com/glittercowboy/ez-agents/releases/tag/v1.9.8
+[1.9.7]: https://github.com/glittercowboy/ez-agents/releases/tag/v1.9.7
+[1.9.6]: https://github.com/glittercowboy/ez-agents/releases/tag/v1.9.6
+[1.9.5]: https://github.com/glittercowboy/ez-agents/releases/tag/v1.9.5
+[1.9.4]: https://github.com/glittercowboy/ez-agents/releases/tag/v1.9.4
+[1.9.2]: https://github.com/glittercowboy/ez-agents/releases/tag/v1.9.2
+[1.9.0]: https://github.com/glittercowboy/ez-agents/releases/tag/v1.9.0
+[1.8.0]: https://github.com/glittercowboy/ez-agents/releases/tag/v1.8.0
+[1.7.1]: https://github.com/glittercowboy/ez-agents/releases/tag/v1.7.1
+[1.7.0]: https://github.com/glittercowboy/ez-agents/releases/tag/v1.7.0
+[1.6.4]: https://github.com/glittercowboy/ez-agents/releases/tag/v1.6.4
+[1.6.3]: https://github.com/glittercowboy/ez-agents/releases/tag/v1.6.3
+[1.6.2]: https://github.com/glittercowboy/ez-agents/releases/tag/v1.6.2
+[1.6.1]: https://github.com/glittercowboy/ez-agents/releases/tag/v1.6.1
+[1.6.0]: https://github.com/glittercowboy/ez-agents/releases/tag/v1.6.0
+[1.5.30]: https://github.com/glittercowboy/ez-agents/releases/tag/v1.5.30
+[1.5.29]: https://github.com/glittercowboy/ez-agents/releases/tag/v1.5.29
+[1.5.28]: https://github.com/glittercowboy/ez-agents/releases/tag/v1.5.28
+[1.5.27]: https://github.com/glittercowboy/ez-agents/releases/tag/v1.5.27
+[1.5.26]: https://github.com/glittercowboy/ez-agents/releases/tag/v1.5.26
+[1.5.25]: https://github.com/glittercowboy/ez-agents/releases/tag/v1.5.25
+[1.5.24]: https://github.com/glittercowboy/ez-agents/releases/tag/v1.5.24
+[1.5.23]: https://github.com/glittercowboy/ez-agents/releases/tag/v1.5.23
+[1.5.22]: https://github.com/glittercowboy/ez-agents/releases/tag/v1.5.22
+[1.5.21]: https://github.com/glittercowboy/ez-agents/releases/tag/v1.5.21
+[1.5.20]: https://github.com/glittercowboy/ez-agents/releases/tag/v1.5.20
+[1.5.19]: https://github.com/glittercowboy/ez-agents/releases/tag/v1.5.19
+[1.5.18]: https://github.com/glittercowboy/ez-agents/releases/tag/v1.5.18
+[1.5.17]: https://github.com/glittercowboy/ez-agents/releases/tag/v1.5.17
+[1.5.16]: https://github.com/glittercowboy/ez-agents/releases/tag/v1.5.16
+[1.5.15]: https://github.com/glittercowboy/ez-agents/releases/tag/v1.5.15
+[1.5.14]: https://github.com/glittercowboy/ez-agents/releases/tag/v1.5.14
+[1.5.13]: https://github.com/glittercowboy/ez-agents/releases/tag/v1.5.13
+[1.5.12]: https://github.com/glittercowboy/ez-agents/releases/tag/v1.5.12
+[1.5.11]: https://github.com/glittercowboy/ez-agents/releases/tag/v1.5.11
+[1.5.10]: https://github.com/glittercowboy/ez-agents/releases/tag/v1.5.10
+[1.5.9]: https://github.com/glittercowboy/ez-agents/releases/tag/v1.5.9
+[1.5.8]: https://github.com/glittercowboy/ez-agents/releases/tag/v1.5.8
+[1.5.7]: https://github.com/glittercowboy/ez-agents/releases/tag/v1.5.7
+[1.5.6]: https://github.com/glittercowboy/ez-agents/releases/tag/v1.5.6
+[1.5.5]: https://github.com/glittercowboy/ez-agents/releases/tag/v1.5.5
+[1.5.4]: https://github.com/glittercowboy/ez-agents/releases/tag/v1.5.4
+[1.5.3]: https://github.com/glittercowboy/ez-agents/releases/tag/v1.5.3
+[1.5.2]: https://github.com/glittercowboy/ez-agents/releases/tag/v1.5.2
+[1.5.1]: https://github.com/glittercowboy/ez-agents/releases/tag/v1.5.1
+[1.5.0]: https://github.com/glittercowboy/ez-agents/releases/tag/v1.5.0
+[1.4.29]: https://github.com/glittercowboy/ez-agents/releases/tag/v1.4.29
+[1.4.28]: https://github.com/glittercowboy/ez-agents/releases/tag/v1.4.28
+[1.4.27]: https://github.com/glittercowboy/ez-agents/releases/tag/v1.4.27
+[1.4.26]: https://github.com/glittercowboy/ez-agents/releases/tag/v1.4.26
+[1.4.25]: https://github.com/glittercowboy/ez-agents/releases/tag/v1.4.25
+[1.4.24]: https://github.com/glittercowboy/ez-agents/releases/tag/v1.4.24
+[1.4.23]: https://github.com/glittercowboy/ez-agents/releases/tag/v1.4.23
+[1.4.22]: https://github.com/glittercowboy/ez-agents/releases/tag/v1.4.22
+[1.4.21]: https://github.com/glittercowboy/ez-agents/releases/tag/v1.4.21
+[1.4.20]: https://github.com/glittercowboy/ez-agents/releases/tag/v1.4.20
+[1.4.19]: https://github.com/glittercowboy/ez-agents/releases/tag/v1.4.19
+[1.4.18]: https://github.com/glittercowboy/ez-agents/releases/tag/v1.4.18
+[1.4.17]: https://github.com/glittercowboy/ez-agents/releases/tag/v1.4.17
+[1.4.16]: https://github.com/glittercowboy/ez-agents/releases/tag/v1.4.16
+[1.4.15]: https://github.com/glittercowboy/ez-agents/releases/tag/v1.4.15
+[1.4.14]: https://github.com/glittercowboy/ez-agents/releases/tag/v1.4.14
+[1.4.13]: https://github.com/glittercowboy/ez-agents/releases/tag/v1.4.13
+[1.4.12]: https://github.com/glittercowboy/ez-agents/releases/tag/v1.4.12
+[1.4.11]: https://github.com/glittercowboy/ez-agents/releases/tag/v1.4.11
+[1.4.10]: https://github.com/glittercowboy/ez-agents/releases/tag/v1.4.10
+[1.4.9]: https://github.com/glittercowboy/ez-agents/releases/tag/v1.4.9
+[1.4.8]: https://github.com/glittercowboy/ez-agents/releases/tag/v1.4.8
+[1.4.7]: https://github.com/glittercowboy/ez-agents/releases/tag/v1.4.7
+[1.4.6]: https://github.com/glittercowboy/ez-agents/releases/tag/v1.4.6
+[1.4.5]: https://github.com/glittercowboy/ez-agents/releases/tag/v1.4.5
+[1.4.4]: https://github.com/glittercowboy/ez-agents/releases/tag/v1.4.4
+[1.4.3]: https://github.com/glittercowboy/ez-agents/releases/tag/v1.4.3
+[1.4.2]: https://github.com/glittercowboy/ez-agents/releases/tag/v1.4.2
+[1.4.1]: https://github.com/glittercowboy/ez-agents/releases/tag/v1.4.1
+[1.4.0]: https://github.com/glittercowboy/ez-agents/releases/tag/v1.4.0
+[1.3.34]: https://github.com/glittercowboy/ez-agents/releases/tag/v1.3.34
+[1.3.33]: https://github.com/glittercowboy/ez-agents/releases/tag/v1.3.33
+[1.3.32]: https://github.com/glittercowboy/ez-agents/releases/tag/v1.3.32
+[1.3.31]: https://github.com/glittercowboy/ez-agents/releases/tag/v1.3.31
+[1.3.30]: https://github.com/glittercowboy/ez-agents/releases/tag/v1.3.30
+[1.3.29]: https://github.com/glittercowboy/ez-agents/releases/tag/v1.3.29
+[1.3.28]: https://github.com/glittercowboy/ez-agents/releases/tag/v1.3.28
+[1.3.27]: https://github.com/glittercowboy/ez-agents/releases/tag/v1.3.27
+[1.3.26]: https://github.com/glittercowboy/ez-agents/releases/tag/v1.3.26
+[1.3.25]: https://github.com/glittercowboy/ez-agents/releases/tag/v1.3.25
+[1.3.24]: https://github.com/glittercowboy/ez-agents/releases/tag/v1.3.24
+[1.3.23]: https://github.com/glittercowboy/ez-agents/releases/tag/v1.3.23
+[1.3.22]: https://github.com/glittercowboy/ez-agents/releases/tag/v1.3.22
+[1.3.21]: https://github.com/glittercowboy/ez-agents/releases/tag/v1.3.21
+[1.3.20]: https://github.com/glittercowboy/ez-agents/releases/tag/v1.3.20
+[1.3.19]: https://github.com/glittercowboy/ez-agents/releases/tag/v1.3.19
+[1.3.18]: https://github.com/glittercowboy/ez-agents/releases/tag/v1.3.18
+[1.3.17]: https://github.com/glittercowboy/ez-agents/releases/tag/v1.3.17
+[1.3.16]: https://github.com/glittercowboy/ez-agents/releases/tag/v1.3.16
+[1.3.15]: https://github.com/glittercowboy/ez-agents/releases/tag/v1.3.15
+[1.3.14]: https://github.com/glittercowboy/ez-agents/releases/tag/v1.3.14
+[1.3.13]: https://github.com/glittercowboy/ez-agents/releases/tag/v1.3.13
+[1.3.12]: https://github.com/glittercowboy/ez-agents/releases/tag/v1.3.12
+[1.3.11]: https://github.com/glittercowboy/ez-agents/releases/tag/v1.3.11
+[1.3.10]: https://github.com/glittercowboy/ez-agents/releases/tag/v1.3.10
+[1.3.9]: https://github.com/glittercowboy/ez-agents/releases/tag/v1.3.9
+[1.3.8]: https://github.com/glittercowboy/ez-agents/releases/tag/v1.3.8
+[1.3.7]: https://github.com/glittercowboy/ez-agents/releases/tag/v1.3.7
+[1.3.6]: https://github.com/glittercowboy/ez-agents/releases/tag/v1.3.6
+[1.3.5]: https://github.com/glittercowboy/ez-agents/releases/tag/v1.3.5
+[1.3.4]: https://github.com/glittercowboy/ez-agents/releases/tag/v1.3.4
+[1.3.3]: https://github.com/glittercowboy/ez-agents/releases/tag/v1.3.3
+[1.3.2]: https://github.com/glittercowboy/ez-agents/releases/tag/v1.3.2
+[1.3.1]: https://github.com/glittercowboy/ez-agents/releases/tag/v1.3.1
+[1.3.0]: https://github.com/glittercowboy/ez-agents/releases/tag/v1.3.0
+[1.2.13]: https://github.com/glittercowboy/ez-agents/releases/tag/v1.2.13
+[1.2.12]: https://github.com/glittercowboy/ez-agents/releases/tag/v1.2.12
+[1.2.11]: https://github.com/glittercowboy/ez-agents/releases/tag/v1.2.11
+[1.2.10]: https://github.com/glittercowboy/ez-agents/releases/tag/v1.2.10
+[1.2.9]: https://github.com/glittercowboy/ez-agents/releases/tag/v1.2.9
+[1.2.8]: https://github.com/glittercowboy/ez-agents/releases/tag/v1.2.8
+[1.2.7]: https://github.com/glittercowboy/ez-agents/releases/tag/v1.2.7
+[1.2.6]: https://github.com/glittercowboy/ez-agents/releases/tag/v1.2.6
+[1.2.5]: https://github.com/glittercowboy/ez-agents/releases/tag/v1.2.5
+[1.2.4]: https://github.com/glittercowboy/ez-agents/releases/tag/v1.2.4
+[1.2.3]: https://github.com/glittercowboy/ez-agents/releases/tag/v1.2.3
+[1.2.2]: https://github.com/glittercowboy/ez-agents/releases/tag/v1.2.2
+[1.2.1]: https://github.com/glittercowboy/ez-agents/releases/tag/v1.2.1
+[1.2.0]: https://github.com/glittercowboy/ez-agents/releases/tag/v1.2.0
+[1.1.2]: https://github.com/glittercowboy/ez-agents/releases/tag/v1.1.2
+[1.1.1]: https://github.com/glittercowboy/ez-agents/releases/tag/v1.1.1
+[1.1.0]: https://github.com/glittercowboy/ez-agents/releases/tag/v1.1.0
+[1.0.11]: https://github.com/glittercowboy/ez-agents/releases/tag/v1.0.11
+[1.0.10]: https://github.com/glittercowboy/ez-agents/releases/tag/v1.0.10
+[1.0.9]: https://github.com/glittercowboy/ez-agents/releases/tag/v1.0.9
+[1.0.8]: https://github.com/glittercowboy/ez-agents/releases/tag/v1.0.8
+[1.0.7]: https://github.com/glittercowboy/ez-agents/releases/tag/v1.0.7
+[1.0.6]: https://github.com/glittercowboy/ez-agents/releases/tag/v1.0.6
+[1.0.5]: https://github.com/glittercowboy/ez-agents/releases/tag/v1.0.5
+[1.0.4]: https://github.com/glittercowboy/ez-agents/releases/tag/v1.0.4
+[1.0.3]: https://github.com/glittercowboy/ez-agents/releases/tag/v1.0.3
+[1.0.2]: https://github.com/glittercowboy/ez-agents/releases/tag/v1.0.2
+[1.0.1]: https://github.com/glittercowboy/ez-agents/releases/tag/v1.0.1
+[1.0.0]: https://github.com/glittercowboy/ez-agents/releases/tag/v1.0.0

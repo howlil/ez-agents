@@ -6,10 +6,10 @@ const { execSync, execFileSync } = require('child_process');
 const fs = require('fs');
 const path = require('path');
 
-const TOOLS_PATH = path.join(__dirname, '..', 'get-shit-done', 'bin', 'ez-tools.cjs');
+const TOOLS_PATH = path.join(__dirname, '..', 'ez-agents', 'bin', 'ez-tools.cjs');
 
 /**
- * Run gsd-tools command.
+ * Run ez-tools command.
  *
  * @param {string|string[]} args - Command string (shell-interpreted) or array
  *   of arguments (shell-bypassed via execFileSync, safe for JSON and dollar signs).
@@ -43,14 +43,14 @@ function runGsdTools(args, cwd = process.cwd()) {
 
 // Create temp directory structure
 function createTempProject() {
-  const tmpDir = fs.mkdtempSync(path.join(require('os').tmpdir(), 'gsd-test-'));
+  const tmpDir = fs.mkdtempSync(path.join(require('os').tmpdir(), 'ez-test-'));
   fs.mkdirSync(path.join(tmpDir, '.planning', 'phases'), { recursive: true });
   return tmpDir;
 }
 
 // Create temp directory with initialized git repo and at least one commit
 function createTempGitProject() {
-  const tmpDir = fs.mkdtempSync(path.join(require('os').tmpdir(), 'gsd-test-'));
+  const tmpDir = fs.mkdtempSync(path.join(require('os').tmpdir(), 'ez-test-'));
   fs.mkdirSync(path.join(tmpDir, '.planning', 'phases'), { recursive: true });
 
   execSync('git init', { cwd: tmpDir, stdio: 'pipe' });

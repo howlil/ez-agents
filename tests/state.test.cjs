@@ -158,7 +158,7 @@ describe('state-snapshot command', () => {
 **Status:** Ready to plan
 `
     );
-    const outsideDir = fs.mkdtempSync(path.join(require('os').tmpdir(), 'gsd-test-outside-'));
+    const outsideDir = fs.mkdtempSync(path.join(require('os').tmpdir(), 'ez-test-outside-'));
 
     try {
       const result = runGsdTools(`state-snapshot --cwd "${tmpDir}"`, outsideDir);
@@ -506,7 +506,7 @@ describe('STATE.md frontmatter sync', () => {
 // stateExtractField and stateReplaceField helpers
 // ─────────────────────────────────────────────────────────────────────────────
 
-const { stateExtractField, stateReplaceField } = require('../get-shit-done/bin/lib/state.cjs');
+const { stateExtractField, stateReplaceField } = require('../ez-agents/bin/lib/state.cjs');
 
 describe('stateExtractField and stateReplaceField helpers', () => {
   // stateExtractField tests

@@ -2,7 +2,7 @@
  * GSD Tools Tests - config.cjs
  *
  * CLI integration tests for config-ensure-section, config-set, and config-get
- * commands exercised through gsd-tools.cjs via execSync.
+ * commands exercised through ez-tools.cjs via execSync.
  *
  * Requirements: TEST-13
  */

@@ -1,7 +1,7 @@
 /**
  * GSD Tools Tests - Dispatcher
  *
- * Tests for gsd-tools.cjs dispatch routing and error paths.
+ * Tests for ez-tools.cjs dispatch routing and error paths.
  * Covers: no-command, unknown command, unknown subcommands for every command group,
  * --cwd parsing, and previously untouched routing branches.
  *

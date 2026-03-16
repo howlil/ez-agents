@@ -66,7 +66,7 @@ Exit.
 
 For each file in `backup-meta.json`:
 
-1. **Read the backed-up version** (user's modified copy from `gsd-local-patches/`)
+1. **Read the backed-up version** (user's modified copy from `ez-local-patches/`)
 2. **Read the newly installed version** (current file after update)
 3. **Compare and merge:**
 
@@ -97,8 +97,8 @@ After reapplying, regenerate the file manifest so future updates correctly detec
 ## Step 5: Cleanup option
 
 Ask user:
-- "Keep patch backups for reference?" → preserve `gsd-local-patches/`
-- "Clean up patch backups?" → remove `gsd-local-patches/` directory
+- "Keep patch backups for reference?" → preserve `ez-local-patches/`
+- "Clean up patch backups?" → remove `ez-local-patches/` directory
 
 ## Step 6: Report
 

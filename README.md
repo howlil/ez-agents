@@ -6,7 +6,7 @@
 
 **English** · [简体中文](README.zh-CN.md)
 
-**An independent fork of GSD (Get Shit Done) with multi-model support (Qwen, Kimi, OpenAI, Claude) and enhanced reliability features.**
+**An independent fork of EZ Agents (Get Shit Done) with multi-model support (Qwen, Kimi, OpenAI, Claude) and enhanced reliability features.**
 
 **Solves context rot — with added security, error handling, and cross-platform support.**
 
@@ -24,7 +24,7 @@ npm install -g git+https://github.com/howlil/ez-agents.git
 
 <br>
 
-**Original GSD (Get Shit Done) by** [TÂCHES](https://github.com/glittercowboy/get-shit-done) | **EZ Agents Fork by** [@howlil](https://github.com/howlil)
+**Original EZ Agents (Get Shit Done) by** [TÂCHES](https://github.com/glittercowboy/ez-agents) | **EZ Agents Fork by** [@howlil](https://github.com/howlil)
 
 <br>
 
@@ -44,17 +44,17 @@ npm install -g git+https://github.com/howlil/ez-agents.git
 
 ## 🚀 What's New in EZ Agents
 
-> **Note:** This is an **independent fork** of GSD (Get Shit Done). Not affiliated with the original GSD project.
+> **Note:** This is an **independent fork** of EZ Agents (Get Shit Done). Not affiliated with the original EZ Agents project.
 >
-> **Original GSD (Get Shit Done):** [glittercowboy/get-shit-done](https://github.com/glittercowboy/get-shit-done) by TÂCHES
+> **Original EZ Agents (Get Shit Done):** [glittercowboy/ez-agents](https://github.com/glittercowboy/ez-agents) by TÂCHES
 >
 > **This Fork:** [howlil/ez-agents](https://github.com/howlil/ez-agents) with multi-model support & enhancements
 
-**EZ Agents** adds **multi-model support** and **enterprise-grade reliability** to GSD (Get Shit Done).
+**EZ Agents** adds **multi-model support** and **enterprise-grade reliability** to EZ Agents (Get Shit Done).
 
 ### Why This Fork Exists
 
-I needed GSD (Get Shit Done) to work with multiple AI providers (not just Anthropic) and run reliably on Windows. This fork adds:
+I needed EZ Agents (Get Shit Done) to work with multiple AI providers (not just Anthropic) and run reliably on Windows. This fork adds:
 
 - 🌍 **Multi-Model**: Qwen (Alibaba), Kimi (Moonshot), OpenAI, and Anthropic
 - 🔒 **Security**: Command injection prevention, path validation, audit logging
@@ -64,7 +64,7 @@ I needed GSD (Get Shit Done) to work with multiple AI providers (not just Anthro
 
 ### Features Comparison
 
-| Feature | Original GSD (Get Shit Done) | EZ Agents Fork |
+| Feature | Original EZ Agents (Get Shit Done) | EZ Agents Fork |
 |---------|------------------------------|-----------|
 | **Multi-Model** | Anthropic only | ✓ Anthropic, Qwen, Kimi, OpenAI |
 | **Security** | Basic | ✓ Command allowlist, path validation, audit log |
@@ -77,7 +77,7 @@ I needed GSD (Get Shit Done) to work with multiple AI providers (not just Anthro
 ### 17 New Libraries
 
 ```
-get-shit-done/bin/lib/
+ez-agents/bin/lib/
 ├── safe-exec.cjs         # Command injection prevention (allowlist + validation)
 ├── safe-path.cjs         # Path traversal prevention
 ├── auth.cjs              # Secure credential storage (keytar + fallback)
@@ -862,18 +862,18 @@ These community ports pioneered multi-runtime support:
 
 | Project | Platform | Description |
 |---------|----------|-------------|
-| [ez-opencode](https://github.com/rokicool/gsd-opencode) | OpenCode | Original OpenCode adaptation |
+| [ez-opencode](https://github.com/rokicool/ez-opencode) | OpenCode | Original OpenCode adaptation |
 | ez-gemini (archived) | Gemini CLI | Original Gemini adaptation by uberfuzzy |
 
 ---
 
 ## Star History
 
-<a href="https://star-history.com/#glittercowboy/get-shit-done&Date">
+<a href="https://star-history.com/#glittercowboy/ez-agents&Date">
  <picture>
-   <source media="(prefers-color-scheme: dark)" srcset="https://api.star-history.com/svg?repos=glittercowboy/get-shit-done&type=Date&theme=dark" />
-   <source media="(prefers-color-scheme: light)" srcset="https://api.star-history.com/svg?repos=glittercowboy/get-shit-done&type=Date" />
-   <img alt="Star History Chart" src="https://api.star-history.com/svg?repos=glittercowboy/get-shit-done&type=Date" />
+   <source media="(prefers-color-scheme: dark)" srcset="https://api.star-history.com/svg?repos=glittercowboy/ez-agents&type=Date&theme=dark" />
+   <source media="(prefers-color-scheme: light)" srcset="https://api.star-history.com/svg?repos=glittercowboy/ez-agents&type=Date" />
+   <img alt="Star History Chart" src="https://api.star-history.com/svg?repos=glittercowboy/ez-agents&type=Date" />
  </picture>
 </a>
 
