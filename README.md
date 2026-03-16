@@ -17,7 +17,7 @@
 <br>
 
 ```bash
-npx github:howlil/ez-agents
+npm install -g git+https://github.com/howlil/ez-agents.git
 ```
 
 **Works on Mac, Windows, and Linux.**
@@ -155,35 +155,82 @@ ez-agents --help
 
 ### Install
 
-**Option 1: Use npx (No Installation)**
+**⚠️ Important: Use one of the methods below. Do NOT use `npx github:howlil/ez-agents` as it may fail.**
+
+**Option 1: Install from GitHub (Recommended)**
+
+```bash
+# Install globally from GitHub
+npm install -g git+https://github.com/howlil/ez-agents.git
+
+# Then run installer
+ez-agents --claude --global
+```
+
+**Option 2: Use npx (No Installation)**
 
 ```bash
 # Run installer directly without installing
-npx github:howlil/ez-agents
-
-# Or with flags
-npx github:howlil/ez-agents --claude --global
+npx @howlil/ez-agents --claude --global
 ```
 
-**Option 2: Install Globally (Recommended)**
+**Option 3: Install from npm**
 
 ```bash
-# Install from GitHub
-npm install -g git+https://github.com/howlil/ez-agents.git
+# Install from npm registry
+npm install -g @howlil/ez-agents
 
 # Then use
 ez-agents --claude --global
 ez-agents-update
 ```
 
-**Option 3: Install from npm (Future)**
+**Option 4: Install from Local Source (Development)**
 
 ```bash
-# When published to npm
-npm install -g ez-agents
+# Clone the repository
+git clone https://github.com/howlil/ez-agents.git
+cd ez-agents
+
+# Install globally from local directory
+npm install -g .
+
+# Then use
+ez-agents --claude --global
 ```
 
 ---
+
+**Installation Commands Reference:**
+
+```bash
+# Install EZ Agents globally
+npm install -g git+https://github.com/howlil/ez-agents.git
+
+# Setup for Claude Code (global)
+ez-agents --claude --global
+
+# Setup for Claude Code (local project)
+ez-agents --claude --local
+
+# Setup for all runtimes (Claude, OpenCode, Gemini, Codex, Copilot)
+ez-agents --all --global
+
+# Update EZ Agents
+ez-agents-update
+
+# Force reinstall
+ez-agents-update --force
+
+# Check version
+ez-agents --version
+
+# Help
+ez-agents --help
+
+# Uninstall
+ez-agents --all --global --uninstall
+```
 
 I'm a solo developer. I don't write code — Claude Code does.
 
