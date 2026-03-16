@@ -299,7 +299,7 @@ if (hasUninstall) {
 
 // Show help if requested
 if (hasHelp) {
-  console.log(`  ${yellow}Usage:${reset} npx ez-agents [options]\n\n  ${yellow}Options:${reset}\n    ${cyan}-g, --global${reset}              Install globally (to config directory)\n    ${cyan}-l, --local${reset}               Install locally (to current directory)\n    ${cyan}--claude${reset}                  Install for Claude Code only\n    ${cyan}--opencode${reset}                Install for OpenCode only\n    ${cyan}--gemini${reset}                  Install for Gemini only\n    ${cyan}--codex${reset}                   Install for Codex only\n    ${cyan}--copilot${reset}                 Install for Copilot only\n    ${cyan}--all${reset}                     Install for all runtimes\n    ${cyan}-u, --uninstall${reset}           Uninstall EZ_Agents (remove all EZ_Agents files)\n    ${cyan}-c, --config-dir <path>${reset}   Specify custom config directory\n    ${cyan}-h, --help${reset}                Show this help message\n    ${cyan}--force-statusline${reset}        Replace existing statusline config\n\n  ${yellow}Examples:${reset}\n    ${dim}# Interactive install (prompts for runtime and location)${reset}\n    npx ez-agents\n\n    ${dim}# Install for Claude Code globally${reset}\n    npx ez-agents --claude --global\n\n    ${dim}# Install for all runtimes globally${reset}\n    npx ez-agents --all --global\n\n    ${dim}# Uninstall EZ_Agents globally${reset}\n    npx ez-agents --all --global --uninstall\n\n  ${yellow}Notes:${reset}\n    The --config-dir option is useful when you have multiple configurations.\n    It takes priority over CLAUDE_CONFIG_DIR / GEMINI_CONFIG_DIR / CODEX_HOME / COPILOT_CONFIG_DIR environment variables.\n`);
+  console.log(`  ${yellow}Usage:${reset} npx ez-agents [options]\n\n  ${yellow}Options:${reset}\n    ${cyan}-g, --global${reset}              Install globally (to config directory)\n    ${cyan}-l, --local${reset}               Install locally (to current directory)\n    ${cyan}--claude${reset}                  Install for Claude Code only\n    ${cyan}--opencode${reset}                Install for OpenCode only\n    ${cyan}--gemini${reset}                  Install for Gemini only\n    ${cyan}--codex${reset}                   Install for Codex only\n    ${cyan}--copilot${reset}                 Install for Copilot only\n    ${cyan}--all${reset}                     Install for all runtimes\n    ${cyan}-u, --uninstall${reset}           Uninstall EZ_Agents (remove all EZ_Agents files)\n    ${cyan}-c, --config-dir <path>${reset}   Specify custom config directory\n    ${cyan}-h, --help${reset}                Show this help message\n    ${cyan}--force-statusline${reset}        Replace existing statusline config\n\n  ${yellow}Examples:${reset}\n    ${dim}# Interactive install (prompts for runtime and location)${reset}\n    npx ez-agents\n\n    ${dim}# Install for Claude Code globally${reset}\n    npx ez-agents --claude --global\n\n    ${dim}# Install for all runtimes globally${reset}\n    npx ez-agents --all --global\n\n    ${dim}# Uninstall EZ_Agents globally${reset}\n    npx ez-agents --all --global --uninstall\n\n  ${yellow}Notes:${reset}\n    The --config-dir option is useful when you have multiple configurations.\n    It takes priority over CLAUDE_CONFIG_DIR / GEMINI_CONFIG_DIR / CODEX_HOME / COPILOT_CONFIG_DIR environment variables.\n\n  ${yellow}Model Providers:${reset}\n    Qwen, Kimi, OpenAI, and Anthropic are model providers configured in settings.json,\n    not separate CLI runtimes. See README.md for model configuration.\n`);
   process.exit(0);
 }
 
@@ -2687,7 +2687,10 @@ function promptRuntime(callback) {
   ${cyan}3${reset}) Gemini      ${dim}(~/.gemini)${reset}
   ${cyan}4${reset}) Codex       ${dim}(~/.codex)${reset}
   ${cyan}5${reset}) Copilot     ${dim}(~/.copilot)${reset}
-  ${cyan}6${reset}) All
+  ${cyan}6${reset}) All ${dim}(all 5 runtimes above)${reset}
+
+  ${dim}Note: Qwen, Kimi, and OpenAI are model providers configured within each runtime's settings,
+  not separate CLI runtimes. See README.md for model configuration.${reset}
 `);
 
   rl.question(`  Choice ${dim}[1]${reset}: `, (answer) => {
@@ -2767,26 +2770,66 @@ function installAllRuntimes(runtimes, isGlobal, isInteractive) {
   }
 
   const statuslineRuntimes = ['claude', 'gemini'];
-  const primaryStatuslineResult = results.find(r => statuslineRuntimes.includes(r.runtime));
+  const statuslineResults = results.filter(r => statuslineRuntimes.includes(r.runtime));
 
-  const finalize = (shouldInstallStatusline) => {
-    for (const result of results) {
-      const useStatusline = statuslineRuntimes.includes(result.runtime) && shouldInstallStatusline;
-      finishInstall(
-        result.settingsPath,
-        result.settings,
-        result.statuslineCommand,
-        useStatusline,
-        result.runtime,
-        isGlobal
-      );
-    }
+  // Handle statusline per-runtime to avoid conflicts
+  // Each runtime with settings.json gets its own statusline prompt
+  const finalizePerRuntime = (runtimeResult, shouldInstallStatusline) => {
+    const useStatusline = statuslineRuntimes.includes(runtimeResult.runtime) && shouldInstallStatusline;
+    finishInstall(
+      runtimeResult.settingsPath,
+      runtimeResult.settings,
+      runtimeResult.statuslineCommand,
+      useStatusline,
+      runtimeResult.runtime,
+      isGlobal
+    );
   };
 
-  if (primaryStatuslineResult) {
-    handleStatusline(primaryStatuslineResult.settings, isInteractive, finalize);
+  if (statuslineResults.length === 0) {
+    // No runtimes support statusline - finalize all without statusline
+    for (const result of results) {
+      finalizePerRuntime(result, false);
+    }
+  } else if (statuslineResults.length === 1) {
+    // Single runtime with statusline support - prompt once
+    const singleResult = statuslineResults[0];
+    handleStatusline(singleResult.settings, isInteractive, (shouldInstall) => {
+      finalizePerRuntime(singleResult, shouldInstall);
+      // Finalize other runtimes without statusline
+      for (const result of results) {
+        if (!statuslineRuntimes.includes(result.runtime)) {
+          finalizePerRuntime(result, false);
+        }
+      }
+    });
   } else {
-    finalize(false);
+    // Multiple runtimes with statusline support - prompt for each
+    let currentIndex = 0;
+    const statuslineChoices = new Array(statuslineResults.length).fill(false);
+
+    const promptNextStatusline = () => {
+      if (currentIndex >= statuslineResults.length) {
+        // All statusline prompts done - finalize all runtimes
+        for (let i = 0; i < results.length; i++) {
+          const result = results[i];
+          const statuslineIndex = statuslineResults.findIndex(r => r.runtime === result.runtime);
+          const shouldInstall = statuslineIndex !== -1 ? statuslineChoices[statuslineIndex] : false;
+          finalizePerRuntime(result, shouldInstall);
+        }
+        return;
+      }
+
+      const currentResult = statuslineResults[currentIndex];
+      const currentRuntimeIndex = currentIndex;
+      handleStatusline(currentResult.settings, isInteractive, (shouldInstall) => {
+        statuslineChoices[currentRuntimeIndex] = shouldInstall;
+        currentIndex++;
+        promptNextStatusline();
+      });
+    };
+
+    promptNextStatusline();
   }
 }
 
