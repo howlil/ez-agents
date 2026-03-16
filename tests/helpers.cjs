@@ -6,7 +6,7 @@ const { execSync, execFileSync } = require('child_process');
 const fs = require('fs');
 const path = require('path');
 
-const TOOLS_PATH = path.join(__dirname, '..', 'get-shit-done', 'bin', 'gsd-tools.cjs');
+const TOOLS_PATH = path.join(__dirname, '..', 'get-shit-done', 'bin', 'ez-tools.cjs');
 
 /**
  * Run gsd-tools command.
