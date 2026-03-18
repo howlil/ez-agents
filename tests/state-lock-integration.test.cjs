@@ -83,11 +83,19 @@ describe('state lock integration', () => {
     const statePath = path.join(tmpDir, '.planning', 'STATE.md');
     fs.writeFileSync(statePath, '# Initial\n', 'utf-8');
 
+    let lockAcquired = false;
     const lockPromise = withLock(statePath, async () => {
-      await new Promise((resolve) => setTimeout(resolve, 2000));
+      lockAcquired = true;
+      await new Promise((resolve) => setTimeout(resolve, 3000));
     }, { timeout: 5000 });
 
-    await new Promise((resolve) => setTimeout(resolve, 100));
+    // Wait for lock to be acquired (with timeout)
+    for (let i = 0; i < 20 && !lockAcquired; i++) {
+      await new Promise((resolve) => setTimeout(resolve, 50));
+    }
+    
+    // Give extra buffer for CI/CD environments
+    await new Promise((resolve) => setTimeout(resolve, 200));
 
     const modulePath = path.join(__dirname, '..', 'ez-agents', 'bin', 'lib', 'state.cjs');
     const result = await runStateWriterWorker({

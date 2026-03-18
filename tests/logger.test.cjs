@@ -21,7 +21,7 @@ describe('logger contract', () => {
     const logDir = path.join(root, '.planning', 'logs');
     const logger = new Logger(logDir);
 
-    const logFile = logger.getLogFile();
+    const logFile = logger._getLogFile('default');
     assert.ok(logFile.startsWith(logDir), 'log file must be inside provided directory');
     assert.ok(
       path.basename(logFile).startsWith('ez-'),
@@ -41,7 +41,7 @@ describe('logger contract', () => {
     logger.debug('debug message', { operation: 'test-debug' });
 
     const lines = fs
-      .readFileSync(logger.getLogFile(), 'utf-8')
+      .readFileSync(logger._getLogFile('default'), 'utf-8')
       .trim()
       .split('\n')
       .map(line => JSON.parse(line));

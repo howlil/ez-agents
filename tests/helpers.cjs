@@ -76,6 +76,9 @@ function createTempGitProject() {
 
   execSync('git add -A', { cwd: tmpDir, stdio: 'pipe' });
   execSync('git commit -m "initial commit"', { cwd: tmpDir, stdio: 'pipe' });
+  
+  // Ensure git object database is flushed (important for Linux CI/CD)
+  execSync('git gc', { cwd: tmpDir, stdio: 'pipe' });
 
   return tmpDir;
 }
