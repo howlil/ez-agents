@@ -9,7 +9,7 @@ const { extractFrontmatter, parseMustHavesBlock } = require('./frontmatter.cjs')
 const { writeStateMd } = require('./state.cjs');
 const { defaultLogger: logger } = require('./logger.cjs');
 
-function cmdVerifySummary(cwd, summaryPath, checkFileCount, raw) {
+async function cmdVerifySummary(cwd, summaryPath, checkFileCount, raw) {
   if (!summaryPath) {
     error('summary-path required');
   }
@@ -67,7 +67,7 @@ function cmdVerifySummary(cwd, summaryPath, checkFileCount, raw) {
   let commitsExist = false;
   if (hashes.length > 0) {
     for (const hash of hashes.slice(0, 3)) {
-      const result = execGit(cwd, ['cat-file', '-t', hash]);
+      const result = await execGit(cwd, ['cat-file', '-t', hash]);
       if (result.exitCode === 0 && result.stdout === 'commit') {
         commitsExist = true;
         break;
@@ -264,13 +264,13 @@ function cmdVerifyReferences(cwd, filePath, raw) {
   }, raw, missing.length === 0 ? 'valid' : 'invalid');
 }
 
-function cmdVerifyCommits(cwd, hashes, raw) {
+async function cmdVerifyCommits(cwd, hashes, raw) {
   if (!hashes || hashes.length === 0) { error('At least one commit hash required'); }
 
   const valid = [];
   const invalid = [];
   for (const hash of hashes) {
-    const result = execGit(cwd, ['cat-file', '-t', hash]);
+    const result = await execGit(cwd, ['cat-file', '-t', hash]);
     if (result.exitCode === 0 && result.stdout.trim() === 'commit') {
       valid.push(hash);
     } else {

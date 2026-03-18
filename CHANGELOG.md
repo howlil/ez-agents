@@ -6,6 +6,41 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ---
 
+## [3.4.0] - 2026-03-18
+
+### Added
+
+- **Qwen Provider Documentation** - Complete manual workflow guides for Alibaba Qwen (DashScope)
+  - 6 new documentation files covering setup, planning, execution, and verification
+  - Authentication guide with 3 methods (environment variable, system keychain, config file)
+  - Model selection guide (qwen-max, qwen-plus, qwen-turbo) with cost optimization tips
+  - 10+ configuration examples from basic to enterprise setups
+
+- **Qwen Workflow Guides**:
+  - `docs/QWEN-PROVIDER.md` - Complete provider setup and troubleshooting
+  - `docs/QWEN-PLANNING.md` - Manual planning workflow with templates
+  - `docs/QWEN-EXECUTION.md` - Code execution with parallel waves
+  - `docs/QWEN-VERIFICATION.md` - Requirements traceability and security audit
+  - `docs/QWEN-CONFIG-EXAMPLES.md` - Configuration templates and examples
+  - `docs/QWEN-README.md` - Quick start guide (5-minute setup)
+
+### Fixed
+
+- **auth.cjs** - Added missing `QWEN` provider constant to `PROVIDERS` object
+
+### Changed
+
+- **Documentation** - 3,425+ lines of new Qwen provider documentation
+- **Test Coverage** - All 697 tests passing
+
+### Technical Details
+
+- No breaking changes - backward compatible with v3.3.0
+- No database changes
+- Works with existing configurations
+
+---
+
 ## [3.3.0] - 2026-03-18
 
 ### Added
@@ -97,11 +132,11 @@ EZ Agents adds **multi-model support** (Qwen, Kimi, OpenAI, Anthropic) and **ent
 ## [3.2.1] - 2026-03-18
 
 ### Removed
-- **Legacy GSD Support**: Completely removed all remaining legacy `~/.gsd` fallback paths, `gsd_state_version` metadata, and `runGsdTools` aliases.
-- **Legacy Scripts**: Deleted `replace-gsd-tools.js` and `run-replace.js`.
+- **Legacy ez Support**: Completely removed all remaining legacy `~/.ez` fallback paths, `ez_state_version` metadata, and `runezTools` aliases.
+- **Legacy Scripts**: Deleted `replace-ez-tools.js` and `run-replace.js`.
 
 ### Fixed
-- **Branding**: Updated remaining GSD references in tests, documentation, and security email (`security@ez.agents`).
+- **Branding**: Updated remaining ez references in tests, documentation, and security email (`security@ez.agents`).
 - **Tests**: Fixed `COMMANDS_DIR` path in `agent-frontmatter.test.cjs` and refactored `copilot-install.test.cjs` to use EZ-branded functions and variables.
 
 ## [3.2.0] - 2026-03-18
@@ -110,18 +145,18 @@ EZ Agents adds **multi-model support** (Qwen, Kimi, OpenAI, Anthropic) and **ent
 - **Node repair operator** (`workflows/node-repair.md`) — autonomous recovery when task verification fails. Instead of immediately asking the user, the executor attempts structured repair: RETRY (different approach), DECOMPOSE (break into sub-tasks), or PRUNE (skip with justification). Only escalates to the user when the repair budget is exhausted or an architectural decision is needed. Repair budget defaults to 2 attempts per task; configurable via `workflow.node_repair_budget`. Disable entirely with `workflow.node_repair: false` to restore original behavior.
 - **Comprehensive test suite expansion**: Added 12 new test files covering circuit breakers, file locks, logger integration, and state-snapshot consistency.
 - **Assistant Adapter Refactor**: Unified multi-model support for Qwen, Kimi, and OpenAI via a new adapter pattern.
-- **EZ-Agents Rebranding**: Finalized the migration from legacy GSD branding across all workflows, agents, and documentation.
+- **EZ-Agents Rebranding**: Finalized the migration from legacy ez branding across all workflows, agents, and documentation.
 
 ## [3.1.1] - 2026-03-17
 
 ### Fixed
 - `init new-project` brownfield detection is now cross-platform and no longer depends on Unix shell pipelines.
-- Global defaults and Brave key detection now prefer `~/.ez` while keeping legacy `~/.gsd` fallback compatibility.
+- Global defaults and Brave key detection now prefer `~/.ez` while keeping legacy `~/.ez` fallback compatibility.
 - User-facing workflow banners and command hints are now fully EZ-branded (`EZ ►`, `/ez-*`) with stale legacy references removed.
 
 ### Changed
 - Logger filename convention updated to `ez-*.log` and planning temp write prefix updated to `ez-write-*`.
-- STATE frontmatter now emits `ez_state_version` while preserving `gsd_state_version` compatibility alias for older state readers.
+- STATE frontmatter now emits `ez_state_version` while preserving `ez_state_version` compatibility alias for older state readers.
 - Release-adjacent docs/templates cleaned to align with current EZ naming and command format.
 
 ## [1.22.4] - 2026-03-03

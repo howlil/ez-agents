@@ -1119,7 +1119,7 @@ const { execFileSync } = require('child_process');
 const crypto = require('crypto');
 
 const INSTALL_PATH = path.join(__dirname, '..', 'bin', 'install.js');
-const EXPECTED_SKILLS = 36;
+const EXPECTED_SKILLS = 37;
 const EXPECTED_AGENTS = 15;
 
 function runCopilotInstall(cwd) {

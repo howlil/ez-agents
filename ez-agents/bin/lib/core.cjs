@@ -4,7 +4,7 @@
 
 const fs = require('fs');
 const path = require('path');
-const { execSync } = require('child_process');
+const { safeExec, auditExec } = require('./safe-exec.cjs');
 const { defaultLogger: logger } = require('./logger.cjs');
 
 // ─── Path helpers ────────────────────────────────────────────────────────────
@@ -141,15 +141,17 @@ function loadConfig(cwd) {
 
 // ─── Git utilities ────────────────────────────────────────────────────────────
 
-function isGitIgnored(cwd, targetPath) {
+async function isGitIgnored(cwd, targetPath) {
   try {
     // --no-index checks .gitignore rules regardless of whether the file is tracked.
     // Without it, git check-ignore returns "not ignored" for tracked files even when
     // .gitignore explicitly lists them — a common source of confusion when .planning/
     // was committed before being added to .gitignore.
-    execSync('git check-ignore -q --no-index -- ' + targetPath.replace(/[^a-zA-Z0-9._\-/]/g, ''), {
+    const safePath = targetPath.replace(/[^a-zA-Z0-9._\-/]/g, '');
+    await auditExec('git', ['check-ignore', '-q', '--no-index', '--', safePath], {
       cwd,
-      stdio: 'pipe',
+      context: 'isGitIgnored',
+      timeout: 5000
     });
     return true;
   } catch (err) {
@@ -158,16 +160,12 @@ function isGitIgnored(cwd, targetPath) {
   }
 }
 
-function execGit(cwd, args) {
+async function execGit(cwd, args) {
   try {
-    const escaped = args.map(a => {
-      if (/^[a-zA-Z0-9._\-/=:@]+$/.test(a)) return a;
-      return "'" + a.replace(/'/g, "'\\''") + "'";
-    });
-    const stdout = execSync('git ' + escaped.join(' '), {
+    const stdout = await auditExec('git', args, {
       cwd,
-      stdio: 'pipe',
-      encoding: 'utf-8',
+      context: 'execGit',
+      timeout: 30000
     });
     return { exitCode: 0, stdout: stdout.trim(), stderr: '' };
   } catch (err) {

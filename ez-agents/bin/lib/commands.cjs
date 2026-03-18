@@ -3,7 +3,6 @@
  */
 const fs = require('fs');
 const path = require('path');
-const { execSync } = require('child_process');
 const { safeReadFile, loadConfig, isGitIgnored, execGit, normalizePhaseName, comparePhaseNum, getArchivedPhaseDirs, generateSlugInternal, getMilestoneInfo, resolveModelInternal, MODEL_PROFILES, toPosixPath, output, error, findPhaseInternal } = require('./core.cjs');
 const { extractFrontmatter } = require('./frontmatter.cjs');
 const { defaultLogger: logger } = require('./logger.cjs');
@@ -222,7 +221,7 @@ function cmdResolveModel(cwd, agentType, raw) {
   output(result, raw, model);
 }
 
-function cmdCommit(cwd, message, files, raw, amend) {
+async function cmdCommit(cwd, message, files, raw, amend) {
   if (!message && !amend) {
     error('commit message required');
   }
@@ -237,7 +236,7 @@ function cmdCommit(cwd, message, files, raw, amend) {
   }
 
   // Check if .planning is gitignored
-  if (isGitIgnored(cwd, '.planning')) {
+  if (await isGitIgnored(cwd, '.planning')) {
     const result = { committed: false, hash: null, reason: 'skipped_gitignored' };
     output(result, raw, 'skipped');
     return;
@@ -246,12 +245,12 @@ function cmdCommit(cwd, message, files, raw, amend) {
   // Stage files
   const filesToStage = files && files.length > 0 ? files : ['.planning/'];
   for (const file of filesToStage) {
-    execGit(cwd, ['add', file]);
+    await execGit(cwd, ['add', file]);
   }
 
   // Commit
   const commitArgs = amend ? ['commit', '--amend', '--no-edit'] : ['commit', '-m', message];
-  const commitResult = execGit(cwd, commitArgs);
+  const commitResult = await execGit(cwd, commitArgs);
   if (commitResult.exitCode !== 0) {
     if (commitResult.stdout.includes('nothing to commit') || commitResult.stderr.includes('nothing to commit')) {
       const result = { committed: false, hash: null, reason: 'nothing_to_commit' };
@@ -264,7 +263,7 @@ function cmdCommit(cwd, message, files, raw, amend) {
   }
 
   // Get short hash
-  const hashResult = execGit(cwd, ['rev-parse', '--short', 'HEAD']);
+  const hashResult = await execGit(cwd, ['rev-parse', '--short', 'HEAD']);
   const hash = hashResult.exitCode === 0 ? hashResult.stdout : null;
   const result = { committed: true, hash, reason: 'committed' };
   output(result, raw, hash || 'committed');
@@ -544,7 +543,7 @@ function cmdScaffold(cwd, type, options, raw) {
   output({ created: true, path: relPath }, raw, relPath);
 }
 
-function cmdStats(cwd, format, raw) {
+async function cmdStats(cwd, format, raw) {
   const phasesDir = path.join(cwd, '.planning', 'phases');
   const reqPath = path.join(cwd, '.planning', 'REQUIREMENTS.md');
   const statePath = path.join(cwd, '.planning', 'STATE.md');
@@ -615,9 +614,9 @@ function cmdStats(cwd, format, raw) {
   let gitCommits = 0;
   let gitFirstCommitDate = null;
   try {
-    const commitCount = execGit(cwd, ['rev-list', '--count', 'HEAD']);
+    const commitCount = await execGit(cwd, ['rev-list', '--count', 'HEAD']);
     gitCommits = parseInt(commitCount.trim(), 10) || 0;
-    const firstDate = execGit(cwd, ['log', '--reverse', '--format=%as', '--max-count=1']);
+    const firstDate = await execGit(cwd, ['log', '--reverse', '--format=%as', '--max-count=1']);
     gitFirstCommitDate = firstDate.trim() || null;
   } catch (err) {
     logger.warn('Failed to compute git stats in cmdStats', { cwd, error: err.message });

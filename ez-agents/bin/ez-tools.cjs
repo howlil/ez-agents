@@ -140,6 +140,7 @@ const commands = require('./lib/commands.cjs');
 const init = require('./lib/init.cjs');
 const frontmatter = require('./lib/frontmatter.cjs');
 const HealthCheck = require('./lib/health-check.cjs');
+const auth = require('./lib/auth.cjs');
 
 // ─── CLI Router ───────────────────────────────────────────────────────────────
 
@@ -252,6 +253,115 @@ async function main() {
       const health = new HealthCheck();
       const result = health.runAll();
       console.log(JSON.stringify(result, null, 2));
+      break;
+    }
+
+    case 'auth': {
+      const subcommand = args[1];
+      if (!subcommand) {
+        error('Usage: ez-tools auth <save|list|delete|test> [provider] [secret]\nSubcommands: save, list, delete, test');
+      }
+
+      switch (subcommand) {
+        case 'save': {
+          const provider = args[2];
+          const secret = args[3];
+          if (!provider || !secret) {
+            error('Usage: ez-tools auth save <provider> <secret>');
+          }
+          const success = await auth.saveCredential(provider, secret);
+          if (success) {
+            console.log(`✓ Credential saved for ${provider}`);
+          } else {
+            console.error('Failed to save credential');
+            process.exit(1);
+          }
+          break;
+        }
+
+        case 'list': {
+          const providers = await auth.listProviders();
+          const usingKeychain = auth.isKeychainAvailable();
+          
+          console.log('');
+          console.log('Provider       Storage');
+          console.log('─────────────────────────');
+          if (providers.length === 0) {
+            console.log('No credentials stored');
+          } else {
+            for (const p of providers) {
+              const storage = usingKeychain ? 'Keychain ✓' : 'File (fallback)';
+              console.log(`${p.padEnd(14)} ${storage}`);
+            }
+          }
+          if (!usingKeychain) {
+            console.log('');
+            console.log('⚠ Using file storage — consider installing keytar for better security');
+          }
+          break;
+        }
+
+        case 'delete': {
+          const provider = args[2];
+          const force = args.includes('--force');
+          if (!provider) {
+            error('Usage: ez-tools auth delete <provider> [--force]');
+          }
+          
+          if (!force) {
+            const readline = require('readline');
+            const rl = readline.createInterface({
+              input: process.stdin,
+              output: process.stdout
+            });
+            
+            const answer = await new Promise(resolve => {
+              rl.question(`Delete credential for ${provider}? [y/N] `, resolve);
+              rl.close();
+            });
+            
+            if (answer.toLowerCase() !== 'y') {
+              console.log('Delete cancelled');
+              break;
+            }
+          }
+          
+          const success = await auth.deleteCredential(provider);
+          if (success) {
+            console.log(`✓ Credential deleted for ${provider}`);
+          } else {
+            console.error(`No credential found for ${provider}`);
+            process.exit(1);
+          }
+          break;
+        }
+
+        case 'test': {
+          const usingKeychain = auth.isKeychainAvailable();
+          const providers = await auth.listProviders();
+          
+          console.log('');
+          console.log('Credential System Test');
+          console.log('══════════════════════');
+          console.log(`Keychain (keytar): ${usingKeychain ? 'Available ✓' : 'Unavailable'}`);
+          console.log(`Storage mode: ${usingKeychain ? 'System keychain' : 'Fallback file'}`);
+          console.log('');
+          console.log(`Stored providers: ${providers.length}`);
+          if (providers.length > 0) {
+            console.log(`  ${providers.join(', ')}`);
+          }
+          if (!usingKeychain) {
+            console.log('');
+            console.log('Tip: Install keytar for better security:');
+            console.log('  npm install keytar');
+          }
+          break;
+        }
+
+        default: {
+          error('Unknown auth subcommand: ' + subcommand + '\nValid: save, list, delete, test');
+        }
+      }
       break;
     }
 

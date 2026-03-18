@@ -1,0 +1,32 @@
+#!/usr/bin/env sh
+
+# Validate conventional commit format
+# Format: type(scope): message OR type: message
+# Valid types: feat, fix, docs, style, refactor, test, chore, perf, ci, build, revert
+
+COMMIT_MSG_FILE=$1
+COMMIT_MSG=$(cat "$COMMIT_MSG_FILE")
+
+# Regex pattern for conventional commits
+PATTERN='^(feat|fix|docs|style|refactor|test|chore|perf|ci|build|revert)(\([a-z0-9_-]+\))?: .{1,100}$'
+
+if ! echo "$COMMIT_MSG" | grep -qE "$PATTERN"; then
+  echo ""
+  echo "❌ Invalid commit message format!"
+  echo ""
+  echo "Expected: type(scope): message  OR  type: message"
+  echo ""
+  echo "Valid types: feat, fix, docs, style, refactor, test, chore, perf, ci, build, revert"
+  echo ""
+  echo "Examples:"
+  echo "  feat: add user authentication"
+  echo "  fix(auth): resolve token expiration bug"
+  echo "  docs: update README with installation steps"
+  echo ""
+  echo "Your message: $COMMIT_MSG"
+  echo ""
+  exit 1
+fi
+
+echo "✓ Commit message format valid"
+exit 0
