@@ -270,11 +270,25 @@ async function cmdVerifyCommits(cwd, hashes, raw) {
   const valid = [];
   const invalid = [];
   for (const hash of hashes) {
+    // Use git cat-file -t which supports both short and full hashes
+    // First try with the hash as-is (works for both short and full)
     const result = await execGit(cwd, ['cat-file', '-t', hash]);
     if (result.exitCode === 0 && result.stdout.trim() === 'commit') {
       valid.push(hash);
     } else {
-      invalid.push(hash);
+      // If that fails, try to resolve to full hash first
+      const resolveResult = await execGit(cwd, ['rev-parse', hash]);
+      if (resolveResult.exitCode === 0) {
+        const fullHash = resolveResult.stdout.trim();
+        const result2 = await execGit(cwd, ['cat-file', '-t', fullHash]);
+        if (result2.exitCode === 0 && result2.stdout.trim() === 'commit') {
+          valid.push(hash);
+        } else {
+          invalid.push(hash);
+        }
+      } else {
+        invalid.push(hash);
+      }
     }
   }
 

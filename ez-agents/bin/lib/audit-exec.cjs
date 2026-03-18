@@ -48,8 +48,13 @@ function getAuditFile() {
  * @param {Object} entry - Audit entry
  */
 function writeAudit(entry) {
-  const line = JSON.stringify(entry) + '\n';
-  appendFileSync(getAuditFile(), line, 'utf-8');
+  try {
+    const line = JSON.stringify(entry) + '\n';
+    appendFileSync(getAuditFile(), line, 'utf-8');
+  } catch (err) {
+    // Silently ignore audit write failures - logging is best-effort
+    // This can happen in temp test directories or when .planning doesn't exist
+  }
 }
 
 /**

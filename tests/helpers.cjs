@@ -63,6 +63,7 @@ function createTempProject() {
 function createTempGitProject() {
   const tmpDir = fs.mkdtempSync(path.join(require('os').tmpdir(), 'ez-test-'));
   fs.mkdirSync(path.join(tmpDir, '.planning', 'phases'), { recursive: true });
+  fs.mkdirSync(path.join(tmpDir, '.planning', 'logs'), { recursive: true });
 
   execSync('git init', { cwd: tmpDir, stdio: 'pipe' });
   execSync('git config user.email "test@test.com"', { cwd: tmpDir, stdio: 'pipe' });

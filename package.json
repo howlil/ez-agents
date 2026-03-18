@@ -3,8 +3,7 @@
   "version": "3.4.1",
   "description": "EZ Agents — Meta-prompting with multi-model support (Qwen, Kimi, OpenAI)",
   "bin": {
-    "ez-agents": "bin/install.js",
-    "ez-agents-update": "bin/update.js"
+    "ez-agents": "bin/install.js"
   },
   "files": [
     "bin",

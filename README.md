@@ -9,7 +9,7 @@
 [![GitHub stars](https://img.shields.io/github/stars/howlil/ez-agents?style=for-the-badge&logo=github)](https://github.com/howlil/ez-agents/stargazers)
 
 ```bash
-npm install -g git+https://github.com/howlil/ez-agents.git
+npm i -g @howlil/ez-agents@latest
 ```
 
 **Works with:** Claude Code · OpenCode · Gemini CLI · Codex · Copilot · Qwen · Kimi
@@ -42,7 +42,7 @@ EZ Agents fixes this by adding a lightweight orchestration layer. Think of it as
 ### 1. Install
 
 ```bash
-npm install -g git+https://github.com/howlil/ez-agents.git
+npm i -g @howlil/ez-agents@latest
 ```
 
 ### 2. Setup for Your AI Tool
@@ -242,23 +242,20 @@ Parallel agents analyze your stack, architecture, conventions, and pain points. 
 - Node.js >= 16.7.0
 - One of: Claude Code, OpenCode, Gemini CLI, Codex, Copilot, Qwen Code, Kimi Code
 
-### Installation Options
-
-**From GitHub (Recommended)**
+### Installation
 
 ```bash
-npm install -g git+https://github.com/howlil/ez-agents.git
+npm i -g @howlil/ez-agents@latest
 ez-agents --claude --global
 ```
 
-**From npm**
+### Updating
 
 ```bash
-npm install -g @howlil/ez-agents
-ez-agents --claude --global
+npm update -g @howlil/ez-agents
 ```
 
-**Development Install**
+**Development Install** (for contributing)
 
 ```bash
 git clone https://github.com/howlil/ez-agents.git
@@ -266,14 +263,6 @@ cd ez-agents
 npm install -g .
 ez-agents --claude --local
 ```
-
-### Updating
-
-```bash
-ez-agents-update
-```
-
-Shows changelog before installing. If you have local modifications, they're backed up and can be reapplied with `/ez:reapply-patches`.
 
 ---
 
