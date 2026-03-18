@@ -420,6 +420,7 @@ A known workaround exists for a Claude Code classification bug. EZ Agents spot-c
 
 ## Related Documentation
 
+- [Workflows](WORKFLOWS.md) — Complete workflow diagrams for all use cases
 - [Provider Behaviors](PROVIDER-BEHAVIORS.md) — Differences between Claude, OpenCode, Gemini, etc.
 - [Qwen Code Install](QWEN-CODE-INSTALL.md) — Fix for Qwen Code CLI installation issues
 - [README](../README.md) — Quick start and overview

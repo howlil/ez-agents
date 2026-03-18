@@ -14,7 +14,7 @@ npm install -g git+https://github.com/howlil/ez-agents.git
 
 **Works with:** Claude Code · OpenCode · Gemini CLI · Codex · Copilot · Qwen · Kimi
 
-[Quick Start](#quick-start) · [How It Works](#how-it-works) · [Commands](#commands) · [Setup](#setup) · [Docs](docs/USER-GUIDE.md)
+[Quick Start](#quick-start) · [How It Works](#how-it-works) · [Commands](#commands) · [Setup](#setup) · [Docs](docs/)
 
 </div>
 
@@ -420,6 +420,7 @@ You test: Can register? Can login? Can connect to DB? All pass.
 | Doc | What's Inside |
 |-----|---------------|
 | [User Guide](docs/USER-GUIDE.md) | Full command reference, workflows, troubleshooting |
+| [Workflows](docs/WORKFLOWS.md) | Complete workflow diagrams for all use cases |
 | [Provider Behaviors](docs/PROVIDER-BEHAVIORS.md) | Differences between Claude, OpenCode, Gemini, etc. |
 | [Qwen Code Install](docs/QWEN-CODE-INSTALL.md) | Fix for Qwen Code CLI installation issues |
 
