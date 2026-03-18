@@ -19,7 +19,7 @@ jobs:
       id-token: write
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
         with:
           fetch-depth: 0  # Fetch all history for tags
 
@@ -41,7 +41,7 @@ jobs:
         run: |
           PKG_VERSION=$(node -p "require('./package.json').version")
           PREV_VERSION=$(git tag -l "v$PKG_VERSION" || echo "")
-          
+
           if [ -n "$PREV_VERSION" ]; then
             echo "changed=false" >> $GITHUB_OUTPUT
             echo "Version $PKG_VERSION already tagged - skipping publish"
