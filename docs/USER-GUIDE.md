@@ -1,272 +1,81 @@
 # EZ Agents User Guide
 
-A detailed reference for workflows, troubleshooting, and configuration. For quick-start setup, see the [README](../README.md).
+Detailed reference for workflows, configuration, and troubleshooting. For quick-start setup, see the [README](../README.md).
 
 ---
 
 ## Table of Contents
 
-- [Workflow Diagrams](#workflow-diagrams)
-- [UI Design Contract](#ui-design-contract)
+- [Workflow](#workflow)
 - [Command Reference](#command-reference)
-- [Configuration Reference](#configuration-reference)
+- [Configuration](#configuration)
 - [Usage Examples](#usage-examples)
 - [Troubleshooting](#troubleshooting)
 - [Recovery Quick Reference](#recovery-quick-reference)
 
 ---
 
-## Workflow Diagrams
+## Workflow
 
 ### Full Project Lifecycle
 
 ```
-  ┌──────────────────────────────────────────────────┐
-  │                   NEW PROJECT                    │
-  │  /ez:new-project                                 │
-  │  Questions -> Research -> Requirements -> Roadmap│
-  └─────────────────────────┬────────────────────────┘
-                            │
-             ┌──────────────▼─────────────┐
-             │      FOR EACH PHASE:       │
-             │                            │
-             │  ┌────────────────────┐    │
-             │  │ /ez:discuss-phase  │    │  <- Lock in preferences
-             │  └──────────┬─────────┘    │
-             │             │              │
-             │  ┌──────────▼─────────┐    │
-             │  │ /ez:ui-phase       │    │  <- Design contract (frontend)
-             │  └──────────┬─────────┘    │
-             │             │              │
-             │  ┌──────────▼─────────┐    │
-             │  │ /ez:plan-phase     │    │  <- Research + Plan + Verify
-             │  └──────────┬─────────┘    │
-             │             │              │
-             │  ┌──────────▼─────────┐    │
-             │  │ /ez:execute-phase  │    │  <- Parallel execution
-             │  └──────────┬─────────┘    │
-             │             │              │
-             │  ┌──────────▼─────────┐    │
-             │  │ /ez:verify-work    │    │  <- Manual UAT
-             │  └──────────┬─────────┘    │
-             │             │              │
-             │     Next Phase?────────────┘
-             │             │ No
-             └─────────────┼──────────────┘
-                            │
-            ┌───────────────▼──────────────┐
-            │  /ez:audit-milestone         │
-            │  /ez:complete-milestone      │
-            └───────────────┬──────────────┘
-                            │
-                   Another milestone?
-                       │          │
-                      Yes         No -> Done!
-                       │
-               ┌───────▼──────────────┐
-               │  /ez:new-milestone   │
-               └──────────────────────┘
+  ┌────────────────────────────────┐
+  │     /ez:new-project            │
+  │  Questions → Research → Plan   │
+  └───────────────┬────────────────┘
+                  │
+                  ▼
+  ┌───────────────────────────────────────────┐
+  │  FOR EACH PHASE:                          │
+  │                                           │
+  │  /ez:discuss-phase  → Lock in approach    │
+  │  /ez:plan-phase     → Break into tasks    │
+  │  /ez:execute-phase  → Build (wave-based)  │
+  │  /ez:verify-work    → Test & validate     │
+  └───────────────────────────────────────────┘
+                  │
+                  ▼
+  ┌────────────────────────────────┐
+  │  /ez:audit-milestone           │
+  │  /ez:complete-milestone        │
+  └────────────────────────────────┘
 ```
 
-### Planning Agent Coordination
+### Wave Execution
+
+Tasks without dependencies run in parallel. Dependent tasks wait:
 
 ```
-  /ez:plan-phase N
-         │
-         ├── Phase Researcher (x4 parallel)
-         │     ├── Stack researcher
-         │     ├── Features researcher
-         │     ├── Architecture researcher
-         │     └── Pitfalls researcher
-         │           │
-         │     ┌──────▼──────┐
-         │     │ RESEARCH.md │
-         │     └──────┬──────┘
-         │            │
-         │     ┌──────▼──────┐
-         │     │   Planner   │  <- Reads PROJECT.md, REQUIREMENTS.md,
-         │     │             │     CONTEXT.md, RESEARCH.md
-         │     └──────┬──────┘
-         │            │
-         │     ┌──────▼───────────┐     ┌────────┐
-         │     │   Plan Checker   │────>│ PASS?  │
-         │     └──────────────────┘     └───┬────┘
-         │                                  │
-         │                             Yes  │  No
-         │                              │   │   │
-         │                              │   └───┘  (loop, up to 3x)
-         │                              │
-         │                        ┌─────▼──────┐
-         │                        │ PLAN files │
-         │                        └────────────┘
-         └── Done
+Wave 1 (parallel)          Wave 2 (parallel)          Wave 3 (sequential)
+┌─────────────────┐        ┌─────────────────┐        ┌─────────────────┐
+│ ┌─────────────┐ │        │ ┌─────────────┐ │        │ ┌─────────────┐ │
+│ │   Plan 01   │ │        │ │   Plan 03   │ │        │ │   Plan 05   │ │
+│ │  User Auth  │ │        │ │ Orders API  │ │        │ │  Checkout   │ │
+│ └─────────────┘ │        │ └─────────────┘ │        │ └─────────────┘ │
+│ ┌─────────────┐ │        │ ┌─────────────┐ │
+│ │   Plan 02   │ │        │ │   Plan 04   │ │
+│ │  Products   │ │        │ │   Cart API  │ │
+│ └─────────────┘ │        │ └─────────────┘ │
+└─────────────────┘        └─────────────────┘
+
+Plan 03 needs Plan 01 (Orders API needs User Model)
+Plan 04 needs Plan 02 (Cart API needs Product Model)
+Plan 05 needs both (Checkout needs Orders + Cart)
 ```
 
-### Validation Architecture (Nyquist Layer)
-
-During plan-phase research, EZ Agents now maps automated test coverage to each phase
-requirement before any code is written. This ensures that when Claude's executor
-commits a task, a feedback mechanism already exists to verify it within seconds.
-
-The researcher detects your existing test infrastructure, maps each requirement to
-a specific test command, and identifies any test scaffolding that must be created
-before implementation begins (Wave 0 tasks).
-
-The plan-checker enforces this as an 8th verification dimension: plans where tasks
-lack automated verify commands will not be approved.
-
-**Output:** `{phase}-VALIDATION.md` -- the feedback contract for the phase.
-
-**Disable:** Set `workflow.nyquist_validation: false` in `/ez:settings` for
-rapid prototyping phases where test infrastructure isn't the focus.
-
-### Retroactive Validation (`/ez:validate-phase`)
-
-For phases executed before Nyquist validation existed, or for existing codebases
-with only traditional test suites, retroactively audit and fill coverage gaps:
+### Existing Codebases
 
 ```
-  /ez:validate-phase N
-         |
-         +-- Detect state (VALIDATION.md exists? SUMMARY.md exists?)
-         |
-         +-- Discover: scan implementation, map requirements to tests
-         |
-         +-- Analyze gaps: which requirements lack automated verification?
-         |
-         +-- Present gap plan for approval
-         |
-         +-- Spawn auditor: generate tests, run, debug (max 3 attempts)
-         |
-         +-- Update VALIDATION.md
-               |
-               +-- COMPLIANT -> all requirements have automated checks
-               +-- PARTIAL -> some gaps escalated to manual-only
-```
-
-The auditor never modifies implementation code — only test files and
-VALIDATION.md. If a test reveals an implementation bug, it's flagged as an
-escalation for you to address.
-
-**When to use:** After executing phases that were planned before Nyquist was
-enabled, or after `/ez:audit-milestone` surfaces Nyquist compliance gaps.
-
----
-
-## UI Design Contract
-
-### Why
-
-AI-generated frontends are visually inconsistent not because Claude Code is bad at UI but because no design contract existed before execution. Five components built without a shared spacing scale, color contract, or copywriting standard produce five slightly different visual decisions.
-
-`/ez:ui-phase` locks the design contract before planning. `/ez:ui-review` audits the result after execution.
-
-### Commands
-
-| Command | Description |
-|---------|-------------|
-| `/ez:ui-phase [N]` | Generate UI-SPEC.md design contract for a frontend phase |
-| `/ez:ui-review [N]` | Retroactive 6-pillar visual audit of implemented UI |
-
-### Workflow: `/ez:ui-phase`
-
-**When to run:** After `/ez:discuss-phase`, before `/ez:plan-phase` — for phases with frontend/UI work.
-
-**Flow:**
-1. Reads CONTEXT.md, RESEARCH.md, REQUIREMENTS.md for existing decisions
-2. Detects design system state (shadcn components.json, Tailwind config, existing tokens)
-3. shadcn initialization gate — offers to initialize if React/Next.js/Vite project has none
-4. Asks only unanswered design contract questions (spacing, typography, color, copywriting, registry safety)
-5. Writes `{phase}-UI-SPEC.md` to phase directory
-6. Validates against 6 dimensions (Copywriting, Visuals, Color, Typography, Spacing, Registry Safety)
-7. Revision loop if BLOCKED (max 2 iterations)
-
-**Output:** `{padded_phase}-UI-SPEC.md` in `.planning/phases/{phase-dir}/`
-
-### Workflow: `/ez:ui-review`
-
-**When to run:** After `/ez:execute-phase` or `/ez:verify-work` — for any project with frontend code.
-
-**Standalone:** Works on any project, not just EZ Agents-managed ones. If no UI-SPEC.md exists, audits against abstract 6-pillar standards.
-
-**6 Pillars (scored 1-4 each):**
-1. Copywriting — CTA labels, empty states, error states
-2. Visuals — focal points, visual hierarchy, icon accessibility
-3. Color — accent usage discipline, 60/30/10 compliance
-4. Typography — font size/weight constraint adherence
-5. Spacing — grid alignment, token consistency
-6. Experience Design — loading/error/empty state coverage
-
-**Output:** `{padded_phase}-UI-REVIEW.md` in phase directory with scores and top 3 priority fixes.
-
-### Configuration
-
-| Setting | Default | Description |
-|---------|---------|-------------|
-| `workflow.ui_phase` | `true` | Generate UI design contracts for frontend phases |
-| `workflow.ui_safety_gate` | `true` | plan-phase prompts to run /ez:ui-phase for frontend phases |
-
-Both follow the absent=enabled pattern. Disable via `/ez:settings`.
-
-### shadcn Initialization
-
-For React/Next.js/Vite projects, the UI researcher offers to initialize shadcn if no `components.json` is found. The flow:
-
-1. Visit `ui.shadcn.com/create` and configure your preset
-2. Copy the preset string
-3. Run `npx shadcn init --preset {paste}`
-4. Preset encodes the entire design system — colors, border radius, fonts
-
-The preset string becomes a first-class EZ Agents planning artifact, reproducible across phases and milestones.
-
-### Registry Safety Gate
-
-Third-party shadcn registries can inject arbitrary code. The safety gate requires:
-- `npx shadcn view {component}` — inspect before installing
-- `npx shadcn diff {component}` — compare against official
-
-Controlled by `workflow.ui_safety_gate` config toggle.
-
-### Screenshot Storage
-
-`/ez:ui-review` captures screenshots via Playwright CLI to `.planning/ui-reviews/`. A `.gitignore` is created automatically to prevent binary files from reaching git. Screenshots are cleaned up during `/ez:complete-milestone`.
-
----
-
-### Execution Wave Coordination
-
-```
-  /ez:execute-phase N
-         │
-         ├── Analyze plan dependencies
-         │
-         ├── Wave 1 (independent plans):
-         │     ├── Executor A (fresh 200K context) -> commit
-         │     └── Executor B (fresh 200K context) -> commit
-         │
-         ├── Wave 2 (depends on Wave 1):
-         │     └── Executor C (fresh 200K context) -> commit
-         │
-         └── Verifier
-               └── Check codebase against phase goals
-                     │
-                     ├── PASS -> VERIFICATION.md (success)
-                     └── FAIL -> Issues logged for /ez:verify-work
-```
-
-### Brownfield Workflow (Existing Codebase)
-
-```
-  /ez:map-codebase
-         │
-         ├── Stack Mapper     -> codebase/STACK.md
-         ├── Arch Mapper      -> codebase/ARCHITECTURE.md
-         ├── Convention Mapper -> codebase/CONVENTIONS.md
-         └── Concern Mapper   -> codebase/CONCERNS.md
-                │
-        ┌───────▼──────────┐
-        │ /ez:new-project │  <- Questions focus on what you're ADDING
-        └──────────────────┘
+/ez:map-codebase
+       │
+       ├── Stack Mapper     → codebase/STACK.md
+       ├── Arch Mapper      → codebase/ARCHITECTURE.md
+       ├── Convention Mapper → codebase/CONVENTIONS.md
+       └── Concern Mapper   → codebase/CONCERNS.md
+              │
+              ▼
+       /ez:new-project  ← Questions focus on what you're ADDING
 ```
 
 ---
@@ -278,14 +87,11 @@ Controlled by `workflow.ui_safety_gate` config toggle.
 | Command | Purpose | When to Use |
 |---------|---------|-------------|
 | `/ez:new-project` | Full project init: questions, research, requirements, roadmap | Start of a new project |
-| `/ez:new-project --auto @idea.md` | Automated init from document | Have a PRD or idea doc ready |
 | `/ez:discuss-phase [N]` | Capture implementation decisions | Before planning, to shape how it gets built |
-| `/ez:ui-phase [N]` | Generate UI design contract | After discuss-phase, before plan-phase (frontend phases) |
 | `/ez:plan-phase [N]` | Research + plan + verify | Before executing a phase |
 | `/ez:execute-phase <N>` | Execute all plans in parallel waves | After planning is complete |
 | `/ez:verify-work [N]` | Manual UAT with auto-diagnosis | After execution completes |
-| `/ez:ui-review [N]` | Retroactive 6-pillar visual audit | After execution or verify-work (frontend projects) |
-| `/ez:audit-milestone` | Verify milestone met its definition of done | Before completing milestone |
+| `/ez:audit-milestone` | Verify milestone met definition of done | Before completing milestone |
 | `/ez:complete-milestone` | Archive milestone, tag release | All phases verified |
 | `/ez:new-milestone [name]` | Start next version cycle | After completing a milestone |
 
@@ -293,12 +99,11 @@ Controlled by `workflow.ui_safety_gate` config toggle.
 
 | Command | Purpose | When to Use |
 |---------|---------|-------------|
-| `/ez:progress` | Show status and next steps | Anytime -- "where am I?" |
+| `/ez:progress` | Show status and next steps | Anytime — "where am I?" |
 | `/ez:resume-work` | Restore full context from last session | Starting a new session |
 | `/ez:pause-work` | Save context handoff | Stopping mid-phase |
 | `/ez:help` | Show all commands | Quick reference |
 | `/ez:update` | Update EZ Agents with changelog preview | Check for new versions |
-| `/ez:join-discord` | Open Discord community invite | Questions or community |
 
 ### Phase Management
 
@@ -311,7 +116,7 @@ Controlled by `workflow.ui_safety_gate` config toggle.
 | `/ez:plan-milestone-gaps` | Create phases for audit gaps | After audit finds missing items |
 | `/ez:research-phase [N]` | Deep ecosystem research only | Complex or unfamiliar domain |
 
-### Brownfield & Utilities
+### Utilities
 
 | Command | Purpose | When to Use |
 |---------|---------|-------------|
@@ -326,11 +131,11 @@ Controlled by `workflow.ui_safety_gate` config toggle.
 
 ---
 
-## Configuration Reference
+## Configuration
 
-EZ Agents stores project settings in `.planning/config.json`. Configure during `/ez:new-project` or update later with `/ez:settings`.
+EZ Agents stores settings in `.planning/config.json`. Configure during `/ez:new-project` or update with `/ez:settings`.
 
-### Full config.json Schema
+### Full Schema
 
 ```json
 {
@@ -344,10 +149,7 @@ EZ Agents stores project settings in `.planning/config.json`. Configure during `
   "workflow": {
     "research": true,
     "plan_check": true,
-    "verifier": true,
-    "nyquist_validation": true,
-    "ui_phase": true,
-    "ui_safety_gate": true
+    "verifier": true
   },
   "git": {
     "branching_strategy": "none",
@@ -359,53 +161,33 @@ EZ Agents stores project settings in `.planning/config.json`. Configure during `
 
 ### Core Settings
 
-| Setting | Options | Default | What it Controls |
+| Setting | Options | Default | What It Controls |
 |---------|---------|---------|------------------|
-| `mode` | `interactive`, `yolo` | `interactive` | `yolo` auto-approves decisions; `interactive` confirms at each step |
-| `granularity` | `coarse`, `standard`, `fine` | `standard` | Phase granularity: how finely scope is sliced (3-5, 5-8, or 8-12 phases) |
-| `model_profile` | `quality`, `balanced`, `budget` | `balanced` | Model tier for each agent (see table below) |
-
-### Planning Settings
-
-| Setting | Options | Default | What it Controls |
-|---------|---------|---------|------------------|
-| `planning.commit_docs` | `true`, `false` | `true` | Whether `.planning/` files are committed to git |
-| `planning.search_gitignored` | `true`, `false` | `false` | Add `--no-ignore` to broad searches to include `.planning/` |
-
-> **Note:** If `.planning/` is in `.gitignore`, `commit_docs` is automatically `false` regardless of the config value.
+| `mode` | `interactive`, `yolo` | `interactive` | `yolo` auto-approves; `interactive` confirms |
+| `granularity` | `coarse`, `standard`, `fine` | `standard` | Phase count: 3-5, 5-8, or 8-12 |
+| `model_profile` | `quality`, `balanced`, `budget` | `balanced` | Model tier per agent |
 
 ### Workflow Toggles
 
-| Setting | Options | Default | What it Controls |
-|---------|---------|---------|------------------|
-| `workflow.research` | `true`, `false` | `true` | Domain investigation before planning |
-| `workflow.plan_check` | `true`, `false` | `true` | Plan verification loop (up to 3 iterations) |
-| `workflow.verifier` | `true`, `false` | `true` | Post-execution verification against phase goals |
-| `workflow.nyquist_validation` | `true`, `false` | `true` | Validation architecture research during plan-phase; 8th plan-check dimension |
-| `workflow.ui_phase` | `true`, `false` | `true` | Generate UI design contracts for frontend phases |
-| `workflow.ui_safety_gate` | `true`, `false` | `true` | plan-phase prompts to run /ez:ui-phase for frontend phases |
+| Setting | Default | What It Controls |
+|---------|---------|------------------|
+| `workflow.research` | `true` | Domain investigation before planning |
+| `workflow.plan_check` | `true` | Plan verification loop (up to 3 iterations) |
+| `workflow.verifier` | `true` | Post-execution verification |
 
-Disable these to speed up phases in familiar domains or when conserving tokens.
+Disable these for familiar domains or to conserve tokens.
 
 ### Git Branching
 
-| Setting | Options | Default | What it Controls |
-|---------|---------|---------|------------------|
-| `git.branching_strategy` | `none`, `phase`, `milestone` | `none` | When and how branches are created |
-| `git.phase_branch_template` | Template string | `ez/phase-{phase}-{slug}` | Branch name for phase strategy |
-| `git.milestone_branch_template` | Template string | `ez/{milestone}-{slug}` | Branch name for milestone strategy |
+| Strategy | Creates Branch | Best For |
+|----------|---------------|----------|
+| `none` | Never | Solo development, simple projects |
+| `phase` | At each `execute-phase` | Code review per phase, granular rollback |
+| `milestone` | At first `execute-phase` | Release branches, PR per version |
 
-**Branching strategies explained:**
+**Template variables:** `{phase}` = zero-padded number, `{slug}` = lowercase hyphenated name, `{milestone}` = version.
 
-| Strategy | Creates Branch | Scope | Best For |
-|----------|---------------|-------|----------|
-| `none` | Never | N/A | Solo development, simple projects |
-| `phase` | At each `execute-phase` | One phase per branch | Code review per phase, granular rollback |
-| `milestone` | At first `execute-phase` | All phases share one branch | Release branches, PR per version |
-
-**Template variables:** `{phase}` = zero-padded number (e.g., "03"), `{slug}` = lowercase hyphenated name, `{milestone}` = version (e.g., "v1.0").
-
-### Model Profiles (Per-Agent Breakdown)
+### Model Profiles
 
 | Agent | `quality` | `balanced` | `budget` |
 |-------|-----------|------------|----------|
@@ -421,10 +203,10 @@ Disable these to speed up phases in familiar domains or when conserving tokens.
 | ez-plan-checker | Sonnet | Sonnet | Haiku |
 | ez-integration-checker | Sonnet | Sonnet | Haiku |
 
-**Profile philosophy:**
-- **quality** -- Opus for all decision-making agents, Sonnet for read-only verification. Use when quota is available and the work is critical.
-- **balanced** -- Opus only for planning (where architecture decisions happen), Sonnet for everything else. The default for good reason.
-- **budget** -- Sonnet for anything that writes code, Haiku for research and verification. Use for high-volume work or less critical phases.
+**When to use:**
+- **quality** — Critical work, complex decisions, you have quota
+- **balanced** — Day-to-day development
+- **budget** — High-volume work, familiar domains, prototyping
 
 ---
 
@@ -433,36 +215,29 @@ Disable these to speed up phases in familiar domains or when conserving tokens.
 ### New Project (Full Cycle)
 
 ```bash
-claude --dangerously-skip-permissions
-/ez:new-project            # Answer questions, configure, approve roadmap
-/clear
-/ez:discuss-phase 1        # Lock in your preferences
-/ez:ui-phase 1             # Design contract (frontend phases)
+/ez:new-project            # Answer questions, approve roadmap
+/ez:discuss-phase 1        # Lock in approach
 /ez:plan-phase 1           # Research + plan + verify
 /ez:execute-phase 1        # Parallel execution
 /ez:verify-work 1          # Manual UAT
-/ez:ui-review 1            # Visual audit (frontend phases)
-/clear
 /ez:discuss-phase 2        # Repeat for each phase
 ...
 /ez:audit-milestone        # Check everything shipped
 /ez:complete-milestone     # Archive, tag, done
 ```
 
-### New Project from Existing Document
+### New Project from Document
 
 ```bash
-/ez:new-project --auto @prd.md   # Auto-runs research/requirements/roadmap from your doc
-/clear
+/ez:new-project --auto @prd.md   # Auto-runs from your doc
 /ez:discuss-phase 1               # Normal flow from here
 ```
 
 ### Existing Codebase
 
 ```bash
-/ez:map-codebase           # Analyze what exists (parallel agents)
+/ez:map-codebase           # Analyze what exists
 /ez:new-project            # Questions focus on what you're ADDING
-# (normal phase workflow from here)
 ```
 
 ### Quick Bug Fix
@@ -475,23 +250,23 @@ claude --dangerously-skip-permissions
 ### Resuming After a Break
 
 ```bash
-/ez:progress               # See where you left off and what's next
+/ez:progress               # See where you left off
 # or
-/ez:resume-work            # Full context restoration from last session
+/ez:resume-work            # Full context restoration
 ```
 
 ### Preparing for Release
 
 ```bash
-/ez:audit-milestone        # Check requirements coverage, detect stubs
-/ez:plan-milestone-gaps    # If audit found gaps, create phases to close them
+/ez:audit-milestone        # Check requirements coverage
+/ez:plan-milestone-gaps    # If audit found gaps, create phases
 /ez:complete-milestone     # Archive, tag, done
 ```
 
 ### Speed vs Quality Presets
 
 | Scenario | Mode | Granularity | Profile | Research | Plan Check | Verifier |
-|----------|------|-------|---------|----------|------------|----------|
+|----------|------|-------------|---------|----------|------------|----------|
 | Prototyping | `yolo` | `coarse` | `budget` | off | off | off |
 | Normal dev | `interactive` | `standard` | `balanced` | on | on | on |
 | Production | `interactive` | `fine` | `quality` | on | on | on |
@@ -499,11 +274,9 @@ claude --dangerously-skip-permissions
 ### Mid-Milestone Scope Changes
 
 ```bash
-/ez:add-phase              # Append a new phase to the roadmap
-# or
-/ez:insert-phase 3         # Insert urgent work between phases 3 and 4
-# or
-/ez:remove-phase 7         # Descope phase 7 and renumber
+/ez:add-phase              # Append new phase
+/ez:insert-phase 3         # Insert between phases 3 and 4
+/ez:remove-phase 7         # Descope and renumber
 ```
 
 ---
@@ -512,19 +285,19 @@ claude --dangerously-skip-permissions
 
 ### "Project already initialized"
 
-You ran `/ez:new-project` but `.planning/PROJECT.md` already exists. This is a safety check. If you want to start over, delete the `.planning/` directory first.
+You ran `/ez:new-project` but `.planning/PROJECT.md` already exists. Delete `.planning/` to start over.
 
 ### Context Degradation During Long Sessions
 
-Clear your context window between major commands: `/clear` in Claude Code. EZ Agents is designed around fresh contexts -- every subagent gets a clean 200K window. If quality is dropping in the main session, clear and use `/ez:resume-work` or `/ez:progress` to restore state.
+Clear context between major commands: `/clear` in Claude Code. EZ Agents is designed around fresh contexts — every subagent gets a clean window. If quality drops, clear and use `/ez:resume-work` to restore state.
 
 ### Plans Seem Wrong or Misaligned
 
-Run `/ez:discuss-phase [N]` before planning. Most plan quality issues come from Claude making assumptions that `CONTEXT.md` would have prevented. You can also run `/ez:list-phase-assumptions [N]` to see what Claude intends to do before committing to a plan.
+Run `/ez:discuss-phase [N]` before planning. Most plan quality issues come from Claude making assumptions. Or run `/ez:list-phase-assumptions [N]` to see what Claude intends before committing.
 
 ### Execution Fails or Produces Stubs
 
-Check that the plan was not too ambitious. Plans should have 2-3 tasks maximum. If tasks are too large, they exceed what a single context window can produce reliably. Re-plan with smaller scope.
+Plans should have 2-3 tasks maximum. If tasks are too large, they exceed what a single context window can produce reliably. Re-plan with smaller scope.
 
 ### Lost Track of Where You Are
 
@@ -532,23 +305,23 @@ Run `/ez:progress`. It reads all state files and tells you exactly where you are
 
 ### Need to Change Something After Execution
 
-Do not re-run `/ez:execute-phase`. Use `/ez:quick` for targeted fixes, or `/ez:verify-work` to systematically identify and fix issues through UAT.
+Don't re-run `/ez:execute-phase`. Use `/ez:quick` for targeted fixes, or `/ez:verify-work` to systematically identify issues through UAT.
 
 ### Model Costs Too High
 
-Switch to budget profile: `/ez:set-profile budget`. Disable research and plan-check agents via `/ez:settings` if the domain is familiar to you (or to Claude).
+Switch to budget profile: `/ez:set-profile budget`. Disable research and plan-check via `/ez:settings` if the domain is familiar.
 
 ### Working on a Sensitive/Private Project
 
-Set `commit_docs: false` during `/ez:new-project` or via `/ez:settings`. Add `.planning/` to your `.gitignore`. Planning artifacts stay local and never touch git.
+Set `commit_docs: false` during `/ez:new-project` or via `/ez:settings`. Add `.planning/` to `.gitignore`. Planning artifacts stay local.
 
-### EZ Agents Update Overwrote My Local Changes
+### EZ Agents Update Overwrote Local Changes
 
-Since v1.17, the installer backs up locally modified files to `ez-local-patches/`. Run `/ez:reapply-patches` to merge your changes back.
+Since v1.17, the installer backs up locally modified files to `ez-local-patches/`. Run `/ez:reapply-patches` to merge changes back.
 
-### Subagent Appears to Fail but Work Was Done
+### Subagent Fails but Work Was Done
 
-A known workaround exists for a Claude Code classification bug. EZ Agents's orchestrators (execute-phase, quick) spot-check actual output before reporting failure. If you see a failure message but commits were made, check `git log` -- the work may have succeeded.
+A known workaround exists for a Claude Code classification bug. EZ Agents spot-checks actual output before reporting failure. If you see failure but commits were made, check `git log` — the work may have succeeded.
 
 ---
 
@@ -562,21 +335,19 @@ A known workaround exists for a Claude Code classification bug. EZ Agents's orch
 | Milestone audit found gaps | `/ez:plan-milestone-gaps` |
 | Something broke | `/ez:debug "description"` |
 | Quick targeted fix | `/ez:quick` |
-| Plan doesn't match your vision | `/ez:discuss-phase [N]` then re-plan |
-| Costs running high | `/ez:set-profile budget` and `/ez:settings` to toggle agents off |
+| Plan doesn't match vision | `/ez:discuss-phase [N]` then re-plan |
+| Costs running high | `/ez:set-profile budget` and toggle agents off |
 | Update broke local changes | `/ez:reapply-patches` |
 
 ---
 
 ## Project File Structure
 
-For reference, here is what EZ Agents creates in your project:
-
 ```
 .planning/
-  PROJECT.md              # Project vision and context (always loaded)
-  REQUIREMENTS.md         # Scoped v1/v2 requirements with IDs
-  ROADMAP.md              # Phase breakdown with status tracking
+  PROJECT.md              # Project vision and context
+  REQUIREMENTS.md         # Scoped requirements with IDs
+  ROADMAP.md              # Phase breakdown with status
   STATE.md                # Decisions, blockers, session memory
   config.json             # Workflow configuration
   MILESTONES.md           # Completed milestone archive
@@ -586,15 +357,19 @@ For reference, here is what EZ Agents creates in your project:
     done/                 # Completed todos
   debug/                  # Active debug sessions
     resolved/             # Archived debug sessions
-  codebase/               # Brownfield codebase mapping (from /ez:map-codebase)
   phases/
     XX-phase-name/
       XX-YY-PLAN.md       # Atomic execution plans
-      XX-YY-SUMMARY.md    # Execution outcomes and decisions
-      CONTEXT.md          # Your implementation preferences
+      XX-YY-SUMMARY.md    # Execution outcomes
+      CONTEXT.md          # Implementation preferences
       RESEARCH.md         # Ecosystem research findings
-      VERIFICATION.md     # Post-execution verification results
-      XX-UI-SPEC.md       # UI design contract (from /ez:ui-phase)
-      XX-UI-REVIEW.md     # Visual audit scores (from /ez:ui-review)
-  ui-reviews/             # Screenshots from /ez:ui-review (gitignored)
+      VERIFICATION.md     # Post-execution verification
 ```
+
+---
+
+## Related Documentation
+
+- [Provider Behaviors](PROVIDER-BEHAVIORS.md) — Differences between Claude, OpenCode, Gemini, etc.
+- [Qwen Code Install](QWEN-CODE-INSTALL.md) — Fix for Qwen Code CLI installation issues
+- [README](../README.md) — Quick start and overview
