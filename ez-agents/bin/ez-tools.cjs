@@ -149,6 +149,7 @@ const auth = require('./lib/auth.cjs');
 const FileAccessService = require('./lib/file-access.cjs');
 const URLFetchService = require('./lib/url-fetch.cjs');
 const ContextManager = require('./lib/context-manager.cjs');
+const PackageManagerService = require('./lib/package-manager-service.cjs');
 
 // ─── CLI Router ───────────────────────────────────────────────────────────────
 
@@ -591,6 +592,89 @@ async function main() {
         milestone.cmdMilestoneComplete(cwd, args[2], { name: milestoneName, archivePhases }, raw);
       } else {
         error('Unknown milestone subcommand. Available: complete');
+      }
+      break;
+    }
+
+    case 'package-manager': {
+      const subcommand = args[1];
+      
+      if (!subcommand) {
+        error('Usage: ez-tools package-manager <detect|install|add|remove|info> [options]\nSubcommands: detect, install, add, remove, info');
+      }
+
+      try {
+        const service = new PackageManagerService(cwd);
+
+        switch (subcommand) {
+          case 'detect': {
+            const detector = new (require('./lib/package-manager-detector.cjs'))(cwd);
+            const result = detector.detect();
+            if (raw) {
+              console.log(`manager=${result.manager} source=${result.source} confidence=${result.confidence}`);
+            } else {
+              console.log(JSON.stringify(result, null, 2));
+            }
+            break;
+          }
+
+          case 'install': {
+            await service.initialize();
+            const frozenLockfile = args.includes('--frozen');
+            const production = args.includes('--production');
+            const result = await service.install({ frozenLockfile, production });
+            if (!raw) {
+              console.log(result);
+            }
+            break;
+          }
+
+          case 'add': {
+            await service.initialize();
+            const dev = args.includes('--dev') || args.includes('-D');
+            // Extract packages (filter out flags)
+            const packages = args.slice(2).filter(arg => !arg.startsWith('--'));
+            if (packages.length === 0) {
+              error('Usage: ez-tools package-manager add <package> [--dev|-D]');
+            }
+            const result = await service.add(packages, { dev });
+            if (!raw) {
+              console.log(result);
+            }
+            break;
+          }
+
+          case 'remove': {
+            await service.initialize();
+            // Extract packages (filter out flags)
+            const packages = args.slice(2).filter(arg => !arg.startsWith('--'));
+            if (packages.length === 0) {
+              error('Usage: ez-tools package-manager remove <package>');
+            }
+            const result = await service.remove(packages);
+            if (!raw) {
+              console.log(result);
+            }
+            break;
+          }
+
+          case 'info': {
+            await service.initialize();
+            const result = service.getInfo();
+            if (raw) {
+              console.log(`manager=${result.manager} source=${result.source} cwd=${result.cwd} lockfile=${result.lockfile}`);
+            } else {
+              console.log(JSON.stringify(result, null, 2));
+            }
+            break;
+          }
+
+          default: {
+            error('Unknown package-manager subcommand: ' + subcommand + '\nValid: detect, install, add, remove, info');
+          }
+        }
+      } catch (err) {
+        error(err.message);
       }
       break;
     }
