@@ -51,5 +51,58 @@
     "autoDetect": true,
     "respectLockfile": true,
     "frozenLockfileInCI": true
+  },
+  "release": {
+    "tier": "mvp",
+    "tiers": {
+      "mvp":        { "moscow_scope": ["must"], "coverage": 60, "git": "trunk", "checklist_items": 6 },
+      "medium":     { "moscow_scope": ["must","should"], "coverage": 80, "git": "github-flow", "checklist_items": 18 },
+      "enterprise": { "moscow_scope": ["must","should","could"], "coverage": 95, "git": "gitflow", "checklist_items": 30 }
+    }
+  },
+  "agent_discussion": {
+    "enabled": true,
+    "pre_flight_observer": true,
+    "tech_lead_review": true,
+    "scrum_master_standup": true,
+    "_cost_warning": "agent_discussion adds ~2-3x token cost per phase. Disable specific agents via pre_flight_observer/tech_lead_review/scrum_master_standup flags."
+  },
+  "smart_orchestration": {
+    "enabled": true,
+    "_note": "Auto-invokes helper commands from core commands. Disable with --no-auto flag or set enabled: false.",
+    "show_auto_prefix": true,
+    "auto_invoke": {
+      "execute_phase": {
+        "pre": ["health"],
+        "post": ["verify-work"],
+        "conditional": {
+          "if_tier_medium_plus_and_no_context": ["discuss-phase"],
+          "if_scope_creep_detected": ["add-todo"]
+        }
+      },
+      "plan_phase": {
+        "conditional": {
+          "if_phase_touches_sensitive_area": ["discuss-phase"]
+        }
+      },
+      "release": {
+        "conditional": {
+          "if_tier_medium": ["verify-work"],
+          "if_tier_enterprise": ["verify-work", "audit-milestone", "arch-review"]
+        }
+      },
+      "progress": {
+        "pre": ["health"]
+      }
+    }
+  },
+  "sessions": {
+    "retention_policy": "manual",
+    "auto_compress_threshold": 50,
+    "compression_enabled": true,
+    "export_format": "markdown",
+    "sessions_directory": ".planning/sessions",
+    "max_sessions_before_warning": 100,
+    "chain_navigation_enabled": true
   }
 }
