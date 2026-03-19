@@ -747,10 +747,10 @@ describe('Copilot agent conversion - real files', () => {
     assert.ok(toolsLine.includes("'read'"), 'Read mapped');
   });
 
-  test('all 15 agents convert without error', () => {
+  test('all 20 agents convert without error', () => {
     const agents = fs.readdirSync(agentsSrc)
       .filter(f => f.startsWith('ez-') && f.endsWith('.md'));
-    assert.strictEqual(agents.length, 15, `Expected 15 agents, got ${agents.length}`);
+    assert.strictEqual(agents.length, 20, `Expected 20 agents, got ${agents.length}`);
 
     for (const agentFile of agents) {
       const content = fs.readFileSync(path.join(agentsSrc, agentFile), 'utf8');
@@ -1119,8 +1119,8 @@ const { execFileSync } = require('child_process');
 const crypto = require('crypto');
 
 const INSTALL_PATH = path.join(__dirname, '..', 'bin', 'install.js');
-const EXPECTED_SKILLS = 37;
-const EXPECTED_AGENTS = 15;
+const EXPECTED_SKILLS = 49;
+const EXPECTED_AGENTS = 20;
 
 function runCopilotInstall(cwd) {
   const env = { ...process.env };
@@ -1195,12 +1195,17 @@ describe('E2E: Copilot full install verification', () => {
       'ez-executor.agent.md',
       'ez-integration-checker.agent.md',
       'ez-nyquist-auditor.agent.md',
+      'ez-observer-agent.agent.md',
       'ez-phase-researcher.agent.md',
       'ez-plan-checker.agent.md',
       'ez-planner.agent.md',
       'ez-project-researcher.agent.md',
+      'ez-release-agent.agent.md',
+      'ez-requirements-agent.agent.md',
       'ez-research-synthesizer.agent.md',
       'ez-roadmapper.agent.md',
+      'ez-scrum-master-agent.agent.md',
+      'ez-tech-lead-agent.agent.md',
       'ez-ui-auditor.agent.md',
       'ez-ui-checker.agent.md',
       'ez-ui-researcher.agent.md',

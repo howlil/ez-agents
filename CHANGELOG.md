@@ -6,6 +6,32 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ---
 
+## [3.5.0] - 2026-03-20
+
+### Fixed
+
+- **Critical path bug**: All workflow files used `$HOME/.qwen/ez-agents/` — replaced with `$HOME/.claude/ez-agents/` across 6 files (`autonomous.md`, `new-project.md`, `new-milestone.md`, `resume.md`, `export-session.md`, `import-session.md`). Commands were silently failing to load workflows at runtime.
+- **`progress.md`**: Removed invalid `SlashCommand` from `allowed-tools` — not a valid tool in the framework; added `argument-hint: "[--no-auto]"`
+
+### Added
+
+- **New commands**: `/ez:hotfix`, `/ez:arch-review`, `/ez:standup`, `/ez:resume`, `/ez:export-session`, `/ez:import-session`, `/ez:list-sessions`, `/ez:preflight`, `/ez:release`, `/ez:gather-requirements`
+- **New workflows**: `arch-review.md`, `standup.md`, `resume-session.md`, `export-session.md`, `import-session.md`, `release.md`, `gather-requirements.md`, `hotfix.md`
+- **Session management**: `session-manager.cjs`, `session-chain.cjs`, `session-export.cjs`, `session-import.cjs`, `session-errors.cjs`, `memory-compression.cjs` — full session persistence, cross-model handoff via `/ez:export-session` / `/ez:import-session`
+- **Release tier system**: `tier-manager.cjs` — MVP / Medium / Enterprise tier gates with coverage thresholds and checklist enforcement
+- **New agents**: `ez-release-agent.md`, `ez-requirements-agent.md`
+- **New templates**: `bdd-feature.md`, `discussion.md`, `incident-runbook.md`, `release-checklist.md`, `rollback-plan.md`
+- **New references**: `metrics-schema.md`, `tier-strategy.md`
+- **`planning-config.md`**: Added documentation for `smart_orchestration`, `agent_discussion`, `sessions`, `release.tiers`, and `packageManager` config blocks
+
+### Changed
+
+- **`commands/ez/hotfix.md`**: Proper YAML frontmatter (`name: ez:hotfix`, `argument-hint`, `allowed-tools`) + `execution_context` referencing workflow
+- **`commands/ez/arch-review.md`**: Proper YAML frontmatter + `execution_context` + `process` sections
+- **`commands/ez/standup.md`**: Proper YAML frontmatter + `execution_context` + `process` sections
+
+---
+
 ## [Unreleased] - Phase 16: Context & File Access
 
 ### Added

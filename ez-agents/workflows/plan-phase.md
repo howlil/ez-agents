@@ -40,6 +40,28 @@ mkdir -p ".planning/phases/${padded_phase}-${phase_slug}"
 
 **Existing artifacts from init:** `has_research`, `has_plans`, `plan_count`.
 
+<auto_invoke>
+Check for --no-auto in ARGUMENTS. If not present:
+
+```bash
+SMART_ORCH=$(node "$HOME/.claude/ez-agents/bin/ez-tools.cjs" config-get smart_orchestration.enabled 2>/dev/null || echo "true")
+```
+If `SMART_ORCH` is `"false"` or `--no-auto` is in ARGUMENTS: skip, proceed to step 3.
+
+**Conditional discuss-phase for sensitive areas:**
+Read phase name and objective from the phase arguments and roadmap. Check if they contain any of these sensitive keywords (case-insensitive):
+`auth`, `login`, `jwt`, `oauth`, `database`, `migration`, `schema`, `payment`, `billing`, `security`
+
+If YES and no CONTEXT.md exists in the phase directory and `--skip-discussion` is NOT in ARGUMENTS:
+  → Display: `[auto] Sensitive area detected — running pre-flight discussion...`
+  → Invoke: Skill(ez:discuss-phase, args: phase_number + " --auto")
+  → Continue to step 3.
+
+If NO match OR CONTEXT.md already exists OR `--skip-discussion` present: skip silently, proceed to step 3.
+
+**Detection rule:** Only trigger if phase name or goal in ROADMAP.md contains one of the explicit keywords above. False-negative is safer than false-positive — when uncertain, skip.
+</auto_invoke>
+
 ## 3. Validate Phase
 
 ```bash

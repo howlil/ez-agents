@@ -8,6 +8,19 @@ Read all files referenced by the invoking prompt's execution_context before star
 
 <process>
 
+<auto_invoke>
+Check for --no-auto in ARGUMENTS. If not present, also check:
+```bash
+SMART_ORCH=$(node "$HOME/.claude/ez-agents/bin/ez-tools.cjs" config-get smart_orchestration.enabled 2>/dev/null || echo "true")
+```
+If `SMART_ORCH` is not `"false"` and `--no-auto` is not in ARGUMENTS:
+```bash
+HEALTH=$(node "$HOME/.claude/ez-agents/bin/ez-tools.cjs" health --json 2>/dev/null)
+```
+- If FAIL: display a warning in the output report but do NOT stop (progress continues)
+- If PASS: silent (do not show to user)
+</auto_invoke>
+
 <step name="init_context">
 **Load progress context (paths only):**
 
@@ -219,15 +232,9 @@ Check if `{phase_num}-CONTEXT.md` exists in phase directory.
 
 **Phase {N}: {Name}** — {Goal from ROADMAP.md}
 
-`/ez:discuss-phase {phase}` — gather context and clarify approach
+`/ez:discuss-phase {phase}`
 
 <sub>`/clear` first → fresh context window</sub>
-
----
-
-**Also available:**
-- `/ez:plan-phase {phase}` — skip discussion, plan directly
-- `/ez:list-phase-assumptions {phase}` — see Claude's assumptions
 
 ---
 ```
@@ -248,12 +255,6 @@ UAT.md exists with gaps (diagnosed issues). User needs to plan fixes.
 `/ez:plan-phase {phase} --gaps`
 
 <sub>`/clear` first → fresh context window</sub>
-
----
-
-**Also available:**
-- `/ez:execute-phase {phase}` — execute phase plans
-- `/ez:verify-work {phase}` — run more UAT testing
 
 ---
 ```
@@ -292,15 +293,9 @@ Read ROADMAP.md to get the next phase's name and goal.
 
 **Phase {Z+1}: {Name}** — {Goal from ROADMAP.md}
 
-`/ez:discuss-phase {Z+1}` — gather context and clarify approach
+`/ez:discuss-phase {Z+1}`
 
 <sub>`/clear` first → fresh context window</sub>
-
----
-
-**Also available:**
-- `/ez:plan-phase {Z+1}` — skip discussion, plan directly
-- `/ez:verify-work {Z}` — user acceptance test before continuing
 
 ---
 ```
@@ -323,11 +318,6 @@ All {N} phases finished!
 `/ez:complete-milestone`
 
 <sub>`/clear` first → fresh context window</sub>
-
----
-
-**Also available:**
-- `/ez:verify-work` — user acceptance test before completing milestone
 
 ---
 ```

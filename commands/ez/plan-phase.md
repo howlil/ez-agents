@@ -1,7 +1,7 @@
 ---
 name: ez:plan-phase
 description: Create detailed phase plan (PLAN.md) with verification loop
-argument-hint: "[phase] [--auto] [--research] [--skip-research] [--gaps] [--skip-verify] [--prd <file>]"
+argument-hint: "[phase] [--auto] [--research] [--skip-research] [--gaps] [--skip-verify] [--prd <file>] [--no-auto] [--verbose]"
 agent: ez-planner
 allowed-tools:
   - Read
@@ -35,6 +35,14 @@ Phase number: $ARGUMENTS (optional — auto-detects next unplanned phase if omit
 - `--gaps` — Gap closure mode (reads VERIFICATION.md, skips research)
 - `--skip-verify` — Skip verification loop
 - `--prd <file>` — Use a PRD/acceptance criteria file instead of discuss-phase. Parses requirements into CONTEXT.md automatically. Skips discuss-phase entirely.
+- `--no-auto` — Disable smart orchestration (skip auto discuss-phase for sensitive areas).
+- `--verbose` — Show detail for every auto-invocation step.
+- `--skip-discussion` — Skip auto discuss-phase only (more granular than --no-auto).
+
+**Smart Orchestration (auto, unless --no-auto):**
+- Detects sensitive area keywords in phase name/goal: `auth`, `login`, `jwt`, `oauth`, `database`, `migration`, `schema`, `payment`, `billing`, `security`
+- If detected AND no CONTEXT.md exists: auto-runs `discuss-phase --auto` before planning
+- All auto-invocations appear with `[auto]` prefix in output
 
 Normalize phase input in step 2 before any directory lookups.
 </context>

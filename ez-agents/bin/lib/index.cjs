@@ -56,6 +56,19 @@ const PackageManagerDetector = require('./package-manager-detector.cjs');
 const PackageManagerExecutor = require('./package-manager-executor.cjs');
 const LockfileValidator = require('./lockfile-validator.cjs');
 
+// BDD & Requirements (Phase 30)
+const bddValidator = require('./bdd-validator.cjs');
+
+// Discussion Synthesis (Phase 31)
+const discussionSynthesizer = require('./discussion-synthesizer.cjs');
+
+// Tier Management & Release Validation (Phase 32-33)
+const TierManager = require('./tier-manager.cjs');
+const ReleaseValidator = require('./release-validator.cjs');
+
+// Metrics (Phase 34)
+const MetricsTracker = require('./metrics-tracker.cjs');
+
 module.exports = {
   // Core
   Logger,
@@ -99,8 +112,21 @@ module.exports = {
   PackageManagerExecutor,
   LockfileValidator,
 
+  // BDD & Requirements (Phase 30)
+  ...bddValidator,
+
+  // Discussion Synthesis (Phase 31)
+  ...discussionSynthesizer,
+
+  // Tier Management & Release (Phase 32-33)
+  TierManager,
+  ReleaseValidator,
+
+  // Metrics (Phase 34)
+  MetricsTracker,
+
   // Version info
-  version: '2.0.0',
+  version: '3.0.0',
   
   /**
    * Get health status of all modules

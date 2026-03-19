@@ -49,7 +49,7 @@ The document should describe what you want to build.
 
 ```bash
 # Run health check
-HEALTH=$(node "$HOME/.qwen/ez-agents/bin/ez-tools.cjs" doctor --json)
+HEALTH=$(node "$HOME/.claude/ez-agents/bin/ez-tools.cjs" doctor --json)
 ```
 
 **Check:**
@@ -117,7 +117,7 @@ await contextManager.updateStateMd();
 **Execute initialization with crash recovery:**
 
 ```bash
-INIT=$(node "$HOME/.qwen/ez-agents/bin/ez-tools.cjs" init new-project)
+INIT=$(node "$HOME/.claude/ez-agents/bin/ez-tools.cjs" init new-project)
 if [[ "$INIT" == @file:* ]]; then INIT=$(cat "${INIT#@file:}"); fi
 ```
 
@@ -129,7 +129,7 @@ Parse JSON for: `researcher_model`, `synthesizer_model`, `roadmapper_model`, `co
 
 ```bash
 # Create auto.lock
-node "$HOME/.qwen/ez-agents/bin/ez-tools.cjs" lock-create \
+node "$HOME/.claude/ez-agents/bin/ez-tools.cjs" lock-create \
   --operation="new-project" \
   --project-path="$project_path"
 ```
@@ -149,7 +149,7 @@ node "$HOME/.qwen/ez-agents/bin/ez-tools.cjs" lock-create \
 **If `has_git` is false:** Initialize git:
 ```bash
 git init
-node "$HOME/.qwen/ez-agents/bin/ez-tools.cjs" lock-update --state="git_initialized"
+node "$HOME/.claude/ez-agents/bin/ez-tools.cjs" lock-update --state="git_initialized"
 ```
 
 ---
@@ -177,7 +177,7 @@ Exit command.
 
 **Update lock file state:**
 ```bash
-node "$HOME/.qwen/ez-agents/bin/ez-tools.cjs" lock-update --state="brownfield_check_complete"
+node "$HOME/.claude/ez-agents/bin/ez-tools.cjs" lock-update --state="brownfield_check_complete"
 ```
 
 ---
@@ -292,18 +292,18 @@ Create `.planning/config.json` with mode set to "yolo":
 
 ```bash
 mkdir -p .planning
-node "$HOME/.qwen/ez-agents/bin/ez-tools.cjs" commit "chore: add project config" --files .planning/config.json
+node "$HOME/.claude/ez-agents/bin/ez-tools.cjs" commit "chore: add project config" --files .planning/config.json
 ```
 
 **Persist auto-advance chain flag to config (survives context compaction):**
 
 ```bash
-node "$HOME/.qwen/ez-agents/bin/ez-tools.cjs" config-set workflow._auto_chain_active true
+node "$HOME/.claude/ez-agents/bin/ez-tools.cjs" config-set workflow._auto_chain_active true
 ```
 
 **Update lock file state:**
 ```bash
-node "$HOME/.qwen/ez-agents/bin/ez-tools.cjs" lock-update --state="config_complete"
+node "$HOME/.claude/ez-agents/bin/ez-tools.cjs" lock-update --state="config_complete"
 ```
 
 Proceed to Step 4 (skip Steps 3 and 5).
@@ -368,7 +368,7 @@ Loop until "Create PROJECT.md" selected.
 
 **Update lock file state:**
 ```bash
-node "$HOME/.qwen/ez-agents/bin/ez-tools.cjs" lock-update --state="questioning_complete"
+node "$HOME/.claude/ez-agents/bin/ez-tools.cjs" lock-update --state="questioning_complete"
 ```
 
 ---
@@ -456,12 +456,12 @@ Do not compress. Capture everything gathered.
 
 ```bash
 mkdir -p .planning
-node "$HOME/.qwen/ez-agents/bin/ez-tools.cjs" commit "docs: initialize project" --files .planning/PROJECT.md
+node "$HOME/.claude/ez-agents/bin/ez-tools.cjs" commit "docs: initialize project" --files .planning/PROJECT.md
 ```
 
 **Update lock file state:**
 ```bash
-node "$HOME/.qwen/ez-agents/bin/ez-tools.cjs" lock-update --state="project_defined"
+node "$HOME/.claude/ez-agents/bin/ez-tools.cjs" lock-update --state="project_defined"
 ```
 
 ---
@@ -612,14 +612,14 @@ Create `.planning/config.json` with all settings:
 **Commit config.json:**
 
 ```bash
-node "$HOME/.qwen/ez-agents/bin/ez-tools.cjs" commit "chore: add project config" --files .planning/config.json
+node "$HOME/.claude/ez-agents/bin/ez-tools.cjs" commit "chore: add project config" --files .planning/config.json
 ```
 
 **Note:** Run `/ez:settings` anytime to update these preferences.
 
 **Update lock file state:**
 ```bash
-node "$HOME/.qwen/ez-agents/bin/ez-tools.cjs" lock-update --state="config_complete"
+node "$HOME/.claude/ez-agents/bin/ez-tools.cjs" lock-update --state="config_complete"
 ```
 
 ## 5.5. Resolve Model Profile
@@ -714,7 +714,7 @@ Subsequent: Research what's needed to add [target features] to an existing [doma
 
 <output>
 Write to: .planning/research/{FILE}
-Use template: ~/.qwen/ez-agents/templates/research-project/{FILE}
+Use template: ~/.claude/ez-agents/templates/research-project/{FILE}
 </output>
 ", subagent_type="ez-project-researcher", model="{researcher_model}", description="{DIMENSION} research")
 ```
@@ -742,7 +742,7 @@ Synthesize research outputs into SUMMARY.md.
 </files_to_read>
 
 Write to: .planning/research/SUMMARY.md
-Use template: ~/.qwen/ez-agents/templates/research-project/SUMMARY.md
+Use template: ~/.claude/ez-agents/templates/research-project/SUMMARY.md
 Commit after writing.
 ", subagent_type="ez-research-synthesizer", model="{synthesizer_model}", description="Synthesize research")
 ```
@@ -764,7 +764,7 @@ Files: `.planning/research/`
 
 **Update lock file state:**
 ```bash
-node "$HOME/.qwen/ez-agents/bin/ez-tools.cjs" lock-update --state="research_complete"
+node "$HOME/.claude/ez-agents/bin/ez-tools.cjs" lock-update --state="research_complete"
 ```
 
 **If "Skip research":** Continue to Step 7.
@@ -902,12 +902,12 @@ If "adjust": Return to scoping.
 
 **Commit requirements:**
 ```bash
-node "$HOME/.qwen/ez-agents/bin/ez-tools.cjs" commit "docs: define project requirements" --files .planning/REQUIREMENTS.md
+node "$HOME/.claude/ez-agents/bin/ez-tools.cjs" commit "docs: define project requirements" --files .planning/REQUIREMENTS.md
 ```
 
 **Update lock file state:**
 ```bash
-node "$HOME/.qwen/ez-agents/bin/ez-tools.cjs" lock-update --state="requirements_defined"
+node "$HOME/.claude/ez-agents/bin/ez-tools.cjs" lock-update --state="requirements_defined"
 ```
 
 ---
@@ -927,7 +927,7 @@ Display stage banner:
 
 ```bash
 # Start stuck watcher
-node "$HOME/.qwen/ez-agents/bin/ez-tools.cjs" stuck-watch start \
+node "$HOME/.claude/ez-agents/bin/ez-tools.cjs" stuck-watch start \
   --operation="roadmap-creation" \
   --max-retries=1 \
   --timeout=300
@@ -1028,12 +1028,12 @@ Success criteria:
 
 **Commit roadmap** (after approval):
 ```bash
-node "$HOME/.qwen/ez-agents/bin/ez-tools.cjs" commit "docs: create project roadmap ([N] phases)" --files .planning/ROADMAP.md .planning/STATE.md .planning/REQUIREMENTS.md
+node "$HOME/.claude/ez-agents/bin/ez-tools.cjs" commit "docs: create project roadmap ([N] phases)" --files .planning/ROADMAP.md .planning/STATE.md .planning/REQUIREMENTS.md
 ```
 
 **Update lock file state:**
 ```bash
-node "$HOME/.qwen/ez-agents/bin/ez-tools.cjs" lock-update --state="roadmap_created"
+node "$HOME/.claude/ez-agents/bin/ez-tools.cjs" lock-update --state="roadmap_created"
 ```
 
 ---
@@ -1043,7 +1043,7 @@ node "$HOME/.qwen/ez-agents/bin/ez-tools.cjs" lock-update --state="roadmap_creat
 **Project initialization complete:**
 
 ```bash
-node "$HOME/.qwen/ez-agents/bin/ez-tools.cjs" lock-release
+node "$HOME/.claude/ez-agents/bin/ez-tools.cjs" lock-release
 ```
 
 ---

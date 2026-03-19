@@ -197,4 +197,144 @@ Squash merge is recommended — keeps main branch history clean while preserving
 
 </branching_strategy_behavior>
 
+
+<smart_orchestration_config>
+
+**`smart_orchestration` block:**
+
+```json
+"smart_orchestration": {
+  "enabled": true,
+  "show_auto_prefix": true,
+  "auto_invoke": {
+    "preflight": ["progress", "execute-phase"],
+    "arch_review": ["execute-phase"],
+    "standup": []
+  }
+}
+```
+
+| Option | Default | Description |
+|--------|---------|-------------|
+| `enabled` | `true` | Master toggle for smart orchestration auto-invocations |
+| `show_auto_prefix` | `true` | Prefix auto-invoked agent output with `[AUTO]` label |
+| `auto_invoke.preflight` | `["progress", "execute-phase"]` | Commands that silently run health check before executing |
+| `auto_invoke.arch_review` | `["execute-phase"]` | Commands that auto-spawn tech lead review when `agent_discussion` enabled |
+| `auto_invoke.standup` | `[]` | Commands that auto-generate standup before running |
+
+**Disabling per-invocation:** Pass `--no-auto` flag to any command to skip smart orchestration for that run.
+
+</smart_orchestration_config>
+
+<agent_discussion_config>
+
+**`agent_discussion` block:**
+
+```json
+"agent_discussion": {
+  "enabled": false,
+  "pre_flight_observer": false,
+  "tech_lead_review": false,
+  "scrum_master_standup": false,
+  "cost_warning": true
+}
+```
+
+| Option | Default | Description |
+|--------|---------|-------------|
+| `enabled` | `false` | Master toggle for optional discussion agents |
+| `pre_flight_observer` | `false` | Spawn observer agent before execution to surface risks |
+| `tech_lead_review` | `false` | Auto-spawn tech lead review after `/ez:plan-phase` completes |
+| `scrum_master_standup` | `false` | Auto-generate standup report at session start |
+| `cost_warning` | `true` | Warn before spawning expensive agents (Opus-class) |
+
+**Enable via `/ez:settings`:** The settings workflow provides a guided UI for toggling these options. Avoid manual JSON edits.
+
+</agent_discussion_config>
+
+<sessions_config>
+
+**`sessions` block:**
+
+```json
+"sessions": {
+  "retention_policy": "keep_last_10",
+  "auto_compress_threshold": 50,
+  "chain_navigation_enabled": true
+}
+```
+
+| Option | Default | Description |
+|--------|---------|-------------|
+| `retention_policy` | `"keep_last_10"` | How many sessions to retain. Options: `"keep_all"`, `"keep_last_N"`, `"keep_days_N"` |
+| `auto_compress_threshold` | `50` | Compress session memory when token count exceeds this (in thousands) |
+| `chain_navigation_enabled` | `true` | Enable `--previous`/`--next`/`--chain` flags in `/ez:resume` |
+
+**Session files location:** `.planning/sessions/` — each session is a JSON file. Use `/ez:export-session` and `/ez:import-session` for cross-model handoffs.
+
+</sessions_config>
+
+<release_tiers_config>
+
+**`release.tiers` block:**
+
+```json
+"release": {
+  "tier": "mvp",
+  "tiers": {
+    "mvp": {
+      "coverage_threshold": 0,
+      "checklist_items": ["build_passes", "no_blockers"],
+      "git_strategy": "direct_to_main"
+    },
+    "medium": {
+      "coverage_threshold": 60,
+      "checklist_items": ["build_passes", "no_blockers", "tests_pass", "security_scan"],
+      "git_strategy": "pr_required"
+    },
+    "enterprise": {
+      "coverage_threshold": 80,
+      "checklist_items": ["build_passes", "no_blockers", "tests_pass", "security_scan", "coverage_gate", "changelog_updated", "rollback_plan"],
+      "git_strategy": "gitflow"
+    }
+  }
+}
+```
+
+| Tier | Coverage | Git Strategy | Checklist |
+|------|----------|--------------|-----------|
+| `mvp` | None | Direct to main | Build + no blockers |
+| `medium` | 60% | PR required | Build + tests + security scan |
+| `enterprise` | 80% | GitFlow (main + develop) | Full gates including rollback plan |
+
+**Hotfix behavior by tier:** MVP hotfixes merge directly; Medium requires PR; Enterprise merges to main AND syncs to develop. See `/ez:hotfix` documentation.
+
+**Set tier:** `node "$HOME/.claude/ez-agents/bin/ez-tools.cjs" config-set release.tier enterprise`
+
+</release_tiers_config>
+
+<package_manager_config>
+
+**`packageManager` block:**
+
+```json
+"packageManager": {
+  "default": "npm",
+  "autoDetect": true,
+  "respectLockfile": true
+}
+```
+
+| Option | Default | Description |
+|--------|---------|-------------|
+| `default` | `"npm"` | Fallback package manager when auto-detection fails. Options: `"npm"`, `"yarn"`, `"pnpm"`, `"bun"` |
+| `autoDetect` | `true` | Detect package manager from lock file presence (`yarn.lock`, `pnpm-lock.yaml`, `bun.lockb`) |
+| `respectLockfile` | `true` | Use `--frozen-lockfile` / `--ci` flags during install to prevent lock file mutations |
+
+**Auto-detection order:** `bun.lockb` → bun, `pnpm-lock.yaml` → pnpm, `yarn.lock` → yarn, `package-lock.json` → npm, fallback to `default`.
+
+**Set explicitly:** `node "$HOME/.claude/ez-agents/bin/ez-tools.cjs" config-set packageManager.default pnpm`
+
+</package_manager_config>
+
 </planning_config>

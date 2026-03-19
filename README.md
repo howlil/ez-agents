@@ -106,6 +106,28 @@ You'll answer a few questions about what you're building, then EZ Agents generat
 └─────────────────────────┘
 ```
 
+### Smart Orchestration
+
+Core commands automatically invoke helper commands based on context — so you don't have to remember to run them. All auto-invocations are visible with an `[auto]` prefix.
+
+| Command | Auto Pre | Auto Post | Conditional |
+|---------|----------|-----------|-------------|
+| `/ez:execute-phase` | health check | verify-work | discuss-phase (medium/enterprise, no CONTEXT.md) · add-todo (scope creep) |
+| `/ez:plan-phase` | — | — | discuss-phase (phase touches auth/DB/payment/security area) |
+| `/ez:release medium` | — | — | verify-work |
+| `/ez:release enterprise` | — | — | verify-work → audit-milestone → arch-review |
+| `/ez:progress` | health check (silent) | — | — |
+
+**Override flags:**
+
+| Flag | Effect |
+|------|--------|
+| `--no-auto` | Disable all auto-invocations for that run |
+| `--verbose` | Show detail for every auto-invocation step |
+| `--skip-discussion` | Skip only the auto discuss-phase trigger |
+
+Disable globally: set `"smart_orchestration": { "enabled": false }` in `.planning/config.json`.
+
 ### Parallel Execution with Git Commits
 
 Setiap task dijalankan secara paralel (jika tidak ada dependensi), dengan fresh context dan atomic commit:
@@ -166,6 +188,7 @@ Phase 1: Foundation
 - **Context Engineering** — PROJECT.md, STATE.md, SUMMARY.md preserve decisions across sessions
 - **Atomic Commits** — Each task gets its own commit with context about what changed and why
 - **Milestone Tracking** — Version releases with requirements audit and git tagging
+- **Smart Orchestration** — Core commands auto-invoke helpers (health, verify-work, discuss-phase) based on context. All visible with `[auto]` prefix. Override with `--no-auto`.
 
 ### Built for Production
 
@@ -203,8 +226,8 @@ Parallel agents analyze your stack, architecture, conventions, and pain points. 
 | Command | What It Does |
 |---------|-------------|
 | `/ez:discuss-phase [N]` | Clarify implementation approach before planning |
-| `/ez:plan-phase [N]` | Research domain, create task breakdown, define verification |
-| `/ez:execute-phase [N]` | Build the plan (parallel waves, one commit per task) |
+| `/ez:plan-phase [N]` | Research domain, create task breakdown, define verification. Auto-runs discuss-phase for sensitive areas (auth/DB/payment). |
+| `/ez:execute-phase [N]` | Build the plan (parallel waves, one commit per task). Auto: health check → execute → verify-work. |
 | `/ez:verify-work [N]` | Manual testing with auto-diagnosis of failures |
 
 ### Managing Scope
@@ -328,6 +351,7 @@ EZ Agents stores settings in `.planning/config.json`. You configure this during 
 | `mode` | `interactive`, `yolo` | `interactive` | `yolo` skips confirmation prompts |
 | `model_profile` | `quality`, `balanced`, `budget` | `balanced` | Controls which model tier each agent uses |
 | `granularity` | `coarse`, `standard`, `fine` | `standard` | How many phases (3-5, 5-8, or 8-12) |
+| `smart_orchestration.enabled` | `true`, `false` | `true` | Enable/disable auto-invocation of helper commands |
 
 ### Model Profiles
 

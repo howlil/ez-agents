@@ -531,6 +531,30 @@ Example config:
 /ez:debug                                    # Resume from where you left off
 ```
 
+## Global Flags
+
+Flags below apply to all core commands (`execute-phase`, `plan-phase`, `release`, `progress`):
+
+| Flag | Effect |
+|---|---|
+| `--no-auto` | Disable all auto-invocations. Expert mode. |
+| `--verbose` | Show detail for every auto-invocation step. |
+| `--skip-discussion` | Skip discuss-phase only (more granular than --no-auto). |
+
+## Smart Orchestration
+
+Core commands automatically invoke helper commands based on context:
+
+- `/ez:execute-phase N` → auto: health check (pre), verify-work (post)
+- `/ez:plan-phase N` → auto: discuss-phase if phase touches a sensitive area (auth, DB, payment, etc.)
+- `/ez:release tier ver` → auto: verify-work (medium+), audit-milestone + arch-review (enterprise)
+- `/ez:progress` → auto: health check (silent on pass)
+
+All auto-invocations appear with `[auto]` prefix in output.
+
+Disable globally: set `"smart_orchestration": { "enabled": false }` in `.planning/config.json`.
+Disable per-command: append `--no-auto` flag.
+
 ## Flags
 
 ### --skip-discussion
@@ -545,6 +569,11 @@ If upgrading from v2.x:
 - `agent_discussion` is now enabled by default (was disabled)
 - Use `--skip-discussion` to preserve v2.x behavior during transition
 - Set `"agent_discussion": { "enabled": false }` in config.json to permanently disable
+
+### Migration Note (v3.x → Smart Orchestration)
+If upgrading from v3.x without smart orchestration and the new behavior is not desired, two options:
+1. Add `--no-auto` to frequently used commands
+2. Set `"smart_orchestration": { "enabled": false }` in `.planning/config.json`
 
 ## Getting Help
 

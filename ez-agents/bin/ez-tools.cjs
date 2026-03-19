@@ -151,6 +151,13 @@ const URLFetchService = require('./lib/url-fetch.cjs');
 const ContextManager = require('./lib/context-manager.cjs');
 const PackageManagerService = require('./lib/package-manager-service.cjs');
 
+// Session management modules
+const SessionManager = require('./lib/session-manager.cjs');
+const SessionExport = require('./lib/session-export.cjs');
+const SessionImport = require('./lib/session-import.cjs');
+const SessionChain = require('./lib/session-chain.cjs');
+const MemoryCompression = require('./lib/memory-compression.cjs');
+
 // ─── CLI Router ───────────────────────────────────────────────────────────────
 
 async function main() {
@@ -183,7 +190,7 @@ async function main() {
   const command = args[0];
 
   if (!command) {
-    error('Usage: ez-tools <command> [args] [--raw] [--cwd <path>]\nCommands: state, resolve-model, find-phase, commit, verify-summary, verify, frontmatter, template, generate-slug, current-timestamp, list-todos, verify-path-exists, config-ensure-section, init, health');
+    error('Usage: ez-tools <command> [args] [--raw] [--cwd <path>]\nCommands: state, resolve-model, find-phase, commit, verify-summary, verify, frontmatter, template, generate-slug, current-timestamp, list-todos, verify-path-exists, config-ensure-section, init, health, session, resume, export-session, import-session, chain, context');
   }
 
   switch (command) {
@@ -896,6 +903,189 @@ async function main() {
       
       error(`Unknown context subcommand: ${subcommand}\nAvailable: read, fetch, request`);
     }
+
+    // ─── Session Management Commands ─────────────────────────────────────────
+
+    case 'session': {
+      const subcommand = args[1];
+      const sessionMgr = new SessionManager();
+
+      switch (subcommand) {
+        case 'list': {
+          const sessions = sessionMgr.listSessions();
+          const limitIdx = args.indexOf('--limit');
+          const limit = limitIdx !== -1 ? parseInt(args[limitIdx + 1]) : 20;
+          output({ sessions: sessions.slice(0, limit) });
+          break;
+        }
+
+        case 'get': {
+          const sessionId = args[2];
+          if (!sessionId) {
+            error('Usage: ez-tools session get <session_id>');
+          }
+          const session = sessionMgr.loadSession(sessionId);
+          if (!session) {
+            error(`Session not found: ${sessionId}`);
+          }
+          output(session);
+          break;
+        }
+
+        case 'create': {
+          const modelIdx = args.indexOf('--model');
+          const phaseIdx = args.indexOf('--phase');
+          const planIdx = args.indexOf('--plan');
+          const newSessionId = sessionMgr.createSession({
+            model: modelIdx !== -1 ? args[modelIdx + 1] : undefined,
+            phase: phaseIdx !== -1 ? parseInt(args[phaseIdx + 1]) : undefined,
+            plan: planIdx !== -1 ? parseInt(args[planIdx + 1]) : undefined
+          });
+          output({ session_id: newSessionId });
+          break;
+        }
+
+        case 'end': {
+          const sessionId = args[2];
+          if (!sessionId) {
+            error('Usage: ez-tools session end <session_id> [--status status]');
+          }
+          const statusIdx = args.indexOf('--status');
+          const status = statusIdx !== -1 ? args[statusIdx + 1] : 'completed';
+          const success = sessionMgr.endSession(sessionId, { status });
+          if (!success) {
+            error(`Failed to end session: ${sessionId}`);
+          }
+          output({ ended: sessionId });
+          break;
+        }
+
+        case 'compress': {
+          const sessionId = args[2];
+          const thresholdIdx = args.indexOf('--threshold');
+          const threshold = thresholdIdx !== -1 ? parseInt(args[thresholdIdx + 1]) : 50;
+          
+          if (!sessionId) {
+            error('Usage: ez-tools session compress <session_id> [--threshold N]');
+          }
+
+          const compressor = new MemoryCompression(sessionMgr);
+          const result = compressor.compress(sessionId, { threshold });
+          output(result);
+          break;
+        }
+
+        default:
+          error('Usage: ez-tools session <list|get|create|end|compress> [args]');
+      }
+      break;
+    }
+
+    case 'resume': {
+      const sessionId = args[1];
+      const sessionMgr = new SessionManager();
+
+      const session = sessionId
+        ? sessionMgr.loadSession(sessionId)
+        : sessionMgr.getLastSession();
+
+      if (!session) {
+        error('No session found to resume');
+      }
+
+      // Output session summary for display
+      output({
+        session_id: session.metadata.session_id,
+        model: session.metadata.model,
+        phase: session.metadata.phase,
+        plan: session.metadata.plan,
+        last_action: session.state.last_action,
+        next_action: session.state.next_recommended_action,
+        incomplete_tasks: session.state.incomplete_tasks
+      });
+      break;
+    }
+
+    case 'export-session': {
+      const sessionId = args[1] || 'last';
+      const formatIdx = args.indexOf('--format');
+      const outputIdx = args.indexOf('--output');
+      
+      const format = formatIdx !== -1 ? args[formatIdx + 1] : 'markdown';
+      const outputPath = outputIdx !== -1 ? args[outputIdx + 1] : null;
+
+      const sessionMgr = new SessionManager();
+      const exporter = new SessionExport(sessionMgr);
+
+      const actualSessionId = sessionId === 'last'
+        ? sessionMgr.getLastSession()?.metadata?.session_id
+        : sessionId;
+
+      if (!actualSessionId) {
+        error('No sessions found');
+      }
+
+      try {
+        const result = exporter.exportToFile(actualSessionId, format, outputPath);
+        output(result);
+      } catch (err) {
+        error(`Export failed: ${err.message}`);
+      }
+      break;
+    }
+
+    case 'import-session': {
+      const filePath = args[1];
+      const sourceModelIdx = args.indexOf('--source-model');
+      const sourceModel = sourceModelIdx !== -1 ? args[sourceModelIdx + 1] : null;
+
+      if (!filePath) {
+        error('Usage: ez-tools import-session <file.json> [--source-model <model>]');
+      }
+
+      const sessionMgr = new SessionManager();
+      const importer = new SessionImport(sessionMgr);
+
+      try {
+        const result = importer.import(filePath, { sourceModel });
+        output(result);
+      } catch (err) {
+        error(`Import failed: ${err.message}`);
+      }
+      break;
+    }
+
+    case 'chain': {
+      const sessionId = args[1];
+      const direction = args[2];
+
+      if (!sessionId) {
+        error('Usage: ez-tools chain <session_id> [previous|next|visualize|repair]');
+      }
+
+      const sessionMgr = new SessionManager();
+      const chain = new SessionChain(sessionMgr);
+
+      if (direction === 'previous' || direction === 'next') {
+        const result = chain.navigate(sessionId, direction);
+        if (!result) {
+          output({ navigation: null, message: `No session ${direction} of ${sessionId}` });
+        } else {
+          output(result);
+        }
+      } else if (direction === 'visualize' || !direction) {
+        const viz = chain.getChainVisualization(sessionId);
+        output({ visualization: viz });
+      } else if (direction === 'repair') {
+        const result = chain.repairChain(sessionId);
+        output(result);
+      } else {
+        error('Usage: ez-tools chain <session_id> [previous|next|visualize|repair]');
+      }
+      break;
+    }
+
+    // ─── Default/Error Case ──────────────────────────────────────────────────
 
     default:
       error(`Unknown command: ${command}`);

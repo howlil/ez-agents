@@ -12,6 +12,34 @@ Read STATE.md before any operation to load project context.
 
 <process>
 
+<auto_invoke>
+Run BEFORE the initialize step. Check flags from ARGUMENTS:
+
+**Flag handling:**
+- If ARGUMENTS contains `--no-auto`: skip all auto_invoke blocks, proceed directly to initialize.
+- If ARGUMENTS contains `--verbose`: display detail for every auto_invoke step.
+
+**Pre-flight health check (always, unless --no-auto):**
+```bash
+SMART_ORCH=$(node "$HOME/.claude/ez-agents/bin/ez-tools.cjs" config-get smart_orchestration.enabled 2>/dev/null || echo "true")
+```
+If `SMART_ORCH` is `"false"`: skip all auto_invoke, proceed to initialize.
+
+```bash
+HEALTH=$(node "$HOME/.claude/ez-agents/bin/ez-tools.cjs" health --json 2>/dev/null)
+```
+- If output shows status FAIL: display error, STOP execution.
+- If PASS: display `[auto] ✅ health check passed` only when `--verbose` flag is present; otherwise silent.
+
+**Conditional discuss-phase:**
+Read tier from `.planning/config.json` (`release.tier`). If tier is `medium` or `enterprise` AND no CONTEXT.md exists in the phase directory AND `--skip-discussion` is not in ARGUMENTS:
+  → Display: `[auto] Running pre-flight discussion...`
+  → Invoke: Skill(ez:discuss-phase, args: phase_number + " --auto")
+  → Continue to initialize.
+
+If conditions are not met: skip silently.
+</auto_invoke>
+
 <step name="initialize" priority="first">
 Load all context in one call:
 
@@ -446,6 +474,23 @@ Read and follow `~/.claude/ez-agents/workflows/transition.md`, passing through t
 /ez:execute-phase {next} — execute next phase
 ```
 </step>
+
+<auto_invoke_post>
+Run AFTER all waves complete. Skip if --no-auto is in ARGUMENTS or `smart_orchestration.enabled` is false.
+
+**Post-execution verify-work:**
+Display: `[auto] Running verification...`
+Invoke: Skill(ez:verify-work, args: phase_number)
+- If PASS: display `[auto] ✅ Verification passed`
+- If FAIL: display `⚠️ Verification warnings (non-blocking)` — show details, do NOT block
+
+**Scope creep detection:**
+Check if there is scope creep from DISCUSSION.md (if it exists):
+```bash
+grep -i "scope creep\|out of scope\|BLOCKER" .planning/phases/${PHASE_DIR}/DISCUSSION.md 2>/dev/null
+```
+If any match found: display `[auto] Scope creep detected — creating todos...` → Invoke: Skill(ez:add-todo)
+</auto_invoke_post>
 
 </process>
 

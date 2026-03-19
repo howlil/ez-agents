@@ -31,6 +31,17 @@ Phase: $ARGUMENTS
 
 **Flags:**
 - `--gaps-only` — Execute only gap closure plans (plans with `gap_closure: true` in frontmatter). Use after verify-work creates fix plans.
+- `--no-auto` — Disable all smart orchestration auto-invocations (health check, discuss-phase, verify-work, add-todo). Expert mode.
+- `--verbose` — Show detail for every auto-invocation step.
+- `--skip-discussion` — Skip auto discuss-phase only (more granular than --no-auto).
+
+**Smart Orchestration (auto, unless --no-auto):**
+- Pre: health check (stops on FAIL)
+- Pre (medium/enterprise tier, no CONTEXT.md): discuss-phase --auto
+- Post: verify-work (warnings only, non-blocking)
+- Post (scope creep detected in DISCUSSION.md): add-todo
+
+All auto-invocations appear with `[auto]` prefix in output.
 
 Context files are resolved inside the workflow via `ez-tools init execute-phase` and per-subagent `<files_to_read>` blocks.
 </context>
