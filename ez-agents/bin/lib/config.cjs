@@ -12,7 +12,7 @@ const VALID_CONFIG_KEYS = new Set([
   'search_gitignored', 'brave_search',
   'workflow.research', 'workflow.plan_check', 'workflow.verifier',
   'workflow.nyquist_validation', 'workflow.ui_phase', 'workflow.ui_safety_gate',
-  'workflow._auto_chain_active',
+  'workflow._auto_chain_active', 'workflow.auto_advance',
   'git.branching_strategy', 'git.phase_branch_template', 'git.milestone_branch_template',
   'planning.commit_docs', 'planning.search_gitignored',
   'security.provider', 'security.scan.default_mode', 'security.scan.block_on_critical',
