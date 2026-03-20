@@ -68,6 +68,12 @@ main (production) ← develop (staging) ← phase/* ← {feature,fix,docs,refact
 - cost-cli tests assert by_phase key (not by_milestone) — this defines the intended real implementation output shape.
 - doctor-cli createHealthyProject() helper writes all 5 required planning files so real doctor can return "healthy" exit 0.
 
+### Phase 30 Plan 02 (2026-03-20)
+- intervalId.unref() is mandatory — without it Node.js hangs on the 10s heartbeat interval; every caller would need explicit release() to avoid hanging.
+- Dual orphan detection: process.kill(0) for dead PIDs + stale heartbeat (>60s) guards against OS PID recycling.
+- Constructor is lazy — locksDir created on acquire(), not in constructor, to avoid creating empty directories.
+- release() removes the process exit handler via process.off() to prevent memory leaks in long-running CLI processes.
+
 ### Phase 30 Plan 03 (2026-03-20)
 - CostTracker.checkBudget() is pure/sync with no process.exit(); callers decide how to react to exceeded/warning status.
 - record() is async (withLock), aggregate()/checkBudget() are sync (read-only, no lock needed for reads).
@@ -78,6 +84,7 @@ main (production) ← develop (staging) ← phase/* ← {feature,fix,docs,refact
 | Phase | Plan | Duration | Tasks | Files |
 |-------|------|----------|-------|-------|
 | 30 | 01 | 11min | 2 | 5 |
+| 30 | 02 | 5min | 1 | 1 |
 | 30 | 03 | 2min | 1 | 1 |
 
 ## Session Continuity

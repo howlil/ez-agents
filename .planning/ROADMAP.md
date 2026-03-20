@@ -67,7 +67,7 @@ See `.planning/milestones/` for full archives.
 
 **Started:** 2026-03-20 | **Phases:** 30–33 | **Requirements:** 36
 
-- [~] Phase 30: GSD Gap Closure — wire crash-recovery.cjs + cost-tracker.cjs, real CLI data (1/4 plans complete)
+- [~] Phase 30: GSD Gap Closure — wire crash-recovery.cjs + cost-tracker.cjs, real CLI data (3/4 plans complete)
 - [ ] Phase 31: Deploy Operations — one-command deploy (detect, run, rollback, status, audit, health check)
 - [ ] Phase 32: Performance Tooling — perf-analyzer, db-optimizer, frontend-perf, api-monitor, regression-detector
 - [ ] Phase 33: Analytics & FinOps — usage collection, NPS, funnels, cohorts, budget alerts, rightsizing, cost reports
@@ -81,8 +81,8 @@ Requirements: GSD-01–06
 
 Plans:
 - [x] 30-01-PLAN.md — Test scaffolds (Wave 0 failing tests for all 5 test files) — completed 2026-03-20
-- [ ] 30-02-PLAN.md — Create crash-recovery.cjs (PID lock files, heartbeat, orphan detection)
-- [ ] 30-03-PLAN.md — Create cost-tracker.cjs (metrics.json persistence, aggregate, checkBudget)
+- [x] 30-02-PLAN.md — Create crash-recovery.cjs (PID lock files, heartbeat, orphan detection) — completed 2026-03-20
+- [x] 30-03-PLAN.md — Create cost-tracker.cjs (metrics.json persistence, aggregate, checkBudget) — completed 2026-03-20
 - [ ] 30-04-PLAN.md — Wire ez-tools.cjs (replace mock doctor/cost, add lock case, fix RecoveryManager)
 
 Success criteria:
