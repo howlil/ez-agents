@@ -8,6 +8,7 @@
 const fs = require('fs');
 const path = require('path');
 const BackupService = require('./backup-service.cjs');
+const RestoreService = require('./restore-service.cjs');
 const Logger = require('./logger.cjs');
 
 class RecoveryManager {
@@ -20,7 +21,9 @@ class RecoveryManager {
     this.cwd = cwd || process.cwd();
     this.logger = options.logger || new Logger();
     this.backupService = new BackupService(cwd, options);
+    this.restoreService = new RestoreService(cwd, options);
     this.backupsDir = path.join(this.cwd, '.planning', 'recovery', 'backups');
+    this.drillsDir = path.join(this.cwd, '.planning', 'recovery', 'drills');
   }
 
   /**
@@ -97,6 +100,27 @@ class RecoveryManager {
     const result = this.backupService.verifyBackup(backupDir);
     this.logger.info('Backup verified', { backup_id: backupIdOrPath });
     return result;
+  }
+
+  /**
+   * Run restore drill for a backup
+   * @param {string} backupIdOrPath - Backup ID or path
+   * @param {object} options - Drill options
+   * @returns {object} Drill result
+   */
+  runDrill(backupIdOrPath, options = {}) {
+    this.logger.info('Starting restore drill', { backup_id: backupIdOrPath });
+    const result = this.restoreService.runDrill(backupIdOrPath, options);
+    this.logger.info('Drill complete', { drill_id: result.drill_id, status: result.status });
+    return result;
+  }
+
+  /**
+   * List all drill reports
+   * @returns {array} Array of drill metadata
+   */
+  listDrills() {
+    return this.restoreService.listDrills();
   }
 }
 

@@ -13,7 +13,7 @@ See `.planning/milestones/` for full archives.
 
 ## Current Milestone
 
-**v2.0 Full SDLC Coverage: Deployment, Operations & Security** — Phase 20 Complete
+**v2.0 Full SDLC Coverage: Deployment, Operations & Security** — Phase 23 Complete
 
 **Phases completed:**
 - ✅ **Phase 15:** Phase-Based Git Workflow (20 requirements) — PHASE-GIT-01 to PHASE-GIT-20 — Complete 2026-03-19
@@ -22,11 +22,11 @@ See `.planning/milestones/` for full archives.
 - ✅ **Phase 18:** Session Memory & Model Continuity (10 requirements) — SESSION-01 to SESSION-10 — Complete 2026-03-20
 - ✅ **Phase 19:** Deployment & Operations (10 requirements) — DEPLOY-01 to DEPLOY-10 — Complete 2026-03-20 (placeholder scripts)
 - ✅ **Phase 20:** CI/CD Pipeline Automation (10 requirements) — CICD-01 to CICD-10 — Complete 2026-03-20
+- ✅ **Phase 21:** Observability & Monitoring (10 requirements) — OBSERVE-01 to OBSERVE-10 — Complete 2026-03-20
+- ✅ **Phase 22:** Disaster Recovery & Business Continuity (8 requirements) — RECOVER-01 to RECOVER-08 — Complete 2026-03-20
+- ✅ **Phase 23:** Security Operations (8 requirements) — SECOPS-01 to SECOPS-08 — Complete 2026-03-20
 
-**Remaining phases (21-29):**
-- **Phase 21:** Observability & Monitoring (10 requirements) — OBSERVE-01 to OBSERVE-10
-- **Phase 22:** Disaster Recovery & Business Continuity (8 requirements) — RECOVER-01 to RECOVER-08
-- **Phase 23:** Security Operations (8 requirements) — SECOPS-01 to SECOPS-08
+**Remaining phases (24-29):**
 - **Phase 24:** Infrastructure as Code (8 requirements) — IAC-01 to IAC-08
 - **Phase 25:** Performance Engineering (8 requirements) — PERF-01 to PERF-08
 - **Phase 26:** Documentation Automation (8 requirements) — DOC-01 to DOC-08
@@ -34,7 +34,7 @@ See `.planning/milestones/` for full archives.
 - **Phase 28:** Cost Optimization / FinOps (6 requirements) — COST-01 to COST-06
 - **Phase 29:** GSD-2 Reliability Patterns Implementation (37 requirements) — GSD-01 to GSD-37
 
-**Total:** 145 requirements across 14 phases (Phases 15-20 complete)
+**Total:** 137 requirements across 13 phases (Phases 15-23 complete)
 
 **Branch Hierarchy:**
 ```
@@ -63,7 +63,7 @@ Use `/ez:new-milestone` to start v2.0 implementation.
 ## Progress
 
 **Execution History:**
-Phases executed in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7 → 8 → 9 → 10 → 11 → 12 → 13 → 14 → 15 → 16 → 17 → 18 → 19 → 20 → 21
+Phases executed in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7 → 8 → 9 → 10 → 11 → 12 → 13 → 14 → 15 → 16 → 17 → 18 → 19 → 20 → 21 → 22 → 23
 
 | Phase | Name | Plans | Status | Completed |
 |-------|------|-------|--------|-----------|
@@ -88,26 +88,20 @@ Phases executed in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7 → 8 �
 | 19 | Deployment & Operations | Complete | 2026-03-20 | 2026-03-20 |
 | 20 | CI/CD Pipeline Automation | Complete | 2026-03-20 | 2026-03-20 |
 | 21 | Observability & Monitoring | Complete | 2026-03-20 | 2026-03-20 |
+| 22 | Disaster Recovery & Business Continuity | 1/1 | Complete | 2026-03-20 |
+| 23 | Security Operations | 4/4 | Complete | 2026-03-20 |
 
-**Total:** 21 phases, 75 plans, 100% complete
+**Total:** 23 phases, 80 plans, 100% complete
 
 **Planned:**
 | Phase | Name | Requirements | Status |
 |-------|------|--------------|--------|
-| 22 | Disaster Recovery & Business Continuity | 8 | Pending |
-| 23 | Security Operations | 8 | Pending |
 | 24 | Infrastructure as Code | 8 | Pending |
 | 25 | Performance Engineering | 8 | Pending |
 | 26 | Documentation Automation | 8 | Pending |
 | 27 | Product Analytics & Feedback | 6 | Pending |
 | 28 | Cost Optimization / FinOps | 6 | Pending |
 | 29 | GSD-2 Reliability Patterns Implementation | 37 | Pending |
-**Requirements**: TBD
-**Depends on:** Phase 0
-**Plans:** 0 plans
-
-Plans:
-- [ ] TBD (run /ez-plan-phase 1 to break down)
 
 ---
-*Last updated: 2026-03-20 — Phase 21 completed (Observability & Monitoring with metrics, logging, tracing, alerting, and error tracking)*
+*Last updated: 2026-03-20 — Phase 23 completed (Security Operations: 8 requirements, 4 plans, 150 tests — security scanning, headers/rate-limit/WAF generation, compliance templates, secret rotation, RBAC management, audit logging)*

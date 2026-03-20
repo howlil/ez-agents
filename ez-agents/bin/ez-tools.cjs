@@ -308,10 +308,18 @@ async function main() {
         console.log('  verify-backup       Verify backup integrity');
         console.log('    --backup <id>     Backup ID to verify');
         console.log('');
+        console.log('  drill               Execute restore drill');
+        console.log('    [--backup <id>]   Specific backup to drill (default: latest)');
+        console.log('    [--no-cleanup]    Preserve temp files after drill');
+        console.log('');
+        console.log('  list-drills         List all drill reports');
+        console.log('');
         console.log('Usage:');
         console.log('  node ez-agents/bin/ez-tools.cjs recovery backup --label pre-deploy');
         console.log('  node ez-agents/bin/ez-tools.cjs recovery list-backups');
         console.log('  node ez-agents/bin/ez-tools.cjs recovery verify-backup --backup backup-123456-manual');
+        console.log('  node ez-agents/bin/ez-tools.cjs recovery drill');
+        console.log('  node ez-agents/bin/ez-tools.cjs recovery list-drills');
         console.log('');
         break;
       }
@@ -382,7 +390,75 @@ async function main() {
         break;
       }
 
-      error(`Unknown recovery subcommand: ${subcommand}\nAvailable: backup, list-backups, verify-backup`);
+      if (subcommand === 'drill') {
+        const backupIdx = args.indexOf('--backup');
+        const backupId = backupIdx !== -1 ? args[backupIdx + 1] : null;
+        const cleanup = !args.includes('--no-cleanup');
+
+        const recovery = new RecoveryManager(cwd);
+        try {
+          const result = await recovery.runDrill(backupId || 'latest', { cleanup });
+          console.log('');
+          if (result.status === 'success') {
+            console.log('✅ Restore Drill Complete');
+            console.log('');
+            console.log(`Drill ID: ${result.drill_id}`);
+            console.log(`Backup: ${result.backup_id}`);
+            console.log(`Status: SUCCESS`);
+            const passedChecks = result.checks.filter(c => c.passed).length;
+            console.log(`Checks Passed: ${passedChecks}/${result.checks.length}`);
+            console.log('');
+            console.log(`Drill Report: .planning/recovery/drills/${result.drill_id}.json`);
+          } else {
+            console.log('❌ Restore Drill Failed');
+            console.log('');
+            console.log(`Drill ID: ${result.drill_id}`);
+            console.log(`Backup: ${result.backup_id}`);
+            console.log(`Status: ${result.status.toUpperCase()}`);
+            console.log('');
+            const failedChecks = result.checks.filter(c => !c.passed);
+            if (failedChecks.length > 0) {
+              console.log('Failed Checks:');
+              failedChecks.forEach(c => console.log(`  - ${c.name}: ${c.details}`));
+            }
+            if (result.error) {
+              console.log(`Error: ${result.error}`);
+            }
+            console.log('');
+            console.log(`Drill Report: .planning/recovery/drills/${result.drill_id}.json`);
+            process.exit(1);
+          }
+        } catch (err) {
+          error('Drill failed: ' + err.message);
+        }
+        break;
+      }
+
+      if (subcommand === 'list-drills') {
+        const recovery = new RecoveryManager(cwd);
+        try {
+          const drills = await recovery.listDrills();
+          console.log('');
+          if (drills.length === 0) {
+            console.log('No drills found. Run a drill with: ez-tools recovery drill');
+          } else {
+            console.log(`Found ${drills.length} drill${drills.length !== 1 ? 's' : ''}:`);
+            console.log('');
+            drills.forEach((drill, idx) => {
+              const statusIcon = drill.status === 'success' ? '✅' : drill.status === 'failed' ? '❌' : '⚠️';
+              console.log(`[${idx + 1}] ${statusIcon} ${drill.drill_id}`);
+              console.log(`    Backup: ${drill.backup_id}`);
+              console.log(`    Completed: ${drill.completed_at}`);
+              console.log('');
+            });
+          }
+        } catch (err) {
+          error('Failed to list drills: ' + err.message);
+        }
+        break;
+      }
+
+      error(`Unknown recovery subcommand: ${subcommand}\nAvailable: backup, list-backups, verify-backup, drill, list-drills`);
       break;
     }
 
@@ -1081,8 +1157,74 @@ async function main() {
           break;
         }
 
+        case 'drill': {
+          const backupIdx = args.indexOf('--backup');
+          const backupId = backupIdx !== -1 ? args[backupIdx + 1] : null;
+          const cleanup = !args.includes('--no-cleanup');
+
+          try {
+            const result = await recoveryManager.runDrill(backupId || 'latest', { cleanup });
+            console.log('');
+            if (result.status === 'success') {
+              console.log('✅ Restore Drill Complete');
+              console.log('');
+              console.log(`Drill ID: ${result.drill_id}`);
+              console.log(`Backup: ${result.backup_id}`);
+              console.log(`Status: SUCCESS`);
+              const passedChecks = result.checks.filter(c => c.passed).length;
+              console.log(`Checks Passed: ${passedChecks}/${result.checks.length}`);
+              console.log('');
+              console.log(`Drill Report: .planning/recovery/drills/${result.drill_id}.json`);
+            } else {
+              console.log('❌ Restore Drill Failed');
+              console.log('');
+              console.log(`Drill ID: ${result.drill_id}`);
+              console.log(`Backup: ${result.backup_id}`);
+              console.log(`Status: ${result.status.toUpperCase()}`);
+              console.log('');
+              const failedChecks = result.checks.filter(c => !c.passed);
+              if (failedChecks.length > 0) {
+                console.log('Failed Checks:');
+                failedChecks.forEach(c => console.log(`  - ${c.name}: ${c.details}`));
+              }
+              if (result.error) {
+                console.log(`Error: ${result.error}`);
+              }
+              console.log('');
+              console.log(`Drill Report: .planning/recovery/drills/${result.drill_id}.json`);
+              process.exit(1);
+            }
+          } catch (err) {
+            error('Drill failed: ' + err.message);
+          }
+          break;
+        }
+
+        case 'list-drills': {
+          try {
+            const drills = await recoveryManager.listDrills();
+            console.log('');
+            if (drills.length === 0) {
+              console.log('No drills found. Run a drill with: ez-tools recovery drill');
+            } else {
+              console.log(`Found ${drills.length} drill${drills.length !== 1 ? 's' : ''}:`);
+              console.log('');
+              drills.forEach((drill, idx) => {
+                const statusIcon = drill.status === 'success' ? '✅' : drill.status === 'failed' ? '❌' : '⚠️';
+                console.log(`[${idx + 1}] ${statusIcon} ${drill.drill_id}`);
+                console.log(`    Backup: ${drill.backup_id}`);
+                console.log(`    Completed: ${drill.completed_at}`);
+                console.log('');
+              });
+            }
+          } catch (err) {
+            error('Failed to list drills: ' + err.message);
+          }
+          break;
+        }
+
         default:
-          error('Unknown recovery subcommand. Available: backup, list-backups, verify-backup');
+          error('Unknown recovery subcommand. Available: backup, list-backups, verify-backup, drill, list-drills');
       }
       break;
     }
