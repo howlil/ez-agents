@@ -21,6 +21,8 @@ const VALID_CONFIG_KEYS = new Set([
   'recovery.retention.drill_reports', 'recovery.rto_minutes.planning_state',
   'recovery.rto_minutes.release_metadata', 'recovery.rpo_minutes.planning_state',
   'recovery.rpo_minutes.release_metadata',
+  'infrastructure.enabled', 'infrastructure.provider', 'infrastructure.environments',
+  'infrastructure.validation.checkov', 'infrastructure.validation.cdk_nag',
 ]);
 
 function cmdConfigEnsureSection(cwd, raw) {
@@ -109,6 +111,15 @@ function cmdConfigEnsureSection(cwd, raw) {
       rpo_minutes: {
         planning_state: 1440,
         release_metadata: 1440
+      }
+    },
+    infrastructure: {
+      enabled: true,
+      provider: 'aws',
+      environments: ['dev', 'staging', 'prod'],
+      validation: {
+        checkov: true,
+        cdk_nag: true
       }
     }
   };
