@@ -74,7 +74,7 @@ Phase numbers will be renumbered after v2.1 is scoped.
 - [ ] **INTAKE-01** through **INTAKE-04**: Diverse input types, normalization, risk scoring, mode recommendation
 
 ### CTXE — Context Engine Enhanced
-- [ ] **CTXE-01** through **CTXE-05**: Codebase mapping, stack detection, tech debt, project report, business flow
+- [x] **CTXE-01** through **CTXE-05**: Codebase mapping, stack detection, tech debt, project report, business flow
 
 ### RQNM — Requirement Normalization
 - [ ] **RQNM-01** through **RQNM-06**: Brief→requirements, NFRs, constraints, acceptance criteria, out-of-scope, open questions
