@@ -91,7 +91,10 @@ Override with `--no-auto` to skip all pre-invocations.
 1. **Smart pre-flight** (auto, tier-based — see above)
 2. **Validates** state (clean working tree, tests passing, coverage meets tier threshold)
 3. **Runs security gates** (no secrets, no critical vulns, no production TODOs)
-4. **Evaluates tier checklist** (6/18/30 items based on tier)
+4. **Evaluates tier checklist** (6/18/30 items based on tier) including security items:
+   - `security_scan` — Baseline security scan completed
+   - `audit_logging` — Audit logging enabled for security-sensitive actions
+   - `compliance_evidence` — Required compliance checklist/evidence files present
 5. **Creates release branch** (per tier git strategy)
 6. **Generates changelog** (from commits since last tag)
 7. **Bumps version** in package.json

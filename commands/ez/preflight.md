@@ -22,7 +22,11 @@ Run the release checklist for a tier without creating a branch, tag, or changelo
 
 ## What It Checks
 
-Runs security gates + tier checklist without side effects:
+Runs security gates + tier checklist without side effects. Security Operations items include:
+
+- **security_scan** — Baseline security scan completed
+- **audit_logging** — Audit logging enabled for security-sensitive actions  
+- **compliance_evidence** — Required compliance checklist/evidence files present
 
 ```
 /ez:release preflight medium
