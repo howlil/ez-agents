@@ -11,10 +11,10 @@ Closing known gaps deferred from v2.0. All lib files confirmed missing on disk.
 
 ### GSD — Crash Recovery & Cost Tracking
 
-- [ ] **GSD-01**: `crash-recovery.cjs` implemented — creates, heartbeats, detects orphaned, and releases lock files with real PID tracking
+- [x] **GSD-01**: `crash-recovery.cjs` implemented — creates, heartbeats, detects orphaned, and releases lock files with real PID tracking
 - [x] **GSD-02**: `cost-tracker.cjs` implemented — tracks real token usage and USD cost per phase/operation (not mock data)
 - [ ] **GSD-03**: `/ez:cost` command shows live data from cost-tracker (not hardcoded stubs)
-- [ ] **GSD-04**: Lock file operations (create/heartbeat/release/detect-orphan) wired through real crash-recovery lib
+- [x] **GSD-04**: Lock file operations (create/heartbeat/release/detect-orphan) wired through real crash-recovery lib
 - [ ] **GSD-05**: Health check `doctor` command reports accurate live state (not stubbed responses)
 - [x] **GSD-06**: Budget ceiling enforcement and alert-threshold warnings functional end-to-end
 
@@ -114,10 +114,10 @@ Phase numbers will be renumbered after v2.1 is scoped.
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| GSD-01 | Phase 30 | Pending |
+| GSD-01 | Phase 30 | Complete |
 | GSD-02 | Phase 30 | Complete |
 | GSD-03 | Phase 30 | Pending |
-| GSD-04 | Phase 30 | Pending |
+| GSD-04 | Phase 30 | Complete |
 | GSD-05 | Phase 30 | Pending |
 | GSD-06 | Phase 30 | Complete |
 | DEPLOY-01 | Phase 31 | Pending |
