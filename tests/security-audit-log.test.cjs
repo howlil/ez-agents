@@ -114,7 +114,6 @@ describe('Security Audit Log', () => {
         token: 'secret-token-123'
       };
       const result = validateAuditEvent(event);
-      // Token in field name OR value should be rejected
       assert.ok(!result.valid, 'event with token should fail');
     });
 
@@ -179,6 +178,7 @@ describe('Security Audit Log', () => {
       try {
         const result = verifyAuditLogFile(logFile);
         assert.strictEqual(result.ok, true);
+        assert.strictEqual(Array.isArray(result.invalidLines), true);
         assert.strictEqual(result.invalidLines.length, 0);
       } finally {
         fs.rmSync(tmpDir, { recursive: true, force: true });
@@ -193,13 +193,13 @@ describe('Security Audit Log', () => {
       try {
         const result = verifyAuditLogFile(logFile);
         assert.strictEqual(result.ok, false);
-        assert.ok(result.errors.length > 0 || result.invalidLines.length > 0);
+        assert.ok(result.invalidLines.length > 0 || result.errors.length > 0);
       } finally {
         fs.rmSync(tmpDir, { recursive: true, force: true });
       }
     });
 
-    test('file with sensitive data returns invalid lines count', () => {
+    test('file with sensitive data returns invalid lines', () => {
       const tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'ez-audit-test-'));
       const logFile = path.join(tmpDir, 'audit.log');
       const badEvent = {
@@ -224,7 +224,7 @@ describe('Security Audit Log', () => {
     test('missing file returns error', () => {
       const result = verifyAuditLogFile('/nonexistent/path/audit.log');
       assert.strictEqual(result.ok, false);
-      assert.ok(result.errors.length > 0 || result.message);
+      assert.ok(result.errors.length > 0);
     });
   });
 });
