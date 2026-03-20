@@ -43,6 +43,14 @@
  *   context fetch <url>                Fetch content from URL (HTTPS only, requires confirmation)
  *   context request                    Interactive context gathering mode
  *
+ * Recovery Commands:
+ *   recovery backup                    Create a new backup
+ *     [--label <name>]                 Label for the backup
+ *     [--verify]                       Verify after creation
+ *   recovery list-backups              List all available backups
+ *   recovery verify-backup             Verify backup integrity
+ *     --backup <id>                    Backup ID to verify
+ *
  * Phase Operations:
  *   phase next-decimal <phase>         Calculate next decimal phase number
  *   phase add <description>            Append new phase to roadmap + create dir
@@ -165,6 +173,7 @@ const SessionExport = require('./lib/session-export.cjs');
 const SessionImport = require('./lib/session-import.cjs');
 const SessionChain = require('./lib/session-chain.cjs');
 const MemoryCompression = require('./lib/memory-compression.cjs');
+const RecoveryManager = require('./lib/recovery-manager.cjs');
 
 // ─── CLI Router ───────────────────────────────────────────────────────────────
 
@@ -277,6 +286,103 @@ async function main() {
       const health = new HealthCheck();
       const result = health.runAll();
       console.log(JSON.stringify(result, null, 2));
+      break;
+    }
+
+    // Recovery commands
+    case 'recovery': {
+      const subcommand = args[1];
+
+      if (!subcommand) {
+        console.log('');
+        console.log('EZ Agents - Recovery Management');
+        console.log('================================');
+        console.log('');
+        console.log('Subcommands:');
+        console.log('  backup              Create a new backup');
+        console.log('    [--label <name>]  Label for the backup');
+        console.log('    [--verify]        Verify after creation');
+        console.log('');
+        console.log('  list-backups        List all available backups');
+        console.log('');
+        console.log('  verify-backup       Verify backup integrity');
+        console.log('    --backup <id>     Backup ID to verify');
+        console.log('');
+        console.log('Usage:');
+        console.log('  node ez-agents/bin/ez-tools.cjs recovery backup --label pre-deploy');
+        console.log('  node ez-agents/bin/ez-tools.cjs recovery list-backups');
+        console.log('  node ez-agents/bin/ez-tools.cjs recovery verify-backup --backup backup-123456-manual');
+        console.log('');
+        break;
+      }
+
+      if (subcommand === 'backup') {
+        const labelIdx = args.indexOf('--label');
+        const verifyFlag = args.includes('--verify');
+        const label = labelIdx !== -1 && args[labelIdx + 1] ? args[labelIdx + 1] : 'manual';
+
+        const recovery = new RecoveryManager(cwd);
+        try {
+          const result = await recovery.backup({ label, verify: verifyFlag });
+          console.log('');
+          console.log('Backup created successfully');
+          console.log(`  Backup ID: ${result.backup_id}`);
+          console.log(`  Files: ${result.files_count}`);
+          console.log(`  Location: ${result.backup_dir}`);
+          console.log('');
+        } catch (err) {
+          error(`Backup failed: ${err.message}`);
+        }
+        break;
+      }
+
+      if (subcommand === 'list-backups') {
+        const recovery = new RecoveryManager(cwd);
+        try {
+          const backups = await recovery.listBackups();
+          console.log('');
+          console.log(`Found ${backups.length} backup${backups.length !== 1 ? 's' : ''}:`);
+          console.log('');
+          for (const backup of backups) {
+            console.log(`  ${backup.backup_id}`);
+          }
+          console.log('');
+        } catch (err) {
+          error(`List backups failed: ${err.message}`);
+        }
+        break;
+      }
+
+      if (subcommand === 'verify-backup') {
+        const backupId = args[2] && !args[2].startsWith('--') ? args[2] : null;
+
+        if (!backupId) {
+          error('Usage: ez-tools recovery verify-backup --backup <backup-id>');
+        }
+
+        const recovery = new RecoveryManager(cwd);
+        try {
+          const result = await recovery.verifyBackup(backupId);
+          console.log('');
+          console.log(`Backup: ${backupId}`);
+          console.log(`Status: ${result.valid ? '✅ VALID' : '❌ INVALID'}`);
+          if (!result.valid && result.errors.length > 0) {
+            console.log('Errors:');
+            result.errors.forEach(err => console.log(`  - ${err}`));
+          }
+          console.log('');
+        } catch (err) {
+          console.log('');
+          console.log(`Backup: ${backupId}`);
+          console.log('Status: ❌ INVALID');
+          console.log(`Error: ${err.message}`);
+          console.log('');
+          process.exit(1);
+        }
+        break;
+      }
+
+      error(`Unknown recovery subcommand: ${subcommand}\nAvailable: backup, list-backups, verify-backup`);
       break;
     }
 
@@ -826,6 +932,60 @@ async function main() {
     case 'progress': {
       const subcommand = args[1] || 'json';
       commands.cmdProgressRender(cwd, subcommand, raw);
+      break;
+    }
+
+    case 'recovery': {
+      const RecoveryManager = require('./lib/recovery-manager.cjs');
+      const recoveryManager = new RecoveryManager(cwd);
+      const subcommand = args[1];
+
+      if (!subcommand) {
+        error('Usage: ez-tools recovery <backup|list-backups|verify-backup>\nSubcommands: backup, list-backups, verify-backup');
+      }
+
+      switch (subcommand) {
+        case 'backup': {
+          const labelIdx = args.indexOf('--label');
+          const label = labelIdx !== -1 ? args[labelIdx + 1] : 'manual';
+          
+          try {
+            const result = await recoveryManager.backup({ label });
+            console.log(JSON.stringify(result, null, 2));
+          } catch (err) {
+            error('Backup failed: ' + err.message);
+          }
+          break;
+        }
+
+        case 'list-backups': {
+          try {
+            const backups = await recoveryManager.listBackups();
+            console.log(JSON.stringify({ backups, count: backups.length }, null, 2));
+          } catch (err) {
+            error('Failed to list backups: ' + err.message);
+          }
+          break;
+        }
+
+        case 'verify-backup': {
+          const backupId = args[2];
+          if (!backupId) {
+            error('Usage: ez-tools recovery verify-backup <backup-id>');
+          }
+
+          try {
+            const result = await recoveryManager.verifyBackup(backupId);
+            console.log(JSON.stringify(result, null, 2));
+          } catch (err) {
+            error('Verification failed: ' + err.message);
+          }
+          break;
+        }
+
+        default:
+          error('Unknown recovery subcommand. Available: backup, list-backups, verify-backup');
+      }
       break;
     }
 

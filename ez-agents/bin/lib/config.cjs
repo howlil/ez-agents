@@ -15,6 +15,12 @@ const VALID_CONFIG_KEYS = new Set([
   'workflow._auto_chain_active',
   'git.branching_strategy', 'git.phase_branch_template', 'git.milestone_branch_template',
   'planning.commit_docs', 'planning.search_gitignored',
+  'security.provider', 'security.scan.default_mode', 'security.scan.block_on_critical',
+  'security.headers_profile', 'security.audit_logs.enabled', 'security.audit_logs.format',
+  'recovery.enabled', 'recovery.backup_scope', 'recovery.retention.local_backups',
+  'recovery.retention.drill_reports', 'recovery.rto_minutes.planning_state',
+  'recovery.rto_minutes.release_metadata', 'recovery.rpo_minutes.planning_state',
+  'recovery.rpo_minutes.release_metadata',
 ]);
 
 function cmdConfigEnsureSection(cwd, raw) {
@@ -82,6 +88,29 @@ function cmdConfigEnsureSection(cwd, raw) {
     },
     parallelization: true,
     brave_search: hasBraveSearch,
+    recovery: {
+      enabled: true,
+      backup_scope: [
+        '.planning',
+        '.github/workflows',
+        'commands',
+        'ez-agents/bin/lib',
+        'package.json',
+        'package-lock.json'
+      ],
+      retention: {
+        local_backups: 10,
+        drill_reports: 12
+      },
+      rto_minutes: {
+        planning_state: 30,
+        release_metadata: 60
+      },
+      rpo_minutes: {
+        planning_state: 1440,
+        release_metadata: 1440
+      }
+    }
   };
   const defaults = {
     ...hardcoded,
