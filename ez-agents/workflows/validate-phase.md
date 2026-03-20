@@ -91,7 +91,7 @@ Task(
     "<gaps>{gap list}</gaps>" +
     "<test_infrastructure>{framework, config, commands}</test_infrastructure>" +
     "<constraints>Never modify impl files. Max 3 debug iterations. Escalate impl bugs.</constraints>",
-  subagent_type="ez-nyquist-auditor",
+  subagent_type="ez-verifier",
   model="{AUDITOR_MODEL}",
   description="Fill validation gaps for Phase {N}"
 )

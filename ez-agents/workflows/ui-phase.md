@@ -133,7 +133,7 @@ Omit null file paths from `<files_to_read>`.
 ```
 Task(
   prompt=ui_research_prompt,
-  subagent_type="ez-ui-researcher",
+  subagent_type="ez-ui-auditor",
   model="{UI_RESEARCHER_MODEL}",
   description="UI Design Contract Phase {N}"
 )
@@ -182,7 +182,7 @@ ui_safety_gate: {ui_safety_gate config value}
 ```
 Task(
   prompt=ui_checker_prompt,
-  subagent_type="ez-ui-checker",
+  subagent_type="ez-verifier",
   model="{UI_CHECKER_MODEL}",
   description="Verify UI-SPEC Phase {N}"
 )

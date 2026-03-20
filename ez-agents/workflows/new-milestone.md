@@ -375,7 +375,7 @@ Synthesize research outputs into SUMMARY.md.
 Write to: .planning/research/SUMMARY.md
 Use template: ~/.claude/ez-agents/templates/research-project/SUMMARY.md
 Commit after writing.
-", subagent_type="ez-research-synthesizer", model="{synthesizer_model}", description="Synthesize research")
+", subagent_type="ez-phase-researcher", model="{synthesizer_model}", description="Synthesize research")
 ```
 
 Display key findings from SUMMARY.md:

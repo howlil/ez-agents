@@ -74,7 +74,7 @@ Milestone Requirements:
 MUST map each integration finding to affected requirement IDs where applicable.
 
 Verify cross-phase wiring and E2E user flows.",
-  subagent_type="ez-integration-checker",
+  subagent_type="ez-verifier",
   model="{integration_checker_model}"
 )
 ```
