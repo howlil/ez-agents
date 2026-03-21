@@ -1,0 +1,44 @@
+# Gate 5: Testing Coverage Configuration
+
+# Archetype-specific coverage thresholds
+archetypes:
+  mvp:
+    lines: 60
+    branches: 40
+    functions: 50
+    description: "Minimum viable product — core functionality tested"
+  
+  medium:
+    lines: 80
+    branches: 60
+    functions: 70
+    description: "Production ready — solid coverage for most projects"
+  
+  enterprise:
+    lines: 95
+    branches: 80
+    functions: 90
+    description: "Enterprise grade — maximum coverage for critical systems"
+
+# Test type requirements by archetype
+test_requirements:
+  mvp:
+    - unit_tests
+  medium:
+    - unit_tests
+    - integration_tests
+  enterprise:
+    - unit_tests
+    - integration_tests
+    - e2e_tests
+    - visual_regression
+
+# Coverage report settings
+report:
+  format: json
+  directory: coverage
+  exclude:
+    - "node_modules/**"
+    - "tests/**"
+    - "*.test.*"
+    - "*.spec.*"

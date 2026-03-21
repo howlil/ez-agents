@@ -65,12 +65,13 @@ See `.planning/milestones/` for full archives.
 
 ### 📋 v2.1 Gap Closure — "Close the Gaps" (Active)
 
-**Started:** 2026-03-20 | **Phases:** 30–33 | **Requirements:** 36
+**Started:** 2026-03-20 | **Phases:** 30–33, 40 | **Requirements:** 36+
 
 - [~] Phase 30: GSD Gap Closure — wire crash-recovery.cjs + cost-tracker.cjs, real CLI data (3/4 plans complete)
 - [ ] Phase 31: Deploy Operations — one-command deploy (detect, run, rollback, status, audit, health check)
 - [ ] Phase 32: Performance Tooling — perf-analyzer, db-optimizer, frontend-perf, api-monitor, regression-detector
 - [ ] Phase 33: Analytics & FinOps — usage collection, NPS, funnels, cohorts, budget alerts, rightsizing, cost reports
+- [~] Phase 40: Quality Gates Completion — 7-gate enforcement (GATE-05 testing, GATE-06 docs, GATE-07 release) (1/5 plans complete)
 
 **Phase Details:**
 
@@ -124,6 +125,25 @@ Success criteria:
 5. Rightsizing recommendations generated from resource analysis
 6. `/ez:cost` extended with FinOps subcommands (budget, report, rightsizing)
 
+**Phase 40: Quality Gates Completion**
+Goal: Implement 7-gate quality assurance system with archetype-specific validation
+Requirements: GATE-05–07, EDGE-01–06
+Success criteria:
+1. Gate 5 validates test coverage against archetype-specific thresholds (MVP: 60%, Medium: 80%, Enterprise: 95%)
+2. Gate 6 validates documentation completeness with required sections per archetype
+3. Gate 7 validates release readiness with performance smoke tests and rollback plans
+4. Edge case guards prevent hallucinations, context budget exhaustion, hidden state, and tool sprawl
+5. All gates return structured gap reports for remediation workflow
+
+**Plans:** 5 plans
+
+Plans:
+- [x] 40-01-PLAN.md — Gate 5: Testing Coverage validator with archetype thresholds — completed 2026-03-21
+- [ ] 40-02-PLAN.md — Gate 6: Documentation validator with section validation
+- [ ] 40-03-PLAN.md — Gate 7: Release readiness validator with smoke tests
+- [ ] 40-04-PLAN.md — Edge case guards (hallucination, context budget, hidden state)
+- [ ] 40-05-PLAN.md — Edge case guards (autonomy, tool sprawl, team overhead)
+
 ---
 
 ### ○ v3.0 AI App Builder — "Improve Accuracy" (Deferred)
@@ -131,7 +151,13 @@ Success criteria:
 **Deferred:** 2026-03-20 | **Phases:** 34–41 (renumbered) | **Requirements:** 52
 
 - [ ] Phase 34: Orchestrator Core & Intake Layer — Chief Strategist pattern, work classification, mode routing
-- [ ] Phase 35: Context Engine Enhancement — codebase mapping, stack detection, debt hotspots
+- [~] Phase 35: Context Engine Enhancement — codebase mapping, stack detection, debt hotspots (3/6 plans complete)
+  - [x] 35-01/37-01: Codebase Mapping Engine (StackDetector, CodebaseAnalyzer) — completed 2026-03-21
+  - [x] 35-02/37-02: Stack & Framework Detection (FrameworkDetector, ArchetypeDetector) — completed 2026-03-21
+  - [x] 35-03/37-03: Tech Debt Hotspot Identification (TechDebtAnalyzer, CodeComplexityAnalyzer) — completed 2026-03-21
+  - [ ] 35-04/37-04: Business Flow Mapping (BusinessFlowMapper, ConstraintExtractor) — pending
+  - [ ] 35-05/37-05: Project Reporter (ProjectReporter) — pending
+  - [ ] 35-06/37-06: Tradeoff Analyzer (TradeoffAnalyzer) — pending
 - [ ] Phase 36: Requirement Normalization Engine — informal → structured, NFR, acceptance criteria
 - [ ] Phase 37: Task Graph Builder — DAG generation, parallel classification, execution models
 - [ ] Phase 38: Operation Modes — Greenfield/Existing/MVP/Scale-up/Maintenance flows
@@ -146,5 +172,5 @@ Success criteria:
 | 1–8 | v1.0 | ✅ Complete | 2026-03-17/18 |
 | 9–14 | v1.1 | ✅ Complete | 2026-03-18 |
 | 15–29 | v2.0 | ✅ Complete (with known gaps) | 2026-03-19/20 |
-| 30–33 | v2.1 | ◆ In Progress | — |
-| 34–41 | v3.0 | ○ Deferred | — |
+| 30–33, 40 | v2.1 | ◆ In Progress | 2026-03-21 (Phase 40 Plan 01) |
+| 34–41 | v3.0 | ◐ In Progress (Phase 35: 3/6 plans) | 2026-03-21 (Phase 35 Plans 01-03) |
