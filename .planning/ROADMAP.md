@@ -151,12 +151,12 @@ Plans:
 **Deferred:** 2026-03-20 | **Phases:** 34–41 (renumbered) | **Requirements:** 52
 
 - [ ] Phase 34: Orchestrator Core & Intake Layer — Chief Strategist pattern, work classification, mode routing
-- [~] Phase 35: Context Engine Enhancement — codebase mapping, stack detection, debt hotspots (3/6 plans complete)
+- [~] Phase 35: Context Engine Enhancement — codebase mapping, stack detection, debt hotspots (5/6 plans complete)
   - [x] 35-01/37-01: Codebase Mapping Engine (StackDetector, CodebaseAnalyzer) — completed 2026-03-21
   - [x] 35-02/37-02: Stack & Framework Detection (FrameworkDetector, ArchetypeDetector) — completed 2026-03-21
   - [x] 35-03/37-03: Tech Debt Hotspot Identification (TechDebtAnalyzer, CodeComplexityAnalyzer) — completed 2026-03-21
-  - [ ] 35-04/37-04: Business Flow Mapping (BusinessFlowMapper, ConstraintExtractor) — pending
-  - [ ] 35-05/37-05: Project Reporter (ProjectReporter) — pending
+  - [x] 35-04/37-05: Business Flow Mapping (BusinessFlowMapper, ArchetypeDetector) — completed 2026-03-21
+  - [ ] 35-05/37-04: Project Reporter (ProjectReporter) — pending
   - [ ] 35-06/37-06: Tradeoff Analyzer (TradeoffAnalyzer) — pending
 - [ ] Phase 36: Requirement Normalization Engine — informal → structured, NFR, acceptance criteria
 - [ ] Phase 37: Task Graph Builder — DAG generation, parallel classification, execution models
@@ -172,5 +172,5 @@ Plans:
 | 1–8 | v1.0 | ✅ Complete | 2026-03-17/18 |
 | 9–14 | v1.1 | ✅ Complete | 2026-03-18 |
 | 15–29 | v2.0 | ✅ Complete (with known gaps) | 2026-03-19/20 |
-| 30–33, 40 | v2.1 | ◆ In Progress | 2026-03-21 (Phase 40 Plan 01) |
-| 34–41 | v3.0 | ◐ In Progress (Phase 35: 3/6 plans) | 2026-03-21 (Phase 35 Plans 01-03) |
+| 30–33, 40 | v2.1 | ◆ In Progress | 2026-03-21 (Phase 37 Plan 05, Phase 40 Plan 01) |
+| 34–41 | v3.0 | ◐ In Progress (Phase 35: 5/6 plans) | 2026-03-21 (Phase 37 Plans 01-05) |

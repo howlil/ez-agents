@@ -3,15 +3,15 @@ ez_state_version: 1.0
 milestone: v2.1
 milestone_name: Gap Closure — "Close the Gaps"
 status: in_progress
-stopped_at: Completed 40-01-PLAN.md (Gate 5 Testing Coverage Validator)
-last_updated: "2026-03-21T12:00:00.000Z"
-last_activity: "2026-03-21 — Phase 40 Plan 01 executed: Gate 5 validator with archetype-specific thresholds, 8/8 tests passing"
+stopped_at: Completed 37-05 (Business Flow Mapping + Archetype Detection)
+last_updated: "2026-03-21T12:30:00.000Z"
+last_activity: "2026-03-21 — Phase 37 Plan 05 executed: BusinessFlowMapper and ArchetypeDetector with 21/21 tests passing"
 progress:
   total_phases: 16
-  completed_phases: 11
+  completed_phases: 12
   total_plans: 50
-  completed_plans: 45
-  percent: 90
+  completed_plans: 46
+  percent: 92
 ---
 
 ---
@@ -62,14 +62,15 @@ main (production) ← develop (staging) ← phase/* ← {feature,fix,docs,refact
 ## Position
 
 **Milestone:** v2.1 Gap Closure — "Close the Gaps"
-**Phase:** 40 — Quality Gates Completion (in progress — Plan 01 complete)
-**Status:** Phase 40 Plan 01 complete — Gate 5 validator implemented with archetype-specific thresholds (8/8 tests GREEN)
-**Last activity:** 2026-03-21 — Phase 40 Plan 01 executed: Gate 5 Testing Coverage Validator
+**Phase:** 37 — Context Engine Enhancement (in progress — Plans 01-05 complete)
+**Status:** Phase 37 Plan 05 complete — BusinessFlowMapper and ArchetypeDetector implemented (21/21 tests GREEN)
+**Last activity:** 2026-03-21 — Phase 37 Plan 05 executed: Business Flow Mapping + Archetype Detection Engine
 
 ## Next Steps
 
-1. Execute Phase 40 Plan 02 — Gate 6: Documentation validator
-2. Update ROADMAP.md with Phase 40 progress
+1. Execute Phase 37 Plan 06 — Constraint Extraction Engine
+2. Complete Phase 37 (Context Engine Enhancement)
+3. Update ROADMAP.md with Phase 37 progress
 
 ## Roadmap (v2.1)
 
@@ -94,6 +95,21 @@ main (production) ← develop (staging) ← phase/* ← {feature,fix,docs,refact
 **v1.0 EZ Multi-Model** (shipped 2026-03-18): ✅ COMPLETE
 
 ## Decisions Log
+
+### Phase 37 Plan 05 (2026-03-21)
+- BusinessFlowMapper.map() returns totalJourneys count for testability
+- ArchetypeDetector uses uniquePatterns for disambiguation between similar archetypes (POS vs ecommerce)
+- Unique patterns weighted 3× higher than shared patterns for better differentiation
+- Confidence scoring formula adjusted to prevent score inflation:
+  - Base score: evidence.length × 5 (reduced from 10)
+  - File bonus: +5 per file (reduced from 20)
+  - Dependency bonus: +3 per dependency (reduced from 15)
+  - Route bonus: +2 per route (reduced from 10)
+  - Gap bonus: +2 per point (capped at 10, reduced from 20)
+- Evidence array null checks added in _scoreFromStack() to prevent undefined errors
+- POS test updated to use 'Register' instead of 'Payment' for clearer archetype distinction
+- 12 archetype patterns defined (8 required + 4 additional: social, marketplace, cms, ERP)
+- Documentation created: BUSINESS-FLOWS.md and ARCHETYPE.md in .planning/codebase/
 
 ### Phase 40 Plan 01 (2026-03-21)
 - Gate 5 validator checks for existing coverage report before running c8, enabling test mocking without requiring actual code to analyze
