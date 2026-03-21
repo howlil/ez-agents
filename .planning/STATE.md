@@ -2,16 +2,16 @@
 ez_state_version: 1.0
 milestone: v2.1
 milestone_name: Gap Closure — "Close the Gaps"
-status: completed
-stopped_at: Completed 37-01-PLAN.md (Codebase Mapping Engine)
-last_updated: "2026-03-20T21:19:42.549Z"
-last_activity: "2026-03-20 — Phase 30 Plan 03 executed: CostTracker class with record/aggregate/checkBudget/setBudget"
+status: in_progress
+stopped_at: Completed 40-01-PLAN.md (Gate 5 Testing Coverage Validator)
+last_updated: "2026-03-21T12:00:00.000Z"
+last_activity: "2026-03-21 — Phase 40 Plan 01 executed: Gate 5 validator with archetype-specific thresholds, 8/8 tests passing"
 progress:
   total_phases: 16
   completed_phases: 11
   total_plans: 50
-  completed_plans: 43
-  percent: 86
+  completed_plans: 45
+  percent: 90
 ---
 
 ---
@@ -62,13 +62,14 @@ main (production) ← develop (staging) ← phase/* ← {feature,fix,docs,refact
 ## Position
 
 **Milestone:** v2.1 Gap Closure — "Close the Gaps"
-**Phase:** 30 — GSD Gap Closure (in progress — Plans 01-03 complete, Plan 04 next)
-**Status:** Phase 30 Plan 03 complete — cost-tracker.cjs implemented (7/7 tests GREEN)
-**Last activity:** 2026-03-20 — Phase 30 Plan 03 executed: CostTracker class with record/aggregate/checkBudget/setBudget
+**Phase:** 40 — Quality Gates Completion (in progress — Plan 01 complete)
+**Status:** Phase 40 Plan 01 complete — Gate 5 validator implemented with archetype-specific thresholds (8/8 tests GREEN)
+**Last activity:** 2026-03-21 — Phase 40 Plan 01 executed: Gate 5 Testing Coverage Validator
 
 ## Next Steps
 
-1. Execute Phase 30 Plan 04 — wire CLI commands (cost, lock, doctor) using real libs
+1. Execute Phase 40 Plan 02 — Gate 6: Documentation validator
+2. Update ROADMAP.md with Phase 40 progress
 
 ## Roadmap (v2.1)
 
@@ -94,6 +95,14 @@ main (production) ← develop (staging) ← phase/* ← {feature,fix,docs,refact
 
 ## Decisions Log
 
+### Phase 40 Plan 01 (2026-03-21)
+- Gate 5 validator checks for existing coverage report before running c8, enabling test mocking without requiring actual code to analyze
+- Test file converted from CommonJS (`require`) to ES modules (`import`) for vitest compatibility
+- Vitest configuration created (`vitest.config.js`) to support both `.cjs` and `.js` test files with Node.js environment
+- Validator exports `validateCoverage(phaseDir, archetype)` and `getArchetypeThresholds(archetype)` for programmatic use
+- CLI interface supports `validate <dir> [archetype]` and `thresholds <archetype>` commands
+- Coverage report format: `{ totals: { lines: { pct }, branches: { pct }, functions: { pct } } }`
+
 ### Phase 30 Plan 01 (2026-03-20)
 - Pre-commit hook runs npm test which includes all test files. Committed RED test scaffolds with --no-verify due to pre-existing failures in SPAWN/copilot-install/verify-commits tests unrelated to Phase 30.
 - cost-cli tests assert by_phase key (not by_milestone) — this defines the intended real implementation output shape.
@@ -110,6 +119,15 @@ main (production) ← develop (staging) ← phase/* ← {feature,fix,docs,refact
 - record() is async (withLock), aggregate()/checkBudget() are sync (read-only, no lock needed for reads).
 - setBudget() writes config.json synchronously; metrics.json is separate from config.
 
+### Phase 37 Plan 03 (2026-03-21)
+- Windows compatibility: grep not available on Windows, implemented pure JavaScript fallback (`_detectDebtMarkersJS`)
+- ESLint integration requires async/await: `analyzeComplexity()` is now async, returns Promise
+- Dual file locations: Files exist in both `bin/lib/` and `ez-agents/bin/lib/` — both must be updated
+- Severity scoring: Critical=4 (DEPRECATED), High=3 (BUG, XXX), Medium=2 (FIXME, HACK, REFACTOR), Low=1 (TODO, OPTIMIZE)
+- Duplicate detection: 10-line chunks with 5-line overlap, MD5 hashing
+- Large file thresholds: 500 lines (Medium), 1000+ lines (High), 100KB (Medium)
+- Test coverage: 19 tests (11 for TechDebtAnalyzer, 8 for CodeComplexityAnalyzer)
+
 ## Performance Metrics
 
 | Phase | Plan | Duration | Tasks | Files |
@@ -123,9 +141,9 @@ main (production) ← develop (staging) ← phase/* ← {feature,fix,docs,refact
 
 ## Session Continuity
 
-Last session: 2026-03-20T21:19:42.545Z
-**Stopped at:** Completed 37-01-PLAN.md (Codebase Mapping Engine)
-**Status:** ✅ v2.0 COMPLETE → v2.1 STARTED (v3.0 deferred) — Phase 30 Plan 01 complete
+Last session: 2026-03-21T00:00:00.000Z
+**Stopped at:** Completed 37-03-PLAN.md (Tech Debt Hotspot Identification Engine)
+**Status:** ✅ v2.0 COMPLETE → v2.1 STARTED (v3.0 deferred) — Phase 37 Plans 01-03 complete
 
 **Session Commands:**
 - `/ez:resume` - Resume from last session
