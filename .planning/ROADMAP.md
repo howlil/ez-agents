@@ -71,7 +71,7 @@ See `.planning/milestones/` for full archives.
 - [ ] Phase 31: Deploy Operations — one-command deploy (detect, run, rollback, status, audit, health check)
 - [ ] Phase 32: Performance Tooling — perf-analyzer, db-optimizer, frontend-perf, api-monitor, regression-detector
 - [ ] Phase 33: Analytics & FinOps — usage collection, NPS, funnels, cohorts, budget alerts, rightsizing, cost reports
-- [~] Phase 40: Quality Gates Completion — 7-gate enforcement (GATE-05 testing, GATE-06 docs, GATE-07 release) (1/5 plans complete)
+- [~] Phase 40: Quality Gates Completion — 7-gate enforcement (GATE-05 testing, GATE-06 docs, GATE-07 release) (2/5 plans complete)
 
 **Phase Details:**
 
@@ -139,7 +139,7 @@ Success criteria:
 
 Plans:
 - [x] 40-01-PLAN.md — Gate 5: Testing Coverage validator with archetype thresholds — completed 2026-03-21
-- [ ] 40-02-PLAN.md — Gate 6: Documentation validator with section validation
+- [x] 40-02-PLAN.md — Gate 6: Documentation validator with section validation — completed 2026-03-21
 - [ ] 40-03-PLAN.md — Gate 7: Release readiness validator with smoke tests
 - [ ] 40-04-PLAN.md — Edge case guards (hallucination, context budget, hidden state)
 - [ ] 40-05-PLAN.md — Edge case guards (autonomy, tool sprawl, team overhead)

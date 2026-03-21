@@ -3,15 +3,15 @@ ez_state_version: 1.0
 milestone: v2.1
 milestone_name: Gap Closure — "Close the Gaps"
 status: in_progress
-stopped_at: Completed 37-05 (Business Flow Mapping + Archetype Detection)
-last_updated: "2026-03-21T12:30:00.000Z"
-last_activity: "2026-03-21 — Phase 37 Plan 05 executed: BusinessFlowMapper and ArchetypeDetector with 21/21 tests passing"
+stopped_at: Completed 40-02 (Gate 6 Documentation Validator)
+last_updated: "2026-03-21T12:05:00.000Z"
+last_activity: "2026-03-21 — Phase 40 Plan 02 executed: Gate 6 Documentation Validator with tier-based requirements, 12/12 tests passing"
 progress:
   total_phases: 16
   completed_phases: 12
   total_plans: 50
-  completed_plans: 46
-  percent: 92
+  completed_plans: 47
+  percent: 94
 ---
 
 ---
@@ -118,6 +118,15 @@ main (production) ← develop (staging) ← phase/* ← {feature,fix,docs,refact
 - Validator exports `validateCoverage(phaseDir, archetype)` and `getArchetypeThresholds(archetype)` for programmatic use
 - CLI interface supports `validate <dir> [archetype]` and `thresholds <archetype>` commands
 - Coverage report format: `{ totals: { lines: { pct }, branches: { pct }, functions: { pct } } }`
+
+### Phase 40 Plan 02 (2026-03-21)
+- markdownlint 0.40.0 is an ESM module requiring dynamic import in CommonJS context
+- Validator functions (validateDocs, lintMarkdown) converted to async/await pattern
+- Test file converted to ES modules with dynamic import for validator
+- Minimum file size validation (50 bytes) prevents empty/placeholder documents
+- Section detection uses regex for both ATX (`# Heading`) and setext (`Heading\n===`) markdown styles
+- Linting errors truncated to first 3 issues to avoid overwhelming output
+- 12 tests passing covering getRequiredDocs, validateSections, and validateDocs functions
 
 ### Phase 30 Plan 01 (2026-03-20)
 - Pre-commit hook runs npm test which includes all test files. Committed RED test scaffolds with --no-verify due to pre-existing failures in SPAWN/copilot-install/verify-commits tests unrelated to Phase 30.
