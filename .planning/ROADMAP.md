@@ -159,7 +159,7 @@ Plans:
   - [ ] 35-05/37-04: Project Reporter (ProjectReporter) — pending
   - [ ] 35-06/37-06: Tradeoff Analyzer (TradeoffAnalyzer) — pending
 - [ ] Phase 36: Requirement Normalization Engine — informal → structured, NFR, acceptance criteria
-- [ ] Phase 37: Task Graph Builder — DAG generation, parallel classification, execution models
+- [x] Phase 37: Task Graph Builder — DAG generation, parallel classification, execution models (completed 2026-03-21)
 - [ ] Phase 38: Operation Modes — Greenfield/Existing/MVP/Scale-up/Maintenance flows
 - [ ] Phase 39: Specialist Agent Pool — layered agents with standardized output format
 - [ ] Phase 40: Quality Gates System — 7-gate enforcement (requirement to release)
