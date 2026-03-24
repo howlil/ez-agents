@@ -228,15 +228,6 @@ AskUserQuestion([
 ```
 AskUserQuestion([
   {
-    header: "Research",
-    question: "Research before planning each phase? (adds tokens/time)",
-    multiSelect: false,
-    options: [
-      { label: "Yes (Recommended)", description: "Investigate domain, find patterns, surface gotchas" },
-      { label: "No", description: "Plan directly from requirements" }
-    ]
-  },
-  {
     header: "Plan Check",
     question: "Verify plans will achieve their goals? (adds tokens/time)",
     multiSelect: false,
@@ -544,15 +535,6 @@ All recommended for important projects. Skip for quick experiments.
 
 ```
 questions: [
-  {
-    header: "Research",
-    question: "Research before planning each phase? (adds tokens/time)",
-    multiSelect: false,
-    options: [
-      { label: "Yes (Recommended)", description: "Investigate domain, find patterns, surface gotchas" },
-      { label: "No", description: "Plan directly from requirements" }
-    ]
-  },
   {
     header: "Plan Check",
     question: "Verify plans will achieve their goals? (adds tokens/time)",
@@ -989,10 +971,10 @@ Error Type: [type]
 Error Location: [file:line]
 Suggested Fix: [action]
 
-Context Snapshot: .planning/logs/stuck-snapshot-[timestamp].json
+Debug: Run `/ez:debug` to see current session state
 
 Next Steps:
-1. Review context snapshot
+1. Review error details
 2. Fix [specific issue]
 3. Run: /ez:new-project --retry
 ```

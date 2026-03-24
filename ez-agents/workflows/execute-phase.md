@@ -361,6 +361,76 @@ node "$HOME/.claude/ez-agents/bin/ez-tools.cjs" commit "docs(phase-${PARENT_PHAS
 <step name="verify_phase_goal">
 Verify phase achieved its GOAL, not just completed tasks.
 
+## Design Review Gate (Frontend Phases Only)
+
+**If phase has frontend/UI work:** Spawn ez-design-expert BEFORE verifier.
+
+```bash
+# Check if phase has frontend indicators
+PHASE_SECTION=$(node "$HOME/.claude/ez-agents/bin/ez-tools.cjs" roadmap get-phase "${PHASE_NUMBER}" 2>/dev/null)
+echo "$PHASE_SECTION" | grep -iE "UI|interface|frontend|component|layout|page|screen|view|form|dashboard|widget" > /dev/null 2>&1
+HAS_UI=$?
+```
+
+**If `HAS_UI` is 0 (frontend found):**
+
+```
+Task(
+  prompt="Review UI design quality for phase {phase_number}.
+Phase directory: {phase_dir}
+Check: design token consistency, AI slop patterns, visual hierarchy.
+Report: PASS/PASS_WITH_WARNINGS/FAIL with specific fixes.
+Output: DESIGN-REVIEW.md",
+  subagent_type="ez-design-expert",
+  model="{planner_model}"
+)
+```
+
+**Read verdict:**
+```bash
+grep "^**Status:**" "$PHASE_DIR"/DESIGN-REVIEW.md | cut -d: -f2 | tr -d ' '
+```
+
+| Verdict | Action |
+|---------|--------|
+| `PASS` | → Continue to verifier |
+| `PASS_WITH_WARNINGS` | → Show warnings, continue to verifier |
+| `FAIL` | → Show critical issues, offer `/ez:plan-phase {N} --design-fixes` |
+
+**If FAIL:**
+```
+## ❌ Design Review Failed — Phase {X}: {Name}
+
+**AI Slop Detected:** {specific patterns found}
+
+### Critical Issues
+{List from DESIGN-REVIEW.md}
+
+---
+## ▶ Next Up
+
+`/ez:plan-phase {X} --design-fixes`
+
+<sub>`/clear` first → fresh context window</sub>
+
+Also: `cat {phase_dir}/DESIGN-REVIEW.md` — full report
+```
+
+**If PASS or PASS_WITH_WARNINGS:**
+```
+## ✅ Design Review Complete
+
+**Status:** {PASS | PASS_WITH_WARNINGS}
+
+{Warnings list if any}
+
+Continuing to verification...
+```
+
+---
+
+## Standard Verification
+
 ```
 Task(
   prompt="Verify phase {phase_number} goal achievement.

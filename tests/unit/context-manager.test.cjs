@@ -8,21 +8,11 @@ const assert = require('assert');
 const path = require('path');
 const fs = require('fs');
 const os = require('os');
+const { test } = require('../test-utils.cjs');
 const ContextManager = require('../../ez-agents/bin/lib/context-manager.cjs');
 
 let passed = 0;
 let failed = 0;
-
-function test(name, fn) {
-  try {
-    fn();
-    console.log(`✓ ${name}`);
-    passed++;
-  } catch (err) {
-    console.log(`✗ ${name}: ${err.message}`);
-    failed++;
-  }
-}
 
 // Create a temporary test directory
 const testDir = fs.mkdtempSync(path.join(os.tmpdir(), 'ez-context-manager-test-'));

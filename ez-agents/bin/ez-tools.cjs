@@ -199,7 +199,7 @@ async function main() {
   const command = args[0];
 
   if (!command) {
-    error('Usage: ez-tools <command> [args] [--raw] [--cwd <path>]\nCommands: state, resolve-model, find-phase, commit, verify-summary, verify, frontmatter, template, generate-slug, current-timestamp, list-todos, verify-path-exists, config-ensure-section, setup-observability, setup-metrics, setup-logging, setup-tracing, setup-alerting, setup-error-tracking, init, health, session, resume, export-session, import-session, chain, context');
+    error('Usage: ez-tools <command> [args] [--raw] [--cwd <path>]\nCommands: state, resolve-model, find-phase, commit, verify-summary, verify, frontmatter, template, generate-slug, current-timestamp, list-todos, verify-path-exists, config-ensure-section, setup-observability, setup-metrics, setup-logging, setup-tracing, setup-alerting, setup-error-tracking, init, health, session, resume, export-session, import-session, chain, context, cost, circuit-breaker');
   }
 
   switch (command) {
@@ -571,6 +571,300 @@ async function main() {
       console.log('  qwen      $2.95   (23%)');
       console.log('  kimi      $1.00   (8%)');
       console.log('');
+
+      break;
+    }
+
+    case 'circuit-breaker': {
+      const CircuitBreaker = require('./lib/circuit-breaker.cjs');
+      const subcommand = args[1];
+
+      if (!subcommand) {
+        console.log('');
+        console.log('EZ Agents Circuit Breaker');
+        console.log('═════════════════════════');
+        console.log('');
+        console.log('Usage: ez-tools circuit-breaker <status|reset> [options]');
+        console.log('');
+        console.log('Subcommands:');
+        console.log('  status              Show circuit breaker status for all agent types');
+        console.log('  reset [agent-type]  Reset circuit breaker(s) to CLOSED state');
+        console.log('');
+        console.log('Examples:');
+        console.log('  ez-tools circuit-breaker status');
+        console.log('  ez-tools circuit-breaker reset claude-code');
+        console.log('  ez-tools circuit-breaker reset  # Reset all breakers');
+        console.log('');
+        break;
+      }
+
+      switch (subcommand) {
+        case 'status': {
+          const stateFile = path.join(cwd, '.planning', 'circuit-breaker.json');
+
+          console.log('');
+          console.log('Circuit Breaker Status');
+          console.log('══════════════════════');
+          console.log('');
+
+          if (!fs.existsSync(stateFile)) {
+            console.log('No circuit breaker state found (no failures recorded yet)');
+            console.log('');
+            break;
+          }
+
+          try {
+            const data = JSON.parse(fs.readFileSync(stateFile, 'utf8'));
+            const agentTypes = Object.keys(data);
+
+            if (agentTypes.length === 0) {
+              console.log('No circuit breakers initialized');
+              console.log('');
+              break;
+            }
+
+            console.log('Agent Type          State       Failures  Successes  Last Failure');
+            console.log('───────────────────────────────────────────────────────────────────');
+
+            for (const agentType of agentTypes) {
+              const state = data[agentType];
+              const lastFailure = state.lastFailureTime
+                ? new Date(state.lastFailureTime).toLocaleString()
+                : 'Never';
+
+              const stateColor = state.state === 'OPEN' ? '🔴' : state.state === 'HALF_OPEN' ? '🟡' : '🟢';
+
+              console.log(
+                `${agentType.padEnd(18)} ${stateColor} ${state.state.padEnd(9)} ${String(state.failures).padEnd(8)} ${String(state.successes).padEnd(9)} ${lastFailure}`
+              );
+            }
+
+            console.log('');
+            console.log('Legend: 🟢 CLOSED (normal)  🟡 HALF_OPEN (testing)  🔴 OPEN (failing)');
+            console.log('');
+          } catch (err) {
+            error(`Failed to read circuit breaker state: ${err.message}`);
+          }
+
+          break;
+        }
+
+        case 'reset': {
+          const agentType = args[2];
+          const stateFile = path.join(cwd, '.planning', 'circuit-breaker.json');
+
+          if (!fs.existsSync(stateFile)) {
+            console.log('');
+            console.log('No circuit breaker state to reset');
+            console.log('');
+            break;
+          }
+
+          try {
+            const data = JSON.parse(fs.readFileSync(stateFile, 'utf8'));
+
+            if (agentType) {
+              // Reset specific agent type
+              if (!data[agentType]) {
+                error(`No circuit breaker found for agent type: ${agentType}`);
+              }
+
+              const oldState = data[agentType].state;
+              data[agentType] = {
+                state: 'CLOSED',
+                failures: 0,
+                successes: data[agentType].successes || 0,
+                failureThreshold: data[agentType].failureThreshold || 5,
+                resetTimeout: data[agentType].resetTimeout || 60000,
+                lastFailureTime: null,
+                lastStateChange: new Date().toISOString()
+              };
+
+              fs.writeFileSync(stateFile, JSON.stringify(data, null, 2), 'utf8');
+
+              console.log('');
+              console.log(`Circuit breaker reset for ${agentType}`);
+              console.log(`  State: ${oldState} → CLOSED`);
+              console.log('');
+            } else {
+              // Reset all agent types
+              const agentTypes = Object.keys(data);
+              for (const at of agentTypes) {
+                const oldState = data[at].state;
+                data[at] = {
+                  state: 'CLOSED',
+                  failures: 0,
+                  successes: data[at].successes || 0,
+                  failureThreshold: data[at].failureThreshold || 5,
+                  resetTimeout: data[at].resetTimeout || 60000,
+                  lastFailureTime: null,
+                  lastStateChange: new Date().toISOString()
+                };
+              }
+
+              fs.writeFileSync(stateFile, JSON.stringify(data, null, 2), 'utf8');
+
+              console.log('');
+              console.log(`Reset ${agentTypes.length} circuit breaker(s)`);
+              for (const at of agentTypes) {
+                console.log(`  ${at}: CLOSED`);
+              }
+              console.log('');
+            }
+          } catch (err) {
+            error(`Failed to reset circuit breaker: ${err.message}`);
+          }
+
+          break;
+        }
+
+        default:
+          error(`Unknown circuit-breaker subcommand: ${subcommand}\nUse 'ez-tools circuit-breaker' for usage`);
+      }
+
+      break;
+    }
+
+    case 'error': {
+      const ErrorCache = require('./lib/error-cache.cjs');
+      const errorCache = new ErrorCache.ErrorCache();
+      const subcommand = args[1];
+
+      if (!subcommand) {
+        console.log('');
+        console.log('EZ Agents Error Cache');
+        console.log('═════════════════════');
+        console.log('');
+        console.log('Usage: ez-tools error <list|clear|stats> [options]');
+        console.log('');
+        console.log('Subcommands:');
+        console.log('  list [--recurring] [--limit N]  List cached errors');
+        console.log('  clear <fingerprint|--all>       Clear error(s) from cache');
+        console.log('  stats                           Show error statistics');
+        console.log('');
+        console.log('Examples:');
+        console.log('  ez-tools error list');
+        console.log('  ez-tools error list --recurring --limit 10');
+        console.log('  ez-tools error clear abc123...');
+        console.log('  ez-tools error clear --all');
+        console.log('  ez-tools error stats');
+        console.log('');
+        break;
+      }
+
+      switch (subcommand) {
+        case 'list': {
+          const recurringOnly = args.includes('--recurring');
+          const limitIdx = args.indexOf('--limit');
+          const limit = limitIdx !== -1 ? parseInt(args[limitIdx + 1]) : 50;
+
+          let errors = Array.from(errorCache.cache.values());
+          
+          if (recurringOnly) {
+            errors = errors.filter(e => e.count > 1);
+          }
+
+          errors = errors.slice(0, limit);
+
+          console.log('');
+          console.log(`Error Cache (${errors.length} errors)`);
+          console.log('════════════════════════════════');
+          console.log('');
+
+          if (errors.length === 0) {
+            console.log('No errors in cache');
+            console.log('');
+            break;
+          }
+
+          console.log('Count  Name                      Severity  First Seen');
+          console.log('─────────────────────────────────────────────────────────');
+
+          for (const err of errors) {
+            const count = err.count.toString().padStart(5);
+            const name = err.name.substring(0, 25).padEnd(25);
+            const severity = err.severity.substring(0, 7).padEnd(7);
+            const firstSeen = new Date(err.firstSeen).toLocaleString();
+            console.log(`${count}  ${name}  ${severity}  ${firstSeen}`);
+          }
+          console.log('');
+          break;
+        }
+
+        case 'clear': {
+          const fingerprint = args[2];
+
+          if (!fingerprint) {
+            error('Usage: ez-tools error clear <fingerprint|--all>');
+          }
+
+          if (fingerprint === '--all') {
+            errorCache.clearAll();
+            console.log('✓ All errors cleared from cache');
+          } else {
+            const cleared = errorCache.clear(fingerprint);
+            if (cleared) {
+              console.log(`✓ Error cleared: ${fingerprint.substring(0, 16)}...`);
+            } else {
+              console.log(`Error not found: ${fingerprint.substring(0, 16)}...`);
+            }
+          }
+          console.log('');
+          break;
+        }
+
+        case 'stats': {
+          const stats = errorCache.getStats();
+          const recurring = errorCache.getRecurringErrors();
+          const patterns = errorCache.getRecurringPatterns();
+
+          console.log('');
+          console.log('Error Cache Statistics');
+          console.log('══════════════════════');
+          console.log('');
+          console.log(`Total unique errors: ${stats.total}`);
+          console.log(`Recurring errors: ${stats.recurring}`);
+          console.log(`Total occurrences: ${stats.totalOccurrences}`);
+          console.log('');
+
+          if (Object.keys(stats.bySeverity).length > 0) {
+            console.log('By Severity:');
+            for (const [severity, count] of Object.entries(stats.bySeverity)) {
+              console.log(`  ${severity}: ${count}`);
+            }
+            console.log('');
+          }
+
+          if (Object.keys(stats.byCategory).length > 0) {
+            console.log('By Category:');
+            for (const [category, count] of Object.entries(stats.byCategory)) {
+              console.log(`  ${category}: ${count}`);
+            }
+            console.log('');
+          }
+
+          if (recurring.length > 0) {
+            console.log('Top Recurring Errors:');
+            recurring.slice(0, 5).forEach((err, i) => {
+              console.log(`  ${i + 1}. ${err.name} (${err.count}x) - ${err.message.substring(0, 50)}...`);
+            });
+            console.log('');
+          }
+
+          if (patterns.length > 0) {
+            console.log('Recurring Patterns:');
+            patterns.slice(0, 3).forEach((pattern, i) => {
+              console.log(`  ${i + 1}. ${pattern.name}: ${pattern.suggestion}`);
+            });
+            console.log('');
+          }
+
+          break;
+        }
+
+        default:
+          error(`Unknown error subcommand: ${subcommand}\nUse 'ez-tools error' for usage`);
+      }
 
       break;
     }

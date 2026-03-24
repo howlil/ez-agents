@@ -14,7 +14,7 @@ describe('Perf Reporter', () => {
   });
 
   describe('saveReport()', () => {
-    it('writes to .planning/logs/', async () => {
+    it('is defined and callable', async () => {
       const { saveReport } = await import('../../ez-agents/bin/lib/perf/perf-reporter.cjs');
       expect(saveReport).toBeDefined();
     });

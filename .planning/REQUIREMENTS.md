@@ -83,25 +83,45 @@
 
 ---
 
-## v5.0 Requirements (Deferred)
+## v5.0 Requirements (TypeScript Migration — Hybrid OOP)
 
-### Cross-Agent Memory
+**Goal:** Migrate all 95 modules to TypeScript with strategic type safety.
 
-- **MEM-01**: Implement shared memory layer per phase
-- **MEM-02**: Add semantic search for relevant learnings
-- **MEM-03**: Persist learnings to MEMORY.json
+### Build & Configuration (BUILD-01 to BUILD-05)
 
-### Prompt Quality
+- [ ] **BUILD-01**: Install TypeScript 5.x and create tsconfig.json with strict mode
+- [ ] **BUILD-02**: Integrate TypeScript build pipeline (npm scripts for tsc)
+- [ ] **BUILD-03**: Configure type declaration output (.d.ts generation)
+- [ ] **BUILD-04**: Enable incremental build configuration for performance
+- [ ] **BUILD-05**: Add build validation to CI/CD pipeline
 
-- **PROMPT-01**: Implement prompt versioning system
-- **PROMPT-02**: Add A/B testing for prompts
-- **PROMPT-03**: Track prompt quality metrics
+### Core Interfaces (OOP-01 to OOP-05)
 
-### Observability
+- [ ] **OOP-01**: Define IAgent interface for base agent contract
+- [ ] **OOP-02**: Define IWorkflow interface for phase execution
+- [ ] **OOP-03**: Define ISession interface for state management
+- [ ] **OOP-04**: Define ITaskGraph interface for dependency tracking
+- [ ] **OOP-05**: Create abstract base classes for agent hierarchy
 
-- **OBS-01**: Implement real-time dashboard
-- **OBS-02**: Add token cost tracking per phase
-- **OBS-03**: Implement bottleneck detection
+### Module Migration (MIG-01 to MIG-05)
+
+- [ ] **MIG-01**: Document migration strategy for CommonJS → TypeScript
+- [ ] **MIG-02**: Create type-safe wrappers for existing CommonJS modules
+- [ ] **MIG-03**: Convert 95 CommonJS modules to TypeScript (.js → .ts)
+- [ ] **MIG-04**: Add type annotations to all function signatures
+- [ ] **MIG-05**: Resolve all TypeScript strict mode errors
+
+### Integration (INT-01 to INT-04)
+
+- [ ] **INT-01**: Create integration tests for TypeScript modules
+- [ ] **INT-02**: Implement runtime type validation layer
+- [ ] **INT-03**: Ensure backward compatibility with CommonJS consumers
+- [ ] **INT-04**: Run performance benchmark (no regression)
+
+### Documentation (DOC-01 to DOC-02)
+
+- [ ] **DOC-01**: Generate TypeScript API documentation (TypeDoc)
+- [ ] **DOC-02**: Create migration guide for contributors
 
 ---
 
@@ -165,12 +185,250 @@
 | PLOCK-08 | Phase 50 | Pending |
 | PLOCK-09 | Phase 51 | Pending |
 | PLOCK-10 | Phase 51 | Pending |
+| BUILD-01 | Phase 52 | Pending |
+| BUILD-02 | Phase 52 | Pending |
+| BUILD-03 | Phase 52 | Pending |
+| BUILD-04 | Phase 53 | Pending |
+| BUILD-05 | Phase 53 | Pending |
+| OOP-01 | Phase 53 | Pending |
+| OOP-02 | Phase 54 | Pending |
+| OOP-03 | Phase 54 | Pending |
+| OOP-04 | Phase 54 | Pending |
+| OOP-05 | Phase 55 | Pending |
+| MIG-01 | Phase 55 | Pending |
+| MIG-02 | Phase 55 | Pending |
+| MIG-03 | Phase 56 | Pending |
+| MIG-04 | Phase 56 | Pending |
+| MIG-05 | Phase 56 | Pending |
+| INT-01 | Phase 57 | Pending |
+| INT-02 | Phase 57 | Pending |
+| INT-03 | Phase 57 | Pending |
+| INT-04 | Phase 57 | Pending |
+| DOC-01 | Phase 58 | Pending |
+| DOC-02 | Phase 58 | Pending |
+
+---
+
+## v5.1 Requirements (Chief Strategist & AI Evaluation)
+
+**Goal:** Complete the missing Chief Strategist orchestrator and implement AI evaluation framework.
+
+### Chief Strategist Implementation (CS-01 to CS-06)
+
+- [ ] **CS-01**: Implement 7-state state machine (TRIAGE → ANALYSIS → STRATEGY → PLANNING → EXECUTION → VERIFICATION → COMPLETE)
+- [ ] **CS-02**: Create task decomposition engine with dependency graph
+- [ ] **CS-03**: Implement wave-based parallel delegation
+- [ ] **CS-04**: Create reconciliation & integration layer
+- [ ] **CS-05**: Implement quality gate enforcement
+- [ ] **CS-06**: Add state persistence & recovery
+
+### AI Evaluation Framework (EVAL-01 to EVAL-06)
+
+- [ ] **EVAL-01**: Implement automated plan quality scoring (completeness, testability, dependency clarity)
+- [ ] **EVAL-02**: Create prompt versioning system with semantic versioning
+- [ ] **EVAL-03**: Implement A/B testing framework for prompt variations
+- [ ] **EVAL-04**: Add prompt analytics (success rates, failure patterns)
+- [ ] **EVAL-05**: Implement cross-agent learning propagation
+- [ ] **EVAL-06**: Create hallucination detection guards
+
+### Prompt Registry (PROMPT-01 to PROMPT-04)
+
+- [ ] **PROMPT-01**: Create prompt template registry with versioning
+- [ ] **PROMPT-02**: Implement prompt quality metrics tracking
+- [ ] **PROMPT-03**: Add prompt A/B test result storage
+- [ ] **PROMPT-04**: Create prompt marketplace infrastructure
+
+### Integration (AI-INT-01 to AI-INT-04)
+
+- [ ] **AI-INT-01**: Wire Chief Strategist into workflow commands
+- [ ] **AI-INT-02**: Integrate evaluation into quality gates
+- [ ] **AI-INT-03**: Add evaluation metrics to dashboard
+- [ ] **AI-INT-04**: Create feedback loop for continuous improvement
+
+### Documentation (AI-DOC-01 to AI-DOC-02)
+
+- [ ] **AI-DOC-01**: Document Chief Strategist architecture
+- [ ] **AI-DOC-02**: Create prompt engineering best practices guide
+
+---
+
+## v5.2 Requirements (Observability & Developer Experience)
+
+**Goal:** Add distributed tracing, monitoring dashboard, and VS Code extension.
+
+### Distributed Tracing (TRACE-01 to TRACE-05)
+
+- [ ] **TRACE-01**: Implement OpenTelemetry integration
+- [ ] **TRACE-02**: Add trace context propagation across agents
+- [ ] **TRACE-03**: Create trace visualization (Jaeger/Zipkin)
+- [ ] **TRACE-04**: Implement trace-based debugging
+- [ ] **TRACE-05**: Add trace analytics (bottleneck detection)
+
+### Structured Logging (LOG-01 to LOG-04)
+
+- [ ] **LOG-01**: Migrate to JSON structured logging (Pino)
+- [ ] **LOG-02**: Implement log aggregation (Loki/ELK)
+- [ ] **LOG-03**: Add correlation IDs across sessions
+- [ ] **LOG-04**: Create log query interface
+
+### Metrics Dashboard (METRIC-01 to METRIC-05)
+
+- [ ] **METRIC-01**: Prometheus metrics exporter
+- [ ] **METRIC-02**: Grafana dashboard templates
+- [ ] **METRIC-03**: Business metrics tracking (conversions, retention)
+- [ ] **METRIC-04**: AI-specific metrics (token usage, model costs)
+- [ ] **METRIC-05**: Alerting rules (PagerDuty/Slack)
+
+### VS Code Extension (VSCODE-01 to VSCODE-06)
+
+- [ ] **VSCODE-01**: VS Code extension scaffold
+- [ ] **VSCODE-02**: Command palette integration
+- [ ] **VSCODE-03**: Phase status view
+- [ ] **VSCODE-04**: Real-time agent activity feed
+- [ ] **VSCODE-05**: Debug mode with step-through
+- [ ] **VSCODE-06**: Interactive REPL panel
+
+### Developer Experience (DX-01 to DX-03)
+
+- [ ] **DX-01**: Debug mode for agent decision tracing
+- [ ] **DX-02**: Interactive REPL for experimentation
+- [ ] **DX-03**: Prompt playground for testing
+
+### Documentation (DX-DOC-01 to DX-DOC-03)
+
+- [ ] **DX-DOC-01**: Observability setup guide
+- [ ] **DX-DOC-02**: VS Code extension user guide
+- [ ] **DX-DOC-03**: Debug mode tutorial
+
+---
+
+## Traceability (All Milestones)
+
+| Requirement | Phase | Status |
+|-------------|-------|--------|
+| NEST-01 | Phase 40 | Pending |
+| NEST-02 | Phase 40 | Pending |
+| NEST-03 | Phase 40 | Pending |
+| CKPT-01 | Phase 40 | Pending |
+| CKPT-02 | Phase 40 | Pending |
+| CKPT-03 | Phase 40 | Pending |
+| SESS-01 | Phase 41 | Pending |
+| SESS-02 | Phase 41 | Pending |
+| SESS-03 | Phase 41 | Pending |
+| SESS-04 | Phase 41 | Pending |
+| LOCK-01 | Phase 41 | Pending |
+| LOCK-02 | Phase 41 | Pending |
+| LOCK-03 | Phase 41 | Pending |
+| REV-01 | Phase 42 | Pending |
+| REV-02 | Phase 42 | Pending |
+| REV-03 | Phase 42 | Pending |
+| REV-04 | Phase 42 | Pending |
+| CTX-01 | Phase 43 | Complete |
+| CTX-02 | Phase 43 | Complete |
+| CTX-03 | Phase 43 | Complete |
+| CTX-04 | Phase 43 | Pending |
+| COST-01 | Phase 44 | Complete |
+| COST-02 | Phase 44 | Complete |
+| COST-03 | Phase 44 | Pending |
+| CIRCUIT-01 | Phase 44 | Pending |
+| CIRCUIT-02 | Phase 44 | Pending |
+| WAVE-01 | Phase 45 | Complete |
+| WAVE-02 | Phase 45 | Complete |
+| WAVE-03 | Phase 45 | Complete |
+| ERR-01 | Phase 46 | Pending |
+| ERR-02 | Phase 46 | Pending |
+| ERR-03 | Phase 46 | Pending |
+| GATE-01 | Phase 46 | Pending |
+| GATE-02 | Phase 46 | Pending |
+| GATE-03 | Phase 46 | Pending |
+| PLOCK-01 | Phase 47 | Pending |
+| PLOCK-02 | Phase 47 | Pending |
+| PLOCK-03 | Phase 47 | Pending |
+| PLOCK-04 | Phase 48 | Pending |
+| PLOCK-05 | Phase 48 | Pending |
+| PLOCK-06 | Phase 49 | Pending |
+| PLOCK-07 | Phase 49 | Pending |
+| PLOCK-08 | Phase 50 | Pending |
+| PLOCK-09 | Phase 51 | Pending |
+| PLOCK-10 | Phase 51 | Pending |
+| BUILD-01 | Phase 52 | Pending |
+| BUILD-02 | Phase 52 | Pending |
+| BUILD-03 | Phase 52 | Pending |
+| BUILD-04 | Phase 53 | Pending |
+| BUILD-05 | Phase 53 | Pending |
+| OOP-01 | Phase 53 | Pending |
+| OOP-02 | Phase 54 | Pending |
+| OOP-03 | Phase 54 | Pending |
+| OOP-04 | Phase 54 | Pending |
+| OOP-05 | Phase 55 | Pending |
+| MIG-01 | Phase 55 | Pending |
+| MIG-02 | Phase 55 | Pending |
+| MIG-03 | Phase 56 | Pending |
+| MIG-04 | Phase 56 | Pending |
+| MIG-05 | Phase 56 | Pending |
+| INT-01 | Phase 57 | Pending |
+| INT-02 | Phase 57 | Pending |
+| INT-03 | Phase 57 | Pending |
+| INT-04 | Phase 57 | Pending |
+| DOC-01 | Phase 58 | Pending |
+| DOC-02 | Phase 58 | Pending |
+| CS-01 | Phase 59 | Pending |
+| CS-02 | Phase 60 | Pending |
+| CS-03 | Phase 61 | Pending |
+| CS-04 | Phase 62 | Pending |
+| CS-05 | Phase 63 | Pending |
+| CS-06 | Phase 63 | Pending |
+| EVAL-01 | Phase 63 | Pending |
+| EVAL-02 | Phase 64 | Pending |
+| EVAL-03 | Phase 64 | Pending |
+| EVAL-04 | Phase 64 | Pending |
+| EVAL-05 | Phase 64 | Pending |
+| EVAL-06 | Phase 64 | Pending |
+| PROMPT-01 | Phase 64 | Pending |
+| PROMPT-02 | Phase 64 | Pending |
+| PROMPT-03 | Phase 64 | Pending |
+| PROMPT-04 | Phase 64 | Pending |
+| AI-INT-01 | Phase 65 | Pending |
+| AI-INT-02 | Phase 65 | Pending |
+| AI-INT-03 | Phase 65 | Pending |
+| AI-INT-04 | Phase 65 | Pending |
+| AI-DOC-01 | Phase 65 | Pending |
+| AI-DOC-02 | Phase 65 | Pending |
+| TRACE-01 | Phase 66 | Pending |
+| TRACE-02 | Phase 66 | Pending |
+| TRACE-03 | Phase 67 | Pending |
+| TRACE-04 | Phase 67 | Pending |
+| TRACE-05 | Phase 67 | Pending |
+| LOG-01 | Phase 68 | Pending |
+| LOG-02 | Phase 68 | Pending |
+| LOG-03 | Phase 68 | Pending |
+| LOG-04 | Phase 68 | Pending |
+| METRIC-01 | Phase 69 | Pending |
+| METRIC-02 | Phase 69 | Pending |
+| METRIC-03 | Phase 69 | Pending |
+| METRIC-04 | Phase 69 | Pending |
+| METRIC-05 | Phase 69 | Pending |
+| VSCODE-01 | Phase 70 | Pending |
+| VSCODE-02 | Phase 70 | Pending |
+| VSCODE-03 | Phase 70 | Pending |
+| VSCODE-04 | Phase 70 | Pending |
+| VSCODE-05 | Phase 71 | Pending |
+| VSCODE-06 | Phase 71 | Pending |
+| DX-01 | Phase 71 | Pending |
+| DX-02 | Phase 71 | Pending |
+| DX-03 | Phase 71 | Pending |
+| DX-DOC-01 | Phase 72 | Pending |
+| DX-DOC-02 | Phase 72 | Pending |
+| DX-DOC-03 | Phase 72 | Pending |
 
 **Coverage:**
 - v4.0 requirements: 38 total — Mapped to phases: 38 ✓
 - v4.1 requirements: 10 total — Mapped to phases: 10 ✓
-- **Total:** 48 requirements across 12 phases (40-51)
+- v5.0 requirements: 21 total — Mapped to phases: 21 ✓
+- v5.1 requirements: 24 total — Mapped to phases: 24 ✓
+- v5.2 requirements: 26 total — Mapped to phases: 26 ✓
+- **Total:** 119 requirements across 33 phases (40-72)
 
 ---
 *Requirements defined: 2026-03-21*
-*Last updated: 2026-03-24 — Added v4.1 Phase Locking (10 requirements, phases 47-51)*
+*Last updated: 2026-03-24 — Added v5.0, v5.1, v5.2 (71 requirements, phases 52-72)*

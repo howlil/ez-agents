@@ -1,26 +1,15 @@
-#!/usr/bin/env node
-
+'use strict';
 /**
  * EZ Cost Alerts — Multi-threshold budget alert system
- *
- * Monitors budget usage and triggers alerts at configurable thresholds (50%, 75%, 90%)
- * Persists alerts to .planning/alerts.json using file-lock for concurrent safety
- *
- * Usage:
- *   const CostAlerts = require('./cost-alerts.cjs');
- *   const alerts = new CostAlerts(cwd);
- *   const triggered = alerts.checkThresholds({ percentUsed: 80, totalSpent: 4.00, budget: 5.00 });
- *   triggered.forEach(alert => alerts.logAlert(alert));
+ * Triggers alerts at 50%, 75%, and 90% budget usage
+ * With duplicate prevention (24h window)
  */
 
 const fs = require('fs');
 const path = require('path');
-const { withLock } = require('./file-lock.cjs');
-const Logger = require('./logger.cjs');
-const logger = new Logger();
 
 /**
- * Alert threshold levels
+ * Alert threshold percentages
  */
 const THRESHOLDS = {
   INFO: 50,
@@ -29,152 +18,157 @@ const THRESHOLDS = {
 };
 
 /**
- * Get alert level from threshold percentage
- * @param {number} threshold - Threshold percentage
- * @returns {string} - Alert level: 'info', 'warning', or 'critical'
+ * Duplicate prevention window in milliseconds (24 hours)
  */
-function getLevelFromThreshold(threshold) {
-  if (threshold >= THRESHOLDS.CRITICAL) return 'critical';
-  if (threshold >= THRESHOLDS.WARNING) return 'warning';
-  if (threshold >= THRESHOLDS.INFO) return 'info';
-  return null;
-}
+const DUPLICATE_WINDOW_MS = 24 * 60 * 60 * 1000;
 
 class CostAlerts {
-  /**
-   * Create CostAlerts instance
-   * @param {string} [cwd] - Working directory (defaults to process.cwd())
-   */
   constructor(cwd) {
     this.cwd = cwd || process.cwd();
-    this.alertsPath = path.join(this.cwd, '.planning', 'alerts.json');
+    this.planningDir = path.join(this.cwd, '.planning');
+    this.alertsFile = path.join(this.planningDir, 'alerts.json');
+    this._ensurePlanningDir();
   }
 
   /**
-   * Get alerts file path
-   * @returns {string} - Path to alerts.json
+   * Ensure .planning directory exists
    */
-  getAlertsFile() {
-    return this.alertsPath;
+  _ensurePlanningDir() {
+    if (!fs.existsSync(this.planningDir)) {
+      fs.mkdirSync(this.planningDir, { recursive: true });
+    }
+  }
+
+  /**
+   * Load existing alerts from file
+   * @returns {Array} Existing alerts
+   */
+  _loadAlerts() {
+    try {
+      if (fs.existsSync(this.alertsFile)) {
+        const data = JSON.parse(fs.readFileSync(this.alertsFile, 'utf8'));
+        return data.alerts || [];
+      }
+    } catch (err) {
+      // File corrupted or unreadable, start fresh
+    }
+    return [];
+  }
+
+  /**
+   * Save alerts to file
+   * @param {Array} alerts - Alerts to save
+   */
+  _saveAlerts(alerts) {
+    const data = {
+      alerts,
+      lastUpdated: new Date().toISOString()
+    };
+    fs.writeFileSync(this.alertsFile, JSON.stringify(data, null, 2), 'utf8');
+  }
+
+  /**
+   * Check if alert is duplicate within 24h window
+   * @param {Array} existingAlerts - Existing alerts
+   * @param {object} newAlert - New alert to check
+   * @returns {boolean} True if duplicate
+   */
+  _isDuplicate(existingAlerts, newAlert) {
+    const now = new Date().getTime();
+    return existingAlerts.some(alert => {
+      if (alert.threshold !== newAlert.threshold || alert.level !== newAlert.level) {
+        return false;
+      }
+      const alertTime = new Date(alert.timestamp).getTime();
+      return (now - alertTime) < DUPLICATE_WINDOW_MS;
+    });
   }
 
   /**
    * Check thresholds and return triggered alerts
-   * @param {Object} params - Budget parameters
-   * @param {number} params.percentUsed - Current budget usage percentage
-   * @param {number} params.totalSpent - Total amount spent
-   * @param {number} params.budget - Budget ceiling
-   * @returns {Array<Object>} - Array of triggered alert objects
+   * @param {object} opts - Alert options
+   * @param {number} opts.percentUsed - Current budget usage percentage
+   * @param {number} opts.totalSpent - Total amount spent
+   * @param {number} opts.budget - Total budget
+   * @returns {Array} Array of triggered alerts
    */
-  checkThresholds({ percentUsed, totalSpent, budget }) {
-    const alerts = [];
-    const thresholdLevels = [
-      { threshold: THRESHOLDS.INFO, level: 'info' },
-      { threshold: THRESHOLDS.WARNING, level: 'warning' },
-      { threshold: THRESHOLDS.CRITICAL, level: 'critical' }
+  checkThresholds(opts) {
+    const { percentUsed, totalSpent, budget } = opts;
+    const triggered = [];
+
+    const thresholds = [
+      { level: 'info', threshold: THRESHOLDS.INFO },
+      { level: 'warning', threshold: THRESHOLDS.WARNING },
+      { level: 'critical', threshold: THRESHOLDS.CRITICAL }
     ];
 
-    for (const { threshold, level } of thresholdLevels) {
+    for (const { level, threshold } of thresholds) {
       if (percentUsed >= threshold) {
-        alerts.push({
+        triggered.push({
           threshold,
           level,
-          percentUsed: Math.round(percentUsed * 100) / 100,
-          totalSpent: Math.round(totalSpent * 10000) / 10000,
-          budget: Math.round(budget * 10000) / 10000,
-          message: `Budget ${level}: ${percentUsed.toFixed(1)}% used ($${totalSpent.toFixed(4)} of $${budget.toFixed(4)})`,
+          percentUsed,
+          totalSpent,
+          budget,
+          message: this._buildMessage(level, threshold, percentUsed, totalSpent, budget),
           timestamp: new Date().toISOString()
         });
       }
     }
 
-    return alerts;
+    return triggered;
   }
 
   /**
-   * Log alert to alerts.json
-   * @param {Object} alert - Alert object to log
+   * Build alert message
+   * @private
+   */
+  _buildMessage(level, threshold, percentUsed, totalSpent, budget) {
+    const levelMessages = {
+      info: 'Budget usage has reached',
+      warning: 'Budget usage is getting high at',
+      critical: 'CRITICAL: Budget usage is very high at'
+    };
+    return `${levelMessages[level]} ${percentUsed.toFixed(1)}% (${totalSpent.toFixed(2)}/${budget.toFixed(2)})`;
+  }
+
+  /**
+   * Log alert to alerts.json with duplicate prevention
+   * @param {object} alert - Alert object to log
    * @returns {Promise<void>}
    */
   async logAlert(alert) {
-    const planningDir = path.join(this.cwd, '.planning');
+    const existingAlerts = this._loadAlerts();
 
-    // Ensure .planning directory exists
-    if (!fs.existsSync(planningDir)) {
-      fs.mkdirSync(planningDir, { recursive: true });
+    // Check for duplicates
+    if (this._isDuplicate(existingAlerts, alert)) {
+      return; // Skip duplicate
     }
 
-    await withLock(this.alertsPath, async () => {
-      // Read existing alerts or initialize
-      let data = { alerts: [] };
-      if (fs.existsSync(this.alertsPath)) {
-        try {
-          data = JSON.parse(fs.readFileSync(this.alertsPath, 'utf8'));
-          if (!Array.isArray(data.alerts)) data.alerts = [];
-        } catch (e) {
-          logger.warn('cost-alerts: failed to parse alerts.json, reinitializing', { error: e.message });
-          data = { alerts: [] };
-        }
-      }
-
-      // Check for duplicate (same threshold within 24 hours)
-      const now = Date.now();
-      const twentyFourHours = 24 * 60 * 60 * 1000;
-      const isDuplicate = data.alerts.some(existingAlert => {
-        if (existingAlert.threshold !== alert.threshold) return false;
-        const existingTime = new Date(existingAlert.timestamp).getTime();
-        return (now - existingTime) < twentyFourHours;
-      });
-
-      if (!isDuplicate) {
-        data.alerts.push(alert);
-        fs.writeFileSync(this.alertsPath, JSON.stringify(data, null, 2), 'utf8');
-        logger.info('cost-alerts: alert logged', { threshold: alert.threshold, level: alert.level });
-      } else {
-        logger.debug('cost-alerts: duplicate alert suppressed', { threshold: alert.threshold });
-      }
-    });
+    existingAlerts.push(alert);
+    this._saveAlerts(existingAlerts);
   }
 
   /**
    * Get all alerts
-   * @returns {Array<Object>} - Array of alert objects
+   * @returns {Array} All alerts
    */
   getAlerts() {
-    if (!fs.existsSync(this.alertsPath)) {
-      return [];
-    }
-
-    try {
-      const data = JSON.parse(fs.readFileSync(this.alertsPath, 'utf8'));
-      return Array.isArray(data.alerts) ? data.alerts : [];
-    } catch (e) {
-      logger.warn('cost-alerts: failed to read alerts.json', { error: e.message });
-      return [];
-    }
+    return this._loadAlerts();
   }
 
   /**
-   * Get alerts filtered by level
-   * @param {string} level - Alert level to filter by
-   * @returns {Array<Object>} - Array of filtered alert objects
+   * Get alerts by level
+   * @param {string} level - Alert level (info, warning, critical)
+   * @returns {Array} Filtered alerts
    */
   getAlertsByLevel(level) {
-    return this.getAlerts().filter(alert => alert.level === level);
-  }
-
-  /**
-   * Clear all alerts
-   * @returns {Promise<void>}
-   */
-  async clearAlerts() {
-    await withLock(this.alertsPath, async () => {
-      fs.writeFileSync(this.alertsPath, JSON.stringify({ alerts: [] }, null, 2), 'utf8');
-      logger.info('cost-alerts: all alerts cleared');
-    });
+    const alerts = this._loadAlerts();
+    return alerts.filter(alert => alert.level === level);
   }
 }
 
+// Export thresholds as static property
+CostAlerts.THRESHOLDS = THRESHOLDS;
+
 module.exports = CostAlerts;
-module.exports.THRESHOLDS = THRESHOLDS;
-module.exports.getLevelFromThreshold = getLevelFromThreshold;

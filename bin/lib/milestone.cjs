@@ -128,10 +128,16 @@ function cmdMilestoneComplete(cwd, version, options, raw) {
           // Count tasks
           const taskMatches = content.match(/##\s*Task\s*\d+/gi) || [];
           totalTasks += taskMatches.length;
-        } catch {}
+        } catch (err) {
+          const { defaultLogger: logger } = require('./logger.cjs');
+          logger.warn('Failed to read phase summary', { phase: dir, summary: s, error: err.message });
+        }
       }
     }
-  } catch {}
+  } catch (err) {
+    const { defaultLogger: logger } = require('./logger.cjs');
+    logger.warn('Failed to scan phase summaries', { phasesDir, error: err.message });
+  }
 
   // Archive ROADMAP.md
   if (fs.existsSync(roadmapPath)) {

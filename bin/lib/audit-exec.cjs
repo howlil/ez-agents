@@ -15,20 +15,21 @@
 
 const { execFile } = require('child_process');
 const { promisify } = require('util');
-const { appendFileSync, existsSync, mkdirSync } = require('fs');
+const { appendFileSync, existsSync, mkdirSync, writeFileSync } = require('fs');
 const { join } = require('path');
 const Logger = require('./logger.cjs');
 const logger = new Logger();
 
 const execFileAsync = promisify(execFile);
 
-// Audit log file path - lazy init
+// Audit log file path - stored in temp directory (not in .planning/logs)
 let _AUDIT_DIR;
 let _AUDIT_FILE;
 
 function getAuditDir() {
   if (!_AUDIT_DIR) {
-    _AUDIT_DIR = join('.planning', 'logs');
+    // Use temp directory instead of .planning/logs
+    _AUDIT_DIR = join(process.env.TEMP || process.env.TMPDIR || '/tmp', 'ez-agents-audit');
     if (!existsSync(_AUDIT_DIR)) {
       mkdirSync(_AUDIT_DIR, { recursive: true });
     }

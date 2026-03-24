@@ -8,30 +8,12 @@ const { test, describe, beforeEach, afterEach } = require('node:test');
 const assert = require('node:assert');
 const fs = require('fs');
 const path = require('path');
-const os = require('os');
+const { createTempDir, cleanupTempDir } = require('./test-utils.cjs');
 
 const { QualityGate, z } = require('../ez-agents/bin/lib/quality-gate.cjs');
 
 // Audit file path for testing
 const AUDIT_FILE_PATH = path.join(process.cwd(), '.planning', 'gate-audit.json');
-
-/**
- * Create a temporary directory for testing
- */
-function createTempDir() {
-  return fs.mkdtempSync(path.join(os.tmpdir(), 'ez-qg-test-'));
-}
-
-/**
- * Clean up temporary directory
- */
-function cleanupTempDir(dir) {
-  try {
-    fs.rmSync(dir, { recursive: true, force: true });
-  } catch (err) {
-    // Ignore cleanup errors
-  }
-}
 
 describe('QualityGate', () => {
   let gates;

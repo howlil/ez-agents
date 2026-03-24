@@ -24,6 +24,14 @@ Initialize a new project through unified flow: questioning → research (optiona
 - `.planning/REQUIREMENTS.md` — scoped requirements
 - `.planning/ROADMAP.md` — phase structure
 - `.planning/STATE.md` — project memory
+- `.planning/ADR/` — Architecture Decision Records (optional)
+
+**Architecture Decision:**
+Uses `principal_engineer_decision_v1` skill to recommend:
+- Architecture pattern (monolith, modular monolith, microservices)
+- Tech stack (backend, frontend, database)
+- Infrastructure (deployment, scaling strategy)
+Based on team size, timeline, budget, and complexity.
 
 **After this command:** Run `/ez:plan-phase 1` to start execution.
 </objective>
@@ -34,6 +42,7 @@ Initialize a new project through unified flow: questioning → research (optiona
 @~/.claude/ez-agents/references/ui-brand.md
 @~/.claude/ez-agents/templates/project.md
 @~/.claude/ez-agents/templates/requirements.md
+@skills/architecture/principal-engineer-decision/principal_engineer_decision_v1/SKILL.md
 </execution_context>
 
 <process>

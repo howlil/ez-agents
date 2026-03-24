@@ -2,7 +2,7 @@ import { describe, it, expect } from 'vitest';
 
 describe('Deploy Audit Log', () => {
   describe('writeAuditLog()', () => {
-    it('creates file in .planning/logs/', async () => {
+    it('is defined and callable', async () => {
       const { writeAuditLog } = await import('../../ez-agents/bin/lib/deploy/deploy-audit-log.cjs');
       expect(writeAuditLog).toBeDefined();
     });

@@ -5,22 +5,12 @@
  */
 
 const assert = require('assert');
+const { test } = require('../test-utils.cjs');
 const ContentSecurityScanner = require('../../ez-agents/bin/lib/content-scanner.cjs');
 const { SecurityScanError } = require('../../ez-agents/bin/lib/context-errors.cjs');
 
 let passed = 0;
 let failed = 0;
-
-function test(name, fn) {
-  try {
-    fn();
-    console.log(`✓ ${name}`);
-    passed++;
-  } catch (err) {
-    console.log(`✗ ${name}: ${err.message}`);
-    failed++;
-  }
-}
 
 const scanner = new ContentSecurityScanner();
 

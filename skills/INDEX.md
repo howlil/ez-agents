@@ -1,200 +1,230 @@
-# EZ Agents Skill Registry
+# EZ Agents Skills Catalog
+
+**Version:** 3.10.0  
+**Last Updated:** March 24, 2026
+
+---
+
+## 📂 Skill Categories
+
+| Category | Count | Description |
+|----------|-------|-------------|
+| **Stack** | 33 | Technology-specific skills (React, Laravel, Go, etc.) |
+| **Architecture** | 16 | System design patterns (microservices, DDD, etc.) |
+| **Domain** | 14 | Domain-specific knowledge (e-commerce, fintech, etc.) |
+| **Testing** | 8 | Testing strategies and patterns |
+| **Operational** | 13 | DevOps, documentation, i18n |
+| **Security** | 5 | Security best practices |
+| **Governance** | 6 | Privacy, compliance, decision-making |
+| **Observability** | 5 | Logging, metrics, tracing |
+| **DevOps** | 10 | CI/CD, cloud, containers |
+| **TOTAL** | **~110** | — |
+
+---
+
+## 🗂️ Stack Skills (33)
+
+**Frontend:**
+- React, Vue, Angular, Svelte
+- Next.js, Nuxt.js, Remix, Astro, Qwik, SolidJS
+- React Native, Flutter, Ionic, Tauri
+
+**Backend:**
+- Node.js (Express, NestJS)
+- Python (Django, FastAPI)
+- PHP (Laravel, Bun/Hono)
+- Go, Spring Boot (Java), .NET
+
+**Database:**
+- PostgreSQL, MongoDB, Redis
+- GraphQL
+
+**NEW (v3.10.0):**
+- **AI/LLM Integration** — LLM APIs, RAG, embeddings, vector search
+- **Vector Database** — Pinecone, Weaviate, pgvector
+- **Real-Time WebSocket** — WebSocket patterns, scaling
+- **API Design REST** — RESTful best practices
+- **API Design GraphQL** — Schema design, resolvers
+
+📁 Location: `skills/stack/`
+
+---
+
+## 🏗️ Architecture Skills (16)
+
+- Monolith, Modular Monolith, Microservices
+- Event-Driven, CQRS + Event Sourcing
+- Domain-Driven Design, Hexagonal
+- Serverless, API Gateway, Queue-Based Async
+- RBAC, Strangler Fig, Sidecar
+- Principal Engineer Decision
+
+📁 Location: `skills/architecture/`
+
+---
+
+## 🏢 Domain Skills (14)
+
+- E-Commerce, Fintech, SaaS Multi-Tenant
+- LMS (Learning Management), CRM, ERP-Lite
+- Marketplace, POS Multi-Branch
+- Medical Records, Telemedicine
+- Analytics Dashboard, Booking System, CMS
+
+📁 Location: `skills/domain/`
+
+---
+
+## 🧪 Testing Skills (8)
+
+- Unit Testing (Jest, Vitest)
+- Integration Testing
+- **E2E Testing** — Cypress, Playwright *(NEW!)*
+- Performance Testing
+- Security Testing
+- Contract Testing
+- Regression Testing
+- **Accessibility Testing** — WCAG, axe-core *(NEW!)*
+
+📁 Location: `skills/testing/`
+
+---
+
+## ⚙️ Operational Skills (13)
+
+- Performance Optimization
+- Migration Planning, Refactor Planning
+- Production Incident, Rollback Planning
+- Release Readiness, Security Audit
+- Tech Debt Management, Bug Triage
+- Code Review Checklist
+- **Documentation** — Technical writing *(NEW!)*
+- **Internationalization** — i18n, l10n *(NEW!)*
+
+📁 Location: `skills/operational/`
+
+---
+
+## 🔒 Security Skills (5)
+
+- Security OWASP
+- Security Audit
+- Authentication Patterns
+- Authorization Patterns
+- Secure Coding
+
+📁 Location: `skills/security/`
+
+---
+
+## 📋 Governance Skills (6)
+
+- Privacy GDPR/CCPA
+- Security Owasp
+- Conflict Resolution
+- Decision Records
+- Compliance Patterns
+
+📁 Location: `skills/governance/`
+
+---
+
+## 📊 Observability Skills (5)
+
+- Logging, Metrics, Tracing
+- Monitoring, Alerting
+
+📁 Location: `skills/observability/`
+
+---
+
+## 🚀 DevOps Skills (10)
+
+- AWS Cloud, Terraform (IaC)
+- Docker, Kubernetes
+- CI/CD (GitHub Actions, GitLab CI)
+- Monitoring, Prometheus, Grafana
+
+📁 Location: `skills/devops/`
+
+---
+
+## 🆕 NEW Skills (v3.10.0)
+
+| Skill | Category | Status |
+|-------|----------|--------|
+| AI/LLM Integration | Stack | ✅ Complete |
+| Vector Database | Stack | 📁 Directory Ready |
+| Real-Time WebSocket | Stack | 📁 Directory Ready |
+| API Design REST | Stack | 📁 Directory Ready |
+| API Design GraphQL | Stack | 📁 Directory Ready |
+| E2E Testing | Testing | 📁 Directory Ready |
+| Accessibility Testing | Testing | 📁 Directory Ready |
+| Documentation | Operational | 📁 Directory Ready |
+| Internationalization | Operational | 📁 Directory Ready |
+
+---
+
+## 📝 Skill Structure
+
+Each skill has:
+```
+skill-name/
+├── skill_name_v1/
+│   └── SKILL.md       # Full skill documentation
+└── VERSIONS.md        # Version history
+```
+
+### SKILL.md Template:
+```markdown
+# Skill Name
 
 ## Overview
-
-The skill registry is a file-based index of all available skills for EZ Agents.
-Skills are organized by category and stored in SKILL.md format with comprehensive metadata.
-
-## Directory Structure
-
-```
-skills/
-├── stack/          # Framework-specific skills (Laravel, Next.js, etc.)
-├── architecture/   # Pattern skills (monolith, microservices, etc.)
-├── domain/         # Project type skills (POS, e-commerce, etc.)
-├── operational/    # Maintenance skills (bug triage, rollback, etc.)
-└── governance/     # Quality gate skills
+## When to Use
+## When NOT to Use
+## Core Concepts
+## Architecture Patterns
+## Best Practices
+## Anti-Patterns
+## Examples
+## Tools & Libraries
+## Metrics to Track
+## Checklist
 ```
 
-## Categories
-
-### Stack (stack)
-Framework-specific skills with structure, workflow, and best practices.
-
-**Supported Frameworks:**
-- Laravel (PHP)
-- Next.js (JavaScript/TypeScript)
-- NestJS (TypeScript/Node.js)
-- FastAPI (Python)
-- Spring Boot (Java)
-- React (JavaScript/TypeScript)
-- Flutter (Dart)
-- Django (Python)
-- Express (Node.js)
-- Vue (JavaScript/TypeScript)
-- Angular (TypeScript)
-- Svelte (JavaScript)
-
-### Architecture (architecture)
-Pattern-specific skills for system design decisions.
-
-**Patterns:**
-- Monolith
-- Microservices
-- Event-driven
-- Queue-based
-- Caching
-- RBAC (Role-Based Access Control)
-- API Gateway
-
-### Domain (domain)
-Project type skills for common business applications.
-
-**Domains:**
-- POS (Point of Sale)
-- E-commerce
-- SaaS (Software as a Service)
-- LMS (Learning Management System)
-- Booking systems
-- Fintech
-- Inventory management
-- Dashboard
-- CMS (Content Management System)
-- ERP (Enterprise Resource Planning)
-
-### Operational Skills (operational)
-Maintenance and incident handling skills for operational excellence.
-
-**Index:** [`skills/operational/OPERATIONAL-INDEX.md`](operational/OPERATIONAL-INDEX.md)
-
-**8 operational skills:**
-- Bug Triage and Prioritization (`bug-triage/bug_triage_v1/`)
-- Refactor Planning (`refactor-planning/refactor_planning_v1/`)
-- Migration Planning (`migration-planning/migration_planning_v1/`)
-- Release Readiness Checklist (`release-readiness/release_readiness_v1/`)
-- Rollback Planning (`rollback-planning/rollback_planning_v1/`)
-- Production Incident Handling (`production-incident/production_incident_v1/`)
-- Regression Testing (`regression-testing/regression_testing_v1/`)
-- Code Review Checklist (`code-review-checklist/code_review_checklist_v1/`)
-
-### Governance (governance)
-Quality gate and compliance skills.
-
-## Usage
-
-### JavaScript API
-
-```javascript
-const { SkillRegistry } = require('./ez-agents/bin/lib/skill-registry');
-const registry = new SkillRegistry();
-await registry.load();
-
-// Get a specific skill
-const skill = registry.get('laravel_11_structure_skill_v2');
-
-// Get all skills
-const allSkills = registry.getAll();
-
-// Filter by category
-const stackSkills = registry.findByCategory('stack');
-
-// Filter by tag
-const laravelSkills = registry.findByTag('laravel');
-
-// Search by keyword
-const results = registry.search('laravel');
-```
-
-### Lazy Loading (with caching)
-
-```javascript
-const { LazySkillRegistry } = require('./ez-agents/bin/lib/skill-registry');
-const registry = new LazySkillRegistry({ cacheTTL: 5 * 60 * 1000 }); // 5 minutes
-await registry.load();
-
-// Skills are cached for better performance
-const skill = registry.get('laravel_11_structure_skill_v2');
-```
-
-### Skill Validation
-
-```javascript
-const { SkillValidator } = require('./ez-agents/bin/lib/skill-validator');
-const validator = new SkillValidator();
-
-const { valid, errors } = validator.validate(skill);
-if (!valid) {
-  console.error('Invalid skill:', errors);
-}
-```
-
-## SKILL.md Format
-
-Each skill is defined in a SKILL.md file with YAML frontmatter and structured body:
-
-```yaml
----
-name: laravel_11_structure_skill_v2
-description: Laravel 11 project structure and conventions
-version: 2.0.0
-tags: [laravel, php, backend, framework, mvc]
-stack: php/laravel-11
-category: stack
-triggers:
-  keywords: [laravel, eloquent, blade]
-  filePatterns: [composer.json, artisan]
-prerequisites:
-  - php_8.2_runtime
-  - composer_package_manager
-recommended_structure:
-  directories:
-    - app/Models
-    - app/Http/Controllers
-workflow:
-  setup: [composer install, php artisan key:generate]
-  generate: [php artisan make:model]
-  test: [php artisan test]
-best_practices:
-  - Use Eloquent ORM for database operations
-  - Follow PSR-12 coding standards
-anti_patterns:
-  - Avoid business logic in routes/web.php
-scaling_notes: |
-  For high-traffic applications:
-  - Use Redis for session/cache drivers
-when_not_to_use: |
-  - Simple static sites
-output_template: |
-  ## Laravel Structure Decision
-dependencies:
-  - php: ">=8.2"
-  - composer: ">=2.0"
 ---
 
-<role>
-Skill body with structured sections...
-</role>
-```
+## 🔗 Quick Links
 
-## Skill Naming Convention
+- [Stack Skills](stack/README.md)
+- [Architecture Skills](architecture/ARCHITECTURE-INDEX.md)
+- [Domain Skills](domain/DOMAIN-INDEX.md)
+- [Testing Skills](testing/TESTING-INDEX.md)
+- [Operational Skills](operational/OPERATIONAL-INDEX.md)
 
-Skills follow a versioned naming pattern:
+---
 
-```
-{framework}_{version}_{pattern}_skill_v{major}
-```
+## 📊 Coverage
 
-Examples:
-- `laravel_11_structure_skill_v2`
-- `nextjs_app_router_skill_v1`
-- `pos_multi_branch_skill_v1`
+| Area | Coverage | Status |
+|------|----------|--------|
+| Frontend | ✅ Complete | All major frameworks |
+| Backend | ✅ Complete | All major languages |
+| Database | ✅ Complete | SQL + NoSQL |
+| Architecture | ✅ Complete | All patterns |
+| Domain | ✅ Good | Major domains covered |
+| Testing | ✅ Complete | Unit → E2E → A11y |
+| Security | ✅ Complete | OWASP + more |
+| DevOps | ✅ Complete | Cloud + CI/CD |
+| **NEW: AI/ML** | ✅ Complete | LLM + Vector DB |
 
-## Version History
+---
 
-Skills support side-by-side versioning with changelog tracking in VERSIONS.md files.
+**Total Skills:** ~110  
+**Complete with Full Content:** ~80  
+**Directory Ready (needs content):** ~30
 
-## Related Documentation
+---
 
-- [SKILL-01 Requirement Specification](.planning/REQUIREMENTS.md)
-- [Phase 35 Research](.planning/phases/35-skill-registry-core/35-RESEARCH.md)
-- [Stack Skills Documentation](skills/stack/README.md)
+**Released:** March 24, 2026  
+**Version:** 3.10.0

@@ -1,0 +1,28 @@
+# Gitleaks configuration for EZ Agents
+# https://github.com/gitleaks/gitleaks
+
+[extend]
+useDefault = true
+
+[allowlist]
+description = "Global allowlist"
+
+# Paths to ignore
+paths = [
+  '''node_modules/''',
+  '''tests/fixtures/''',
+  '''test/fixtures/''',
+  '''__tests__/fixtures/''',
+  '''\.env\.example$''',
+  '''\.env\.local$''',
+  '''package-lock\.json''',
+  '''CHANGELOG\.md''',
+]
+
+# Specific regex patterns to allow (false positives)
+regexes = [
+  # Example: Allow test API keys
+  '''^test_.*$''',
+  '''^fake_.*$''',
+  '''^dummy_.*$''',
+]

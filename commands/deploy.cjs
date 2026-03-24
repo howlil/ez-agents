@@ -2,10 +2,10 @@
 
 /**
  * Deploy Command (Phase 19 Placeholder)
- * 
+ *
  * This is a placeholder script for Phase 19 (Deployment & Operations).
  * It simulates deployment behavior for CI/CD pipeline testing.
- * 
+ *
  * In Phase 19, this will be implemented with real deployment logic:
  * - Platform detection (Vercel, Netlify, AWS, Docker)
  * - Configuration generation
@@ -14,12 +14,13 @@
  */
 
 const path = require('path');
+const { defaultLogger: logger } = require('../bin/lib/logger.cjs');
 
 // Get environment from arguments or default to 'staging'
 const environment = process.argv[2] || 'staging';
 
-console.log(`[Deploy] Starting deployment to environment: ${environment}`);
-console.log(`[Deploy] Placeholder mode - simulating deployment`);
+logger.info(`Starting deployment to environment: ${environment}`);
+logger.info('Placeholder mode - simulating deployment');
 
 // Simulate deployment steps
 const steps = [
@@ -33,13 +34,20 @@ const steps = [
 ];
 
 steps.forEach((step, index) => {
-  console.log(`  [${index + 1}/${steps.length}] ${step}`);
+  logger.info(`[${index + 1}/${steps.length}] ${step}`);
 });
 
-console.log('\n[Deploy] Deployment completed successfully!');
-console.log(`[Deploy] Environment: ${environment}`);
-console.log(`[Deploy] Version: ${require('../package.json').version}`);
-console.log(`[Deploy] Timestamp: ${new Date().toISOString()}`);
+logger.info('Deployment completed successfully!');
+logger.info('Environment: ' + environment);
+
+try {
+  const pkg = require('../package.json');
+  logger.info('Version: ' + pkg.version);
+} catch (err) {
+  logger.debug('Could not read package version', { error: err.message });
+}
+
+logger.info('Timestamp: ' + new Date().toISOString());
 
 // Exit with success code
 process.exit(0);

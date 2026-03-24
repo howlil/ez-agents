@@ -67,11 +67,17 @@ function cmdConfigEnsureSection(cwd, raw) {
         const depthToGranularity = { quick: 'coarse', standard: 'standard', comprehensive: 'fine' };
         userDefaults.granularity = depthToGranularity[userDefaults.depth] || userDefaults.depth;
         delete userDefaults.depth;
-        try { fs.writeFileSync(globalDefaultsPath, JSON.stringify(userDefaults, null, 2), 'utf-8'); } catch {}
+        try {
+          fs.writeFileSync(globalDefaultsPath, JSON.stringify(userDefaults, null, 2), 'utf-8');
+        } catch (err) {
+          const { defaultLogger: logger } = require('./logger.cjs');
+          logger.warn('Failed to migrate global defaults', { path: globalDefaultsPath, error: err.message });
+        }
       }
     }
   } catch (err) {
-    // Ignore malformed global defaults, fall back to hardcoded
+    const { defaultLogger: logger } = require('./logger.cjs');
+    logger.warn('Malformed global defaults, using hardcoded defaults', { path: globalDefaultsPath, error: err.message });
   }
 
   // Create default config (user-level defaults override hardcoded defaults)

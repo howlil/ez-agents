@@ -6,37 +6,45 @@ Architecture pattern skills provide guidance on system design patterns and struc
 
 ## Architecture Patterns
 
-The following 8 architecture patterns are available:
+The following 10 architecture patterns are available:
 
-1. **Monolith** - Single deployable unit with all components together
+1. **Principal Engineer Decision-Making** - Meta-decision framework for tech stack and architecture selection
+   - Best for: Greenfield projects, architecture reviews, technical leadership
+   - Skill: `skills/architecture/principal-engineer-decision/principal_engineer_decision_v1/SKILL.md`
+
+2. **Serverless** - Event-driven FaaS with auto-scaling and pay-per-execution pricing
+   - Best for: Variable traffic, minimal DevOps, cost-sensitive startups
+   - Skill: `skills/architecture/serverless/serverless_architecture_v1/SKILL.md`
+
+3. **Monolith** - Single deployable unit with all components together
    - Best for: MVP, startups, simple domains, small teams
    - Skill: `skills/architecture/monolith/monolith_v1/SKILL.md`
 
-2. **Modular Monolith** - Single deployable unit with clear module boundaries
+4. **Modular Monolith** - Single deployable unit with clear module boundaries
    - Best for: Growing teams, complex domains, preparing for microservices
    - Skill: `skills/architecture/modular-monolith/modular_monolith_v1/SKILL.md`
 
-3. **Microservices** - Independently deployable services
+5. **Microservices** - Independently deployed services
    - Best for: Large teams, multiple products, proven scaling needs
    - Skill: `skills/architecture/microservices/microservices_v1/SKILL.md`
 
-4. **Event-Driven** - Components communicate via events
+5. **Event-Driven** - Components communicate via events
    - Best for: Real-time systems, async workflows, decoupled systems
    - Skill: `skills/architecture/event-driven/event_driven_v1/SKILL.md`
 
-5. **Queue-Based Async** - Background job processing with queues
+6. **Queue-Based Async** - Background job processing with queues
    - Best for: Heavy workloads, email processing, reports
    - Skill: `skills/architecture/queue-based-async/queue_based_async_v1/SKILL.md`
 
-6. **Multi-Layer Caching** - CDN, application, and database caching
+7. **Multi-Layer Caching** - CDN, application, and database caching
    - Best for: High-read, low-write systems, performance-critical apps
    - Skill: `skills/architecture/caching-strategy/caching_strategy_v1/SKILL.md`
 
-7. **RBAC and Authorization** - Role-based access control
+8. **RBAC and Authorization** - Role-based access control
    - Best for: Multi-tenant systems, enterprise applications
    - Skill: `skills/architecture/rbac-authorization/rbac_authorization_v1/SKILL.md`
 
-8. **API Gateway** - Single entry point for all clients
+9. **API Gateway** - Single entry point for all clients
    - Best for: Microservices, mobile backends, multi-client systems
    - Skill: `skills/architecture/api-gateway/api_gateway_v1/SKILL.md`
 

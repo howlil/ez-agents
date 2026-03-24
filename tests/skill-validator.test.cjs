@@ -9,25 +9,13 @@
  */
 
 const assert = require('assert');
+const { test } = require('./test-utils.cjs');
 const { SkillValidator, SKILL_SCHEMA, ALLOWED_TAGS } = require('../ez-agents/bin/lib/skill-validator.cjs');
 
 console.log('Running Skill Validator Tests...\n');
 
 let passed = 0;
 let failed = 0;
-
-function test(name, fn) {
-  try {
-    fn();
-    console.log(`✓ ${name}`);
-    passed++;
-  } catch (error) {
-    console.log(`✗ ${name}`);
-    console.log(`  Error: ${error.message}`);
-    console.log(`  Stack: ${error.stack}`);
-    failed++;
-  }
-}
 
 // Test: Exports
 test('SkillValidator class is exported', () => {

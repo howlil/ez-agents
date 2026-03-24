@@ -5,23 +5,13 @@
  */
 
 const assert = require('assert');
+const { test } = require('../test-utils.cjs');
 const URLFetchService = require('../../ez-agents/bin/lib/url-fetch.cjs');
 const { URLValidator } = require('../../ez-agents/bin/lib/url-fetch.cjs');
 const { URLFetchError } = require('../../ez-agents/bin/lib/context-errors.cjs');
 
 let passed = 0;
 let failed = 0;
-
-function test(name, fn) {
-  try {
-    fn();
-    console.log(`✓ ${name}`);
-    passed++;
-  } catch (err) {
-    console.log(`✗ ${name}: ${err.message}`);
-    failed++;
-  }
-}
 
 // URL Validator tests
 test('URLValidator - accepts HTTPS URLs', () => {

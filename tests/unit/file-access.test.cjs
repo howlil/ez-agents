@@ -8,22 +8,12 @@ const assert = require('assert');
 const path = require('path');
 const fs = require('fs');
 const os = require('os');
+const { test } = require('../test-utils.cjs');
 const FileAccessService = require('../../ez-agents/bin/lib/file-access.cjs');
 const { FileAccessError } = require('../../ez-agents/bin/lib/context-errors.cjs');
 
 let passed = 0;
 let failed = 0;
-
-function test(name, fn) {
-  try {
-    fn();
-    console.log(`✓ ${name}`);
-    passed++;
-  } catch (err) {
-    console.log(`✗ ${name}: ${err.message}`);
-    failed++;
-  }
-}
 
 // Create a temporary test directory
 const testDir = fs.mkdtempSync(path.join(os.tmpdir(), 'ez-file-access-test-'));

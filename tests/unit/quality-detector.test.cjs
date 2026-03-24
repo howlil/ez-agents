@@ -7,682 +7,603 @@
  * - REV-03: Early exit when quality degrades 20% from peak
  */
 
-const { describe, it, beforeEach, afterEach } = require('vitest');
-const { expect } = require('vitest');
-const fs = require('fs');
+const assert = require('assert');
 const path = require('path');
-const os = require('os');
+const { createTempDir, cleanupTempDir } = require('../test-utils.cjs');
 const QualityDetector = require('../../bin/lib/quality-detector.cjs');
 
-describe('QualityDetector', () => {
-  let detector;
-  let tempDir;
+let passed = 0;
+let failed = 0;
 
-  beforeEach(() => {
-    tempDir = fs.mkdtempSync(path.join(os.tmpdir(), 'quality-detector-test-'));
-    detector = new QualityDetector({
-      degradationThreshold: 0.20,
+async function runTests() {
+  console.log('\n=== QualityDetector Tests ===\n');
+
+  const tempDir = createTempDir();
+
+  try {
+    // Constructor tests
+    console.log('constructor:');
+    const detector1 = new QualityDetector();
+    assert.strictEqual(detector1.degradationThreshold, 0.20);
+    assert.strictEqual(detector1.weights.tests, 0.50);
+    assert.strictEqual(detector1.weights.lint, 0.20);
+    assert.strictEqual(detector1.weights.diff, 0.20);
+    assert.strictEqual(detector1.weights.time, 0.10);
+    console.log('✓ should create instance with default options');
+    passed++;
+
+    const detector2 = new QualityDetector({
+      degradationThreshold: 0.15,
+      weights: { tests: 0.60, lint: 0.15, diff: 0.15, time: 0.10 }
+    });
+    assert.strictEqual(detector2.degradationThreshold, 0.15);
+    assert.strictEqual(detector2.weights.tests, 0.60);
+    console.log('✓ should create instance with custom options');
+    passed++;
+
+    // calculateQualityScore tests
+    console.log('\ncalculateQualityScore:');
+    const d1 = new QualityDetector({ qualityDir: tempDir });
+    const result1 = await d1.calculateQualityScore('task-01', {
+      iteration: 1,
+      testPassRate: 0.95,
+      lintErrorCount: 2,
+      lintErrorMax: 10,
+      diffSize: 50,
+      diffSizeBaseline: 50,
+      executionTimeMs: 5000,
+      executionTimeMax: 30000
+    });
+    assert.strictEqual(result1.taskId, 'task-01');
+    assert.strictEqual(result1.iteration, 1);
+    assert.ok(result1.scores.composite);
+    assert.ok(result1.scores.test);
+    assert.ok(result1.scores.lint);
+    assert.ok(result1.scores.diff);
+    assert.ok(result1.scores.time);
+    console.log('✓ should calculate quality score with all metrics');
+    passed++;
+
+    const d2 = new QualityDetector({ qualityDir: tempDir });
+    const result2 = await d2.calculateQualityScore('task-02', {
+      iteration: 1,
+      testPassRate: 1.0,
+      lintErrorCount: 10,
+      lintErrorMax: 10,
+      diffSize: 100,
+      diffSizeBaseline: 100,
+      executionTimeMs: 30000,
+      executionTimeMax: 30000
+    });
+    assert.strictEqual(result2.scores.test, 100);
+    assert.ok(result2.scores.composite < 80);
+    assert.ok(result2.scores.composite > 40);
+    console.log('✓ should weight tests at 50%');
+    passed++;
+
+    const d3 = new QualityDetector({ qualityDir: tempDir });
+    const result3 = await d3.calculateQualityScore('task-03', {
+      iteration: 1,
+      testPassRate: 1.0,
+      lintErrorCount: 0,
+      lintErrorMax: 10,
+      diffSize: 50,
+      diffSizeBaseline: 50,
+      executionTimeMs: 5000,
+      executionTimeMax: 30000
+    });
+    assert.strictEqual(result3.scores.composite, 100);
+    console.log('✓ should handle perfect scores');
+    passed++;
+
+    const d4 = new QualityDetector({ qualityDir: tempDir });
+    const result4 = await d4.calculateQualityScore('task-04', {
+      iteration: 1,
+      testPassRate: 0.5,
+      lintErrorCount: 15,
+      lintErrorMax: 10,
+      diffSize: 200,
+      diffSizeBaseline: 50,
+      executionTimeMs: 50000,
+      executionTimeMax: 30000
+    });
+    assert.ok(result4.scores.composite < 50);
+    console.log('✓ should handle poor scores');
+    passed++;
+
+    const d5 = new QualityDetector({ qualityDir: tempDir });
+    await d5.calculateQualityScore('task-05', {
+      iteration: 1,
+      testPassRate: 0.90,
+      lintErrorCount: 3,
+      lintErrorMax: 10,
+      diffSize: 50,
+      diffSizeBaseline: 50,
+      executionTimeMs: 5000,
+      executionTimeMax: 30000
+    });
+    const mf = path.join(tempDir, 'task-05-QUALITY.json');
+    assert.ok(fs.existsSync(mf));
+    const data = JSON.parse(fs.readFileSync(mf, 'utf8'));
+    assert.strictEqual(data.taskId, 'task-05');
+    assert.strictEqual(data.history.length, 1);
+    console.log('✓ should persist quality data to file');
+    passed++;
+
+    const d6 = new QualityDetector({ qualityDir: tempDir });
+    await d6.calculateQualityScore('task-06', {
+      iteration: 1,
+      testPassRate: 0.90,
+      lintErrorCount: 3,
+      lintErrorMax: 10,
+      diffSize: 50,
+      diffSizeBaseline: 50,
+      executionTimeMs: 5000,
+      executionTimeMax: 30000
+    });
+    await d6.calculateQualityScore('task-06', {
+      iteration: 2,
+      testPassRate: 0.95,
+      lintErrorCount: 1,
+      lintErrorMax: 10,
+      diffSize: 50,
+      diffSizeBaseline: 50,
+      executionTimeMs: 4000,
+      executionTimeMax: 30000
+    });
+    const history1 = await d6.getQualityHistory('task-06');
+    assert.strictEqual(history1.length, 2);
+    console.log('✓ should track multiple iterations');
+    passed++;
+
+    // detectDegradation tests
+    console.log('\ndetectDegradation:');
+    const d7 = new QualityDetector({ qualityDir: tempDir });
+    await d7.calculateQualityScore('task-01', {
+      iteration: 1,
+      testPassRate: 0.90,
+      lintErrorCount: 3,
+      lintErrorMax: 10,
+      diffSize: 50,
+      diffSizeBaseline: 50,
+      executionTimeMs: 5000,
+      executionTimeMax: 30000
+    });
+    const analysis1 = await d7.detectDegradation('task-01');
+    assert.strictEqual(analysis1.isDegraded, false);
+    assert.ok(analysis1.reason.includes('Insufficient history'));
+    console.log('✓ should return insufficient history for single iteration');
+    passed++;
+
+    const d8 = new QualityDetector({ qualityDir: tempDir });
+    await d8.calculateQualityScore('task-02', {
+      iteration: 1,
+      testPassRate: 1.0,
+      lintErrorCount: 0,
+      lintErrorMax: 10,
+      diffSize: 50,
+      diffSizeBaseline: 50,
+      executionTimeMs: 5000,
+      executionTimeMax: 30000
+    });
+    await d8.calculateQualityScore('task-02', {
+      iteration: 2,
+      testPassRate: 0.60,
+      lintErrorCount: 5,
+      lintErrorMax: 10,
+      diffSize: 100,
+      diffSizeBaseline: 50,
+      executionTimeMs: 10000,
+      executionTimeMax: 30000
+    });
+    const analysis2 = await d8.detectDegradation('task-02');
+    assert.strictEqual(analysis2.isDegraded, true);
+    assert.strictEqual(analysis2.peakScore, 100);
+    assert.ok(analysis2.currentScore < 80);
+    assert.ok(analysis2.dropFromPeak >= 20);
+    assert.strictEqual(analysis2.recommendation, 'EXIT_EARLY');
+    console.log('✓ should detect degradation when score drops 20% from peak');
+    passed++;
+
+    const d9 = new QualityDetector({ qualityDir: tempDir });
+    await d9.calculateQualityScore('task-03', {
+      iteration: 1,
+      testPassRate: 0.90,
+      lintErrorCount: 2,
+      lintErrorMax: 10,
+      diffSize: 50,
+      diffSizeBaseline: 50,
+      executionTimeMs: 5000,
+      executionTimeMax: 30000
+    });
+    await d9.calculateQualityScore('task-03', {
+      iteration: 2,
+      testPassRate: 0.88,
+      lintErrorCount: 3,
+      lintErrorMax: 10,
+      diffSize: 55,
+      diffSizeBaseline: 50,
+      executionTimeMs: 5500,
+      executionTimeMax: 30000
+    });
+    const analysis3 = await d9.detectDegradation('task-03');
+    assert.strictEqual(analysis3.isDegraded, false);
+    assert.strictEqual(analysis3.recommendation, 'CONTINUE');
+    console.log('✓ should not detect degradation when score is stable');
+    passed++;
+
+    const d10 = new QualityDetector({ qualityDir: tempDir });
+    await d10.calculateQualityScore('task-04', {
+      iteration: 1,
+      testPassRate: 1.0,
+      lintErrorCount: 0,
+      lintErrorMax: 10,
+      diffSize: 50,
+      diffSizeBaseline: 50,
+      executionTimeMs: 5000,
+      executionTimeMax: 30000
+    });
+    await d10.calculateQualityScore('task-04', {
+      iteration: 2,
+      testPassRate: 0.70,
+      lintErrorCount: 8,
+      lintErrorMax: 10,
+      diffSize: 50,
+      diffSizeBaseline: 50,
+      executionTimeMs: 5000,
+      executionTimeMax: 30000
+    });
+    const analysis4 = await d10.detectDegradation('task-04');
+    assert.ok(analysis4.degradedMetrics.includes('test_pass_rate'));
+    assert.ok(analysis4.degradedMetrics.includes('lint_errors'));
+    console.log('✓ should identify degraded metrics');
+    passed++;
+
+    const d11 = new QualityDetector({ qualityDir: tempDir });
+    await d11.calculateQualityScore('task-05', {
+      iteration: 1,
+      testPassRate: 0.70,
+      lintErrorCount: 3,
+      lintErrorMax: 10,
+      diffSize: 50,
+      diffSizeBaseline: 50,
+      executionTimeMs: 5000,
+      executionTimeMax: 30000
+    });
+    await d11.calculateQualityScore('task-05', {
+      iteration: 2,
+      testPassRate: 1.0,
+      lintErrorCount: 0,
+      lintErrorMax: 10,
+      diffSize: 50,
+      diffSizeBaseline: 50,
+      executionTimeMs: 5000,
+      executionTimeMax: 30000
+    });
+    await d11.calculateQualityScore('task-05', {
+      iteration: 3,
+      testPassRate: 0.70,
+      lintErrorCount: 3,
+      lintErrorMax: 10,
+      diffSize: 50,
+      diffSizeBaseline: 50,
+      executionTimeMs: 5000,
+      executionTimeMax: 30000
+    });
+    const analysis5 = await d11.detectDegradation('task-05');
+    assert.strictEqual(analysis5.peakIteration, 2);
+    assert.strictEqual(analysis5.currentIteration, 3);
+    assert.strictEqual(analysis5.isDegraded, true);
+    console.log('✓ should track peak iteration correctly');
+    passed++;
+
+    // shouldExitEarly tests
+    console.log('\nshouldExitEarly:');
+    const d12 = new QualityDetector({ qualityDir: tempDir });
+    await d12.calculateQualityScore('task-01', {
+      iteration: 1,
+      testPassRate: 0.50,
+      lintErrorCount: 5,
+      lintErrorMax: 10,
+      diffSize: 50,
+      diffSizeBaseline: 50,
+      executionTimeMs: 5000,
+      executionTimeMax: 30000
+    });
+    const shouldExit1 = await d12.shouldExitEarly('task-01');
+    assert.strictEqual(shouldExit1, false);
+    console.log('✓ should return false for single iteration');
+    passed++;
+
+    const d13 = new QualityDetector({ qualityDir: tempDir });
+    await d13.calculateQualityScore('task-02', {
+      iteration: 1,
+      testPassRate: 1.0,
+      lintErrorCount: 0,
+      lintErrorMax: 10,
+      diffSize: 50,
+      diffSizeBaseline: 50,
+      executionTimeMs: 5000,
+      executionTimeMax: 30000
+    });
+    await d13.calculateQualityScore('task-02', {
+      iteration: 2,
+      testPassRate: 0.50,
+      lintErrorCount: 8,
+      lintErrorMax: 10,
+      diffSize: 150,
+      diffSizeBaseline: 50,
+      executionTimeMs: 20000,
+      executionTimeMax: 30000
+    });
+    const shouldExit2 = await d13.shouldExitEarly('task-02');
+    assert.strictEqual(shouldExit2, true);
+    console.log('✓ should return true when quality degraded');
+    passed++;
+
+    const d14 = new QualityDetector({ qualityDir: tempDir });
+    await d14.calculateQualityScore('task-03', {
+      iteration: 1,
+      testPassRate: 0.85,
+      lintErrorCount: 2,
+      lintErrorMax: 10,
+      diffSize: 50,
+      diffSizeBaseline: 50,
+      executionTimeMs: 5000,
+      executionTimeMax: 30000
+    });
+    await d14.calculateQualityScore('task-03', {
+      iteration: 2,
+      testPassRate: 0.83,
+      lintErrorCount: 3,
+      lintErrorMax: 10,
+      diffSize: 55,
+      diffSizeBaseline: 50,
+      executionTimeMs: 5500,
+      executionTimeMax: 30000
+    });
+    const shouldExit3 = await d14.shouldExitEarly('task-03');
+    assert.strictEqual(shouldExit3, false);
+    console.log('✓ should return false when quality stable');
+    passed++;
+
+    // flagForReview tests
+    console.log('\nflagForReview:');
+    const d15 = new QualityDetector({ qualityDir: tempDir });
+    const flag1 = await d15.flagForReview('task-01', 'Quality degradation detected');
+    assert.strictEqual(flag1.taskId, 'task-01');
+    assert.strictEqual(flag1.reason, 'Quality degradation detected');
+    assert.strictEqual(flag1.status, 'pending_review');
+    assert.strictEqual(flag1.flagged_by, 'quality-detector');
+    console.log('✓ should flag task for human review');
+    passed++;
+
+    const d16 = new QualityDetector({ qualityDir: tempDir });
+    await d16.calculateQualityScore('task-02', {
+      iteration: 1,
+      testPassRate: 0.60,
+      lintErrorCount: 5,
+      lintErrorMax: 10,
+      diffSize: 100,
+      diffSizeBaseline: 50,
+      executionTimeMs: 10000,
+      executionTimeMax: 30000
+    });
+    const flag2 = await d16.flagForReview('task-02', 'Low quality score');
+    assert.ok(flag2.qualityScore);
+    assert.strictEqual(flag2.iterationCount, 1);
+    console.log('✓ should include quality score in flag');
+    passed++;
+
+    const flagTempDir = createTempDir();
+    try {
+    const d17 = new QualityDetector({ qualityDir: flagTempDir });
+    await d17.flagForReview('task-03', 'Test flag');
+    const flagFile = path.join(flagTempDir, 'FLAGS.json');
+    assert.ok(fs.existsSync(flagFile));
+    const flagData = JSON.parse(fs.readFileSync(flagFile, 'utf8'));
+    assert.ok(flagData.flags);
+    assert.ok(flagData.flags.length > 0);
+    assert.strictEqual(flagData.flags[0].taskId, 'task-03');
+    console.log('✓ should persist flag to FLAGS.json');
+    passed++;
+
+    const d18 = new QualityDetector({ qualityDir: flagTempDir });
+    const flag3 = await d18.flagForReview('task-04', 'Test reason', { customField: 'customValue', severity: 'high' });
+    assert.strictEqual(flag3.context.customField, 'customValue');
+    assert.strictEqual(flag3.context.severity, 'high');
+    console.log('✓ should accept additional context');
+    passed++;
+    } finally {
+      cleanupTempDir(flagTempDir);
+    }
+
+    // getFlaggedTasks tests
+    console.log('\ngetFlaggedTasks:');
+    const d19 = new QualityDetector({ qualityDir: tempDir });
+    await d19.flagForReview('task-01', 'Reason 1');
+    await d19.flagForReview('task-02', 'Reason 2');
+    const flagged1 = await d19.getFlaggedTasks();
+    assert.strictEqual(flagged1.length, 2);
+    console.log('✓ should return all flagged tasks');
+    passed++;
+
+    const d20 = new QualityDetector({ qualityDir: tempDir });
+    const flagged2 = await d20.getFlaggedTasks();
+    assert.deepStrictEqual(flagged2, []);
+    console.log('✓ should return empty array when no flags');
+    passed++;
+
+    // clearFlag tests
+    console.log('\nclearFlag:');
+    const d21 = new QualityDetector({ qualityDir: tempDir });
+    await d21.flagForReview('task-01', 'Test reason');
+    await d21.clearFlag('task-01');
+    const flagged3 = await d21.getFlaggedTasks();
+    assert.strictEqual(flagged3.find(f => f.taskId === 'task-01').status, 'resolved');
+    console.log('✓ should clear flag after review');
+    passed++;
+
+    const d22 = new QualityDetector({ qualityDir: tempDir });
+    await d22.flagForReview('task-02', 'Test reason');
+    await d22.clearFlag('task-02');
+    const flagged4 = await d22.getFlaggedTasks();
+    assert.ok(flagged4.find(f => f.taskId === 'task-02').resolvedAt);
+    console.log('✓ should add resolvedAt timestamp');
+    passed++;
+
+    // getStats tests
+    console.log('\ngetStats:');
+    const statsTempDir = createTempDir();
+    try {
+    const d23 = new QualityDetector({ qualityDir: statsTempDir });
+    await d23.calculateQualityScore('task-01', {
+      iteration: 1,
+      testPassRate: 0.90,
+      lintErrorCount: 2,
+      lintErrorMax: 10,
+      diffSize: 50,
+      diffSizeBaseline: 50,
+      executionTimeMs: 5000,
+      executionTimeMax: 30000
+    });
+    await d23.calculateQualityScore('task-02', {
+      iteration: 1,
+      testPassRate: 0.80,
+      lintErrorCount: 3,
+      lintErrorMax: 10,
+      diffSize: 60,
+      diffSizeBaseline: 50,
+      executionTimeMs: 6000,
+      executionTimeMax: 30000
+    });
+    await d23.flagForReview('task-03', 'Test flag');
+    const stats = await d23.getStats();
+    assert.strictEqual(stats.totalTasks, 2);
+    assert.strictEqual(stats.totalIterations, 2);
+    assert.strictEqual(stats.flaggedTasks, 1);
+    assert.ok(stats.averageQualityScore > 0);
+    assert.strictEqual(stats.degradationThreshold, 20);
+    console.log('✓ should return summary statistics');
+    passed++;
+    } finally {
+      cleanupTempDir(statsTempDir);
+    }
+
+    // Metric score calculation tests
+    console.log('\nmetric score calculations:');
+    const d24 = new QualityDetector({ qualityDir: tempDir });
+    assert.strictEqual(d24._calculateTestScore(1.0), 100);
+    assert.strictEqual(d24._calculateTestScore(0), 0);
+    assert.strictEqual(d24._calculateTestScore(0.5), 50);
+    assert.strictEqual(d24._calculateTestScore(0.75), 75);
+    console.log('✓ _calculateTestScore should scale linearly');
+    passed++;
+
+    const d25 = new QualityDetector({ qualityDir: tempDir });
+    assert.strictEqual(d25._calculateLintScore(0, 10), 100);
+    assert.strictEqual(d25._calculateLintScore(10, 10), 0);
+    assert.strictEqual(d25._calculateLintScore(5, 10), 50);
+    console.log('✓ _calculateLintScore should scale based on error ratio');
+    passed++;
+
+    const d26 = new QualityDetector({ qualityDir: tempDir });
+    assert.strictEqual(d26._calculateDiffScore(50, 50), 100);
+    assert.strictEqual(d26._calculateDiffScore(25, 50), 100);
+    const diffScore = d26._calculateDiffScore(150, 50);
+    assert.ok(diffScore < 100);
+    console.log('✓ _calculateDiffScore should decrease as diff grows');
+    passed++;
+
+    const d27 = new QualityDetector({ qualityDir: tempDir });
+    assert.strictEqual(d27._calculateTimeScore(5000, 30000), 100);
+    const timeScore1 = d27._calculateTimeScore(10000, 30000);
+    const timeScore2 = d27._calculateTimeScore(20000, 30000);
+    assert.ok(timeScore1 > timeScore2);
+    assert.strictEqual(d27._calculateTimeScore(50000, 30000), 0);
+    console.log('✓ _calculateTimeScore should decrease as time increases');
+    passed++;
+
+    // Integration test
+    console.log('\nintegration: quality monitoring workflow:');
+    const d28 = new QualityDetector({ qualityDir: tempDir });
+    const taskId = 'integration-task';
+    const iterations = [
+      { testPassRate: 0.70, lintErrorCount: 5, diffSize: 100, executionTimeMs: 8000 },
+      { testPassRate: 0.85, lintErrorCount: 2, diffSize: 60, executionTimeMs: 6000 },
+      { testPassRate: 0.95, lintErrorCount: 0, diffSize: 50, executionTimeMs: 5000 },
+      { testPassRate: 0.60, lintErrorCount: 8, diffSize: 150, executionTimeMs: 15000 }
+    ];
+
+    for (let i = 0; i < iterations.length; i++) {
+      await d28.calculateQualityScore(taskId, {
+        iteration: i + 1,
+        ...iterations[i],
+        lintErrorMax: 10,
+        diffSizeBaseline: 50,
+        executionTimeMax: 30000
+      });
+    }
+
+    const analysis6 = await d28.detectDegradation(taskId);
+    assert.strictEqual(analysis6.peakIteration, 3);
+    assert.strictEqual(analysis6.currentIteration, 4);
+    assert.strictEqual(analysis6.isDegraded, true);
+
+    const shouldExit4 = await d28.shouldExitEarly(taskId);
+    assert.strictEqual(shouldExit4, true);
+
+    const flag4 = await d28.flagForReview(taskId, 'Quality degraded from peak');
+    assert.strictEqual(flag4.status, 'pending_review');
+    console.log('✓ should support complete quality monitoring with early exit');
+    passed++;
+
+    // Custom threshold test
+    console.log('\ncustom threshold:');
+    const strictDetector = new QualityDetector({
+      degradationThreshold: 0.10,
       qualityDir: tempDir
     });
-  });
-
-  afterEach(() => {
-    // Cleanup temp files
-    if (fs.existsSync(tempDir)) {
-      fs.rmSync(tempDir, { recursive: true, force: true });
-    }
-  });
-
-  describe('constructor', () => {
-    it('should create instance with default options', () => {
-      const defaultDetector = new QualityDetector();
-      expect(defaultDetector.degradationThreshold).toBe(0.20);
-      expect(defaultDetector.weights.tests).toBe(0.50);
-      expect(defaultDetector.weights.lint).toBe(0.20);
-      expect(defaultDetector.weights.diff).toBe(0.20);
-      expect(defaultDetector.weights.time).toBe(0.10);
+    await strictDetector.calculateQualityScore('task-01', {
+      iteration: 1,
+      testPassRate: 1.0,
+      lintErrorCount: 0,
+      lintErrorMax: 10,
+      diffSize: 50,
+      diffSizeBaseline: 50,
+      executionTimeMs: 5000,
+      executionTimeMax: 30000
     });
-
-    it('should create instance with custom options', () => {
-      const customDetector = new QualityDetector({
-        degradationThreshold: 0.15,
-        weights: { tests: 0.60, lint: 0.15, diff: 0.15, time: 0.10 }
-      });
-
-      expect(customDetector.degradationThreshold).toBe(0.15);
-      expect(customDetector.weights.tests).toBe(0.60);
+    await strictDetector.calculateQualityScore('task-01', {
+      iteration: 2,
+      testPassRate: 0.88,
+      lintErrorCount: 2,
+      lintErrorMax: 10,
+      diffSize: 60,
+      diffSizeBaseline: 50,
+      executionTimeMs: 6000,
+      executionTimeMax: 30000
     });
-  });
-
-  describe('calculateQualityScore', () => {
-    it('should calculate quality score with all metrics', async () => {
-      const metrics = {
-        iteration: 1,
-        testPassRate: 0.95,
-        lintErrorCount: 2,
-        lintErrorMax: 10,
-        diffSize: 50,
-        diffSizeBaseline: 50,
-        executionTimeMs: 5000,
-        executionTimeMax: 30000
-      };
-
-      const result = await detector.calculateQualityScore('task-01', metrics);
-
-      expect(result.taskId).toBe('task-01');
-      expect(result.iteration).toBe(1);
-      expect(result.scores.composite).toBeDefined();
-      expect(result.scores.test).toBeDefined();
-      expect(result.scores.lint).toBeDefined();
-      expect(result.scores.diff).toBeDefined();
-      expect(result.scores.time).toBeDefined();
-    });
-
-    it('should weight tests at 50%', async () => {
-      const metrics = {
-        iteration: 1,
-        testPassRate: 1.0,
-        lintErrorCount: 10,
-        lintErrorMax: 10,
-        diffSize: 100,
-        diffSizeBaseline: 100,
-        executionTimeMs: 30000,
-        executionTimeMax: 30000
-      };
-
-      const result = await detector.calculateQualityScore('task-02', metrics);
-
-      // With perfect tests (100) and poor other metrics, composite should be ~50
-      expect(result.scores.test).toBe(100);
-      expect(result.scores.composite).toBeLessThan(80);
-      expect(result.scores.composite).toBeGreaterThan(40);
-    });
-
-    it('should handle perfect scores', async () => {
-      const metrics = {
-        iteration: 1,
-        testPassRate: 1.0,
-        lintErrorCount: 0,
-        lintErrorMax: 10,
-        diffSize: 50,
-        diffSizeBaseline: 50,
-        executionTimeMs: 5000,
-        executionTimeMax: 30000
-      };
-
-      const result = await detector.calculateQualityScore('task-03', metrics);
-
-      expect(result.scores.composite).toBe(100);
-    });
-
-    it('should handle poor scores', async () => {
-      const metrics = {
-        iteration: 1,
-        testPassRate: 0.5,
-        lintErrorCount: 15,
-        lintErrorMax: 10,
-        diffSize: 200,
-        diffSizeBaseline: 50,
-        executionTimeMs: 50000,
-        executionTimeMax: 30000
-      };
-
-      const result = await detector.calculateQualityScore('task-04', metrics);
-
-      expect(result.scores.composite).toBeLessThan(50);
-    });
-
-    it('should persist quality data to file', async () => {
-      const metrics = {
-        iteration: 1,
-        testPassRate: 0.90,
-        lintErrorCount: 3,
-        lintErrorMax: 10,
-        diffSize: 50,
-        diffSizeBaseline: 50,
-        executionTimeMs: 5000,
-        executionTimeMax: 30000
-      };
-
-      await detector.calculateQualityScore('task-05', metrics);
-
-      const qualityFile = path.join(tempDir, 'task_05-QUALITY.json');
-      expect(fs.existsSync(qualityFile)).toBe(true);
-
-      const data = JSON.parse(fs.readFileSync(qualityFile, 'utf8'));
-      expect(data.taskId).toBe('task-05');
-      expect(data.history).toHaveLength(1);
-    });
-
-    it('should track multiple iterations', async () => {
-      await detector.calculateQualityScore('task-06', {
-        iteration: 1,
-        testPassRate: 0.90,
-        lintErrorCount: 3,
-        lintErrorMax: 10,
-        diffSize: 50,
-        diffSizeBaseline: 50,
-        executionTimeMs: 5000,
-        executionTimeMax: 30000
-      });
-
-      await detector.calculateQualityScore('task-06', {
-        iteration: 2,
-        testPassRate: 0.95,
-        lintErrorCount: 1,
-        lintErrorMax: 10,
-        diffSize: 50,
-        diffSizeBaseline: 50,
-        executionTimeMs: 4000,
-        executionTimeMax: 30000
-      });
-
-      const history = await detector.getQualityHistory('task-06');
-      expect(history).toHaveLength(2);
-      expect(history[0].iteration).toBe(1);
-      expect(history[1].iteration).toBe(2);
-    });
-  });
-
-  describe('detectDegradation', () => {
-    it('should return insufficient history for single iteration', async () => {
-      await detector.calculateQualityScore('task-01', {
-        iteration: 1,
-        testPassRate: 0.90,
-        lintErrorCount: 3,
-        lintErrorMax: 10,
-        diffSize: 50,
-        diffSizeBaseline: 50,
-        executionTimeMs: 5000,
-        executionTimeMax: 30000
-      });
-
-      const analysis = await detector.detectDegradation('task-01');
-
-      expect(analysis.isDegraded).toBe(false);
-      expect(analysis.reason).toContain('Insufficient history');
-    });
-
-    it('should detect degradation when score drops 20% from peak', async () => {
-      // Peak iteration
-      await detector.calculateQualityScore('task-02', {
-        iteration: 1,
-        testPassRate: 1.0,
-        lintErrorCount: 0,
-        lintErrorMax: 10,
-        diffSize: 50,
-        diffSizeBaseline: 50,
-        executionTimeMs: 5000,
-        executionTimeMax: 30000
-      });
-
-      // Degraded iteration (test pass rate drops to 60%)
-      await detector.calculateQualityScore('task-02', {
-        iteration: 2,
-        testPassRate: 0.60,
-        lintErrorCount: 5,
-        lintErrorMax: 10,
-        diffSize: 100,
-        diffSizeBaseline: 50,
-        executionTimeMs: 10000,
-        executionTimeMax: 30000
-      });
-
-      const analysis = await detector.detectDegradation('task-02');
-
-      expect(analysis.isDegraded).toBe(true);
-      expect(analysis.peakScore).toBe(100);
-      expect(analysis.currentScore).toBeLessThan(80);
-      expect(analysis.dropFromPeak).toBeGreaterThanOrEqual(20);
-      expect(analysis.recommendation).toBe('EXIT_EARLY');
-    });
-
-    it('should not detect degradation when score is stable', async () => {
-      await detector.calculateQualityScore('task-03', {
-        iteration: 1,
-        testPassRate: 0.90,
-        lintErrorCount: 2,
-        lintErrorMax: 10,
-        diffSize: 50,
-        diffSizeBaseline: 50,
-        executionTimeMs: 5000,
-        executionTimeMax: 30000
-      });
-
-      await detector.calculateQualityScore('task-03', {
-        iteration: 2,
-        testPassRate: 0.88,
-        lintErrorCount: 3,
-        lintErrorMax: 10,
-        diffSize: 55,
-        diffSizeBaseline: 50,
-        executionTimeMs: 5500,
-        executionTimeMax: 30000
-      });
-
-      const analysis = await detector.detectDegradation('task-03');
-
-      expect(analysis.isDegraded).toBe(false);
-      expect(analysis.recommendation).toBe('CONTINUE');
-    });
-
-    it('should identify degraded metrics', async () => {
-      await detector.calculateQualityScore('task-04', {
-        iteration: 1,
-        testPassRate: 1.0,
-        lintErrorCount: 0,
-        lintErrorMax: 10,
-        diffSize: 50,
-        diffSizeBaseline: 50,
-        executionTimeMs: 5000,
-        executionTimeMax: 30000
-      });
-
-      await detector.calculateQualityScore('task-04', {
-        iteration: 2,
-        testPassRate: 0.70,
-        lintErrorCount: 8,
-        lintErrorMax: 10,
-        diffSize: 50,
-        diffSizeBaseline: 50,
-        executionTimeMs: 5000,
-        executionTimeMax: 30000
-      });
-
-      const analysis = await detector.detectDegradation('task-04');
-
-      expect(analysis.degradedMetrics).toContain('test_pass_rate');
-      expect(analysis.degradedMetrics).toContain('lint_errors');
-    });
-
-    it('should track peak iteration correctly', async () => {
-      // Iteration 1: score ~70
-      await detector.calculateQualityScore('task-05', {
-        iteration: 1,
-        testPassRate: 0.70,
-        lintErrorCount: 3,
-        lintErrorMax: 10,
-        diffSize: 50,
-        diffSizeBaseline: 50,
-        executionTimeMs: 5000,
-        executionTimeMax: 30000
-      });
-
-      // Iteration 2: score 100 (peak)
-      await detector.calculateQualityScore('task-05', {
-        iteration: 2,
-        testPassRate: 1.0,
-        lintErrorCount: 0,
-        lintErrorMax: 10,
-        diffSize: 50,
-        diffSizeBaseline: 50,
-        executionTimeMs: 5000,
-        executionTimeMax: 30000
-      });
-
-      // Iteration 3: score drops
-      await detector.calculateQualityScore('task-05', {
-        iteration: 3,
-        testPassRate: 0.70,
-        lintErrorCount: 3,
-        lintErrorMax: 10,
-        diffSize: 50,
-        diffSizeBaseline: 50,
-        executionTimeMs: 5000,
-        executionTimeMax: 30000
-      });
-
-      const analysis = await detector.detectDegradation('task-05');
-
-      expect(analysis.peakIteration).toBe(2);
-      expect(analysis.currentIteration).toBe(3);
-      expect(analysis.isDegraded).toBe(true);
-    });
-  });
-
-  describe('shouldExitEarly', () => {
-    it('should return false for single iteration', async () => {
-      await detector.calculateQualityScore('task-01', {
-        iteration: 1,
-        testPassRate: 0.50,
-        lintErrorCount: 5,
-        lintErrorMax: 10,
-        diffSize: 50,
-        diffSizeBaseline: 50,
-        executionTimeMs: 5000,
-        executionTimeMax: 30000
-      });
-
-      const shouldExit = await detector.shouldExitEarly('task-01');
-      expect(shouldExit).toBe(false);
-    });
-
-    it('should return true when quality degraded', async () => {
-      await detector.calculateQualityScore('task-02', {
-        iteration: 1,
-        testPassRate: 1.0,
-        lintErrorCount: 0,
-        lintErrorMax: 10,
-        diffSize: 50,
-        diffSizeBaseline: 50,
-        executionTimeMs: 5000,
-        executionTimeMax: 30000
-      });
-
-      await detector.calculateQualityScore('task-02', {
-        iteration: 2,
-        testPassRate: 0.50,
-        lintErrorCount: 8,
-        lintErrorMax: 10,
-        diffSize: 150,
-        diffSizeBaseline: 50,
-        executionTimeMs: 20000,
-        executionTimeMax: 30000
-      });
-
-      const shouldExit = await detector.shouldExitEarly('task-02');
-      expect(shouldExit).toBe(true);
-    });
-
-    it('should return false when quality stable', async () => {
-      await detector.calculateQualityScore('task-03', {
-        iteration: 1,
-        testPassRate: 0.85,
-        lintErrorCount: 2,
-        lintErrorMax: 10,
-        diffSize: 50,
-        diffSizeBaseline: 50,
-        executionTimeMs: 5000,
-        executionTimeMax: 30000
-      });
-
-      await detector.calculateQualityScore('task-03', {
-        iteration: 2,
-        testPassRate: 0.83,
-        lintErrorCount: 3,
-        lintErrorMax: 10,
-        diffSize: 55,
-        diffSizeBaseline: 50,
-        executionTimeMs: 5500,
-        executionTimeMax: 30000
-      });
-
-      const shouldExit = await detector.shouldExitEarly('task-03');
-      expect(shouldExit).toBe(false);
-    });
-  });
-
-  describe('flagForReview', () => {
-    it('should flag task for human review', async () => {
-      const flag = await detector.flagForReview('task-01', 'Quality degradation detected');
-
-      expect(flag.taskId).toBe('task-01');
-      expect(flag.reason).toBe('Quality degradation detected');
-      expect(flag.status).toBe('pending_review');
-      expect(flag.flagged_by).toBe('quality-detector');
-    });
-
-    it('should include quality score in flag', async () => {
-      await detector.calculateQualityScore('task-02', {
-        iteration: 1,
-        testPassRate: 0.60,
-        lintErrorCount: 5,
-        lintErrorMax: 10,
-        diffSize: 100,
-        diffSizeBaseline: 50,
-        executionTimeMs: 10000,
-        executionTimeMax: 30000
-      });
-
-      const flag = await detector.flagForReview('task-02', 'Low quality score');
-
-      expect(flag.qualityScore).toBeDefined();
-      expect(flag.iterationCount).toBe(1);
-    });
-
-    it('should persist flag to FLAGS.json', async () => {
-      await detector.flagForReview('task-03', 'Test flag');
-
-      const flagFile = path.join(tempDir, 'FLAGS.json');
-      expect(fs.existsSync(flagFile)).toBe(true);
-
-      const data = JSON.parse(fs.readFileSync(flagFile, 'utf8'));
-      expect(data.flags).toBeDefined();
-      expect(data.flags.length).toBeGreaterThan(0);
-      expect(data.flags[0].taskId).toBe('task-03');
-    });
-
-    it('should accept additional context', async () => {
-      const flag = await detector.flagForReview('task-04', 'Test reason', {
-        customField: 'customValue',
-        severity: 'high'
-      });
-
-      expect(flag.context.customField).toBe('customValue');
-      expect(flag.context.severity).toBe('high');
-    });
-  });
-
-  describe('getFlaggedTasks', () => {
-    it('should return all flagged tasks', async () => {
-      await detector.flagForReview('task-01', 'Reason 1');
-      await detector.flagForReview('task-02', 'Reason 2');
-
-      const flagged = await detector.getFlaggedTasks();
-
-      expect(flagged.length).toBe(2);
-      expect(flagged.map(f => f.taskId)).toEqual(expect.arrayContaining(['task-01', 'task-02']));
-    });
-
-    it('should return empty array when no flags', async () => {
-      const flagged = await detector.getFlaggedTasks();
-      expect(flagged).toEqual([]);
-    });
-  });
-
-  describe('clearFlag', () => {
-    it('should clear flag after review', async () => {
-      await detector.flagForReview('task-01', 'Test reason');
-
-      await detector.clearFlag('task-01');
-
-      const flagged = await detector.getFlaggedTasks();
-      expect(flagged.find(f => f.taskId === 'task-01').status).toBe('resolved');
-    });
-
-    it('should add resolvedAt timestamp', async () => {
-      await detector.flagForReview('task-02', 'Test reason');
-      await detector.clearFlag('task-02');
-
-      const flagged = await detector.getFlaggedTasks();
-      expect(flagged.find(f => f.taskId === 'task-02').resolvedAt).toBeDefined();
-    });
-  });
-
-  describe('getStats', () => {
-    it('should return summary statistics', async () => {
-      await detector.calculateQualityScore('task-01', {
-        iteration: 1,
-        testPassRate: 0.90,
-        lintErrorCount: 2,
-        lintErrorMax: 10,
-        diffSize: 50,
-        diffSizeBaseline: 50,
-        executionTimeMs: 5000,
-        executionTimeMax: 30000
-      });
-
-      await detector.calculateQualityScore('task-02', {
-        iteration: 1,
-        testPassRate: 0.80,
-        lintErrorCount: 3,
-        lintErrorMax: 10,
-        diffSize: 60,
-        diffSizeBaseline: 50,
-        executionTimeMs: 6000,
-        executionTimeMax: 30000
-      });
-
-      await detector.flagForReview('task-03', 'Test flag');
-
-      const stats = await detector.getStats();
-
-      expect(stats.totalTasks).toBe(2);
-      expect(stats.totalIterations).toBe(2);
-      expect(stats.flaggedTasks).toBe(1);
-      expect(stats.averageQualityScore).toBeGreaterThan(0);
-      expect(stats.degradationThreshold).toBe(20);
-    });
-  });
-
-  describe('metric score calculations', () => {
-    describe('_calculateTestScore', () => {
-      it('should return 100 for perfect pass rate', () => {
-        const score = detector._calculateTestScore(1.0);
-        expect(score).toBe(100);
-      });
-
-      it('should return 0 for zero pass rate', () => {
-        const score = detector._calculateTestScore(0);
-        expect(score).toBe(0);
-      });
-
-      it('should scale linearly', () => {
-        expect(detector._calculateTestScore(0.5)).toBe(50);
-        expect(detector._calculateTestScore(0.75)).toBe(75);
-      });
-    });
-
-    describe('_calculateLintScore', () => {
-      it('should return 100 for zero errors', () => {
-        const score = detector._calculateLintScore(0, 10);
-        expect(score).toBe(100);
-      });
-
-      it('should return 0 for max errors', () => {
-        const score = detector._calculateLintScore(10, 10);
-        expect(score).toBe(0);
-      });
-
-      it('should scale based on error ratio', () => {
-        const score = detector._calculateLintScore(5, 10);
-        expect(score).toBe(50);
-      });
-    });
-
-    describe('_calculateDiffScore', () => {
-      it('should return 100 when diff equals baseline', () => {
-        const score = detector._calculateDiffScore(50, 50);
-        expect(score).toBe(100);
-      });
-
-      it('should return 100 when diff is smaller than baseline', () => {
-        const score = detector._calculateDiffScore(25, 50);
-        expect(score).toBe(100);
-      });
-
-      it('should decrease as diff grows beyond baseline', () => {
-        const score = detector._calculateDiffScore(150, 50);
-        expect(score).toBeLessThan(100);
-      });
-
-      it('should return 0 when diff is 3x baseline', () => {
-        const score = detector._calculateDiffScore(150, 50);
-        expect(score).toBe(0);
-      });
-    });
-
-    describe('_calculateTimeScore', () => {
-      it('should return 100 for fast execution', () => {
-        const score = detector._calculateTimeScore(5000, 30000);
-        expect(score).toBe(100);
-      });
-
-      it('should decrease as time increases', () => {
-        const score1 = detector._calculateTimeScore(10000, 30000);
-        const score2 = detector._calculateTimeScore(20000, 30000);
-        expect(score1).toBeGreaterThan(score2);
-      });
-
-      it('should return 0 for very slow execution', () => {
-        const score = detector._calculateTimeScore(50000, 30000);
-        expect(score).toBe(0);
-      });
-    });
-  });
-
-  describe('integration: quality monitoring workflow', () => {
-    it('should support complete quality monitoring with early exit', async () => {
-      const taskId = 'integration-task';
-
-      // Simulate revision iterations with quality tracking
-      const iterations = [
-        { testPassRate: 0.70, lintErrorCount: 5, diffSize: 100, executionTimeMs: 8000 },
-        { testPassRate: 0.85, lintErrorCount: 2, diffSize: 60, executionTimeMs: 6000 },
-        { testPassRate: 0.95, lintErrorCount: 0, diffSize: 50, executionTimeMs: 5000 },
-        { testPassRate: 0.60, lintErrorCount: 8, diffSize: 150, executionTimeMs: 15000 }
-      ];
-
-      for (let i = 0; i < iterations.length; i++) {
-        await detector.calculateQualityScore(taskId, {
-          iteration: i + 1,
-          ...iterations[i],
-          lintErrorMax: 10,
-          diffSizeBaseline: 50,
-          executionTimeMax: 30000
-        });
-      }
-
-      // Check for degradation
-      const analysis = await detector.detectDegradation(taskId);
-
-      expect(analysis.peakIteration).toBe(3);
-      expect(analysis.currentIteration).toBe(4);
-      expect(analysis.isDegraded).toBe(true);
-
-      // Should exit early
-      const shouldExit = await detector.shouldExitEarly(taskId);
-      expect(shouldExit).toBe(true);
-
-      // Flag for review
-      const flag = await detector.flagForReview(taskId, 'Quality degraded from peak');
-      expect(flag.status).toBe('pending_review');
-    });
-  });
-
-  describe('custom threshold', () => {
-    it('should use custom degradation threshold', async () => {
-      const strictDetector = new QualityDetector({
-        degradationThreshold: 0.10, // 10% threshold
-        qualityDir: tempDir
-      });
-
-      await strictDetector.calculateQualityScore('task-01', {
-        iteration: 1,
-        testPassRate: 1.0,
-        lintErrorCount: 0,
-        lintErrorMax: 10,
-        diffSize: 50,
-        diffSizeBaseline: 50,
-        executionTimeMs: 5000,
-        executionTimeMax: 30000
-      });
-
-      await strictDetector.calculateQualityScore('task-01', {
-        iteration: 2,
-        testPassRate: 0.88, // 12% drop
-        lintErrorCount: 2,
-        lintErrorMax: 10,
-        diffSize: 60,
-        diffSizeBaseline: 50,
-        executionTimeMs: 6000,
-        executionTimeMax: 30000
-      });
-
-      const analysis = await strictDetector.detectDegradation('task-01');
-
-      // With 10% threshold, 12% drop should trigger
-      expect(analysis.isDegraded).toBe(true);
-    });
-  });
+    const analysis7 = await strictDetector.detectDegradation('task-01');
+    assert.strictEqual(analysis7.isDegraded, true);
+    console.log('✓ should use custom degradation threshold');
+    passed++;
+
+  } finally {
+    cleanupTempDir(tempDir);
+  }
+
+  // Summary
+  console.log(`\n=== Summary ===`);
+  console.log(`Passed: ${passed}`);
+  console.log(`Failed: ${failed}`);
+
+  if (failed > 0) {
+    process.exit(1);
+  }
+}
+
+runTests().catch(err => {
+  console.error('Test error:', err);
+  process.exit(1);
 });

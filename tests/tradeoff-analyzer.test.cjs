@@ -7,24 +7,13 @@
  */
 
 const assert = require('assert');
+const { test } = require('./test-utils.cjs');
 const { TradeOffAnalyzer, TRADEOFF_TEMPLATE } = require('../ez-agents/bin/lib/tradeoff-analyzer.cjs');
 
 console.log('Running Trade-off Analyzer Tests...\n');
 
 let passed = 0;
 let failed = 0;
-
-function test(name, fn) {
-  try {
-    fn();
-    console.log(`✓ ${name}`);
-    passed++;
-  } catch (error) {
-    console.log(`✗ ${name}`);
-    console.log(`  Error: ${error.message}`);
-    failed++;
-  }
-}
 
 // Test: generateAnalysis produces valid markdown
 test('generateAnalysis produces valid markdown', () => {

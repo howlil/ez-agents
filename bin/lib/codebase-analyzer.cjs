@@ -129,8 +129,8 @@ class CodebaseAnalyzer {
       classification.category = 'test';
     }
 
-    // Check source files (entry points take priority over source classification)
-    if (sourceExtensions.includes(classification.extension) && !classification.isTest && !classification.isConfig && !classification.isEntry) {
+    // Check source files
+    if (sourceExtensions.includes(classification.extension) && !classification.isTest && !classification.isConfig) {
       classification.isSource = true;
       classification.type = 'source';
       classification.category = 'source';
@@ -144,30 +144,17 @@ class CodebaseAnalyzer {
    * @private
    */
   _traverse(dir, structure, depth = 0) {
-    if (depth > 10) {
-      return;
-    }
-
-    // Check if the directory itself should be ignored by its name
-    const dirName = path.basename(dir);
-    const ignoreNames = ['node_modules', '.git', 'dist', 'build', '.next', 'coverage', 'vendor', 'target', '.idea', '.vscode', '.planning'];
-    if (ignoreNames.includes(dirName)) {
+    if (depth > 10 || micromatch.isMatch(dir, this.ignorePatterns)) {
       return;
     }
 
     try {
-      const entries = fs.readdirSync(dir, { withFileTypes: true });
+      const entries = fs.readdirSync(dir, { withFileTypes: true, withFileTypes: true });
 
       for (const entry of entries) {
         const fullPath = path.join(dir, entry.name);
 
-        // Skip ignored directory names
-        if (entry.isDirectory() && ignoreNames.includes(entry.name)) {
-          continue;
-        }
-
-        // Skip log files and env files by name pattern
-        if (entry.isFile() && (entry.name.endsWith('.log') || entry.name.startsWith('.env'))) {
+        if (micromatch.isMatch(fullPath, this.ignorePatterns)) {
           continue;
         }
 

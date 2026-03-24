@@ -15,6 +15,7 @@
 const fs = require('fs');
 const path = require('path');
 const { withLock } = require('./file-lock.cjs');
+const { parseFrontmatter } = require('./frontmatter.cjs');
 
 // ─────────────────────────────────────────────
 // Parser
@@ -72,26 +73,6 @@ function parseDiscussion(filePath) {
     hasBlockers: blockers.length > 0,
     hasWarnings: warnings.length > 0
   };
-}
-
-/**
- * Parse YAML frontmatter from discussion file
- */
-function parseFrontmatter(content) {
-  const match = content.match(/^---\n([\s\S]*?)\n---/);
-  if (!match) return {};
-
-  const fm = {};
-  const lines = match[1].split('\n');
-  for (const line of lines) {
-    const colonIdx = line.indexOf(':');
-    if (colonIdx === -1) continue;
-    const key = line.slice(0, colonIdx).trim();
-    const value = line.slice(colonIdx + 1).trim();
-    // Remove quotes
-    fm[key] = value.replace(/^['"]|['"]$/g, '');
-  }
-  return fm;
 }
 
 /**

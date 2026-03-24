@@ -1,384 +1,100 @@
 #!/usr/bin/env node
 
 /**
- * Context Compressor
+ * Context Compressor — Compress context to reduce token usage
  *
- * Compresses file content to reduce token usage while preserving essential information.
- * Supports multiple compression strategies based on file type:
- * - Code files: Code folding (keep signatures, collapse bodies)
- * - Markdown: Keep headers, code blocks, first sentences
- * - JSON: Minification
- * - Logs/Text: Keep first N and last M lines
- * - Default: Whitespace removal
- *
- * Usage:
- *   const ContextCompressor = require('./context-compressor.cjs');
- *   const compressor = new ContextCompressor({ minSizeForCompression: 5000 });
- *   const result = compressor.compressFile('./src/large-file.ts');
+ * Strategies:
+ * - Remove redundant information
+ * - Summarize verbose sections
+ * - Compress repeated patterns
  */
-
-const fs = require('fs');
-const path = require('path');
 
 class ContextCompressor {
   /**
-   * Create a new ContextCompressor instance
-   * @param {{minSizeForCompression?: number, maxTokenBudget?: number, keepFunctionSignatures?: boolean, keepImports?: boolean, keepExports?: boolean, summaryRatio?: number, keepFirstNLines?: number, keepLastNLines?: number}} [options] - Compression options
+   * Create a ContextCompressor instance
    */
-  constructor(options = {}) {
-    this.options = {
-      // Compression thresholds
-      minSizeForCompression: options.minSizeForCompression || 5000, // bytes
-      maxTokenBudget: options.maxTokenBudget || 4000, // tokens
-
-      // Code folding options
-      keepFunctionSignatures: options.keepFunctionSignatures !== false,
-      keepImports: options.keepImports !== false,
-      keepExports: options.keepExports !== false,
-
-      // Summary options
-      summaryRatio: options.summaryRatio || 0.3, // Keep 30% of original
-
-      // Line-based options
-      keepFirstNLines: options.keepFirstNLines || 20,
-      keepLastNLines: options.keepLastNLines || 30,
-
-      ...options
-    };
-
-    this.compressionStats = {
-      totalFiles: 0,
-      compressedFiles: 0,
-      originalSize: 0,
-      compressedSize: 0
-    };
+  constructor() {
+    this.compressionThreshold = 0.8; // Compress if over 80% of limit
+    this.defaultLimit = 100000; // Default token limit
   }
 
   /**
-   * Compress file content
-   * @param {string} filePath - Path to file
-   * @param {string} [content] - Optional content (reads if not provided)
-   * @returns {{compressed: boolean, content: string, originalSize: number, compressedSize: number, method: string, reduction: number}}
+   * Compress context content
+   * @param {string} content - Content to compress
+   * @param {Object} options - Compression options
+   * @returns {string} Compressed content
    */
-  compressFile(filePath, content = null) {
-    const ext = path.extname(filePath).toLowerCase();
+  compress(content, options = {}) {
+    if (!content) return '';
 
-    // Read content if not provided
-    if (content === null) {
-      try {
-        content = fs.readFileSync(filePath, 'utf8');
-      } catch (err) {
-        return {
-          compressed: false,
-          content: '',
-          originalSize: 0,
-          compressedSize: 0,
-          method: 'error',
-          reduction: 0
-        };
-      }
+    let result = content;
+    const limit = options.limit || this.defaultLimit;
+
+    // Remove excessive whitespace
+    result = this._removeExtraWhitespace(result);
+
+    // Check if compression is needed
+    if (result.length < limit * this.compressionThreshold) {
+      return result;
     }
 
-    const originalSize = content.length;
-    this.compressionStats.totalFiles++;
-    this.compressionStats.originalSize += originalSize;
+    // Apply aggressive compression
+    result = this._summarizeSections(result, options);
 
-    // Skip if file is small
-    if (originalSize < this.options.minSizeForCompression) {
-      return {
-        compressed: false,
-        content,
-        originalSize,
-        compressedSize: originalSize,
-        method: 'none',
-        reduction: 0
-      };
-    }
-
-    // Choose compression strategy based on file type
-    let compressedContent;
-    let method;
-
-    if (['.ts', '.tsx', '.js', '.jsx'].includes(ext)) {
-      // Code files: use code folding
-      ({ content: compressedContent, method } = this.compressCode(content, ext));
-    } else if (ext === '.md') {
-      // Markdown: keep headers and first sentences
-      ({ content: compressedContent, method } = this.compressMarkdown(content));
-    } else if (ext === '.json') {
-      // JSON: minify
-      ({ content: compressedContent, method } = this.compressJson(content));
-    } else if (ext === '.log' || ext === '.txt') {
-      // Logs/text: keep first N and last M lines
-      ({ content: compressedContent, method } = this.compressLines(content));
-    } else {
-      // Default: whitespace removal
-      ({ content: compressedContent, method } = this.compressWhitespace(content));
-    }
-
-    const compressedSize = compressedContent.length;
-    this.compressionStats.compressedFiles++;
-    this.compressionStats.compressedSize += compressedSize;
-
-    const reduction = Math.round((1 - compressedSize / originalSize) * 100);
-
-    return {
-      compressed: true,
-      content: compressedContent,
-      originalSize,
-      compressedSize,
-      method,
-      reduction
-    };
+    return result;
   }
 
   /**
-   * Compress code files (TypeScript/JavaScript)
-   * @param {string} content - File content
-   * @param {string} ext - File extension
-   * @returns {{content: string, method: string}}
+   * Remove extra whitespace from content
+   * @param {string} content - Content to process
+   * @returns {string} Processed content
    */
-  compressCode(content, ext) {
-    const lines = content.split('\n');
-    const compressedLines = [];
-    let inFunction = false;
-    let functionDepth = 0;
-    let skippedLines = 0;
-
-    for (let i = 0; i < lines.length; i++) {
-      const line = lines[i];
-      const trimmed = line.trim();
-
-      // Keep imports
-      if (this.options.keepImports && (trimmed.startsWith('import ') || trimmed.startsWith('export '))) {
-        compressedLines.push(line);
-        continue;
-      }
-
-      // Detect function start
-      const functionMatch = trimmed.match(/^(export\s+)?(async\s+)?function\s+\w+\s*\(/) ||
-                           trimmed.match(/^(export\s+)?(const|let|var)\s+\w+\s*=\s*(async\s+)?\(/) ||
-                           trimmed.match(/^(export\s+)?(class\s+\w+)/) ||
-                           trimmed.match(/^\s*(public|private|protected)?\s*(async\s+)?\w+\s*\([^)]*\)\s*:/) ||
-                           trimmed.match(/^\s*(const|let|var)\s+\w+\s*=\s*(async\s+)?\([^)]*\)\s*=>/) ||
-                           trimmed.match(/^\s*(async\s+)?\w+\s*\([^)]*\)\s*{/);
-
-      if (functionMatch && this.options.keepFunctionSignatures) {
-        // Keep function signature
-        compressedLines.push(line);
-        inFunction = true;
-        functionDepth = 1;
-        continue;
-      }
-
-      // Track function depth
-      if (inFunction) {
-        const openBraces = (line.match(/{/g) || []).length;
-        const closeBraces = (line.match(/}/g) || []).length;
-        functionDepth += openBraces - closeBraces;
-
-        if (functionDepth <= 0) {
-          // End of function
-          inFunction = false;
-          functionDepth = 0;
-          if (skippedLines > 0) {
-            compressedLines.push(`  // ... ${skippedLines} lines of implementation ...`);
-            skippedLines = 0;
-          }
-          compressedLines.push(line);
-        } else {
-          // Skip function body
-          skippedLines++;
-          continue;
-        }
-      }
-
-      // Keep comments and empty lines between functions
-      if (!inFunction && (trimmed.startsWith('//') || trimmed.startsWith('/*') || trimmed === '')) {
-        compressedLines.push(line);
-      }
-
-      // Keep top-level code
-      if (!inFunction && functionDepth === 0) {
-        compressedLines.push(line);
-      }
-    }
-
-    const compressedContent = compressedLines.join('\n');
-    return {
-      content: compressedContent,
-      method: 'code_folding'
-    };
+  _removeExtraWhitespace(content) {
+    return content
+      .replace(/\n{3,}/g, '\n\n') // Max 2 consecutive newlines
+      .replace(/[ \t]+$/gm, '') // Remove trailing whitespace
+      .replace(/^\s*\n/gm, ''); // Remove leading blank lines
   }
 
   /**
-   * Compress Markdown files
-   * @param {string} content - Markdown content
-   * @returns {{content: string, method: string}}
+   * Summarize long sections
+   * @param {string} content - Content to summarize
+   * @param {Object} options - Options
+   * @returns {string} Summarized content
    */
-  compressMarkdown(content) {
-    const lines = content.split('\n');
-    const compressedLines = [];
-    let inCodeBlock = false;
-    let inList = false;
-    let listItemCount = 0;
+  _summarizeSections(content, options = {}) {
+    const maxLength = options.maxLength || 50000;
 
-    for (const line of lines) {
-      const trimmed = line.trim();
-
-      // Keep headers
-      if (trimmed.startsWith('#')) {
-        compressedLines.push(line);
-        inList = false;
-        listItemCount = 0;
-        continue;
-      }
-
-      // Keep code blocks
-      if (trimmed.startsWith('```')) {
-        inCodeBlock = !inCodeBlock;
-        compressedLines.push(line);
-        continue;
-      }
-
-      if (inCodeBlock) {
-        compressedLines.push(line);
-        continue;
-      }
-
-      // Keep first sentence of paragraphs
-      if (trimmed.length > 0 && !inList) {
-        const firstSentence = trimmed.split(/[.!?]/)[0];
-        if (firstSentence.length > 0) {
-          compressedLines.push(firstSentence + '.');
-        }
-        inList = false;
-        listItemCount = 0;
-      }
-
-      // Keep list items (but limit)
-      if (trimmed.startsWith('-') || trimmed.startsWith('*') || /^\d+\./.test(trimmed)) {
-        if (!inList) {
-          compressedLines.push('... list items ...');
-          inList = true;
-        }
-        // Keep first 3 list items per section
-        if (listItemCount < 3) {
-          compressedLines.push(line);
-          listItemCount++;
-        }
-      }
+    if (content.length <= maxLength) {
+      return content;
     }
 
-    return {
-      content: compressedLines.join('\n'),
-      method: 'markdown_summary'
-    };
-  }
+    // Keep first and last parts, summarize middle
+    const keepLength = Math.floor(maxLength / 3);
+    const start = content.slice(0, keepLength);
+    const end = content.slice(-keepLength);
+    const omitted = content.length - (keepLength * 2);
 
-  /**
-   * Compress JSON files (minify)
-   * @param {string} content - JSON content
-   * @returns {{content: string, method: string}}
-   */
-  compressJson(content) {
-    try {
-      const parsed = JSON.parse(content);
-      // Keep structure but remove whitespace
-      const minified = JSON.stringify(parsed);
-      return {
-        content: minified,
-        method: 'json_minify'
-      };
-    } catch (err) {
-      // Invalid JSON, return as-is
-      return {
-        content,
-        method: 'none'
-      };
-    }
-  }
-
-  /**
-   * Compress line-based files (logs, plain text)
-   * @param {string} content - File content
-   * @returns {{content: string, method: string}}
-   */
-  compressLines(content) {
-    const lines = content.split('\n');
-    const totalLines = lines.length;
-
-    if (totalLines <= this.options.keepFirstNLines + this.options.keepLastNLines) {
-      return {
-        content,
-        method: 'none'
-      };
-    }
-
-    const firstLines = lines.slice(0, this.options.keepFirstNLines);
-    const lastLines = lines.slice(-this.options.keepLastNLines);
-    const skippedLines = totalLines - this.options.keepFirstNLines - this.options.keepLastNLines;
-
-    const compressedContent = [
-      ...firstLines,
-      `... ${skippedLines} lines omitted ...`,
-      ...lastLines
-    ].join('\n');
-
-    return {
-      content: compressedContent,
-      method: 'first_last_lines'
-    };
-  }
-
-  /**
-   * Compress by removing whitespace (fallback)
-   * @param {string} content - File content
-   * @returns {{content: string, method: string}}
-   */
-  compressWhitespace(content) {
-    // Remove multiple spaces, tabs, and empty lines
-    const compressed = content
-      .replace(/\n\s*\n/g, '\n') // Multiple empty lines
-      .replace(/  +/g, ' ')      // Multiple spaces
-      .replace(/\t/g, ' ')       // Tabs to spaces
-      .split('\n')
-      .map(line => line.trimEnd())
-      .join('\n');
-
-    return {
-      content: compressed,
-      method: 'whitespace_removal'
-    };
+    return `${start}\n\n[... ${omitted} characters omitted ...]\n\n${end}`;
   }
 
   /**
    * Get compression statistics
-   * @returns {{totalFiles: number, compressedFiles: number, originalSize: number, compressedSize: number, reductionPercent: number}}
+   * @param {string} original - Original content
+   * @param {string} compressed - Compressed content
+   * @returns {Object} Compression statistics
    */
-  getStats() {
-    const reductionPercent = this.compressionStats.originalSize > 0
-      ? Math.round((1 - this.compressionStats.compressedSize / this.compressionStats.originalSize) * 100)
-      : 0;
+  getStats(original, compressed) {
+    const originalLength = original?.length || 0;
+    const compressedLength = compressed?.length || 0;
+    const saved = originalLength - compressedLength;
+    const ratio = originalLength > 0 ? (saved / originalLength) * 100 : 0;
 
     return {
-      totalFiles: this.compressionStats.totalFiles,
-      compressedFiles: this.compressionStats.compressedFiles,
-      originalSize: this.compressionStats.originalSize,
-      compressedSize: this.compressionStats.compressedSize,
-      reductionPercent
-    };
-  }
-
-  /**
-   * Reset compression statistics
-   */
-  resetStats() {
-    this.compressionStats = {
-      totalFiles: 0,
-      compressedFiles: 0,
-      originalSize: 0,
-      compressedSize: 0
+      original: originalLength,
+      compressed: compressedLength,
+      saved,
+      ratio: Math.round(ratio * 100) / 100
     };
   }
 }

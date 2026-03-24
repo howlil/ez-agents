@@ -1,2 +1,45 @@
-# All changes require review from project owner
-* @glittercowboy
+# EZ Agents Code Owners
+# https://help.github.com/articles/about-codeowners/
+
+# Default owners for entire repo
+* @howlil @tech-lead
+
+# Core library files
+bin/lib/*.cjs @tech-lead @senior-dev
+
+# Workflow definitions
+.github/workflows/*.yml @devops-lead @tech-lead
+
+# Agent definitions
+agents/*.md @ai-lead @tech-lead
+
+# Skill definitions
+skills/**/*.md @domain-expert @tech-lead
+
+# Command definitions
+commands/ez/*.md @tech-lead
+
+# Test files
+tests/**/*.cjs @qa-lead
+tests/**/*.js @qa-lead
+
+# Documentation
+docs/*.md @tech-lead @documentation-lead
+docs/adr/*.md @tech-lead @architect
+
+# Configuration files
+package.json @tech-lead
+.eslintrc.json @tech-lead
+.prettierrc @tech-lead
+vitest.config.js @qa-lead
+
+# Security-sensitive files
+.husky/* @security-lead
+.gitleaks.toml @security-lead
+.zap/* @security-lead
+
+# Governance documents
+docs/COMPLIANCE*.md @compliance-lead @security-lead
+docs/RISK*.md @project-manager @security-lead
+docs/CHANGE*.md @project-manager
+docs/BRANCH*.md @tech-lead

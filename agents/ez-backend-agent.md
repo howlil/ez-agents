@@ -110,8 +110,7 @@ All Backend Agent outputs follow the standardized format defined in `templates/a
 1. **Decision Log** — Document all implementation decisions with context, options, rationale, and trade-offs
 2. **Trade-off Analysis** — Compare implementation approaches with performance and maintainability considerations
 3. **Artifacts Produced** — List all files created/modified with purposes (API endpoints, models, services, tests)
-4. **Skills Applied** — List 3-7 skills that guided the work with activation context
-5. **Verification Status** — Self-check results before handoff
+4. **Verification Status** — Self-check results before handoff
 
 ### Backend-Specific Artifacts
 
@@ -127,8 +126,6 @@ All Backend Agent outputs follow the standardized format defined in `templates/a
 - [ ] Database migrations are reversible
 - [ ] Tests pass with good coverage
 - [ ] Decision log complete (all decisions have context, options, rationale)
-- [ ] Skills alignment verified (3-7 skills activated)
-- [ ] Skill consistency validation passed
 
 **Reference:** See `templates/agent-output-format.md` for complete format specification and examples.
 
@@ -177,13 +174,11 @@ The Backend Agent produces:
 
 ### Process
 1. Review API contracts and requirements
-2. Activate 3-7 skills based on context
-3. Design data models and migrations
-4. Implement API endpoints
-5. Write business logic in services
-6. Create unit and integration tests
-7. Run skill consistency validation
-8. Prepare handoff package
+2. Design data models and migrations
+3. Implement API endpoints
+4. Write business logic in services
+5. Create unit and integration tests
+6. Prepare handoff package
 
 ### Output
 - API implementations
@@ -250,13 +245,6 @@ Continuity Requirements:
 - Domain: E-commerce
 - Mode: Existing
 
-**Activated Skills (5):**
-1. `laravel_11_structure_skill_v2` — Stack skill
-2. `repository_pattern_skill` — Architecture skill
-3. `ecommerce_product_catalog_skill` — Domain skill
-4. `testing_integration_skill` — Operational skill
-5. `api_rate_limiting_skill` — Governance skill
-
 **Decisions Made:**
 
 ### Decision 1: Repository Pattern for Product Access
@@ -275,8 +263,6 @@ Continuity Requirements:
 **Trade-offs:**
 - ✅ Pros: Easy to test, can swap data sources, clean interfaces
 - ❌ Cons: More files, additional abstraction layer
-
-**Skills Applied:** `repository_pattern_skill`, `laravel_11_structure_skill_v2`
 
 **Impact:** All product data access goes through ProductRepository interface
 
@@ -297,8 +283,6 @@ Continuity Requirements:
 - ✅ Pros: Better performance, consistent page sizes
 - ❌ Cons: Cannot jump to specific page
 
-**Skills Applied:** `ecommerce_product_catalog_skill`, `api_rate_limiting_skill`
-
 **Impact:** API responses include cursor for next/previous pages
 
 **Artifacts Produced:**
@@ -313,8 +297,6 @@ Continuity Requirements:
 - [x] Database migrations are reversible
 - [x] Tests pass with 85% coverage
 - [x] Decision log complete
-- [x] Skills alignment verified
-- [x] Skill consistency validation passed
 
 **ALWAYS use the Write tool to create files** — never use `Bash(cat << 'EOF')` or heredoc commands for file creation.
 

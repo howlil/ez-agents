@@ -8,6 +8,7 @@ const { loadConfig, resolveModelInternal, findPhaseInternal, getRoadmapPhaseInte
 const { defaultLogger: logger } = require('./logger.cjs');
 const { findFiles } = require('./fs-utils.cjs');
 const { execWithTimeout } = require('./timeout-exec.cjs');
+const { cmdListTodos } = require('./commands.cjs');
 
 function cmdInitExecutePhase(cwd, phase, raw) {
   if (!phase) {
@@ -472,41 +473,10 @@ function cmdInitPhaseOp(cwd, phase, raw) {
 }
 
 function cmdInitTodos(cwd, area, raw) {
+  // Reuse cmdListTodos from commands.cjs and add init-specific metadata
   const config = loadConfig(cwd);
   const now = new Date();
-
-  // List todos (reuse existing logic)
-  const pendingDir = path.join(cwd, '.planning', 'todos', 'pending');
-  let count = 0;
-  const todos = [];
-
-  try {
-    const files = fs.readdirSync(pendingDir).filter(f => f.endsWith('.md'));
-    for (const file of files) {
-      try {
-        const content = fs.readFileSync(path.join(pendingDir, file), 'utf-8');
-        const createdMatch = content.match(/^created:\s*(.+)$/m);
-        const titleMatch = content.match(/^title:\s*(.+)$/m);
-        const areaMatch = content.match(/^area:\s*(.+)$/m);
-        const todoArea = areaMatch ? areaMatch[1].trim() : 'general';
-
-        if (area && todoArea !== area) continue;
-
-        count++;
-        todos.push({
-          file,
-          created: createdMatch ? createdMatch[1].trim() : 'unknown',
-          title: titleMatch ? titleMatch[1].trim() : 'Untitled',
-          area: todoArea,
-          path: '.planning/todos/pending/' + file,
-        });
-      } catch (err) {
-        logger.warn('Failed to parse todo file in cmdInitTodos', { file, error: err.message });
-      }
-    }
-  } catch (err) {
-    logger.warn('Failed to list pending todos in cmdInitTodos', { pendingDir, error: err.message });
-  }
+  const todosResult = cmdListTodos(cwd, area, true); // Get raw result
 
   const result = {
     // Config
@@ -516,9 +486,9 @@ function cmdInitTodos(cwd, area, raw) {
     date: now.toISOString().split('T')[0],
     timestamp: now.toISOString(),
 
-    // Todo inventory
-    todo_count: count,
-    todos,
+    // Todo inventory (from cmdListTodos)
+    todo_count: todosResult.count,
+    todos: todosResult.todos,
     area_filter: area || null,
 
     // Paths

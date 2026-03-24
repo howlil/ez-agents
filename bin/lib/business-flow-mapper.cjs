@@ -29,8 +29,7 @@ class BusinessFlowMapper {
     return {
       journeys,
       entryPoints,
-      routes,
-      totalJourneys: journeys.length
+      routes
     };
   }
 

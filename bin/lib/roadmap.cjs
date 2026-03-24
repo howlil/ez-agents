@@ -151,7 +151,10 @@ function cmdRoadmapAnalyze(cwd, raw) {
         else if (hasContext) diskStatus = 'discussed';
         else diskStatus = 'empty';
       }
-    } catch {}
+    } catch (err) {
+      const { defaultLogger: logger } = require('./logger.cjs');
+      logger.warn('Failed to scan phase directory', { phase: phaseNum, dirMatch, error: err.message });
+    }
 
     // Check ROADMAP checkbox status
     const checkboxPattern = new RegExp(`-\\s*\\[(x| )\\]\\s*.*Phase\\s+${escapeRegex(phaseNum)}`, 'i');

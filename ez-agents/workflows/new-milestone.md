@@ -555,10 +555,10 @@ Error Type: [type]
 Error Location: [file:line]
 Suggested Fix: [action]
 
-Context Snapshot: .planning/logs/stuck-snapshot-[timestamp].json
+Debug: Run `/ez:debug` to see current session state
 
 Next Steps:
-1. Review context snapshot
+1. Review error details
 2. Fix [specific issue]
 3. Run: /ez:plan-milestone --retry
 ```

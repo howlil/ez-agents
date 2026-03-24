@@ -5,6 +5,7 @@
  */
 
 const assert = require('assert');
+const { test } = require('../test-utils.cjs');
 const {
   ContextAccessError,
   URLFetchError,
@@ -14,17 +15,6 @@ const {
 
 let passed = 0;
 let failed = 0;
-
-function test(name, fn) {
-  try {
-    fn();
-    console.log(`✓ ${name}`);
-    passed++;
-  } catch (err) {
-    console.log(`✗ ${name}: ${err.message}`);
-    failed++;
-  }
-}
 
 // ContextAccessError tests
 test('ContextAccessError - creates with default code', () => {

@@ -9,22 +9,29 @@ Display the complete EZ Agents command reference. Output ONLY the reference cont
 
 ## Quick Start
 
-1. `/ez:new-project` - Initialize project (includes research, requirements, roadmap)
-2. `/ez:plan-phase 1` - Create detailed plan for first phase
-3. `/ez:execute-phase 1` - Execute the phase
+### Lean Agile Flow (Recommended)
+1. `/ez:new-project` - Initialize project (requirements + roadmap)
+2. `/ez:run-phase 1` - Run all phases iteratively with pause points
+3. `/ez:audit-milestone` - Verify all requirements met
+4. `/ez:complete-milestone` - Archive and tag release
 
-## Staying Updated
-
-EZ Agents evolves fast. Update periodically:
-
-```bash
-npx ez-agents@latest
-```
+### Manual Control Flow
+1. `/ez:new-project` - Initialize project
+2. `/ez:discuss-phase 1` - Optional: clarify approach
+3. `/ez:plan-phase 1` - Create task breakdown
+4. `/ez:execute-phase 1` - Build the plan
+5. `/ez:verify-work 1` - Test it works
 
 ## Core Workflow
 
 ```
-/ez:new-project → /ez:plan-phase → /ez:execute-phase → repeat
+/ez:new-project → /ez:run-phase → /ez:audit-milestone → /ez:complete-milestone
+```
+
+Or with manual control:
+
+```
+/ez:new-project → /ez:discuss-phase → /ez:plan-phase → /ez:execute-phase → /ez:verify-work → repeat
 ```
 
 ### Project Initialization
@@ -58,6 +65,31 @@ Map an existing codebase for brownfield projects.
 
 Usage: `/ez:map-codebase`
 
+### Iterative Execution (NEW!)
+
+**`/ez:run-phase [start-phase]`**
+**NEW!** Run all phases iteratively with pause points for approval.
+
+Execute all phases from a starting point: discuss → plan → execute → verify, with user approval between each step. Auto-advances to next phase after completion.
+
+- **Pause points** (unless `--yolo`):
+  - After discuss: "Continue to plan?"
+  - After plan: "Continue to execute?"
+  - After execute: "Continue to verify?"
+  - After verify: "Continue to next phase?"
+- **Auto-tracks progress** in STATE.md and ROADMAP.md
+- **Resume support**: Stop anytime, resume with `/ez:run-phase [N]`
+
+**Flags:**
+- `--no-discuss` — Skip discuss-phase for all phases
+- `--no-verify` — Skip verify-work for all phases
+- `--yolo` — No pause points, fully autonomous (use at own risk)
+
+Usage: `/ez:run-phase` (start from first incomplete phase)
+Usage: `/ez:run-phase 1` (start from phase 1)
+Usage: `/ez:run-phase 2 --no-discuss` (skip discussion)
+Usage: `/ez:run-phase 1 --yolo` (fully autonomous)
+
 ### Phase Planning
 
 **`/ez:discuss-phase <number>`**
@@ -71,25 +103,6 @@ Help articulate your vision for a phase before planning.
 Usage: `/ez:discuss-phase 2`
 Usage: `/ez:discuss-phase 2 --batch`
 Usage: `/ez:discuss-phase 2 --batch=3`
-
-**`/ez:research-phase <number>`**
-Comprehensive ecosystem research for niche/complex domains.
-
-- Discovers standard stack, architecture patterns, pitfalls
-- Creates RESEARCH.md with "how experts build this" knowledge
-- Use for 3D, games, audio, shaders, ML, and other specialized domains
-- Goes beyond "which library" to ecosystem knowledge
-
-Usage: `/ez:research-phase 3`
-
-**`/ez:list-phase-assumptions <number>`**
-See what Claude is planning to do before it starts.
-
-- Shows Claude's intended approach for a phase
-- Lets you course-correct if Claude misunderstood your vision
-- No files created - conversational output only
-
-Usage: `/ez:list-phase-assumptions 3`
 
 **`/ez:plan-phase <number>`**
 Create detailed execution plan for a specific phase.
@@ -130,38 +143,6 @@ Use when you know exactly what to do and the task is small enough to not need re
 
 Usage: `/ez:quick`
 Result: Creates `.planning/quick/NNN-slug/PLAN.md`, `.planning/quick/NNN-slug/SUMMARY.md`
-
-### Roadmap Management
-
-**`/ez:add-phase <description>`**
-Add new phase to end of current milestone.
-
-- Appends to ROADMAP.md
-- Uses next sequential number
-- Updates phase directory structure
-
-Usage: `/ez:add-phase "Add admin dashboard"`
-
-**`/ez:insert-phase <after> <description>`**
-Insert urgent work as decimal phase between existing phases.
-
-- Creates intermediate phase (e.g., 7.1 between 7 and 8)
-- Useful for discovered work that must happen mid-milestone
-- Maintains phase ordering
-
-Usage: `/ez:insert-phase 7 "Fix critical auth bug"`
-Result: Creates Phase 7.1
-
-**`/ez:remove-phase <number>`**
-Remove a future phase and renumber subsequent phases.
-
-- Deletes phase directory and all references
-- Renumbers all subsequent phases to close the gap
-- Only works on future (unstarted) phases
-- Git commit preserves historical record
-
-Usage: `/ez:remove-phase 17`
-Result: Phase 17 deleted, phases 18-20 become 17-19
 
 ### Milestone Management
 
@@ -212,63 +193,6 @@ Resume work from previous session with full context restoration.
 
 Usage: `/ez:resume-work`
 
-**`/ez:pause-work`**
-Create context handoff when pausing work mid-phase.
-
-- Creates .continue-here file with current state
-- Updates STATE.md session continuity section
-- Captures in-progress work context
-
-Usage: `/ez:pause-work`
-
-**`/ez:resume`**
-Resume from last session or navigate session chain (Phase 18+).
-
-- Loads most recent session from `.planning/sessions/`
-- Shows formatted summary with model, phase, plan, duration
-- Displays incomplete items, decisions, file changes
-- Offers options: Continue, Show transcript, Export, Navigate chain, Start fresh
-- Supports navigation: `--previous`, `--next`, `--chain`
-
-Usage: `/ez:resume`
-Usage: `/ez:resume session-20260319-143052`
-Usage: `/ez:resume --previous`
-
-**`/ez:export-session`**
-Export session for model handoff or archival.
-
-- Exports last session by default (or specified session)
-- Supports markdown (human-readable) and JSON formats
-- Includes: summary, tasks, decisions, file changes, open questions, blockers
-- Output to `.planning/sessions/export-{session_id}.{ext}`
-
-Usage: `/ez:export-session`
-Usage: `/ez:export-session session-20260319-143052 --format json`
-Usage: `/ez:export-session --output /path/to/file.md`
-
-**`/ez:import-session`**
-Import session from exported file.
-
-- Validates session structure and chain integrity
-- Supports model-specific adapters (claude, qwen, openai, kimi)
-- Creates new session with imported context
-- Offers to resume imported session
-
-Usage: `/ez:import-session /path/to/session.json`
-Usage: `/ez:import-session session.json --source-model claude`
-
-**`/ez:list-sessions`**
-List all sessions with metadata and disk usage.
-
-- Shows: session_id, started_at, ended_at, model, phase, plan, status
-- Sorted by date (newest first)
-- Displays disk usage summary
-- Supports `--limit N` and `--json` flags
-
-Usage: `/ez:list-sessions`
-Usage: `/ez:list-sessions --limit 10`
-Usage: `/ez:list-sessions --json`
-
 ### Debugging
 
 **`/ez:debug [issue description]`**
@@ -282,32 +206,6 @@ Systematic debugging with persistent state across context resets.
 
 Usage: `/ez:debug "login button doesn't work"`
 Usage: `/ez:debug` (resume active session)
-
-### Todo Management
-
-**`/ez:add-todo [description]`**
-Capture idea or task as todo from current conversation.
-
-- Extracts context from conversation (or uses provided description)
-- Creates structured todo file in `.planning/todos/pending/`
-- Infers area from file paths for grouping
-- Checks for duplicates before creating
-- Updates STATE.md todo count
-
-Usage: `/ez:add-todo` (infers from conversation)
-Usage: `/ez:add-todo Add auth token refresh`
-
-**`/ez:check-todos [area]`**
-List pending todos and select one to work on.
-
-- Lists all pending todos with title, area, age
-- Optional area filter (e.g., `/ez:check-todos api`)
-- Loads full context for selected todo
-- Routes to appropriate action (work now, add to phase, brainstorm)
-- Moves todo to done/ when work begins
-
-Usage: `/ez:check-todos`
-Usage: `/ez:check-todos api`
 
 ### User Acceptance Testing
 
@@ -333,16 +231,6 @@ Audit milestone completion against original intent.
 
 Usage: `/ez:audit-milestone`
 
-**`/ez:plan-milestone-gaps`**
-Create phases to close gaps identified by audit.
-
-- Reads MILESTONE-AUDIT.md and groups gaps into phases
-- Prioritizes by requirement priority (must/should/nice)
-- Adds gap closure phases to ROADMAP.md
-- Ready for `/ez:plan-phase` on new phases
-
-Usage: `/ez:plan-milestone-gaps`
-
 ### Configuration
 
 **`/ez:settings`**
@@ -354,26 +242,7 @@ Configure workflow toggles and model profile interactively.
 
 Usage: `/ez:settings`
 
-**`/ez:set-profile <profile>`**
-Quick switch model profile for EZ agents.
-
-- `quality` — Opus everywhere except verification
-- `balanced` — Opus for planning, Sonnet for execution (default)
-- `budget` — Sonnet for writing, Haiku for research/verification
-
-Usage: `/ez:set-profile budget`
-
 ### Utility Commands
-
-**`/ez:cleanup`**
-Archive accumulated phase directories from completed milestones.
-
-- Identifies phases from completed milestones still in `.planning/phases/`
-- Shows dry-run summary before moving anything
-- Moves phase dirs to `.planning/milestones/v{X.Y}-phases/`
-- Use after multiple milestones to reduce `.planning/phases/` clutter
-
-Usage: `/ez:cleanup`
 
 **`/ez:help`**
 Show this command reference.
@@ -388,14 +257,6 @@ Update EZ Agents to latest version with changelog preview.
 - Better than raw `npx ez-agents`
 
 Usage: `/ez:update`
-
-**`/ez:join-discord`**
-Join the EZ Agents Discord community.
-
-- Get help, share what you're building, stay updated
-- Connect with other EZ Agents users
-
-Usage: `/ez:join-discord`
 
 ## Files & Structure
 

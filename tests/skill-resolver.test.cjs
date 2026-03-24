@@ -8,24 +8,13 @@
  */
 
 const assert = require('assert');
+const { test } = require('./test-utils.cjs');
 const { SkillResolver, PRIORITY_RULES, CONFLICT_TYPES } = require('../ez-agents/bin/lib/skill-resolver.cjs');
 
 console.log('Running Skill Resolver Tests...\n');
 
 let passed = 0;
 let failed = 0;
-
-function test(name, fn) {
-  try {
-    fn();
-    console.log(`✓ ${name}`);
-    passed++;
-  } catch (error) {
-    console.log(`✗ ${name}`);
-    console.log(`  Error: ${error.message}`);
-    failed++;
-  }
-}
 
 // Test: PRIORITY_RULES exports with expected keys
 test('PRIORITY_RULES contains security > speed rule', () => {

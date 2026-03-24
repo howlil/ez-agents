@@ -638,7 +638,7 @@ Created: .planning/phases/${PADDED_PHASE}-${SLUG}/${PADDED_PHASE}-CONTEXT.md
 
 **Also available:**
 - `/ez:plan-phase ${PHASE} --skip-research` — plan without research
-- `/ez:ui-phase ${PHASE}` — generate UI design contract before planning (if phase has frontend work)
+- Not a frontend phase → Continue without UI spec
 - Review/edit CONTEXT.md before continuing
 
 ---

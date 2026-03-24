@@ -77,35 +77,64 @@ class SkillRegistry {
       return;
     }
 
-    // Read category directories
-    const categories = ['stack', 'architecture', 'domain', 'operational', 'governance'];
+    // Read category directories (including new categories: testing, observability)
+    const categories = ['stack', 'architecture', 'domain', 'operational', 'governance', 'testing', 'observability'];
 
     for (const category of categories) {
       const categoryPath = path.join(basePath, category);
       if (!fs.existsSync(categoryPath)) continue;
 
-      const skillDirs = fs.readdirSync(categoryPath, { withFileTypes: true })
-        .filter(d => d.isDirectory())
-        .map(d => d.name);
+      // Use recursive function to find all SKILL.md files (supports unlimited nesting)
+      const skillFiles = this._findSkillFiles(categoryPath, 0, 5);
 
-      for (const skillDir of skillDirs) {
-        const skillPath = path.join(categoryPath, skillDir, 'SKILL.md');
-        if (fs.existsSync(skillPath)) {
-          try {
-            const content = fs.readFileSync(skillPath, 'utf8');
-            const skill = this._parseSkill(skillPath, content, scope);
-            // Local skills override global skills with same name
-            this.skills.set(skill.name, skill);
-          } catch (err) {
-            this.logger.error('Failed to load skill', {
-              skillDir,
-              skillPath,
-              error: err.message
-            });
-          }
+      for (const skillFile of skillFiles) {
+        try {
+          const content = fs.readFileSync(skillFile, 'utf8');
+          const skill = this._parseSkill(skillFile, content, scope);
+          this.skills.set(skill.name, skill);
+        } catch (err) {
+          this.logger.error('Failed to load skill', {
+            skillFile,
+            error: err.message
+          });
         }
       }
     }
+  }
+
+  /**
+   * Recursively find all SKILL.md files in a directory
+   * @param {string} dirPath - Directory to search
+   * @param {number} depth - Current recursion depth
+   * @param {number} maxDepth - Maximum recursion depth
+   * @returns {string[]} Array of SKILL.md file paths
+   * @private
+   */
+  _findSkillFiles(dirPath, depth = 0, maxDepth = 5) {
+    const results = [];
+
+    if (depth > maxDepth) return results;
+
+    let items;
+    try {
+      items = fs.readdirSync(dirPath, { withFileTypes: true });
+    } catch (err) {
+      this.logger.debug('Cannot read directory', { dirPath, error: err.message });
+      return results;
+    }
+
+    for (const item of items) {
+      const fullPath = path.join(dirPath, item.name);
+
+      if (item.isFile() && item.name === 'SKILL.md') {
+        results.push(fullPath);
+      } else if (item.isDirectory()) {
+        const nested = this._findSkillFiles(fullPath, depth + 1, maxDepth);
+        results.push(...nested);
+      }
+    }
+
+    return results;
   }
 
   /**

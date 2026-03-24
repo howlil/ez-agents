@@ -18,7 +18,7 @@ npm i -g @howlil/ez-agents@latest
 
 **Works with:** Claude Code · OpenCode · Gemini CLI · Codex · Copilot · Qwen · Kimi
 
-[Quick Start](#quick-start) · [How It Works](#how-it-works) · [Commands](#commands) · [Setup](#setup) · [Docs](docs/)
+[Quick Start](#quick-start) · [Lean Workflow](#lean-agile-workflow-v360) · [Commands](#commands) · [Setup](#setup) · [Docs](docs/) · [Lean Guide](docs/LEAN-GUIDE.md)
 
 </div>
 
@@ -72,14 +72,28 @@ ez-agents --help
 /ez:new-project
 ```
 
-You'll answer a few questions about what you're building, then EZ Agents generates a roadmap. From there, you work through phases:
+You'll answer a few questions about what you're building, then EZ Agents generates a roadmap. From there, use the **lean agile flow**:
 
 ```bash
-/ez:discuss-phase 1    # Lock in how you want it built
-/ez:plan-phase 1       # Break it into specific tasks
-/ez:execute-phase 1    # Build it (one task per commit)
-/ez:verify-work 1      # Check it actually works
+# ⚡ FAST PATH: Single command for all phases (recommended)
+/ez:run-phase 1              # 35-55 min per phase
+/ez:run-phase 1 --yolo       # Fully autonomous, no pauses
+
+# 🎯 MANUAL CONTROL: Per phase
+/ez:discuss-phase 1          # Optional — clarify approach (15 min)
+/ez:plan-phase 1             # Create task breakdown (20 min)
+/ez:execute-phase 1          # Build (one task per commit) (30 min)
+/ez:verify-work 1            # Test it works (10 min)
 ```
+
+### 4. Complete Milestone
+
+```bash
+/ez:audit-milestone          # Verify all requirements met (10 min)
+/ez:complete-milestone 1.0.0 # Archive and tag release (5 min)
+```
+
+**Total time from idea to MVP: 2-3 days** 🚀
 
 ---
 
@@ -319,35 +333,109 @@ Parallel agents analyze your stack, architecture, conventions, and pain points. 
 
 ---
 
+## Lean Agile Workflow (v3.6.0)
+
+### 🚀 Fast Path (Recommended)
+
+Single command to run all phases iteratively:
+
+```bash
+/ez:run-phase 1              # Start from first incomplete phase
+/ez:run-phase 2              # Start from specific phase
+/ez:run-phase 1 --yolo       # Fully autonomous (no pauses)
+/ez:run-phase 1 --no-discuss # Skip discussion (if CONTEXT.md exists)
+```
+
+**What it does:**
+1. Discovers phases from ROADMAP.md
+2. For each phase: discuss → plan → execute → verify
+3. Pause points for approval (unless --yolo)
+4. Auto-advances to next phase
+5. Updates STATE.md and ROADMAP.md automatically
+
+**Time:** 35-55 minutes per phase
+
+### 🎯 Manual Control
+
+Step-by-step control for each phase:
+
+```bash
+# Step 1: Discuss (Optional)
+/ez:discuss-phase 1
+# Creates: CONTEXT.md (vision, decisions, boundaries)
+
+# Step 2: Plan
+/ez:plan-phase 1
+# Creates: 01-01-PLAN.md (tasks with verification criteria)
+
+# Step 3: Execute
+/ez:execute-phase 1
+# Creates: 01-01-SUMMARY.md + git commits
+
+# Step 4: Verify
+/ez:verify-work 1
+# Creates: UAT results, diagnoses failures
+```
+
+**Time:** 75-105 minutes per phase
+
+### 📁 Documentation Strategy
+
+**Essential Files (4 only):**
+
+| File | Purpose | Max Lines |
+|------|---------|-----------|
+| `STATE.md` | Single source of truth | 200 |
+| `ROADMAP.md` | Phase structure & progress | 300 |
+| `REQUIREMENTS.md` | What to build (MoSCoW) | 500 |
+| `SUMMARY.md` | What was built | 50 |
+
+**Deprecated (No longer required):**
+- ❌ CONTEXT.md → Merge decisions into STATE.md
+- ❌ RESEARCH.md → Inline research in PLAN.md
+- ❌ VERIFICATION.md → Inline in SUMMARY.md
+- ❌ UAT.md → Merge into SUMMARY.md
+- ❌ DISCUSSION.md → Removed entirely
+
+### 🔄 Git Strategy
+
+**One commit per plan** (not per task):
+
+```bash
+# Good
+git commit -m "Phase 1 Plan 1: User authentication"
+git commit -m "Phase 1 complete: Foundation"
+
+# Avoid (too granular)
+git commit -m "feat: add login endpoint"
+git commit -m "feat: add jwt middleware"
+git commit -m "feat: add auth tests"
+```
+
+**Result:** 2-3 commits per phase (not 10-20)
+
+---
+
 ## Commands
 
-### Starting Out
+### Core Workflow (Lean Agile)
 
 | Command | What It Does |
 |---------|-------------|
-| `/ez:new-project` | Initialize: answer questions, get research, requirements, and roadmap |
-| `/ez:map-codebase` | Analyze existing codebase (before `/ez:new-project`) |
+| `/ez:new-project` | Initialize: answer questions, get requirements and roadmap |
+| `/ez:run-phase [N]` | **NEW!** Run all phases iteratively with pause points. Use `--yolo` for fully autonomous. |
 | `/ez:quick` | Small task without full phase workflow (bug fixes, config changes) |
 
-### Phase Workflow
+### Phase Workflow (Manual Control)
 
 | Command | What It Does |
 |---------|-------------|
-| `/ez:discuss-phase [N]` | Clarify implementation approach before planning |
-| `/ez:plan-phase [N]` | Research domain, create task breakdown, define verification. Auto-runs discuss-phase for sensitive areas (auth/DB/payment). |
-| `/ez:execute-phase [N]` | Build the plan (parallel waves, one commit per task). Auto: health check → execute → verify-work. |
+| `/ez:discuss-phase [N]` | Optional — Clarify implementation approach before planning |
+| `/ez:plan-phase [N]` | Create task breakdown with verification criteria |
+| `/ez:execute-phase [N]` | Build the plan (parallel waves, one commit per task) |
 | `/ez:verify-work [N]` | Manual testing with auto-diagnosis of failures |
 
-### Managing Scope
-
-| Command | What It Does |
-|---------|-------------|
-| `/ez:add-phase` | Append new phase to roadmap |
-| `/ez:insert-phase [N]` | Insert urgent work between existing phases |
-| `/ez:remove-phase [N]` | Remove a phase and renumber |
-| `/ez:progress` | See where you are and what's next |
-
-### Wrapping Up
+### Milestone Management
 
 | Command | What It Does |
 |---------|-------------|
@@ -359,6 +447,8 @@ Parallel agents analyze your stack, architecture, conventions, and pain points. 
 
 | Command | What It Does |
 |---------|-------------|
+| `/ez:map-codebase` | Analyze existing codebase (before `/ez:new-project`) |
+| `/ez:progress` | See where you are and what's next |
 | `/ez:resume-work` | Restore context from last session |
 | `/ez:settings` | Configure workflow, model profile, git strategy |
 | `/ez:update` | Update EZ Agents (with changelog preview) |

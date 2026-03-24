@@ -288,6 +288,7 @@ function cmdFrontmatterValidate(cwd, filePath, schemaName, raw) {
 
 module.exports = {
   extractFrontmatter,
+  parseFrontmatter,
   reconstructFrontmatter,
   spliceFrontmatter,
   parseMustHavesBlock,
@@ -297,3 +298,16 @@ module.exports = {
   cmdFrontmatterMerge,
   cmdFrontmatterValidate,
 };
+
+/**
+ * Parse frontmatter and return both frontmatter and body
+ * Wrapper for extractFrontmatter with body extraction
+ * @param {string} content - File content with frontmatter
+ * @returns {{ frontmatter: object, body: string }}
+ */
+function parseFrontmatter(content) {
+  const fm = extractFrontmatter(content);
+  const match = content.match(/^---\n[\s\S]+?\n---(.*)/s);
+  const body = match ? match[1].trim() : content;
+  return { frontmatter: fm, body };
+}

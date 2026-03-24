@@ -6,6 +6,216 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ---
 
+## [4.0.0] - 2026-03-24
+
+### 🎉 Major Release: Production Hardening & TypeScript Migration
+
+**Milestone:** v4.0 Production Hardening & Optimization
+**Total Requirements:** 38 (100% complete)
+**Phases:** 7 (40-46)
+**Test Coverage:** 472 tests passing (100%)
+
+### Added
+
+#### Cost Tracking & Budget Management
+- **COST-01**: Per-agent cost tracking with `agent` field in cost entries
+  - `CostTracker.record()` accepts `agent` parameter for per-agent tracking
+  - `CostTracker.aggregate({ by_agent: true })` returns nested breakdown by agent
+  - Costs tracked for ez-planner, ez-executor, ez-verifier, and other agents
+- **COST-02**: Multi-threshold budget alerts (50%, 75%, 90%)
+  - `CostAlerts` class with `checkThresholds()` and `logAlert()` methods
+  - Alerts logged to `.planning/alerts.json` with duplicate prevention (24h)
+  - Alert levels: `info` (50%), `warning` (75%), `critical` (90%)
+  - Integration with `CostTracker.checkBudget()` for automatic alert triggering
+- **COST-03**: Budget-aware model downgrade
+  - `ModelTierManager` class with model tiers (premium, standard, economy)
+  - Automatic model selection based on budget percentage used
+  - Model downgrade at 75% (standard) and 90% (economy) budget usage
+  - Downgrade events logged to `.planning/metrics.json`
+  - Support for Claude, OpenAI, Qwen, and Kimi providers
+
+#### Circuit Breaker & Reliability
+- **CIRCUIT-01**: Circuit breaker for agent spawns
+  - `CircuitBreaker` class with state persistence to `.planning/circuit-breaker.json`
+  - Trips to OPEN state after 5 consecutive failures
+  - Automatic recovery through HALF_OPEN state after reset timeout
+  - `CircuitBreakerAdapter` wraps all 6 assistant adapters (Claude, OpenCode, Gemini, Codex, Qwen, Kimi)
+  - Per-agent-type circuit breakers for isolated failure handling
+- **CIRCUIT-02**: Circuit breaker metrics and CLI
+  - `ez-tools circuit-breaker status` command shows state for all agent types
+  - `ez-tools circuit-breaker reset [agent-type]` command resets breaker(s)
+  - State transitions logged to `.planning/metrics.json`
+  - Complete statistics via `CircuitBreaker.getStats()`
+
+#### Context Optimization
+- **CTX-01**: Context relevance scoring for file prioritization
+- **CTX-02**: Code compression with folding for large files
+- **CTX-03**: Deduplication using Jaccard similarity
+- **CTX-04**: Metadata tracking for context optimization
+
+#### New Agents
+- `ez-product-engineer` - Product thinking, feature prioritization, business alignment
+- `ez-technical-writer` - Technical documentation, user guides, API docs
+- `ez-design-expert` - Design system expertise, UI/UX best practices
+- `ez-ux-expert` - User experience research and validation
+
+#### New Skills (17 skill categories)
+- Architecture patterns (CQRS, DDD, Hexagonal, Serverless, etc.)
+- Domain expertise (FinTech, SaaS, E-commerce, Healthcare, etc.)
+- Stack-specific skills (React, Vue, Svelte, Next.js, etc.)
+- Governance (Security, Privacy, Accessibility, Compliance)
+- Testing frameworks and best practices
+
+### Changed
+
+- **Agent Restructuring**: Removed legacy agents (ez-observer, ez-plan-checker, ez-tech-lead, ez-ui-auditor)
+- **Skill System**: Expanded from 0 to 49+ skills across 8 categories
+- **Test Suite**: Comprehensive test coverage with 472 passing tests
+- **Documentation**: Added complete skill catalog and usage guides
+
+### New Modules
+
+- `bin/lib/cost-alerts.cjs` - Multi-threshold budget alert system
+- `bin/lib/model-tier-manager.cjs` - Budget-aware model selection
+- `bin/lib/circuit-breaker.cjs` - Circuit breaker implementation
+- `bin/lib/context-relevance-scorer.cjs` - Context scoring
+- `bin/lib/context-compressor.cjs` - Code compression
+- `bin/lib/context-deduplicator.cjs` - Deduplication
+- `bin/lib/context-metadata-tracker.cjs` - Metadata tracking
+- `bin/lib/gate-executor.cjs` - Quality gate execution
+- `bin/lib/gates/` - Quality gate definitions
+- `bin/lib/perf/` - Performance monitoring
+- `bin/lib/finops/` - Financial operations
+- `bin/lib/analytics/` - Analytics tracking
+- `bin/lib/backup-service.cjs` - Backup management
+- `bin/lib/error-registry.cjs` - Error tracking
+- `bin/lib/recovery-manager.cjs` - Recovery management
+- `bin/lib/quality-metrics.cjs` - Quality metrics
+
+### New Commands
+
+- `ez-tools circuit-breaker` - Circuit breaker management
+- `ez-tools cost` - Cost tracking and reporting
+- `ez-tools doctor` - System health diagnostics
+- `/ez:run-phase` - Automated phase execution
+
+### Fixed
+
+- Cost alerts now properly trigger at threshold boundaries
+- Context optimization pipeline fully functional
+- Agent frontmatter consistency across all agents
+- Skill registry and activation working correctly
+
+### Removed
+
+- Deprecated legacy agents (ez-observer, ez-plan-checker, etc.)
+- Removed unused templates and workflows
+- Cleaned up legacy code paths
+
+### Technical Details
+
+- **Node.js**: >= 16.7.0
+- **Test Framework**: Node.js native test runner + Vitest
+- **Coverage**: 472 tests, 100% pass rate
+- **Breaking Changes**: Agent restructuring may require workflow updates
+
+---
+
+## [Unreleased] - Phase 44: Cost Tracking & Circuit Breaker
+
+### Added
+
+- **COST-01**: Per-agent cost tracking with `agent` field in cost entries
+  - `CostTracker.record()` accepts `agent` parameter for per-agent tracking
+  - `CostTracker.aggregate({ by_agent: true })` returns nested breakdown by agent
+  - Costs tracked for ez-planner, ez-executor, ez-verifier, and other agents
+- **COST-02**: Multi-threshold budget alerts (50%, 75%, 90%)
+  - `CostAlerts` class with `checkThresholds()` and `logAlert()` methods
+  - Alerts logged to `.planning/alerts.json` with duplicate prevention (24h)
+  - Alert levels: `info` (50%), `warning` (75%), `critical` (90%)
+  - Integration with `CostTracker.checkBudget()` for automatic alert triggering
+- **COST-03**: Budget-aware model downgrade
+  - `ModelTierManager` class with model tiers (premium, standard, economy)
+  - Automatic model selection based on budget percentage used
+  - Model downgrade at 75% (standard) and 90% (economy) budget usage
+  - Downgrade events logged to `.planning/metrics.json`
+  - Support for Claude, OpenAI, Qwen, and Kimi providers
+- **CIRCUIT-01**: Circuit breaker for agent spawns
+  - `CircuitBreaker` class with state persistence to `.planning/circuit-breaker.json`
+  - Trips to OPEN state after 5 consecutive failures
+  - Automatic recovery through HALF_OPEN state after reset timeout
+  - `CircuitBreakerAdapter` wraps all 6 assistant adapters (Claude, OpenCode, Gemini, Codex, Qwen, Kimi)
+  - Per-agent-type circuit breakers for isolated failure handling
+- **CIRCUIT-02**: Circuit breaker metrics and CLI
+  - `ez-tools circuit-breaker status` command shows state for all agent types
+  - `ez-tools circuit-breaker reset [agent-type]` command resets breaker(s)
+  - State transitions logged to `.planning/metrics.json`
+  - Complete statistics via `CircuitBreaker.getStats()`
+
+### New Modules
+
+- `bin/lib/cost-alerts.cjs` - Multi-threshold budget alert system
+- `bin/lib/model-tier-manager.cjs` - Budget-aware model selection with tier downgrade
+
+### New Commands
+
+- `ez-tools circuit-breaker` - Circuit breaker management
+  - `status` - Show circuit breaker status for all agent types
+  - `reset [agent-type]` - Reset circuit breaker(s) to CLOSED state
+
+### New Tests
+
+- `tests/integration/cost-tracking.test.cjs` - End-to-end cost tracking integration tests
+- `tests/integration/circuit-breaker.test.cjs` - End-to-end circuit breaker integration tests
+- Enhanced `tests/cost-tracker.test.cjs` with per-agent tracking tests (COST-01)
+
+### Changed
+
+- `bin/lib/cost-tracker.cjs` - Enhanced with `agent` field support and `by_agent` aggregation
+- `bin/lib/cost-tracker.cjs` - `checkBudget()` now async and triggers multi-threshold alerts
+- `bin/lib/circuit-breaker.cjs` - Added state persistence to `.planning/circuit-breaker.json`
+- `bin/lib/circuit-breaker.cjs` - Added `agentType` parameter for per-agent state
+- `bin/lib/assistant-adapter.cjs` - Integrated `CircuitBreakerAdapter` wrapper for all adapters
+- `bin/lib/assistant-adapter.cjs` - Integrated `ModelTierManager` for budget-aware model selection
+- `ez-agents/bin/ez-tools.cjs` - Added `circuit-breaker` command with status and reset subcommands
+- `.planning/config.json` - Added `cost_tracking.alert_thresholds`, `model_downgrade.tiers`, and `circuit_breaker` configuration
+
+### Configuration
+
+```json
+{
+  "cost_tracking": {
+    "alert_thresholds": [50, 75, 90],
+    "alert_channels": ["log", "file"],
+    "model_downgrade": {
+      "enabled": true,
+      "tiers": {
+        "claude": {
+          "premium": ["claude-3-opus", "claude-sonnet-4-6"],
+          "standard": ["claude-3-sonnet"],
+          "economy": ["claude-3-haiku"]
+        }
+      }
+    }
+  },
+  "circuit_breaker": {
+    "enabled": true,
+    "failure_threshold": 5,
+    "reset_timeout": 60000,
+    "persist_state": true,
+    "metrics_enabled": true
+  }
+}
+```
+
+### Tests
+
+- 76 tests pass for Phase 44 features
+- Unit tests: cost-tracker, cost-alerts, model-tier-manager, circuit-breaker
+- Integration tests: cost-tracking, circuit-breaker
+
+---
+
 ## [3.5.0] - 2026-03-20
 
 ### Fixed

@@ -2,63 +2,32 @@
 
 /**
  * EZ Logger — Centralized logging module for EZ workflow
- * 
+ *
  * Provides structured logging with levels (ERROR, WARN, INFO, DEBUG)
- * Writes to .planning/logs/ez-{timestamp}.log
+ * Logs to console only (no file logging)
  * Replaces silent catch {} blocks with proper error logging
- * 
+ *
  * Usage:
  *   const Logger = require('./logger.cjs');
  *   const logger = new Logger();
  *   logger.error('Something failed', { context: 'details' });
  */
 
-const fs = require('fs');
-const path = require('path');
-
 class Logger {
   /**
    * Create a Logger instance
-   * @param {string} logDir - Directory for log files (default: .planning/logs)
    */
-  constructor(logDir = '.planning/logs') {
-    this.logDir = logDir;
-    this.logFile = null;
+  constructor() {
+    // No file logging - console only
   }
 
   /**
-   * Ensure log directory exists and initialize log file
-   */
-  _ensureLogDir() {
-    if (!fs.existsSync(this.logDir)) {
-      fs.mkdirSync(this.logDir, { recursive: true });
-    }
-    this.logFile = path.join(this.logDir, `ez-${Date.now()}.log`);
-  }
-
-  /**
-   * Get current log file path
-   * @returns {string} - Path to log file
-   */
-  getLogFile() {
-    if (!this.logFile) {
-      this._ensureLogDir();
-    }
-    return this.logFile;
-  }
-
-  /**
-   * Write a log entry
+   * Write a log entry to console
    * @param {string} level - Log level (ERROR, WARN, INFO, DEBUG)
    * @param {string} message - Log message
    * @param {Object} context - Additional context data
    */
   log(level, message, context = {}) {
-    // Ensure log directory exists before first write
-    if (!this.logFile) {
-      this._ensureLogDir();
-    }
-    
     const entry = {
       timestamp: new Date().toISOString(),
       level,
@@ -67,16 +36,14 @@ class Logger {
       pid: process.pid
     };
 
-    try {
-      fs.appendFileSync(this.logFile, JSON.stringify(entry) + '\n');
-      
-      // Always output ERROR level to console for visibility
-      if (level === 'ERROR') {
-        console.error(`[EZ ${level}] ${message}`);
-      }
-    } catch (err) {
-      // Fallback: log to console if file write fails
-      console.error(`[EZ ${level}] ${message} (file write failed: ${err.message})`);
+    // Always output to console
+    if (level === 'ERROR') {
+      console.error(`[EZ ${level}] ${message}`);
+    } else if (level === 'WARN') {
+      console.warn(`[EZ ${level}] ${message}`);
+    } else if (process.env.DEBUG === 'ez-agents') {
+      // Only output INFO/DEBUG in debug mode
+      console.log(`[EZ ${level}] ${message}`);
     }
   }
 
@@ -114,6 +81,14 @@ class Logger {
    */
   debug(msg, ctx) {
     this.log('DEBUG', msg, ctx);
+  }
+
+  /**
+   * Get log file path (returns null - no file logging)
+   * @returns {null} - Always null
+   */
+  getLogFile() {
+    return null;
   }
 }
 

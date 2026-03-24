@@ -1,13 +1,48 @@
 #!/usr/bin/env sh
 
-# Run tests before commit
-echo "Running pre-commit tests..."
+# EZ Agents Pre-commit Hook
+# Runs tests, linting, security scan, and quality gates
+
+echo "Running pre-commit checks..."
+echo "═══════════════════════════"
+echo ""
 
 # Build hooks first
-npm run build:hooks || { echo "Build failed. Commit aborted."; exit 1; }
+echo "✓ Building hooks..."
+npm run build:hooks || { echo "✗ Build failed. Commit aborted."; exit 1; }
+echo ""
 
 # Run tests
-npm test || { echo "Tests failed. Commit aborted."; exit 1; }
+echo "✓ Running tests..."
+npm test || { echo "✗ Tests failed. Commit aborted."; exit 1; }
+echo ""
 
-echo "Pre-commit checks passed!"
+# Run linting
+echo "✓ Running ESLint..."
+npx eslint . --ext .cjs,.js --max-warnings=0 || { 
+  echo "✗ Linting failed. Commit aborted."
+  echo "  Fix lint errors or use --no-verify to bypass (not recommended)"
+  exit 1
+}
+echo ""
+
+# Run security scan (warn but don't block)
+echo "✓ Running security audit..."
+npm audit --production || {
+  echo "⚠ Security audit found vulnerabilities (not blocking)"
+  echo "  Run 'npm audit fix' to address"
+}
+echo ""
+
+# Run quality gates
+echo "✓ Running quality gates..."
+node ez-agents/bin/lib/gate-executor.cjs --pre-commit || {
+  echo "✗ Quality gates failed. Commit aborted."
+  echo "  Fix gate failures or use --bypass with reason"
+  exit 1
+}
+echo ""
+
+echo "═══════════════════════════"
+echo "✓ All pre-commit checks passed!"
 exit 0

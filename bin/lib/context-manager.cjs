@@ -5,6 +5,7 @@
  *
  * Orchestrates context gathering from files and URLs.
  * Aggregates content, tracks sources, and updates STATE.md with context metadata.
+ * Enhanced with context optimization: scoring, compression, deduplication, and metadata tracking.
  */
 
 const fs = require('fs');
@@ -14,6 +15,10 @@ const URLFetchService = require('./url-fetch.cjs');
 const ContentSecurityScanner = require('./content-scanner.cjs');
 const ContextCache = require('./context-cache.cjs');
 const { SecurityScanError, FileAccessError, URLFetchError } = require('./context-errors.cjs');
+const ContextRelevanceScorer = require('./context-relevance-scorer.cjs');
+const ContextCompressor = require('./context-compressor.cjs');
+const ContextDeduplicator = require('./context-deduplicator.cjs');
+const ContextMetadataTracker = require('./context-metadata-tracker.cjs');
 
 class ContextManager {
   /**
@@ -27,33 +32,47 @@ class ContextManager {
     this.fileAccess = new FileAccessService(this.cwd);
     this.urlFetch = new URLFetchService();
     this.scanner = new ContentSecurityScanner();
+    this.scorer = null;
+    this.compressor = new ContextCompressor();
+    this.deduplicator = new ContextDeduplicator({ enableFuzzyMatch: true });
+    this.metadataTracker = new ContextMetadataTracker(this.cwd);
   }
 
   /**
    * Request context from files and URLs
-   * @param {{files?: string[], urls?: string[]}} options - Context options
-   * @returns {{context: string, sources: Array, errors: Array}} - Aggregated context
+   * @param {{files?: string[], urls?: string[], task?: string, enableScoring?: boolean, minScore?: number, maxFiles?: number, enableCompression?: boolean, enableDeduplication?: boolean, taskId?: string}} options - Context options
+   * @returns {{context: string, sources: Array, errors: Array, scoringStats?: Object, compressionStats?: Object, dedupStats?: Object, metadata?: Object}} - Aggregated context with optimization stats
    */
   async requestContext(options = {}) {
-    const { files = [], urls = [] } = options;
+    const {
+      files = [],
+      urls = [],
+      task,
+      enableScoring = false,
+      minScore = 0.1,
+      maxFiles = 20,
+      enableCompression = false,
+      enableDeduplication = false,
+      taskId
+    } = options;
+
     const contextParts = [];
     const sources = [];
     const errors = [];
+    let scoringStats = null;
+    let compressionStats = null;
+    let dedupStats = null;
 
-    // Process file patterns
+    // Gather all files from patterns
+    let allFiles = [];
     for (const pattern of files) {
       try {
         const fileResults = this.fileAccess.readFiles(pattern);
         for (const file of fileResults) {
-          contextParts.push(`## File: ${file.path}\n\n${file.content}`);
-          const source = {
-            type: 'file',
-            source: file.path,
-            timestamp: new Date().toISOString(),
-            size: file.content.length
-          };
-          sources.push(source);
-          this.trackSources([source]);
+          allFiles.push({
+            path: file.path,
+            content: file.content
+          });
         }
       } catch (err) {
         errors.push({
@@ -64,10 +83,95 @@ class ContextManager {
       }
     }
 
-    // Process URLs
+    // Step 1: Score files if task provided and scoring enabled
+    let filesToProcess = allFiles;
+    if (task && enableScoring && allFiles.length > 0) {
+      this.scorer = new ContextRelevanceScorer(task, { minScore, maxFiles });
+      const scoredFiles = this.scorer.scoreFiles(allFiles.map(f => f.path));
+      const scoredPaths = new Set(scoredFiles.map(f => f.path));
+
+      // Filter to scored files and attach scores
+      filesToProcess = allFiles
+        .filter(f => scoredPaths.has(f.path))
+        .map(f => {
+          const scored = scoredFiles.find(s => s.path === f.path);
+          return {
+            path: f.path,
+            content: f.content,
+            score: scored ? scored.score : 0,
+            breakdown: scored ? scored.breakdown : null
+          };
+        });
+
+      // Calculate scoring stats
+      const avgScore = filesToProcess.length > 0
+        ? filesToProcess.reduce((sum, f) => sum + f.score, 0) / filesToProcess.length
+        : 0;
+
+      scoringStats = {
+        enabled: true,
+        minScore,
+        avgScore: Math.round(avgScore * 100) / 100,
+        filteredCount: allFiles.length - filesToProcess.length
+      };
+    }
+
+    // Step 2: Deduplicate files if enabled
+    let uniqueFiles = filesToProcess;
+    if (enableDeduplication && filesToProcess.length > 0) {
+      const result = this.deduplicator.deduplicateFiles(filesToProcess);
+      uniqueFiles = result.unique;
+      dedupStats = this.deduplicator.getStats();
+    }
+
+    // Step 3: Compress files if enabled
+    const processedFiles = [];
+    for (const file of uniqueFiles) {
+      let content = file.content;
+      let compressionInfo = null;
+
+      if (enableCompression) {
+        const result = this.compressor.compressFile(file.path, content);
+        if (result.compressed) {
+          content = result.content;
+          compressionInfo = {
+            method: result.method,
+            originalSize: result.originalSize,
+            compressedSize: result.compressedSize,
+            reduction: result.reduction
+          };
+        }
+      }
+
+      processedFiles.push({
+        ...file,
+        content,
+        compression: compressionInfo
+      });
+    }
+
+    if (enableCompression) {
+      compressionStats = this.compressor.getStats();
+    }
+
+    // Build context from processed files
+    for (const file of processedFiles) {
+      contextParts.push(`## File: ${file.path}\n\n${file.content}`);
+      const source = {
+        type: 'file',
+        source: file.path,
+        timestamp: new Date().toISOString(),
+        size: file.content.length,
+        score: file.score,
+        compression: file.compression
+      };
+      sources.push(source);
+      this.trackSources([source]);
+    }
+
+    // Process URLs (unchanged)
     for (const url of urls) {
       try {
-        // Confirm URL fetch with user
         const confirmed = await URLFetchService.confirmUrlFetch(url);
         if (!confirmed) {
           errors.push({
@@ -78,18 +182,14 @@ class ContextManager {
           continue;
         }
 
-        // Fetch the URL
         const result = await this.urlFetch.fetchUrl(url);
-        
-        // Scan for security issues
         const scanResult = this.scanner.scan(result.content, result.contentType);
         if (!scanResult.safe) {
           throw new SecurityScanError(scanResult.findings);
         }
 
-        // Add to context
         contextParts.push(`## URL: ${url}\n\n${result.content}`);
-        
+
         const source = {
           type: 'url',
           source: url,
@@ -99,8 +199,6 @@ class ContextManager {
         };
         sources.push(source);
         this.trackSources([source]);
-
-        // Cache the content
         this.cache.set(url, result.content, {
           type: 'url',
           contentType: result.contentType
@@ -114,10 +212,30 @@ class ContextManager {
       }
     }
 
+    // Build metadata if taskId provided
+    let metadata = null;
+    if (taskId) {
+      metadata = this.metadataTracker.createMetadata(
+        {
+          context: contextParts.join('\n\n---\n\n'),
+          sources,
+          scoringStats,
+          compressionStats,
+          dedupStats
+        },
+        { taskId, task: task || '' }
+      );
+      this.metadataTracker.saveMetadata(metadata);
+    }
+
     return {
       context: contextParts.join('\n\n---\n\n'),
       sources,
-      errors
+      errors,
+      scoringStats,
+      compressionStats,
+      dedupStats,
+      metadata
     };
   }
 

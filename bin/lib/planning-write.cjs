@@ -40,8 +40,9 @@ async function safePlanningWrite(filePath, content, options = {}) {
     if (tempPath) {
       try {
         await cleanupTemp(tempPath);
-      } catch {
-        // best effort cleanup only
+      } catch (err) {
+        const { defaultLogger: logger } = require('./logger.cjs');
+        logger.debug('Temp file cleanup failed', { tempPath, error: err.message });
       }
     }
   }
@@ -65,7 +66,10 @@ function safePlanningWriteSync(filePath, content, options = {}) {
       } catch (err) {
         try {
           fs.writeFileSync(workerData.errorPath, err && (err.stack || err.message) ? (err.stack || err.message) : String(err), 'utf-8');
-        } catch {}
+        } catch (writeErr) {
+          const { defaultLogger: logger } = require('./logger.cjs');
+          logger.debug('Failed to write worker error log', { errorPath: workerData.errorPath, error: writeErr.message });
+        }
         Atomics.store(signal, 0, 2);
       } finally {
         Atomics.notify(signal, 0);
@@ -83,22 +87,34 @@ function safePlanningWriteSync(filePath, content, options = {}) {
       Atomics.wait(signal, 0, 0, 100);
     }
   } finally {
-    worker.terminate().catch(() => {});
+    worker.terminate().catch(err => {
+      const { defaultLogger: logger } = require('./logger.cjs');
+      logger.debug('Worker termination failed', { error: err.message });
+    });
   }
 
   const status = Atomics.load(signal, 0);
   if (status === 2) {
-    let message = `safePlanningWriteSync failed for ${filePath}`;
+    let message = \`safePlanningWriteSync failed for \${filePath}\`;
     try {
       if (fs.existsSync(errorPath)) {
         message = fs.readFileSync(errorPath, 'utf-8') || message;
       }
-    } catch {}
-    try { fs.rmSync(errorPath, { force: true }); } catch {}
+    } catch (err) {
+      const { defaultLogger: logger } = require('./logger.cjs');
+      logger.debug('Failed to read worker error log', { errorPath, error: err.message });
+    }
+    try { fs.rmSync(errorPath, { force: true }); } catch (err) {
+      const { defaultLogger: logger } = require('./logger.cjs');
+      logger.debug('Failed to cleanup worker error log', { errorPath, error: err.message });
+    }
     throw new Error(message);
   }
 
-  try { fs.rmSync(errorPath, { force: true }); } catch {}
+  try { fs.rmSync(errorPath, { force: true }); } catch (err) {
+    const { defaultLogger: logger } = require('./logger.cjs');
+    logger.debug('Failed to cleanup worker error log', { errorPath, error: err.message });
+  }
 }
 
 module.exports = {

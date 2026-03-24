@@ -21,6 +21,8 @@ Operational skills are activated based on:
 | **Production Incident** | `production-incident/production_incident_v1/` | SEV1-SEV3 incident | Severity classification, Incident workflow, Postmortem |
 | **Regression Testing** | `regression-testing/regression_testing_v1/` | Post-change, pre-release | Test suite selection, Environment parity, Performance baseline |
 | **Code Review Checklist** | `code-review-checklist/code_review_checklist_v1/` | Pull request created | Eight pillars, Quality gates, Implementation phases |
+| **Security Audit** | `security-audit/security_audit_v1/` | Pre-release, compliance check | OWASP Top 10, Dependency scan, Vulnerability assessment |
+| **Performance Optimization** | `performance-optimization/performance_optimization_v1/` | Performance issues, pre-launch | Lighthouse audit, Bundle analysis, Core Web Vitals |
 
 ## Activation Triggers
 
@@ -34,6 +36,8 @@ Operational skills are activated based on:
 | "incident", "outage", "production issue", "severity" | Production Incident |
 | "regression", "testing", "validation", "pre-release" | Regression Testing |
 | "code review", "pull request", "pr" | Code Review Checklist |
+| "security", "audit", "vulnerability", "OWASP", "CVE" | Security Audit |
+| "performance", "slow", "lighthouse", "core web vitals" | Performance Optimization |
 
 ## Usage Examples
 

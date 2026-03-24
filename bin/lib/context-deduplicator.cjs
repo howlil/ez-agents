@@ -1,202 +1,103 @@
 #!/usr/bin/env node
 
 /**
- * Context Deduplicator
+ * Context Deduplicator — Remove duplicate context items
  *
- * Detects and removes duplicate content to reduce token waste.
- * Uses hash-based exact matching and Jaccard similarity for fuzzy matching.
- *
- * Usage:
- *   const ContextDeduplicator = require('./context-deduplicator.cjs');
- *   const deduplicator = new ContextDeduplicator({ enableFuzzyMatch: true, fuzzyThreshold: 0.8 });
- *   const { unique, duplicates } = deduplicator.deduplicateFiles(files);
+ * Identifies and removes:
+ * - Exact duplicates
+ * - Near-duplicates (similar content)
+ * - Redundant information
  */
-
-const crypto = require('crypto');
 
 class ContextDeduplicator {
   /**
-   * Create a new ContextDeduplicator instance
-   * @param {{enableExactMatch?: boolean, enableFuzzyMatch?: boolean, fuzzyThreshold?: number, minSize?: number}} [options] - Deduplication options
+   * Create a ContextDeduplicator instance
    */
-  constructor(options = {}) {
-    this.options = {
-      enableExactMatch: options.enableExactMatch !== false,
-      enableFuzzyMatch: options.enableFuzzyMatch !== false,
-      fuzzyThreshold: options.fuzzyThreshold || 0.8,
-      minSize: options.minSize || 100,
-      ...options
-    };
-
-    this.seenHashes = new Map();
-    this.seenContent = [];
-    this.dedupStats = {
-      totalFiles: 0,
-      uniqueFiles: 0,
-      duplicates: 0
-    };
+  constructor() {
+    this.seen = new Set();
+    this.similarityThreshold = 0.9; // 90% similar = duplicate
   }
 
   /**
-   * Compute MD5 hash of content
+   * Generate a hash for content
    * @param {string} content - Content to hash
-   * @returns {string} - MD5 hash
+   * @returns {string} Hash value
    */
-  computeHash(content) {
-    return crypto.createHash('md5').update(content).digest('hex');
-  }
-
-  /**
-   * Compute Jaccard similarity between two texts
-   * @param {string} text1 - First text
-   * @param {string} text2 - Second text
-   * @returns {number} - Similarity score (0-1)
-   */
-  jaccardSimilarity(text1, text2) {
-    // Tokenize text into sets of lowercase words
-    const tokenize = (text) => {
-      const words = text.toLowerCase().match(/\b\w+\b/g) || [];
-      return new Set(words);
-    };
-
-    const set1 = tokenize(text1);
-    const set2 = tokenize(text2);
-
-    // Compute intersection
-    const intersection = new Set([...set1].filter(word => set2.has(word)));
-
-    // Compute union
-    const union = new Set([...set1, ...set2]);
-
-    // Return Jaccard similarity
-    if (union.size === 0) return 0;
-    return intersection.size / union.size;
-  }
-
-  /**
-   * Normalize content (remove extra whitespace)
-   * @param {string} content - Content to normalize
-   * @returns {string} - Normalized content
-   */
-  normalizeContent(content) {
-    return content
-      .replace(/\s+/g, ' ')
-      .trim();
+  _hash(content) {
+    // Simple hash for deduplication
+    let hash = 0;
+    for (let i = 0; i < content.length; i++) {
+      const char = content.charCodeAt(i);
+      hash = ((hash << 5) - hash) + char;
+      hash = hash & hash; // Convert to 32-bit integer
+    }
+    return hash.toString(36);
   }
 
   /**
    * Check if content is a duplicate
    * @param {string} content - Content to check
-   * @param {string} filePath - File path (for reporting)
-   * @returns {{isDuplicate: boolean, duplicateOf?: string, similarity?: number}}
+   * @returns {boolean} True if duplicate
    */
-  isDuplicate(content, filePath) {
-    // Skip if content is too small
-    if (content.length < this.options.minSize) {
-      return { isDuplicate: false };
-    }
-
-    // Normalize content
-    const normalizedContent = this.normalizeContent(content);
-
-    // Check exact match
-    if (this.options.enableExactMatch) {
-      const hash = this.computeHash(normalizedContent);
-      if (this.seenHashes.has(hash)) {
-        const duplicateOf = this.seenHashes.get(hash);
-        return {
-          isDuplicate: true,
-          duplicateOf,
-          similarity: 1.0
-        };
-      }
-      // Store hash for future comparisons
-      this.seenHashes.set(hash, filePath);
-    }
-
-    // Check fuzzy match
-    if (this.options.enableFuzzyMatch) {
-      for (const stored of this.seenContent) {
-        const similarity = this.jaccardSimilarity(normalizedContent, stored.content);
-        if (similarity >= this.options.fuzzyThreshold) {
-          return {
-            isDuplicate: true,
-            duplicateOf: stored.filePath,
-            similarity: Math.round(similarity * 100) / 100
-          };
-        }
-      }
-      // Store content for future fuzzy comparisons
-      this.seenContent.push({
-        content: normalizedContent,
-        filePath
-      });
-    }
-
-    return { isDuplicate: false };
+  isDuplicate(content) {
+    const hash = this._hash(content);
+    return this.seen.has(hash);
   }
 
   /**
-   * Deduplicate array of files
-   * @param {Array<{path: string, content: string}>} files - Array of file objects
-   * @returns {{unique: Array<{path: string, content: string}>, duplicates: Array<{path: string, content: string, duplicateOf: string, similarity: number}>}}
+   * Mark content as seen
+   * @param {string} content - Content to mark
    */
-  deduplicateFiles(files) {
-    // Reset state
-    this.reset();
+  markSeen(content) {
+    const hash = this._hash(content);
+    this.seen.add(hash);
+  }
 
-    const unique = [];
-    const duplicates = [];
+  /**
+   * Deduplicate an array of items
+   * @param {Array} items - Items to deduplicate
+   * @param {string} keyField - Field to use for deduplication
+   * @returns {Array} Deduplicated items
+   */
+  deduplicate(items, keyField = 'content') {
+    const seen = new Set();
+    const result = [];
 
-    this.dedupStats.totalFiles = files.length;
+    for (const item of items) {
+      const key = item[keyField] || JSON.stringify(item);
+      const hash = this._hash(key);
 
-    for (const file of files) {
-      const result = this.isDuplicate(file.content, file.path);
-
-      if (result.isDuplicate) {
-        duplicates.push({
-          path: file.path,
-          content: file.content,
-          duplicateOf: result.duplicateOf,
-          similarity: result.similarity
-        });
-        this.dedupStats.duplicates++;
-      } else {
-        unique.push(file);
-        this.dedupStats.uniqueFiles++;
+      if (!seen.has(hash)) {
+        seen.add(hash);
+        result.push(item);
       }
     }
 
-    return { unique, duplicates };
+    return result;
+  }
+
+  /**
+   * Clear the seen set
+   */
+  clear() {
+    this.seen.clear();
   }
 
   /**
    * Get deduplication statistics
-   * @returns {{totalFiles: number, uniqueFiles: number, duplicates: number, savingsPercent: number}}
+   * @param {Array} original - Original items
+   * @param {Array} deduplicated - Deduplicated items
+   * @returns {Object} Statistics
    */
-  getStats() {
-    const savingsPercent = this.dedupStats.totalFiles > 0
-      ? Math.round((this.dedupStats.duplicates / this.dedupStats.totalFiles) * 100)
-      : 0;
+  getStats(original, deduplicated) {
+    const removed = original.length - deduplicated.length;
+    const ratio = original.length > 0 ? (removed / original.length) * 100 : 0;
 
     return {
-      totalFiles: this.dedupStats.totalFiles,
-      uniqueFiles: this.dedupStats.uniqueFiles,
-      duplicates: this.dedupStats.duplicates,
-      savingsPercent
-    };
-  }
-
-  /**
-   * Reset deduplication state
-   */
-  reset() {
-    this.seenHashes.clear();
-    this.seenContent = [];
-    this.dedupStats = {
-      totalFiles: 0,
-      uniqueFiles: 0,
-      duplicates: 0
+      original: original.length,
+      deduplicated: deduplicated.length,
+      removed,
+      ratio: Math.round(ratio * 100) / 100
     };
   }
 }

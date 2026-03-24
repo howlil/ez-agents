@@ -108,8 +108,7 @@ All Frontend Agent outputs follow the standardized format defined in `templates/
 1. **Decision Log** — Document all UI/UX decisions with context, options, rationale, and trade-offs
 2. **Trade-off Analysis** — Compare UI frameworks or patterns with user experience and performance considerations
 3. **Artifacts Produced** — List all files created/modified with purposes (components, pages, state, styles, tests)
-4. **Skills Applied** — List 3-7 skills that guided the work with activation context
-5. **Verification Status** — Self-check results before handoff
+4. **Verification Status** — Self-check results before handoff
 
 ### Frontend-Specific Artifacts
 
@@ -125,8 +124,6 @@ All Frontend Agent outputs follow the standardized format defined in `templates/
 - [ ] State management is consistent
 - [ ] API integration handles errors
 - [ ] Decision log complete (all decisions have context, options, rationale)
-- [ ] Skills alignment verified (3-7 skills activated)
-- [ ] Skill consistency validation passed
 
 **Reference:** See `templates/agent-output-format.md` for complete format specification and examples.
 

@@ -2,10 +2,10 @@
 
 /**
  * Rollback Command (Phase 19 Placeholder)
- * 
+ *
  * This is a placeholder script for Phase 19 (Deployment & Operations).
  * It simulates rollback behavior for CI/CD pipeline testing.
- * 
+ *
  * In Phase 19, this will be implemented with real rollback logic:
  * - Restore previous deployment version
  * - Database migration rollback
@@ -14,14 +14,15 @@
  */
 
 const path = require('path');
+const { defaultLogger: logger } = require('../bin/lib/logger.cjs');
 
 // Get environment from arguments or default to 'production'
 const environment = process.argv[2] || 'production';
 const targetVersion = process.argv[3] || 'previous';
 
-console.log(`[Rollback] Initiating rollback for environment: ${environment}`);
-console.log(`[Rollback] Target version: ${targetVersion}`);
-console.log(`[Rollback] Placeholder mode - simulating rollback`);
+logger.info(`Initiating rollback for environment: ${environment}`);
+logger.info('Target version: ' + targetVersion);
+logger.info('Placeholder mode - simulating rollback');
 
 // Simulate rollback steps
 const steps = [
@@ -34,13 +35,13 @@ const steps = [
 ];
 
 steps.forEach((step, index) => {
-  console.log(`  [${index + 1}/${steps.length}] ${step}`);
+  logger.info(`[${index + 1}/${steps.length}] ${step}`);
 });
 
-console.log('\n[Rollback] Rollback completed successfully!');
-console.log(`[Rollback] Environment: ${environment}`);
-console.log(`[Rollback] Restored to: ${targetVersion}`);
-console.log(`[Rollback] Timestamp: ${new Date().toISOString()}`);
+logger.info('Rollback completed successfully!');
+logger.info('Environment: ' + environment);
+logger.info('Restored to: ' + targetVersion);
+logger.info('Timestamp: ' + new Date().toISOString());
 
 // Exit with success code
 process.exit(0);

@@ -8,21 +8,11 @@ const assert = require('assert');
 const path = require('path');
 const os = require('os');
 const fs = require('fs');
+const { test } = require('../test-utils.cjs');
 const ContextCache = require('../../ez-agents/bin/lib/context-cache.cjs');
 
 let passed = 0;
 let failed = 0;
-
-function test(name, fn) {
-  try {
-    fn();
-    console.log(`✓ ${name}`);
-    passed++;
-  } catch (err) {
-    console.log(`✗ ${name}: ${err.message}`);
-    failed++;
-  }
-}
 
 // Basic cache operations
 test('ContextCache - creates with temp directory', () => {
