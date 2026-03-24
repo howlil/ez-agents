@@ -85,7 +85,38 @@ You'll answer a few questions about what you're building, then EZ Agents generat
 
 ## How It Works
 
-### The Workflow
+### System Architecture
+
+```
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                           EZ AGENTS ORCHESTRATION SYSTEM                     │
+│                                                                              │
+│  A multi-agent coordination system for building software with AI agents      │
+└─────────────────────────────────────────────────────────────────────────────┘
+
+                                    USER
+                                      │
+                                      ▼
+                          ┌───────────────────────┐
+                          │   ez-chief-strategist │ ◄── Orchestrator
+                          │   (Chief Strategist)  │      (Work classification,
+                          └───────────┬───────────┘       routing, state machine)
+                                      │
+              ┌───────────────────────┼───────────────────────┐
+              │                       │                       │
+              ▼                       ▼                       ▼
+    ┌─────────────────┐   ┌─────────────────┐   ┌─────────────────┐
+    │  Specialist     │   │  Specialist     │   │  Specialist     │
+    │  Agents         │   │  Agents         │   │  Agents         │
+    │                 │   │                 │   │                 │
+    │ • ez-planner    │   │ • ez-executor   │   │ • ez-verifier   │
+    │ • ez-researcher │   │ • ez-debugger   │   │ • ez-auditor    │
+    │ • ez-mapper     │   │ • ez-qa-agent   │   │ • ez-roadmapper │
+    │ • ez-architect  │   │ • ez-devops     │   │                 │
+    └─────────────────┘   └─────────────────┘   └─────────────────┘
+```
+
+### The Phase Workflow
 
 ```
 ┌─────────────────┐
@@ -110,6 +141,47 @@ You'll answer a few questions about what you're building, then EZ Agents generat
 └─────────────────────────┘
 ```
 
+### Chief Strategist State Machine
+
+```
+TASK RECEIVED
+     │
+     ▼
+┌─────────────┐
+│ 1. TRIAGE   │ ──► Classify: feature/bug/refactor/incident
+└──────┬──────┘
+       │
+       ▼
+┌───────────────────┐
+│ 2. RETRIVE_CTX    │ ──► Load project context
+└──────┬────────────┘
+       │
+       ▼
+┌───────────────────┐
+│ 3. PROPOSE_ACTION │ ──► Select agent + skills
+└──────┬────────────┘
+       │
+       ▼
+┌───────────────────┐
+│ 4. POLICY_CHECK   │ ──► Validate constraints
+└──────┬────────────┘
+       │
+       ▼
+┌───────────────────┐
+│ 5. EXECUTE        │ ──► Route to specialist agent
+└──────┬────────────┘
+       │
+       ▼
+┌───────────────────┐
+│ 6. VERIFY         │ ──► Validate results
+└──────┬────────────┘
+       │
+       ▼
+┌───────────────────┐
+│ 7. COMPLETE       │ ──► Log audit trail
+└───────────────────┘
+```
+
 ### Smart Orchestration
 
 Core commands automatically invoke helper commands based on context — so you don't have to remember to run them. All auto-invocations are visible with an `[auto]` prefix.
@@ -132,9 +204,9 @@ Core commands automatically invoke helper commands based on context — so you d
 
 Disable globally: set `"smart_orchestration": { "enabled": false }` in `.planning/config.json`.
 
-### Parallel Execution with Git Commits
+### Wave-Based Parallel Execution
 
-Setiap task dijalankan secara paralel (jika tidak ada dependensi), dengan fresh context dan atomic commit:
+Tasks are grouped into waves based on dependencies. Independent tasks run in parallel; dependent tasks wait for prerequisites.
 
 ```
 Phase 1: Foundation
@@ -165,11 +237,11 @@ Phase 1: Foundation
 └────────────────────────────────────────────────┘
 ```
 
-**Keuntungan:**
-- **Fresh context per task** — AI tidak kehilangan context karena window penuh
-- **Atomic commits** — Setiap commit = satu task, mudah di-revert jika ada masalah
-- **Parallel execution** — Task independen jalan barengan, lebih cepat
-- **Clean git history** — Commit message deskriptif, jelas apa yang berubah
+**Benefits:**
+- **Fresh context per task** — AI doesn't lose context due to window limits
+- **Atomic commits** — Each task = one commit, easy to revert if issues arise
+- **Parallel execution** — Independent tasks run together, faster delivery
+- **Clean git history** — Descriptive commit messages, clear what changed
 
 ### What Makes It Different
 

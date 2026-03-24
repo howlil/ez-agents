@@ -165,7 +165,7 @@ const SessionExport = require('./lib/session-export.cjs');
 const SessionImport = require('./lib/session-import.cjs');
 const SessionChain = require('./lib/session-chain.cjs');
 const MemoryCompression = require('./lib/memory-compression.cjs');
-const RecoveryManager = require('./lib/recovery-manager.cjs');
+const RecoveryManager = require('./lib/crash-recovery.cjs');
 
 // ─── CLI Router ───────────────────────────────────────────────────────────────
 

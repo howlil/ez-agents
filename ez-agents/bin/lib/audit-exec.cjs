@@ -67,7 +67,7 @@ function writeAudit(entry) {
  * @returns {Promise<string>} - Command stdout
  */
 async function auditExec(cmd, args = [], options = {}) {
-  const { context = 'unknown', user = 'system', timeout = 30000 } = options;
+  const { context = 'unknown', user = 'system', timeout = 30000, cwd } = options;
   
   const entry = {
     timestamp: new Date().toISOString(),
@@ -85,10 +85,9 @@ async function auditExec(cmd, args = [], options = {}) {
   const startTime = Date.now();
   
   try {
-    const result = await execFileAsync(cmd, args, { 
-      timeout,
-      maxBuffer: 10 * 1024 * 1024
-    });
+    const execOpts = { timeout, maxBuffer: 10 * 1024 * 1024 };
+    if (cwd) execOpts.cwd = cwd;
+    const result = await execFileAsync(cmd, args, execOpts);
     
     const duration = Date.now() - startTime;
     

@@ -1,8 +1,9 @@
 # EZ Agents — v3.0 AI App Builder
 
-## Current State (2026-03-21)
+## Current State (2026-03-24)
 
-**Latest Release:** v3.0 AI App Builder — "Improve Accuracy" ✅ SHIPPED 2026-03-21
+**Latest Release:** v4.0 Production Hardening — ✅ COMPLETE
+**Active Milestone:** v4.1 Phase Locking Mechanism (implementation in progress)
 
 **Milestones Complete:**
 - ✅ v1.0 EZ Multi-Model (8 phases, 34 requirements)
@@ -10,8 +11,9 @@
 - ✅ v2.0 Full SDLC Coverage (15 phases, 173 requirements)
 - ✅ v2.1 Gap Closure (6 phases, 36 requirements)
 - ✅ v3.0 AI App Builder (6 phases, 52 requirements)
+- ✅ v4.0 Production Hardening (7 phases, 38 requirements)
 
-**Total:** 41 phases, 319 requirements, 120+ lib files
+**Total:** 48 phases, 357 requirements, 120+ lib files
 
 ---
 
@@ -151,6 +153,64 @@ Turn any project requirement into structured, parallel, auditable delivery — f
 - [ ] Dynamic wave execution (resource-aware parallelism)
 - [ ] Unified error handling (consistent failure recovery)
 - [ ] Quality gates before commit (block bad merges)
+- [ ] **Phase locking mechanism** (prevent agent overlap on same phase)
+
+### Active (v4.1 Phase Locking — New)
+
+**Goal:** Implement phase ownership lock to prevent multiple agents from working on the same phase concurrently.
+
+**Requirements:**
+- [ ] PLOCK-01: Phase lock acquisition with agent ID and session tracking
+- [ ] PLOCK-02: Phase lock release on phase completion
+- [ ] PLOCK-03: Heartbeat mechanism to prevent stale locks (5-min interval)
+- [ ] PLOCK-04: Stale lock detection and auto-release (90-min timeout)
+- [ ] PLOCK-05: Lock conflict detection with clear error messages
+- [ ] PLOCK-06: Lock state visible in STATE.md
+- [ ] PLOCK-07: Lock operations logged to `.planning/logs/`
+- [ ] PLOCK-08: Integration with agent-pool.cjs for assignment checks
+- [ ] PLOCK-09: Integration with workflow commands (execute-phase, plan-phase)
+- [ ] PLOCK-10: Tests for acquire, release, heartbeat, stale detection
+
+**Success Criteria:**
+- Phase lock acquired before any phase work begins
+- Blocked agents receive clear conflict message with holder info
+- Stale locks auto-release after timeout
+- Lock state visible in STATE.md
+- Zero phase overlap incidents in production
+
+### ✅ Complete (v4.0 Production Hardening)
+
+**Goal:** Prevent overheat/deadlock scenarios and optimize resource usage.
+
+**P0 Critical Fixes (Phase 40-41):**
+- ✓ NEST-01 to NEST-03: Agent nesting depth limit (3 levels)
+- ✓ CKPT-01 to CKPT-03: Checkpoint timeout with escalation
+- ✓ SESS-01 to SESS-04: Atomic session writes with versioning
+- ✓ LOCK-01 to LOCK-03: File lock with deadlock detection
+
+**P1 High Priority (Phase 42):**
+- ✓ REV-01 to REV-04: Smart revision loop with learning
+- ✓ CIRCUIT-01 to CIRCUIT-02: Circuit breaker on agent spawns
+
+**P2 Optimizations (Phase 43-46):**
+- ✓ CTX-01 to CTX-04: Context optimization (scoring, compression, dedup)
+- ✓ COST-01 to COST-03: Cost tracking with budget alerts
+- ✓ WAVE-01 to WAVE-03: Dynamic wave execution (Phase 45)
+- ✓ ERR-01 to ERR-03: Unified error handling (Phase 46)
+- ✓ GATE-01 to GATE-03: Quality gates before commit (Phase 46)
+
+**Phase 45: Dynamic Wave Execution**
+- WAVE-01: Replace static wave assignment with dynamic computation
+- WAVE-02: Add resource-aware parallelism (maxParallel config)
+- WAVE-03: Implement failure handling in wave execution
+
+**Phase 46: Error Handling & Quality Gates**
+- ERR-01: Implement unified error classification
+- ERR-02: Add error caching for recurring error detection
+- ERR-03: Implement root cause identification
+- GATE-01: Implement quality gate checks (tests, lint, verification)
+- GATE-02: Add quality gate blocking before commit
+- GATE-03: Track quality gate pass/fail metrics
 
 ### Out of Scope
 
@@ -251,6 +311,7 @@ Intake → Context Discovery → Requirement Normalization → Strategy & Archit
 | 10-phase SDLC workflow | Intake → discovery → requirements → strategy → task graph → delegation → reconciliation → quality gates → release → post-release | ✓ Good — full delivery lifecycle |
 | Operation modes (Greenfield/MVP/Scale-up/Maintenance) | Different project contexts need different ceremony levels | ✓ Good — right-sized process per situation |
 | Anti-overengineering guardrails | Minimum ceremony for task complexity | ✓ Good — prevents process bloat |
+| **Phase ownership locking** (2026-03-24) | Prevent multiple agents from working on same phase | → Prevents tumpang tindih (overlap), state corruption, resource waste |
 
 ---
-*Last updated: 2026-03-20 after v2.1 milestone start — closing v2.0 known gaps before resuming v3.0 AI App Builder. 36 requirements across 4 areas: GSD, Deploy, Perf, Analytics+FinOps.*
+*Last updated: 2026-03-24 — v4.0 Production Hardening COMPLETE (7 phases, 38 requirements). v4.1 Phase Locking IN PROGRESS (5 phases, 10 requirements).*

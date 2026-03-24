@@ -1,11 +1,13 @@
-# Requirements: EZ Agents v4.0
+# Requirements: EZ Agents
 
 **Defined:** 2026-03-21
-**Core Value:** Prevent overheat/deadlock scenarios and optimize resource usage in AI agent orchestration.
+**Core Value:** Turn any project requirement into structured, parallel, auditable delivery — from MVP to enterprise scale.
 
 ---
 
-## v4.0 Requirements
+## v4.0 Requirements (Production Hardening & Optimization)
+
+**Goal:** Prevent overheat/deadlock scenarios and optimize resource usage.
 
 ### P0 Critical Fixes (Do First)
 
@@ -50,6 +52,34 @@
 - [ ] **GATE-01**: Implement quality gate checks (tests, lint, verification)
 - [ ] **GATE-02**: Add quality gate blocking before commit
 - [ ] **GATE-03**: Track quality gate pass/fail metrics
+
+---
+
+## v4.1 Requirements (Phase Locking Mechanism)
+
+**Goal:** Prevent multiple agents from working on the same phase concurrently (tumpang tindih/overlap).
+
+### Core Lock Implementation
+
+- [ ] **PLOCK-01**: Implement phase lock acquisition with agent ID and session tracking
+- [ ] **PLOCK-02**: Implement phase lock release on phase completion
+- [ ] **PLOCK-03**: Create lock file structure in `.planning/locks/phase-{N}.lock.json`
+
+### Heartbeat & Stale Detection
+
+- [ ] **PLOCK-04**: Implement stale lock detection and auto-release (90-min timeout)
+- [ ] **PLOCK-05**: Implement heartbeat mechanism to prevent stale locks (5-min interval)
+
+### Lock State Integration
+
+- [ ] **PLOCK-06**: Display lock state in STATE.md (Lock Status, Lock Expires)
+- [ ] **PLOCK-07**: Log all lock operations to `.planning/logs/`
+
+### Agent & Workflow Integration
+
+- [ ] **PLOCK-08**: Integrate phase lock checks into agent-pool.cjs assignment
+- [ ] **PLOCK-09**: Integrate phase lock commands into workflow (execute-phase, plan-phase)
+- [ ] **PLOCK-10**: Create comprehensive tests (acquire, release, heartbeat, stale detection)
 
 ---
 
@@ -125,12 +155,22 @@
 | GATE-01 | Phase 46 | Pending |
 | GATE-02 | Phase 46 | Pending |
 | GATE-03 | Phase 46 | Pending |
+| PLOCK-01 | Phase 47 | Pending |
+| PLOCK-02 | Phase 47 | Pending |
+| PLOCK-03 | Phase 47 | Pending |
+| PLOCK-04 | Phase 48 | Pending |
+| PLOCK-05 | Phase 48 | Pending |
+| PLOCK-06 | Phase 49 | Pending |
+| PLOCK-07 | Phase 49 | Pending |
+| PLOCK-08 | Phase 50 | Pending |
+| PLOCK-09 | Phase 51 | Pending |
+| PLOCK-10 | Phase 51 | Pending |
 
 **Coverage:**
-- v4.0 requirements: 38 total
-- Mapped to phases: 35
-- Unmapped: 3 (CIRCUIT-01, CIRCUIT-02 added to Phase 44) ✓
+- v4.0 requirements: 38 total — Mapped to phases: 38 ✓
+- v4.1 requirements: 10 total — Mapped to phases: 10 ✓
+- **Total:** 48 requirements across 12 phases (40-51)
 
 ---
 *Requirements defined: 2026-03-21*
-*Last updated: 2026-03-21 after initial definition*
+*Last updated: 2026-03-24 — Added v4.1 Phase Locking (10 requirements, phases 47-51)*

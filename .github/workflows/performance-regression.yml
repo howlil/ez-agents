@@ -1,0 +1,211 @@
+name: Performance Regression Detection
+
+on:
+  pull_request:
+    branches:
+      - main
+      - develop
+  push:
+    branches:
+      - main
+      - develop
+
+# Prevent concurrent runs on the same branch
+concurrency:
+  group: performance-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  # Job 1: Run k6 performance tests
+  performance-test:
+    name: Performance Test
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+      
+      - name: Install dependencies
+        run: npm ci
+      
+      - name: Install k6
+        uses: grafana/k6-action@v1
+        with:
+          filename: tests/performance/api-load-test.js
+      
+      - name: Start application
+        run: |
+          npm start &
+          echo "Waiting for application to start..."
+          sleep 10
+      
+      - name: Run k6 load test
+        uses: grafana/k6-action@v1
+        with:
+          filename: tests/performance/api-load-test.js
+          flags: --out json=k6-results.json
+        env:
+          TARGET_URL: http://localhost:3000
+      
+      - name: Upload k6 results
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: k6-results
+          path: k6-results.json
+          retention-days: 30
+      
+      - name: Upload k6 output (raw)
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: k6-output
+          path: |
+            k6-results.json
+            *.json
+          retention-days: 7
+
+  # Job 2: Check performance budgets
+  budget-check:
+    name: Performance Budget Check
+    runs-on: ubuntu-latest
+    needs: performance-test
+    if: always()
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+      
+      - name: Install dependencies
+        run: npm ci
+      
+      - name: Download k6 results
+        uses: actions/download-artifact@v4
+        with:
+          name: k6-results
+          path: ./
+      
+      - name: Parse k6 results
+        run: |
+          node -e "
+            const fs = require('fs');
+            const data = JSON.parse(fs.readFileSync('k6-results.json', 'utf8'));
+            
+            // Extract metrics from k6 output
+            const metrics = data.metrics || {};
+            const httpReqDuration = metrics.http_req_duration?.values || {};
+            const httpReqFailed = metrics.http_req_failed?.values || {};
+            
+            // Create budget checker format
+            const budgetFormat = {
+              apiP50: httpReqDuration['p(50)'] || 0,
+              apiP95: httpReqDuration['p(95)'] || 0,
+              apiP99: httpReqDuration['p(99)'] || 0,
+              errorRate: (httpReqFailed.rate || 0) * 100,
+              throughput: metrics.http_reqs?.values?.rate || 0,
+              timestamp: new Date().toISOString()
+            };
+            
+            fs.writeFileSync('performance-results.json', JSON.stringify(budgetFormat, null, 2));
+            console.log('Parsed results:', budgetFormat);
+          "
+      
+      - name: Check performance budgets
+        id: budget_check
+        run: |
+          node ez-agents/bin/lib/performance-budget-check.cjs performance-results.json || exit 1
+        continue-on-error: false
+      
+      - name: Upload budget report
+        uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: budget-violations
+          path: performance-results.json
+          retention-days: 30
+      
+      - name: Comment PR with results
+        uses: actions/github-script@v7
+        if: github.event_name == 'pull_request'
+        with:
+          script: |
+            const fs = require('fs');
+            let comment = '## Performance Test Results\n\n';
+            
+            try {
+              const results = JSON.parse(fs.readFileSync('performance-results.json', 'utf8'));
+              comment += `| Metric | Value | Threshold |\n`;
+              comment += `|--------|-------|----------|\n`;
+              comment += `| P50 Latency | \`${results.apiP50.toFixed(0)}ms\` | < 100ms |\n`;
+              comment += `| P95 Latency | \`${results.apiP95.toFixed(0)}ms\` | < 500ms |\n`;
+              comment += `| P99 Latency | \`${results.apiP99.toFixed(0)}ms\` | < 1000ms |\n`;
+              comment += `| Error Rate | \`${results.errorRate.toFixed(2)}%\` | < 0.1% |\n`;
+              comment += `| Throughput | \`${results.throughput.toFixed(0)} req/s\` | > 100 req/s |\n`;
+            } catch (e) {
+              comment += 'Failed to parse performance results.\n';
+            }
+            
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: comment
+            });
+
+  # Job 3: Trend analysis (only on main/develop)
+  trend-analysis:
+    name: Trend Analysis
+    runs-on: ubuntu-latest
+    needs: performance-test
+    if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/develop'
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+      
+      - name: Install dependencies
+        run: npm ci
+      
+      - name: Download k6 results
+        uses: actions/download-artifact@v4
+        with:
+          name: k6-results
+          path: ./
+      
+      - name: Record performance trend
+        run: |
+          mkdir -p .planning
+          node ez-agents/bin/lib/performance-trend-analyzer.cjs record k6-results.json
+        env:
+          GITHUB_SHA: ${{ github.sha }}
+          GITHUB_REF: ${{ github.ref }}
+      
+      - name: Analyze trends
+        run: |
+          node ez-agents/bin/lib/performance-trend-analyzer.cjs analyze || true
+      
+      - name: Upload trend data
+        uses: actions/upload-artifact@v4
+        with:
+          name: performance-trends
+          path: .planning/performance-history.jsonl
+          retention-days: 90

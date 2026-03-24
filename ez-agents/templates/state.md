@@ -21,6 +21,8 @@ See: .planning/PROJECT.md (updated [date])
 Phase: [X] of [Y] ([Phase name])
 Plan: [A] of [B] in current phase
 Status: [Ready to plan / Planning / Ready to execute / In progress / Phase complete]
+**Lock Status:** [Locked by {agent-id} / Unlocked]
+**Lock Expires:** [YYYY-MM-DD HH:MM / N/A]
 Last activity: [YYYY-MM-DD] — [What happened]
 
 Progress: [░░░░░░░░░░] 0%
@@ -127,6 +129,8 @@ Where we are right now:
 - Phase X of Y — which phase
 - Plan A of B — which plan within phase
 - Status — current state
+- **Lock Status** — phase ownership lock (prevents agent overlap)
+- **Lock Expires** — when lock will auto-release if no heartbeat
 - Last activity — what happened most recently
 - Progress bar — visual indicator of overall completion
 
