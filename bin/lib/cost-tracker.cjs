@@ -15,6 +15,7 @@ const path = require('path');
 const { withLock } = require('./file-lock.cjs');
 const Logger = require('./logger.cjs');
 const logger = new Logger();
+const CostAlerts = require('./cost-alerts.cjs');
 
 /**
  * Returns default cost configuration with model rates.
@@ -180,10 +181,11 @@ class CostTracker {
   /**
    * Check total spending against a budget ceiling.
    * Does NOT call process.exit() — caller decides how to react.
+   * Triggers multi-threshold alerts when thresholds are crossed.
    * @param {object} [opts] - { ceiling?, warning_threshold? }
-   * @returns {{ status: 'ok'|'warning'|'exceeded', message: string, total?: number, ceiling?: number, percentUsed?: number }}
+   * @returns {{ status: 'ok'|'warning'|'exceeded', message: string, total?: number, ceiling?: number, percentUsed?: number, alerts?: Array }}
    */
-  checkBudget(opts = {}) {
+  async checkBudget(opts = {}) {
     const cfg = this.getConfig();
     const ceiling = (opts.ceiling !== undefined) ? opts.ceiling : cfg.budget;
     const warning_threshold = (opts.warning_threshold !== undefined) ? opts.warning_threshold : cfg.warning_threshold;
@@ -195,16 +197,28 @@ class CostTracker {
       return { status: 'ok', message: 'No budget set' };
     }
 
+    const percentUsed = (total / ceiling) * 100;
+    const alerts = new CostAlerts(this.cwd).checkThresholds({ percentUsed, totalSpent: total, budget: ceiling });
+
+    // Log triggered alerts
+    if (alerts.length > 0) {
+      const costAlerts = new CostAlerts(this.cwd);
+      for (const alert of alerts) {
+        await costAlerts.logAlert(alert);
+      }
+    }
+
     if (total >= ceiling) {
       return {
         status: 'exceeded',
         message: `Budget ceiling $${ceiling} exceeded ($${total.toFixed(4)} spent)`,
         total,
         ceiling,
+        percentUsed,
+        alerts
       };
     }
 
-    const percentUsed = (total / ceiling) * 100;
     if (percentUsed >= warning_threshold) {
       return {
         status: 'warning',
@@ -212,6 +226,7 @@ class CostTracker {
         total,
         ceiling,
         percentUsed,
+        alerts
       };
     }
 
@@ -221,6 +236,7 @@ class CostTracker {
       total,
       ceiling,
       percentUsed,
+      alerts
     };
   }
 

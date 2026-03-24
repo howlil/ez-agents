@@ -270,5 +270,20 @@
         }
       }
     }
+  },
+  "cost_tracking": {
+    "enabled": true,
+    "budget": null,
+    "warning_threshold": 80,
+    "alert_thresholds": [50, 75, 90],
+    "alert_channels": ["log", "file"],
+    "auto_pause": false,
+    "rates": {
+      "claude-3": { "input": 0.003, "output": 0.015 },
+      "claude-sonnet-4-6": { "input": 0.003, "output": 0.015 },
+      "gpt-4": { "input": 0.03, "output": 0.06 },
+      "qwen": { "input": 0.002, "output": 0.006 },
+      "kimi": { "input": 0.002, "output": 0.006 }
+    }
   }
 }
