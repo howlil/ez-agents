@@ -10,7 +10,7 @@ const { execFileSync } = require('child_process');
 
 const testDir = join(__dirname, '..', 'tests');
 const files = readdirSync(testDir)
-  .filter(f => f.endsWith('.test.cjs'))
+  .filter(f => f.endsWith('.test.ts') || f.endsWith('.test.cjs'))
   .sort()
   .map(f => join('tests', f));
 
