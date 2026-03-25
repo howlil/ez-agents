@@ -104,9 +104,9 @@ process.stdin.on('end', () => {
           .map(f => ({ name: f, mtime: fs.statSync(path.join(todosDir, f)).mtime }))
           .sort((a, b) => b.mtime.getTime() - a.mtime.getTime());
 
-        if (files.length > 0) {
+        if (files.length > 0 && files[0]) {
           try {
-            const todos: TodoEntry[] = JSON.parse(fs.readFileSync(path.join(todosDir, files[0]?.name), 'utf8'));
+            const todos: TodoEntry[] = JSON.parse(fs.readFileSync(path.join(todosDir, files[0].name), 'utf8'));
             const inProgress = todos.find(t => t.status === 'in_progress');
             if (inProgress) task = inProgress.activeForm || '';
           } catch {
