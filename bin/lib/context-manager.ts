@@ -10,7 +10,7 @@ import * as fs from 'fs';
 import * as path from 'path';
 import { FileAccessService } from './file-access.js';
 import { URLFetchService } from './url-fetch.js';
-import { ContentSecurityScanner, type SecurityFinding } from './content-scanner.js';
+import ContentSecurityScanner, { type SecurityFinding } from './content-scanner.js';
 import { ContextCache, type CacheEntry } from './context-cache.js';
 import { SecurityScanError } from './context-errors.js';
 import { ContextRelevanceScorer, type ScoredFile } from './context-relevance-scorer.js';

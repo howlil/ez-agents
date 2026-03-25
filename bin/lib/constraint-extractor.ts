@@ -284,7 +284,7 @@ export class ConstraintExtractor {
     };
 
     // Check for startup hosting
-    for (const file of hostingPatterns.startup) {
+    for (const file of hostingPatterns.startup ?? []) {
       const filePath = path.join(rootPath, file);
       if (fs.existsSync(filePath)) {
         result.tier = 'startup';
@@ -295,7 +295,7 @@ export class ConstraintExtractor {
     }
 
     // Check for enterprise hosting (overrides startup)
-    for (const file of hostingPatterns.enterprise) {
+    for (const file of hostingPatterns.enterprise ?? []) {
       const filePath = path.join(rootPath, file);
       if (fs.existsSync(filePath)) {
         result.tier = 'enterprise';
@@ -332,7 +332,7 @@ export class ConstraintExtractor {
       enterprise: ['.circleci/', 'bitbucket-pipelines.yml', 'azure-pipelines.yml']
     };
 
-    for (const file of ciPatterns.enterprise) {
+    for (const file of ciPatterns.enterprise ?? []) {
       const filePath = path.join(rootPath, file);
       if (fs.existsSync(filePath)) {
         result.confidence = 'Medium';
