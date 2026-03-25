@@ -126,7 +126,7 @@ None
 | 260325-lc9 | Refactor remaining JS scripts to TypeScript | 2026-03-25 | 3773381 | [260325-lc9-refactor-remaining-js-scripts-and-test-f](./quick/260325-lc9-refactor-remaining-js-scripts-and-test-f/) |
 | 260325-ljb | Fix TypeScript errors in source files (Phase 1) | 2026-03-25 | b5ce244 | [260325-ljb-fix-typescript-errors-in-source-files-bi](./quick/260325-ljb-fix-typescript-errors-in-source-files-bi/) |
 | 260325-nst | Refactor JS yang masih tersisa | 2026-03-25 | a80f5d3 | [260325-nst-refactor-js-yang-masih-tersisa](./quick/260325-nst-refactor-js-yang-masih-tersisa/) |
-| 260325-ohh | Fix TypeScript errors (850 → 200) | 2026-03-25 | Pending | [260325-ohh-fix-ts](./quick/260325-ohh-fix-ts/) |
+| 260325-ohh | Fix TypeScript errors (850 → 200) | 2026-03-25 | 4771874 | [260325-ohh-fix-ts](./quick/260325-ohh-fix-ts/) |
 
 ---
 
