@@ -11,31 +11,115 @@
  * - Lazy loading with cache (LazySkillRegistry subclass)
  *
  * Usage:
- *   const { SkillRegistry, LazySkillRegistry } = require('./skill-registry.cjs');
+ *   import { SkillRegistry, LazySkillRegistry } from './skill-registry.js';
  *   const registry = new SkillRegistry();
  *   await registry.load();
  *   const skill = registry.get('laravel_11_structure_skill_v2');
  */
 
-const fs = require('fs');
-const path = require('path');
-const { parseFrontmatter } = require('./frontmatter.cjs');
-const { safeReadFile } = require('./safe-path.cjs');
-const Logger = require('./logger.cjs');
-const logger = new Logger();
+import * as fs from 'fs';
+import * as path from 'path';
+import { extractFrontmatter } from './frontmatter.js';
+import { defaultLogger as logger } from './logger.js';
+
+/**
+ * Skill interface defining the structure of a skill
+ */
+export interface Skill {
+  name: string;
+  description: string;
+  version: string;
+  tags: string[];
+  stack?: string;
+  category?: string;
+  triggers?: SkillTriggers;
+  prerequisites: string[];
+  recommended_structure?: SkillStructure;
+  workflow?: Record<string, string[]>;
+  best_practices: string[];
+  anti_patterns: string[];
+  scaling_notes?: string;
+  when_not_to_use?: string;
+  output_template?: string;
+  dependencies?: string[];
+  scope: 'global' | 'local';
+  path: string;
+  body: string;
+  execute?: (context: SkillContext) => Promise<SkillResult>;
+  parameters?: SkillParameter[];
+}
+
+/**
+ * Skill triggers configuration
+ */
+export interface SkillTriggers {
+  keywords?: string[];
+  filePatterns?: string[];
+  commands?: string[];
+  stack?: string;
+  projectArchetypes?: string[];
+  modes?: string[];
+}
+
+/**
+ * Skill structure configuration
+ */
+export interface SkillStructure {
+  directories?: string[];
+  files?: string[];
+}
+
+/**
+ * Skill parameter definition
+ */
+export interface SkillParameter {
+  name: string;
+  type: string;
+  required: boolean;
+  description: string;
+}
+
+/**
+ * Skill context for execution
+ */
+export interface SkillContext {
+  taskDescription?: string;
+  codebaseFiles?: string[];
+  executedCommands?: string[];
+  stack?: string | { language: string; framework: string; version?: string };
+  projectType?: string;
+  mode?: string;
+  [key: string]: unknown;
+}
+
+/**
+ * Skill execution result
+ */
+export interface SkillResult {
+  success: boolean;
+  output?: string;
+  error?: string;
+}
 
 /**
  * Skill Registry class for managing skills
  */
-class SkillRegistry {
+export class SkillRegistry {
+  protected globalSkillsPath: string;
+  protected localSkillsPath: string;
+  protected skills: Map<string, Skill>;
+  protected loaded: boolean;
+  protected logger: typeof logger;
+
   /**
    * Create a SkillRegistry instance
-   * @param {Object} options - Registry options
-   * @param {string} options.globalPath - Global skills directory (default: skills/)
-   * @param {string} options.localPath - Local project skills directory (default: .planning/skills)
+   * @param options - Registry options
+   * @param options.globalPath - Global skills directory (default: skills/)
+   * @param options.localPath - Local project skills directory (default: .planning/skills)
    */
-  constructor(options = {}) {
-    this.globalSkillsPath = options.globalPath || path.join(__dirname, '../../skills');
+  constructor(options: { globalPath?: string; localPath?: string } = {}) {
+    this.globalSkillsPath =
+      options.globalPath || path.join(__dirname, '../../skills');
     this.localSkillsPath = options.localPath || '.planning/skills';
     this.skills = new Map();
     this.loaded = false;
@@ -44,9 +128,9 @@ class SkillRegistry {
 
   /**
    * Load skills from global and local directories
-   * @returns {Promise<SkillRegistry>} this for chaining
+   * @returns Promise resolving to this for chaining
    */
-  async load() {
+  async load(): Promise<SkillRegistry> {
     // Load global skills
     await this._loadFromPath(this.globalSkillsPath, 'global');
 
@@ -67,18 +151,26 @@ class SkillRegistry {
 
   /**
    * Load skills from a specific path
-   * @param {string} basePath - Base directory to scan
-   * @param {string} scope - Scope identifier ('global' or 'local')
+   * @param basePath - Base directory to scan
+   * @param scope - Scope identifier ('global' or 'local')
    * @private
    */
-  _loadFromPath(basePath, scope) {
+  protected _loadFromPath(basePath: string, scope: 'global' | 'local'): void {
     if (!fs.existsSync(basePath)) {
       this.logger.debug('Skills path does not exist', { basePath });
       return;
     }
 
     // Read category directories (including new categories: testing, observability)
-    const categories = ['stack', 'architecture', 'domain', 'operational', 'governance', 'testing', 'observability'];
+    const categories = [
+      'stack',
+      'architecture',
+      'domain',
+      'operational',
+      'governance',
+      'testing',
+      'observability'
+    ];
 
     for (const category of categories) {
       const categoryPath = path.join(basePath, category);
@@ -93,9 +185,10 @@ class SkillRegistry {
           const skill = this._parseSkill(skillFile, content, scope);
           this.skills.set(skill.name, skill);
         } catch (err) {
+          const errorMessage = err instanceof Error ? err.message : 'Unknown error';
           this.logger.error('Failed to load skill', {
             skillFile,
-            error: err.message
+            error: errorMessage
           });
         }
       }
@@ -104,22 +197,30 @@ class SkillRegistry {
 
   /**
    * Recursively find all SKILL.md files in a directory
-   * @param {string} dirPath - Directory to search
-   * @param {number} depth - Current recursion depth
-   * @param {number} maxDepth - Maximum recursion depth
-   * @returns {string[]} Array of SKILL.md file paths
+   * @param dirPath - Directory to search
+   * @param depth - Current recursion depth
+   * @param maxDepth - Maximum recursion depth
+   * @returns Array of SKILL.md file paths
    * @private
    */
-  _findSkillFiles(dirPath, depth = 0, maxDepth = 5) {
-    const results = [];
+  protected _findSkillFiles(
+    dirPath: string,
+    depth: number = 0,
+    maxDepth: number = 5
+  ): string[] {
+    const results: string[] = [];
 
     if (depth > maxDepth) return results;
 
-    let items;
+    let items: fs.Dirent[];
     try {
       items = fs.readdirSync(dirPath, { withFileTypes: true });
     } catch (err) {
-      this.logger.debug('Cannot read directory', { dirPath, error: err.message });
+      const errorMessage = err instanceof Error ? err.message : 'Unknown error';
+      this.logger.debug('Cannot read directory', {
+        dirPath,
+        error: errorMessage
+      });
       return results;
     }
 
@@ -139,14 +240,19 @@ class SkillRegistry {
 
   /**
    * Parse skill metadata from SKILL.md content
-   * @param {string} filePath - Path to SKILL.md file
-   * @param {string} content - File content
-   * @param {string} scope - Scope identifier
-   * @returns {Object} Parsed skill object
+   * @param filePath - Path to SKILL.md file
+   * @param content - File content
+   * @param scope - Scope identifier
+   * @returns Parsed skill object
    * @private
    */
-  _parseSkill(filePath, content, scope) {
-    const { frontmatter, body } = parseFrontmatter(content);
+  protected _parseSkill(
+    filePath: string,
+    content: string,
+    scope: 'global' | 'local'
+  ): Skill {
+    const frontmatter = extractFrontmatter(content);
+    const body = content.replace(/^---\n[\s\S]+?\n---\n?/, '');
 
     return {
       name: frontmatter.name,
@@ -173,45 +279,47 @@ class SkillRegistry {
 
   /**
    * Get a skill by name
-   * @param {string} name - Skill name
-   * @returns {Object|undefined} Skill object or undefined
+   * @param name - Skill name
+   * @returns Skill object or undefined
    */
-  get(name) {
+  get(name: string): Skill | undefined {
     return this.skills.get(name);
   }
 
   /**
    * Get all skills
-   * @returns {Object[]} Array of all skill objects
+   * @returns Array of all skill objects
    */
-  getAll() {
+  getAll(): Skill[] {
     return Array.from(this.skills.values());
   }
 
   /**
    * Find skills by tag
-   * @param {string} tag - Tag to filter by
-   * @returns {Object[]} Array of matching skills
+   * @param tag - Tag to filter by
+   * @returns Array of matching skills
    */
-  findByTag(tag) {
+  findByTag(tag: string): Skill[] {
     return this.getAll().filter(s => s.tags?.includes(tag));
   }
 
   /**
    * Find skills by category
-   * @param {string} category - Category to filter by
-   * @returns {Object[]} Array of matching skills
+   * @param category - Category to filter by
+   * @returns Array of matching skills
    */
-  findByCategory(category) {
+  findByCategory(category: string): Skill[] {
     return this.getAll().filter(s => s.category === category);
   }
 
   /**
    * Find skills by stack identifier
-   * @param {string|Object} stack - Stack identifier (string or object with language/framework)
-   * @returns {Object[]} Array of matching skills
+   * @param stack - Stack identifier (string or object with language/framework)
+   * @returns Array of matching skills
    */
-  findByStack(stack) {
+  findByStack(
+    stack: string | { language: string; framework: string }
+  ): Skill[] {
     return this.getAll().filter(s => {
       if (!s.stack) return false;
 
@@ -231,22 +339,23 @@ class SkillRegistry {
 
   /**
    * Search skills by keyword
-   * @param {string} query - Search query
-   * @returns {Object[]} Array of matching skills
+   * @param query - Search query
+   * @returns Array of matching skills
    */
-  search(query) {
+  search(query: string): Skill[] {
     const q = query.toLowerCase();
-    return this.getAll().filter(s =>
-      s.name.toLowerCase().includes(q) ||
-      s.description.toLowerCase().includes(q) ||
-      s.tags?.some(t => t.toLowerCase().includes(q))
+    return this.getAll().filter(
+      s =>
+        s.name.toLowerCase().includes(q) ||
+        s.description.toLowerCase().includes(q) ||
+        s.tags?.some(t => t.toLowerCase().includes(q))
     );
   }
 
   /**
    * Clear all loaded skills
    */
-  clear() {
+  clear(): void {
     this.skills.clear();
     this.loaded = false;
   }
@@ -256,13 +365,17 @@ class SkillRegistry {
  * Lazy Skill Registry with caching
  * Extends SkillRegistry with TTL-based caching for better performance
  */
-class LazySkillRegistry extends SkillRegistry {
+export class LazySkillRegistry extends SkillRegistry {
+  private cache: Map<string, unknown>;
+  private cacheTTL: number;
+  private cacheTimestamps: Map<string, number>;
+
   /**
    * Create a LazySkillRegistry instance
-   * @param {Object} options - Registry options
-   * @param {number} options.cacheTTL - Cache TTL in milliseconds (default: 5 minutes)
+   * @param options - Registry options
+   * @param options.cacheTTL - Cache TTL in milliseconds (default: 5 minutes)
    */
-  constructor(options = {}) {
+  constructor(options: { globalPath?: string; localPath?: string; cacheTTL?: number } = {}) {
     super(options);
     this.cache = new Map();
     this.cacheTTL = options.cacheTTL || 5 * 60 * 1000; // 5 minutes
@@ -271,12 +384,12 @@ class LazySkillRegistry extends SkillRegistry {
 
   /**
    * Get a skill by name with caching
-   * @param {string} name - Skill name
-   * @returns {Object|undefined} Skill object or undefined
+   * @param name - Skill name
+   * @returns Skill object or undefined
    */
-  get(name) {
+  override get(name: string): Skill | undefined {
     // Check cache first
-    const cached = this._getFromCache(name);
+    const cached = this._getFromCache<Skill>(name);
     if (cached) {
       return cached;
     }
@@ -292,10 +405,10 @@ class LazySkillRegistry extends SkillRegistry {
 
   /**
    * Get all skills with caching
-   * @returns {Object[]} Array of all skill objects
+   * @returns Array of all skill objects
    */
-  getAll() {
-    const cached = this._getFromCache('__all__');
+  override getAll(): Skill[] {
+    const cached = this._getFromCache<Skill[]>('__all__');
     if (cached) {
       return cached;
     }
@@ -307,11 +420,11 @@ class LazySkillRegistry extends SkillRegistry {
 
   /**
    * Get item from cache with TTL check
-   * @param {string} key - Cache key
-   * @returns {any|null} Cached value or null if expired/missing
+   * @param key - Cache key
+   * @returns Cached value or null if expired/missing
    * @private
    */
-  _getFromCache(key) {
+  private _getFromCache<T>(key: string): T | null {
     const timestamp = this.cacheTimestamps.get(key);
     if (!timestamp) return null;
 
@@ -323,16 +436,16 @@ class LazySkillRegistry extends SkillRegistry {
       return null;
     }
 
-    return this.cache.get(key);
+    return this.cache.get(key) as T;
   }
 
   /**
    * Set item in cache with timestamp
-   * @param {string} key - Cache key
-   * @param {any} value - Value to cache
+   * @param key - Cache key
+   * @param value - Value to cache
    * @private
    */
-  _setInCache(key, value) {
+  private _setInCache(key: string, value: unknown): void {
     this.cache.set(key, value);
     this.cacheTimestamps.set(key, Date.now());
   }
@@ -340,7 +453,7 @@ class LazySkillRegistry extends SkillRegistry {
   /**
    * Clear cache
    */
-  clearCache() {
+  clearCache(): void {
     this.cache.clear();
     this.cacheTimestamps.clear();
   }
@@ -348,13 +461,8 @@ class LazySkillRegistry extends SkillRegistry {
   /**
    * Clear all skills and cache
    */
-  clear() {
+  override clear(): void {
     super.clear();
     this.clearCache();
   }
 }
-
-module.exports = {
-  SkillRegistry,
-  LazySkillRegistry
-};

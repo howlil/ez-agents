@@ -14,17 +14,69 @@
  * - executedCommands: array of strings (for command matching)
  *
  * Usage:
- *   const { validateContext, CONTEXT_SCHEMA } = require('./skill-context.cjs');
+ *   import { validateContext, CONTEXT_SCHEMA } from './skill-context.js';
  *   const { valid, errors, normalizedContext } = validateContext(context);
  */
 
-const Logger = require('./logger.cjs');
-const logger = new Logger();
+import { defaultLogger as logger } from './logger.js';
+
+/**
+ * Valid scope values
+ */
+export type ScopeValue = 'new-feature' | 'bugfix' | 'refactor' | 'migration' | 'maintenance';
+
+/**
+ * Valid mode values
+ */
+export type ModeValue = 'greenfield' | 'existing' | 'rapid-mvp' | 'scale-up' | 'maintenance';
+
+/**
+ * Stack configuration
+ */
+export interface StackConfig {
+  language?: string;
+  framework?: string;
+  version?: string;
+}
+
+/**
+ * Constraints configuration
+ */
+export interface ConstraintsConfig {
+  deadline?: string;
+  teamSize?: number;
+  compliance?: string[];
+  legacySystems?: string[];
+}
+
+/**
+ * Context schema structure
+ */
+export interface ContextSchema {
+  stack?: StackConfig;
+  scope?: ScopeValue;
+  projectType?: string;
+  mode?: ModeValue;
+  constraints?: ConstraintsConfig;
+  taskDescription?: string;
+  codebaseFiles?: string[];
+  executedCommands?: string[];
+  [key: string]: unknown;
+}
+
+/**
+ * Validation result structure
+ */
+export interface ContextValidationResult {
+  valid: boolean;
+  errors: string[];
+  normalizedContext: ContextSchema | null;
+}
 
 /**
  * Context schema definition
  */
-const CONTEXT_SCHEMA = {
+export const CONTEXT_SCHEMA = {
   stack: {
     type: 'object',
     optional: true,
@@ -36,7 +88,7 @@ const CONTEXT_SCHEMA = {
   },
   scope: {
     type: 'enum',
-    values: ['new-feature', 'bugfix', 'refactor', 'migration', 'maintenance'],
+    values: ['new-feature', 'bugfix', 'refactor', 'migration', 'maintenance'] as ScopeValue[],
     optional: true
   },
   projectType: {
@@ -45,17 +97,17 @@ const CONTEXT_SCHEMA = {
   },
   mode: {
     type: 'enum',
-    values: ['greenfield', 'existing', 'rapid-mvp', 'scale-up', 'maintenance'],
+    values: ['greenfield', 'existing', 'rapid-mvp', 'scale-up', 'maintenance'] as ModeValue[],
     optional: true,
-    normalize: (value) => {
-      const mappings = {
-        'mvp': 'rapid-mvp',
+    normalize: (value: string): ModeValue => {
+      const mappings: Record<string, ModeValue> = {
+        mvp: 'rapid-mvp',
         'green-field': 'greenfield',
-        'brownfield': 'existing',
-        'scale': 'scale-up',
-        'maint': 'maintenance'
+        brownfield: 'existing',
+        scale: 'scale-up',
+        maint: 'maintenance'
       };
-      return mappings[value] || value;
+      return (mappings[value] as ModeValue | undefined) || (value as ModeValue);
     }
   },
   constraints: {
@@ -71,16 +123,16 @@ const CONTEXT_SCHEMA = {
   taskDescription: { type: 'string', optional: true },
   codebaseFiles: { type: 'array', optional: true },
   executedCommands: { type: 'array', optional: true }
-};
+} as const;
 
 /**
  * Validate and normalize context object
- * @param {Object} context - Context object to validate
- * @returns {Object} Validation result: { valid, errors, normalizedContext }
+ * @param context - Context object to validate
+ * @returns Validation result: { valid, errors, normalizedContext }
  */
-function validateContext(context) {
-  const errors = [];
-  const normalized = { ...context };
+export function validateContext(context: ContextSchema): ContextValidationResult {
+  const errors: string[] = [];
+  const normalized: ContextSchema = { ...context };
 
   if (!context || typeof context !== 'object') {
     return {
@@ -98,7 +150,9 @@ function validateContext(context) {
       if (normalizedMode && modeSchema.values.includes(normalizedMode)) {
         normalized.mode = normalizedMode;
       } else {
-        errors.push(`Invalid mode: ${context.mode}. Valid: ${modeSchema.values.join(', ')}`);
+        errors.push(
+          `Invalid mode: ${context.mode}. Valid: ${modeSchema.values.join(', ')}`
+        );
       }
     }
   }
@@ -107,7 +161,9 @@ function validateContext(context) {
   if (context.scope) {
     const scopeSchema = CONTEXT_SCHEMA.scope;
     if (!scopeSchema.values.includes(context.scope)) {
-      errors.push(`Invalid scope: ${context.scope}. Valid: ${scopeSchema.values.join(', ')}`);
+      errors.push(
+        `Invalid scope: ${context.scope}. Valid: ${scopeSchema.values.join(', ')}`
+      );
     }
   }
 
@@ -120,10 +176,16 @@ function validateContext(context) {
 
   // Validate constraints structure
   if (context.constraints) {
-    if (context.constraints.teamSize && typeof context.constraints.teamSize !== 'number') {
+    if (
+      context.constraints.teamSize &&
+      typeof context.constraints.teamSize !== 'number'
+    ) {
       errors.push('teamSize must be a number');
     }
-    if (context.constraints.compliance && !Array.isArray(context.constraints.compliance)) {
+    if (
+      context.constraints.compliance &&
+      !Array.isArray(context.constraints.compliance)
+    ) {
       errors.push('compliance must be an array');
     }
   }
@@ -141,8 +203,3 @@ function validateContext(context) {
     normalizedContext: errors.length === 0 ? normalized : null
   };
 }
-
-module.exports = {
-  validateContext,
-  CONTEXT_SCHEMA
-};

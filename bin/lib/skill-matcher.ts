@@ -13,46 +13,93 @@
  * Enforces 3-7 skill limit per task (EDGE-05 compliance)
  *
  * Usage:
- *   const { SkillMatcher, SKILL_LIMITS } = require('./skill-matcher.cjs');
+ *   import { SkillMatcher, SKILL_LIMITS } from './skill-matcher.js';
  *   const matcher = new SkillMatcher(registry);
  *   const result = matcher.match(context);
  */
 
-const Logger = require('./logger.cjs');
-const logger = new Logger();
+import { defaultLogger as logger } from './logger.js';
+import type { SkillRegistry, Skill } from './skill-registry.js';
 
 /**
  * Skill activation limits (EDGE-05 compliance)
  */
-const SKILL_LIMITS = {
+export const SKILL_LIMITS = {
   MIN_ACTIVE: 3,
   MAX_ACTIVE: 7,
-  CRITICAL_TASK_MAX: 5,  // For security-sensitive tasks
-  MVP_MODE_MAX: 4,       // Rapid MVP mode reduces complexity
-};
+  CRITICAL_TASK_MAX: 5, // For security-sensitive tasks
+  MVP_MODE_MAX: 4 // Rapid MVP mode reduces complexity
+} as const;
+
+/**
+ * Match result structure
+ */
+export interface MatchResult {
+  activatedSkills: Skill[];
+  rationale: string;
+  conflicts: string[];
+  metadata: {
+    totalCandidates: number;
+    rulesApplied: string[];
+    limitEnforced: boolean;
+  };
+}
+
+/**
+ * Candidate skill with priority
+ */
+interface SkillCandidate {
+  skill: Skill;
+  priority: number;
+  rule: string;
+}
+
+/**
+ * Matching context
+ */
+export interface MatchContext {
+  stack?: { language?: string; framework?: string; version?: string };
+  projectType?: string;
+  mode?: string;
+  constraints?: {
+    deadline?: string;
+    teamSize?: number;
+    compliance?: string[];
+    legacySystems?: string[];
+  };
+  taskDescription?: string;
+  codebaseFiles?: string[];
+  executedCommands?: string[];
+  [key: string]: unknown;
+}
 
 /**
  * Skill Matcher class for matching context to skills
  */
-class SkillMatcher {
+export class SkillMatcher {
+  private registry: SkillRegistry;
+  private logger: typeof logger;
+
   /**
    * Create a SkillMatcher instance
-   * @param {Object} registry - SkillRegistry instance
-   * @param {Object} options - Matcher options
+   * @param registry - SkillRegistry instance
+   * @param options - Matcher options
    */
-  constructor(registry, options = {}) {
+  constructor(
+    registry: SkillRegistry,
+    options: { logger?: typeof logger } = {}
+  ) {
     this.registry = registry;
     this.logger = options.logger || logger;
-    this.rules = this.loadMatchingRules();
   }
 
   /**
    * Match context to skills
-   * @param {Object} context - Matching context
-   * @returns {Object} Match result: { activatedSkills, rationale, conflicts, metadata }
+   * @param context - Matching context
+   * @returns Match result: { activatedSkills, rationale, conflicts, metadata }
    */
-  match(context) {
-    const candidates = [];
+  match(context: MatchContext): MatchResult {
+    const candidates: SkillCandidate[] = [];
 
     // Rule 1: Stack skills (mandatory)
     if (context.stack?.framework || context.stack?.language) {
@@ -101,7 +148,7 @@ class SkillMatcher {
       conflicts: [], // Reserved for Phase 36 SKILL-07
       metadata: {
         totalCandidates: candidates.length,
-        rulesApplied: [...new Set(candidates.map(c => c.rule))],
+        rulesApplied: Array.from(new Set(candidates.map(c => c.rule))),
         limitEnforced: candidates.length > limited.length
       }
     };
@@ -109,15 +156,19 @@ class SkillMatcher {
 
   /**
    * Enforce skill activation limits
-   * @param {Object[]} candidates - Sorted candidate skills
-   * @param {Object} context - Matching context
-   * @returns {Object[]} Limited candidate array
+   * @param candidates - Sorted candidate skills
+   * @param context - Matching context
+   * @returns Limited candidate array
    * @private
    */
-  enforceSkillLimits(candidates, context) {
-    const maxSkills = context.mode === 'rapid-mvp'
-      ? SKILL_LIMITS.MVP_MODE_MAX
-      : SKILL_LIMITS.MAX_ACTIVE;
+  private enforceSkillLimits(
+    candidates: SkillCandidate[],
+    context: MatchContext
+  ): SkillCandidate[] {
+    const maxSkills =
+      context.mode === 'rapid-mvp'
+        ? SKILL_LIMITS.MVP_MODE_MAX
+        : SKILL_LIMITS.MAX_ACTIVE;
 
     if (candidates.length > maxSkills) {
       this.logger.warn('Skill limit exceeded', {
@@ -133,68 +184,82 @@ class SkillMatcher {
 
   /**
    * Generate rationale for skill activation
-   * @param {Object[]} skills - Activated skills
-   * @param {Object} context - Matching context
-   * @returns {string} Rationale string
+   * @param skills - Activated skills
+   * @param context - Matching context
+   * @returns Rationale string
    * @private
    */
-  generateRationale(skills, context) {
-    const categories = {};
+  private generateRationale(skills: Skill[], context: MatchContext): string {
+    const categories: Record<string, string[]> = {};
     skills.forEach(skill => {
       const cat = skill.category || 'other';
       if (!categories[cat]) categories[cat] = [];
-      categories[cat].push(skill.name);
+      categories[cat]?.push(skill.name);
     });
 
-    const parts = [];
-    if (categories.stack) parts.push(`stack: ${categories.stack.join(', ')}`);
-    if (categories.domain) parts.push(`domain: ${categories.domain.join(', ')}`);
+    const parts: string[] = [];
+    if (categories.stack)
+      parts.push(`stack: ${categories.stack.join(', ')}`);
+    if (categories.domain)
+      parts.push(`domain: ${categories.domain.join(', ')}`);
     if (categories.mode) parts.push(`mode: ${categories.mode.join(', ')}`);
-    if (categories.constraint) parts.push(`constraint: ${categories.constraint.join(', ')}`);
-    if (categories.universal) parts.push(`universal: ${categories.universal.join(', ')}`);
+    if (categories.constraint)
+      parts.push(`constraint: ${categories.constraint.join(', ')}`);
+    if (categories.universal)
+      parts.push(`universal: ${categories.universal.join(', ')}`);
 
     return `Activated ${skills.length} skills based on ${context.mode || 'default'} mode: ${parts.join('; ')}`;
   }
 
   /**
    * Find skills by stack
-   * @param {Object|string} stack - Stack identifier
-   * @returns {Object[]} Matching skills
+   * @param stack - Stack identifier
+   * @returns Matching skills
    */
-  findByStack(stack) {
-    return this.registry.findByStack(stack);
+  findByStack(stack: { language?: string; framework?: string } | string): Skill[] {
+    return this.registry.findByStack(stack as { language: string; framework: string } | string);
   }
 
   /**
    * Find skills by domain/project type
-   * @param {string} projectType - Project type
-   * @returns {Object[]} Matching skills
+   * @param projectType - Project type
+   * @returns Matching skills
    */
-  findByDomain(projectType) {
+  findByDomain(projectType: string): Skill[] {
     return this.registry.findByTag(projectType);
   }
 
   /**
    * Find skills by mode
-   * @param {string} mode - Mode identifier
-   * @returns {Object[]} Matching skills
+   * @param mode - Mode identifier
+   * @returns Matching skills
    */
-  findByMode(mode) {
+  findByMode(mode: string): Skill[] {
     return this.registry.findByTag(mode);
   }
 
   /**
    * Find skills by constraints
-   * @param {Object} constraints - Constraint object
-   * @returns {Object[]} Matching skills
+   * @param constraints - Constraint object
+   * @returns Matching skills
    * @private
    */
-  findByConstraints(constraints) {
-    const skills = [];
+  private findByConstraints(
+    constraints?: {
+      deadline?: string;
+      teamSize?: number;
+      compliance?: string[];
+      legacySystems?: string[];
+    }
+  ): Skill[] {
+    const skills: Skill[] = [];
     if (!constraints) return skills;
 
     // Deadline-based skills
-    if (constraints.deadline === '2-weeks' || constraints.deadline === '1-week') {
+    if (
+      constraints.deadline === '2-weeks' ||
+      constraints.deadline === '1-week'
+    ) {
       const rapid = this.registry.get('rapid_delivery_skill_v1');
       if (rapid) skills.push(rapid);
     }
@@ -213,24 +278,4 @@ class SkillMatcher {
 
     return skills;
   }
-
-  /**
-   * Load matching rules configuration
-   * @returns {Object} Rules configuration
-   * @private
-   */
-  loadMatchingRules() {
-    return {
-      stack: { priority: 100, required: true },
-      domain: { priority: 90, required: false },
-      mode: { priority: 85, required: false },
-      constraint: { priority: 80, required: false },
-      universal: { priority: 50, required: true }
-    };
-  }
 }
-
-module.exports = {
-  SkillMatcher,
-  SKILL_LIMITS
-};

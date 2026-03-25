@@ -11,19 +11,84 @@
  * - Decision audit trail
  *
  * Usage:
- *   const { SkillResolver, PRIORITY_RULES } = require('./skill-resolver');
+ *   import { SkillResolver, PRIORITY_RULES } from './skill-resolver.js';
  *   const resolver = new SkillResolver({ context: { project_phase: 'MVP' } });
  *   const result = resolver.resolve(skills, context);
  */
 
-const Logger = require('./logger.cjs');
-const logger = new Logger();
+import { defaultLogger as logger } from './logger.js';
+import type { Skill } from './skill-registry.js';
+
+/**
+ * Priority rule definition
+ */
+interface PriorityRule {
+  higher: string;
+  lower: string;
+  priority: number;
+  rationale: string;
+  example: string;
+  absolute: boolean;
+  context?: string[];
+}
+
+/**
+ * Recommendation structure
+ */
+interface Recommendation {
+  skillName: string;
+  aspect: string;
+  value: string;
+  tags: string[];
+}
+
+/**
+ * Conflict structure
+ */
+interface Conflict {
+  aspect: string;
+  type: string;
+  recommendations: Recommendation[];
+  skills: string[];
+}
+
+/**
+ * Resolution result
+ */
+interface Resolution {
+  winner: Recommendation;
+  rationale: string;
+  example?: string;
+  rule: string | null;
+  escalated: boolean;
+}
+
+/**
+ * Decision log entry
+ */
+interface DecisionLogEntry {
+  conflict?: Conflict;
+  resolution?: Resolution;
+  context: Record<string, unknown>;
+  timestamp: string;
+}
+
+/**
+ * Resolve result structure
+ */
+export interface ResolveResult {
+  decision: Array<{ aspect: string; decision: Recommendation; rejected: Recommendation[] }> | Recommendation[];
+  rationale: string;
+  tradeoffs: Array<{ aspect: string; chosen: string; rejected: string[]; rationale: string }>;
+  escalated: boolean;
+  conflicts: Conflict[];
+}
 
 /**
  * Priority rules for conflict resolution
  * Higher priority value wins in conflicts
  */
-const PRIORITY_RULES = {
+export const PRIORITY_RULES: Record<string, PriorityRule> = {
   'security > speed': {
     higher: 'security',
     lower: 'speed',
@@ -90,12 +155,12 @@ const PRIORITY_RULES = {
     example: 'Add denormalization for faster page loads',
     absolute: false
   }
-};
+} as const;
 
 /**
  * Conflict types recognized by the resolver
  */
-const CONFLICT_TYPES = [
+export const CONFLICT_TYPES = [
   'Security vs Speed',
   'Security vs Convenience',
   'Maintainability vs Delivery',
@@ -106,19 +171,32 @@ const CONFLICT_TYPES = [
   'Feature Completeness vs Deadline',
   'User Experience vs Technical Purity',
   'Unknown'
-];
+] as const;
+
+/**
+ * Conflict type union
+ */
+export type ConflictType = (typeof CONFLICT_TYPES)[number];
 
 /**
  * Skill Resolver class for conflict resolution
  */
-class SkillResolver {
+export class SkillResolver {
+  private priorityRules: Record<string, PriorityRule>;
+  private context: Record<string, unknown>;
+  private logger: typeof logger;
+  private decisionLog: DecisionLogEntry[];
+
   /**
    * Create a SkillResolver instance
-   * @param {Object} options - Resolver options
-   * @param {Object} options.priorityRules - Override default priority rules
-   * @param {Object} options.context - Project context for resolution
+   * @param options - Resolver options
+   * @param options.priorityRules - Override default priority rules
+   * @param options.context - Project context for resolution
    */
-  constructor(options = {}) {
+  constructor(options: {
+    priorityRules?: Record<string, PriorityRule>;
+    context?: Record<string, unknown>;
+  } = {}) {
     this.priorityRules = { ...PRIORITY_RULES, ...options.priorityRules };
     this.context = options.context || {};
     this.logger = logger;
@@ -127,25 +205,25 @@ class SkillResolver {
 
   /**
    * Detect conflicts between skill recommendations
-   * @param {Array} skills - Array of activated skills
-   * @returns {Object} { hasConflict, conflicts: [] }
+   * @param skills - Array of activated skills
+   * @returns { hasConflict, conflicts }
    */
-  detectConflict(skills) {
-    const conflicts = [];
+  detectConflict(skills: Skill[]): { hasConflict: boolean; conflicts: Conflict[] } {
+    const conflicts: Conflict[] = [];
     const recommendations = this._collectRecommendations(skills);
 
     // Check for conflicting recommendations on same aspect
-    const aspectMap = new Map();
+    const aspectMap = new Map<string, Recommendation[]>();
     for (const rec of recommendations) {
       const aspect = rec.aspect;
       if (!aspectMap.has(aspect)) {
         aspectMap.set(aspect, []);
       }
-      aspectMap.get(aspect).push(rec);
+      aspectMap.get(aspect)!.push(rec);
     }
 
     // Find aspects with conflicting recommendations
-    for (const [aspect, recs] of aspectMap) {
+    for (const [aspect, recs] of Array.from(aspectMap)) {
       if (recs.length > 1) {
         const values = new Set(recs.map(r => r.value));
         if (values.size > 1) {
@@ -153,7 +231,7 @@ class SkillResolver {
             aspect,
             type: this._inferConflictType(recs),
             recommendations: recs,
-            skills: [...new Set(recs.map(r => r.skillName))]
+            skills: Array.from(new Set(recs.map(r => r.skillName)))
           });
         }
       }
@@ -167,10 +245,10 @@ class SkillResolver {
 
   /**
    * Classify a conflict into a known type
-   * @param {Object} conflict - Conflict object
-   * @returns {string} Conflict type
+   * @param conflict - Conflict object
+   * @returns Conflict type
    */
-  classifyConflict(conflict) {
+  classifyConflict(conflict: Conflict): ConflictType {
     const { type, recommendations } = conflict;
 
     // Check recommendation tags for conflict indicators
@@ -201,21 +279,21 @@ class SkillResolver {
       return 'User Experience vs Technical Purity';
     }
 
-    return type || 'Unknown';
+    return (type || 'Unknown') as ConflictType;
   }
 
   /**
    * Apply priority rules to resolve a conflict
-   * @param {Object} conflict - Classified conflict
-   * @param {Object} context - Project context
-   * @returns {Object} Resolution with winner and rationale
+   * @param conflict - Classified conflict
+   * @param context - Project context
+   * @returns Resolution with winner and rationale
    */
-  applyPriorityRules(conflict, context = {}) {
+  applyPriorityRules(conflict: Conflict, context: Record<string, unknown> = {}): Resolution {
     const classification = this.classifyConflict(conflict);
     const ctx = { ...this.context, ...context };
 
     // Find applicable priority rule
-    let applicableRule = null;
+    let applicableRule: (PriorityRule & { key: string }) | null = null;
     for (const [ruleKey, rule] of Object.entries(this.priorityRules)) {
       if (this._ruleMatchesConflict(ruleKey, classification, ctx)) {
         applicableRule = { key: ruleKey, ...rule };
@@ -225,8 +303,12 @@ class SkillResolver {
 
     if (!applicableRule) {
       // No applicable rule - return first recommendation as default
+      const firstRec = conflict.recommendations[0];
+      if (!firstRec) {
+        throw new Error('Conflict has no recommendations');
+      }
       return {
-        winner: conflict.recommendations[0],
+        winner: firstRec,
         rationale: 'No applicable priority rule - using default recommendation',
         rule: null,
         escalated: true
@@ -251,11 +333,11 @@ class SkillResolver {
 
   /**
    * Resolve conflicts between skills
-   * @param {Array} skills - Array of activated skills
-   * @param {Object} context - Project context
-   * @returns {Object} { decision, rationale, tradeoffs, escalated }
+   * @param skills - Array of activated skills
+   * @param context - Project context
+   * @returns { decision, rationale, tradeoffs, escalated }
    */
-  resolve(skills, context = {}) {
+  resolve(skills: Skill[], context: Record<string, unknown> = {}): ResolveResult {
     const ctx = { ...this.context, ...context };
     const conflictResult = this.detectConflict(skills);
 
@@ -270,8 +352,8 @@ class SkillResolver {
       };
     }
 
-    const decisions = [];
-    const tradeoffs = [];
+    const decisions: Array<{ aspect: string; decision: Recommendation; rejected: Recommendation[] }> = [];
+    const tradeoffs: Array<{ aspect: string; chosen: string; rejected: string[]; rationale: string }> = [];
     let escalated = false;
 
     for (const conflict of conflictResult.conflicts) {
@@ -318,13 +400,15 @@ class SkillResolver {
 
   /**
    * Log a decision for audit trail
-   * @param {Object} decision - Decision object
+   * @param decision - Decision object
    */
-  logDecision(decision) {
+  logDecision(decision: DecisionLogEntry): void {
     this.decisionLog.push(decision);
+    const errorMessage = decision.conflict?.type || 'Unknown';
+    const resolutionRule = decision.resolution?.rule || 'Unknown';
     this.logger.info('Conflict resolution decision logged', {
-      conflictType: decision.conflict?.type,
-      resolution: decision.resolution?.rule,
+      conflictType: errorMessage,
+      resolution: resolutionRule,
       escalated: decision.resolution?.escalated,
       timestamp: decision.timestamp
     });
@@ -332,27 +416,27 @@ class SkillResolver {
 
   /**
    * Get decision log
-   * @returns {Array} Array of logged decisions
+   * @returns Array of logged decisions
    */
-  getDecisionLog() {
+  getDecisionLog(): DecisionLogEntry[] {
     return this.decisionLog;
   }
 
   /**
    * Clear decision log
    */
-  clearDecisionLog() {
+  clearDecisionLog(): void {
     this.decisionLog = [];
   }
 
   /**
    * Collect all recommendations from skills
-   * @param {Array} skills - Array of skills
-   * @returns {Array} Array of recommendations
+   * @param skills - Array of skills
+   * @returns Array of recommendations
    * @private
    */
-  _collectRecommendations(skills) {
-    const recommendations = [];
+  private _collectRecommendations(skills: Skill[]): Recommendation[] {
+    const recommendations: Recommendation[] = [];
 
     for (const skill of skills) {
       if (skill.workflow) {
@@ -387,11 +471,11 @@ class SkillResolver {
 
   /**
    * Infer conflict type from recommendations
-   * @param {Array} recs - Recommendations
-   * @returns {string} Conflict type
+   * @param recs - Recommendations
+   * @returns Conflict type
    * @private
    */
-  _inferConflictType(recs) {
+  private _inferConflictType(recs: Recommendation[]): string {
     const tags = recs.flatMap(r => r.tags || []);
 
     if (tags.includes('security')) return 'Security vs Speed';
@@ -403,47 +487,50 @@ class SkillResolver {
 
   /**
    * Check if a rule matches a conflict
-   * @param {string} ruleKey - Rule key
-   * @param {string} conflictType - Conflict type
-   * @param {Object} context - Project context
-   * @returns {boolean} True if rule applies
+   * @param ruleKey - Rule key
+   * @param conflictType - Conflict type
+   * @param context - Project context
+   * @returns True if rule applies
    * @private
    */
-  _ruleMatchesConflict(ruleKey, conflictType, context) {
+  private _ruleMatchesConflict(
+    ruleKey: string,
+    conflictType: string,
+    context: Record<string, unknown>
+  ): boolean {
     const rule = this.priorityRules[ruleKey];
     if (!rule) return false;
 
     // Check if rule has context requirements
-    if (rule.context && !rule.context.includes(context.project_phase)) {
+    if (rule.context && !rule.context.includes(context.project_phase as string)) {
       return false;
     }
 
     // Check if rule matches conflict type
-    const ruleMatches = ruleKey.toLowerCase().includes(conflictType.toLowerCase().split(' vs ')[0].toLowerCase());
+    const conflictTypeBase = conflictType.toLowerCase().split(' vs ')[0];
+    const ruleMatches = ruleKey.toLowerCase().includes(conflictTypeBase ?? '');
     return ruleMatches;
   }
 
   /**
    * Find recommendation matching priority
-   * @param {Array} recs - Recommendations
-   * @param {string} priority - Priority to match
-   * @param {Object} context - Project context
-   * @returns {Object} Matching recommendation
+   * @param recs - Recommendations
+   * @param priority - Priority to match
+   * @param context - Project context
+   * @returns Matching recommendation
    * @private
    */
-  _findRecommendationByPriority(recs, priority, context) {
+  private _findRecommendationByPriority(
+    recs: Recommendation[],
+    priority: string,
+    _context: Record<string, unknown>
+  ): Recommendation {
     for (const rec of recs) {
       if (rec.tags?.includes(priority)) {
         return rec;
       }
     }
     // Fallback to first recommendation
-    return recs[0];
+    return recs[0]!;
   }
 }
-
-module.exports = {
-  SkillResolver,
-  PRIORITY_RULES,
-  CONFLICT_TYPES
-};

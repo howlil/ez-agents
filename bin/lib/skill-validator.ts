@@ -11,59 +11,132 @@
  * - Workflow and recommended_structure validation
  *
  * Usage:
- *   const { SkillValidator, SKILL_SCHEMA, ALLOWED_TAGS } = require('./skill-validator.cjs');
+ *   import { SkillValidator, SKILL_SCHEMA, ALLOWED_TAGS } from './skill-validator.js';
  *   const validator = new SkillValidator();
  *   const { valid, errors } = validator.validate(skill);
  */
 
-const Logger = require('./logger.cjs');
-const logger = new Logger();
+import { defaultLogger as logger } from './logger.js';
+import type { Skill, SkillTriggers, SkillStructure } from './skill-registry.js';
 
 /**
  * Allowed tags for skills (50+ tags from research section 7.1)
  */
-const ALLOWED_TAGS = [
+export const ALLOWED_TAGS = [
   // Stack tags (12 frameworks)
-  'laravel', 'nextjs', 'nestjs', 'react', 'vue', 'angular', 'flutter', 'django',
-  'express', 'svelte', 'fastapi', 'spring-boot',
+  'laravel',
+  'nextjs',
+  'nestjs',
+  'react',
+  'vue',
+  'angular',
+  'flutter',
+  'django',
+  'express',
+  'svelte',
+  'fastapi',
+  'spring-boot',
   // Language tags
-  'php', 'javascript', 'typescript', 'python', 'java', 'dart',
+  'php',
+  'javascript',
+  'typescript',
+  'python',
+  'java',
+  'dart',
   // Architecture tags
-  'monolith', 'microservices', 'event-driven', 'queue-based', 'caching', 'rbac', 'api-gateway',
+  'monolith',
+  'microservices',
+  'event-driven',
+  'queue-based',
+  'caching',
+  'rbac',
+  'api-gateway',
   // Domain tags
-  'pos', 'ecommerce', 'saas', 'lms', 'booking', 'fintech', 'inventory', 'dashboard', 'cms', 'erp',
+  'pos',
+  'ecommerce',
+  'saas',
+  'lms',
+  'booking',
+  'fintech',
+  'inventory',
+  'dashboard',
+  'cms',
+  'erp',
   // Operational tags
-  'bug-triage', 'refactor', 'migration', 'release', 'rollback', 'incident', 'testing', 'code-review',
+  'bug-triage',
+  'refactor',
+  'migration',
+  'release',
+  'rollback',
+  'incident',
+  'testing',
+  'code-review',
   // Additional tags
-  'backend', 'frontend', 'fullstack', 'mobile', 'framework', 'mvc', 'mvt',
-  'hooks', 'composition-api', 'standalone', 'async', 'middleware', 'modular',
-  'bloc', 'universal'
-];
+  'backend',
+  'frontend',
+  'fullstack',
+  'mobile',
+  'framework',
+  'mvc',
+  'mvt',
+  'hooks',
+  'composition-api',
+  'standalone',
+  'async',
+  'middleware',
+  'modular',
+  'bloc',
+  'universal'
+] as const;
 
 /**
  * Skill metadata schema definition
  */
-const SKILL_SCHEMA = {
-  required: ['name', 'description', 'version', 'category'],
+export const SKILL_SCHEMA = {
+  required: ['name', 'description', 'version', 'category'] as const,
   optional: [
-    'tags', 'stack', 'category', 'triggers', 'prerequisites',
-    'recommended_structure', 'workflow', 'best_practices', 'anti_patterns',
-    'scaling_notes', 'when_not_to_use', 'output_template', 'dependencies'
-  ],
-  categories: ['stack', 'architecture', 'domain', 'operational', 'governance']
-};
+    'tags',
+    'stack',
+    'category',
+    'triggers',
+    'prerequisites',
+    'recommended_structure',
+    'workflow',
+    'best_practices',
+    'anti_patterns',
+    'scaling_notes',
+    'when_not_to_use',
+    'output_template',
+    'dependencies'
+  ] as const,
+  categories: [
+    'stack',
+    'architecture',
+    'domain',
+    'operational',
+    'governance'
+  ] as const
+} as const;
+
+/**
+ * Validation result structure
+ */
+export interface ValidationResult {
+  valid: boolean;
+  errors: string[];
+}
 
 /**
  * Skill Validator class for validating skill metadata
  */
-class SkillValidator {
+export class SkillValidator {
   /**
    * Validate a skill object
-   * @param {Object} skill - Skill object to validate
-   * @returns {Object} Validation result: { valid: boolean, errors: string[] }
+   * @param skill - Skill object to validate
+   * @returns Validation result: { valid, errors }
    */
-  validate(skill) {
-    const errors = [];
+  validate(skill: Skill): ValidationResult {
+    const errors: string[] = [];
 
     if (!skill || typeof skill !== 'object') {
       return { valid: false, errors: ['Skill must be an object'] };
@@ -71,14 +144,23 @@ class SkillValidator {
 
     // Check required fields
     for (const field of SKILL_SCHEMA.required) {
-      if (skill[field] === undefined || skill[field] === null || skill[field] === '') {
+      if (
+        skill[field] === undefined ||
+        skill[field] === null ||
+        skill[field] === ''
+      ) {
         errors.push(`Required field missing: ${field}`);
       }
     }
 
     // Validate category
-    if (skill.category && !SKILL_SCHEMA.categories.includes(skill.category)) {
-      errors.push(`Invalid category: ${skill.category}. Must be one of: ${SKILL_SCHEMA.categories.join(', ')}`);
+    if (
+      skill.category &&
+      !SKILL_SCHEMA.categories.includes(skill.category as typeof SKILL_SCHEMA.categories[number])
+    ) {
+      errors.push(
+        `Invalid category: ${skill.category}. Must be one of: ${SKILL_SCHEMA.categories.join(', ')}`
+      );
     }
 
     // Validate tags
@@ -126,11 +208,11 @@ class SkillValidator {
 
   /**
    * Validate tags array
-   * @param {string[]} tags - Tags to validate
-   * @returns {string[]} Array of error messages
+   * @param tags - Tags to validate
+   * @returns Array of error messages
    */
-  validateTags(tags) {
-    const errors = [];
+  validateTags(tags: string[]): string[] {
+    const errors: string[] = [];
 
     if (!Array.isArray(tags)) {
       return ['tags must be an array'];
@@ -139,8 +221,10 @@ class SkillValidator {
     for (const tag of tags) {
       if (typeof tag !== 'string') {
         errors.push(`Tag must be a string: ${tag}`);
-      } else if (!ALLOWED_TAGS.includes(tag)) {
-        errors.push(`Invalid tag: ${tag}. Allowed tags: ${ALLOWED_TAGS.slice(0, 10).join(', ')}... (total ${ALLOWED_TAGS.length})`);
+      } else if (!ALLOWED_TAGS.includes(tag as typeof ALLOWED_TAGS[number])) {
+        errors.push(
+          `Invalid tag: ${tag}. Allowed tags: ${ALLOWED_TAGS.slice(0, 10).join(', ')}... (total ${ALLOWED_TAGS.length})`
+        );
       }
     }
 
@@ -149,11 +233,11 @@ class SkillValidator {
 
   /**
    * Validate triggers object
-   * @param {Object} triggers - Triggers object to validate
-   * @returns {string[]} Array of error messages
+   * @param triggers - Triggers object to validate
+   * @returns Array of error messages
    */
-  validateTriggers(triggers) {
-    const errors = [];
+  validateTriggers(triggers: SkillTriggers): string[] {
+    const errors: string[] = [];
 
     if (typeof triggers !== 'object') {
       return ['triggers must be an object'];
@@ -206,11 +290,11 @@ class SkillValidator {
 
   /**
    * Validate recommended_structure object
-   * @param {Object} structure - Structure object to validate
-   * @returns {string[]} Array of error messages
+   * @param structure - Structure object to validate
+   * @returns Array of error messages
    */
-  validateStructure(structure) {
-    const errors = [];
+  validateStructure(structure: SkillStructure): string[] {
+    const errors: string[] = [];
 
     if (typeof structure !== 'object') {
       return ['recommended_structure must be an object'];
@@ -228,11 +312,11 @@ class SkillValidator {
 
   /**
    * Validate workflow object
-   * @param {Object} workflow - Workflow object to validate
-   * @returns {string[]} Array of error messages
+   * @param workflow - Workflow object to validate
+   * @returns Array of error messages
    */
-  validateWorkflow(workflow) {
-    const errors = [];
+  validateWorkflow(workflow: Record<string, string[]>): string[] {
+    const errors: string[] = [];
 
     if (typeof workflow !== 'object') {
       return ['workflow must be an object'];
@@ -262,9 +346,3 @@ class SkillValidator {
     return errors;
   }
 }
-
-module.exports = {
-  SkillValidator,
-  SKILL_SCHEMA,
-  ALLOWED_TAGS
-};
