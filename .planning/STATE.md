@@ -125,7 +125,7 @@ None
 | 260325-kdt | Refactor all .cjs to TypeScript (OOP/FP hybrid) | 2026-03-25 | 0ce5f4a | [260325-kdt-refactor-all-js-into-ts-oop-hybrid-fp-de](./quick/260325-kdt-refactor-all-js-into-ts-oop-hybrid-fp-de/) |
 | 260325-lc9 | Refactor remaining JS scripts to TypeScript | 2026-03-25 | 3773381 | [260325-lc9-refactor-remaining-js-scripts-and-test-f](./quick/260325-lc9-refactor-remaining-js-scripts-and-test-f/) |
 | 260325-ljb | Fix TypeScript errors in source files (Phase 1) | 2026-03-25 | b5ce244 | [260325-ljb-fix-typescript-errors-in-source-files-bi](./quick/260325-ljb-fix-typescript-errors-in-source-files-bi/) |
-| 260325-nst | Refactor JS yang masih tersisa | 2026-03-25 | Pending | [260325-nst-refactor-js-yang-masih-tersisa](./quick/260325-nst-refactor-js-yang-masih-tersisa/) |
+| 260325-nst | Refactor JS yang masih tersisa | 2026-03-25 | a80f5d3 | [260325-nst-refactor-js-yang-masih-tersisa](./quick/260325-nst-refactor-js-yang-masih-tersisa/) |
 
 ---
 
