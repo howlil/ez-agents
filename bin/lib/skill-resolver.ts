@@ -18,6 +18,7 @@
 
 import { defaultLogger as logger } from './logger.js';
 import type { Skill } from './skill-registry.js';
+import { LogExecution, ValidateInput } from './decorators/index.js';
 
 /**
  * Priority rule definition
@@ -208,6 +209,7 @@ export class SkillResolver {
    * @param skills - Array of activated skills
    * @returns { hasConflict, conflicts }
    */
+  @LogExecution('SkillResolver.detectConflict', { logParams: false })
   detectConflict(skills: Skill[]): { hasConflict: boolean; conflicts: Conflict[] } {
     const conflicts: Conflict[] = [];
     const recommendations = this._collectRecommendations(skills);
@@ -248,6 +250,7 @@ export class SkillResolver {
    * @param conflict - Conflict object
    * @returns Conflict type
    */
+  @LogExecution('SkillResolver.classifyConflict', { logParams: false })
   classifyConflict(conflict: Conflict): ConflictType {
     const { type, recommendations } = conflict;
 
@@ -288,6 +291,7 @@ export class SkillResolver {
    * @param context - Project context
    * @returns Resolution with winner and rationale
    */
+  @LogExecution('SkillResolver.applyPriorityRules', { logParams: false })
   applyPriorityRules(conflict: Conflict, context: Record<string, unknown> = {}): Resolution {
     const classification = this.classifyConflict(conflict);
     const ctx = { ...this.context, ...context };
@@ -337,6 +341,10 @@ export class SkillResolver {
    * @param context - Project context
    * @returns { decision, rationale, tradeoffs, escalated }
    */
+  @ValidateInput((skills: Skill[], context: Record<string, unknown>) => {
+    if (!Array.isArray(skills)) throw new Error('Skills must be an array');
+  })
+  @LogExecution('SkillResolver.resolve', { logParams: false, logResult: false })
   resolve(skills: Skill[], context: Record<string, unknown> = {}): ResolveResult {
     const ctx = { ...this.context, ...context };
     const conflictResult = this.detectConflict(skills);
@@ -402,6 +410,7 @@ export class SkillResolver {
    * Log a decision for audit trail
    * @param decision - Decision object
    */
+  @LogExecution('SkillResolver.logDecision', { logParams: false })
   logDecision(decision: DecisionLogEntry): void {
     this.decisionLog.push(decision);
     const errorMessage = decision.conflict?.type || 'Unknown';
