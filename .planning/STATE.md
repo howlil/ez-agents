@@ -1,8 +1,22 @@
+---
+ez_state_version: 1.0
+milestone: v6.0
+milestone_name: milestone
+current_phase: 14
+status: planning
+last_updated: "2026-03-25T17:35:38.648Z"
+progress:
+  total_phases: 6
+  completed_phases: 3
+  total_plans: 3
+  completed_plans: 10
+---
+
 # ez-agents Project State
 
 **Last Updated:** 2026-03-26 (Phase 13 Complete)
 **Current Milestone:** v6.0.0 Complete OOP Refactoring
-**Current Phase:** Phase 13 Complete (Test Files Refactoring)
+**Current Phase:** 14
 
 ---
 
@@ -10,7 +24,7 @@
 
 ### Milestone: v5.0.0 Complete TypeScript Migration ✅
 
-**Status:** COMPLETE
+**Status:** Ready to plan
 
 **Achievements:**
 - 135 `.cjs` files migrated to `.ts`
@@ -556,9 +570,12 @@ npm run build
 **TypeScript Error Resolution (Quick Task 260326-0bb):**
 - ✅ Fixed adapter files (Claude, Kimi, OpenAI, Qwen) - token usage types
 - ✅ Fixed context module imports and async/await
-- ⚠️ ~730 errors remaining (facade, frontmatter, gates, etc.)
+- ✅ Fixed facades (ContextManager, SkillResolver) - exactOptionalPropertyTypes
+- ✅ Fixed CompressionResult and ValidationResult types
+- ⚠️ ~890 errors remaining (frontmatter, gates, deploy-runner, etc.)
+- **Progress:** 45 errors fixed (6% reduction)
 
-**Next:** Continue TypeScript error fixes, then resume Phase 11 Tasks 2-8
+**Next:** Continue TypeScript error fixes (frontmatter, framework-detector, discussion-synthesizer), then resume Phase 11 Tasks 2-8
 
 ---
 
