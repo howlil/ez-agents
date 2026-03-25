@@ -9,6 +9,8 @@ Thank you for your interest in contributing to EZ Agents! This document provides
 - [Development Setup](#development-setup)
 - [How to Contribute](#how-to-contribute)
 - [Coding Standards](#coding-standards)
+  - [TypeScript Development](#typescript-development-v500)
+  - [JavaScript Style Guide](#javascript-style-guide)
 - [Testing](#testing)
 - [Submitting Changes](#submitting-changes)
 - [Onboarding Guide](#onboarding-guide)
@@ -188,6 +190,18 @@ Unsure where to begin contributing? You can start by looking through these issue
 ---
 
 ## Coding Standards
+
+### TypeScript Development (v5.0.0+)
+
+This project is now fully migrated to TypeScript (v5.0.0+). Please read:
+
+- **[TypeScript Contributor Guide](docs/CONTRIBUTING-TYPESCRIPT.md)** — Architecture patterns, type standards, TSDoc requirements
+
+Quick start:
+1. Ensure TypeScript 5.4.5+ is installed
+2. Run `npm run typecheck` before committing
+3. Add TSDoc comments to all exported members
+4. Use `unknown` instead of `any` for dynamic types
 
 ### JavaScript Style Guide
 

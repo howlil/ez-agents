@@ -2,26 +2,30 @@
   "env": {
     "node": true,
     "es2021": true,
-    "commonjs": true
+    "es2022": true
   },
-  "extends": "eslint:recommended",
+  "extends": [
+    "eslint:recommended",
+    "plugin:@typescript-eslint/recommended"
+  ],
+  "parser": "@typescript-eslint/parser",
+  "plugins": ["@typescript-eslint"],
   "parserOptions": {
-    "ecmaVersion": 2021
+    "ecmaVersion": 2022,
+    "sourceType": "module"
   },
   "rules": {
     "no-console": "off",
-    "no-unused-vars": ["error", { "argsIgnorePattern": "^_" }],
-    "semi": ["error", "always"],
-    "quotes": ["warn", "single"],
-    "no-var": "error",
-    "prefer-const": "warn",
-    "no-eval": "error",
-    "no-implied-eval": "error"
+    "@typescript-eslint/no-explicit-any": "warn",
+    "@typescript-eslint/explicit-function-return-type": "off",
+    "@typescript-eslint/no-unused-vars": ["error", { "argsIgnorePattern": "^_" }]
   },
   "ignorePatterns": [
     "node_modules/",
     "coverage/",
     ".planning/",
-    "dist/"
+    "dist/",
+    "*.cjs",
+    "*.js"
   ]
 }

@@ -2,11 +2,25 @@
   "name": "@howlil/ez-agents",
   "version": "4.0.0",
   "description": "EZ Agents — Meta-prompting with multi-model support (Qwen, Kimi, OpenAI)",
+  "type": "module",
   "bin": {
-    "ez-agents": "bin/install.js"
+    "ez-agents": "dist/bin/install.js",
+    "ez-agents-update": "dist/bin/update.js"
   },
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    },
+    "./*": {
+      "types": "./dist/lib/*.d.ts",
+      "import": "./dist/lib/*.js"
+    }
+  },
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
   "files": [
-    "bin",
+    "dist",
     "commands",
     "ez-agents",
     "agents",
@@ -41,6 +55,8 @@
     "node": ">=16.7.0"
   },
   "devDependencies": {
+    "@types/micromatch": "^4.0.0",
+    "@types/node": "^20.0.0",
     "c8": "^11.0.0",
     "eslint": "^8.57.0",
     "husky": "^9.1.7",
@@ -49,13 +65,21 @@
     "k6": "^0.0.0",
     "lint-staged": "^15.5.2",
     "markdownlint": "^0.40.0",
+    "ts-node": "^10.9.0",
+    "tsup": "^8.0.0",
+    "typescript": "^5.4.5",
     "vitest": "^4.1.0"
   },
   "scripts": {
-    "lint": "eslint . --ext .cjs,.js --max-warnings=0",
-    "lint:fix": "eslint . --ext .cjs,.js --fix",
-    "build:hooks": "node scripts/build-hooks.js",
-    "prepublishOnly": "npm run build:hooks",
+    "build": "tsup",
+    "build:watch": "tsup --watch",
+    "typecheck": "tsc --noEmit",
+    "typecheck:strict": "tsc --noEmit --strict",
+    "dev": "tsx bin/install.ts",
+    "lint": "eslint . --ext .ts --max-warnings=0",
+    "lint:fix": "eslint . --ext .ts --fix",
+    "build:hooks": "node --loader ts-node/esm scripts/build-hooks.ts",
+    "prepublishOnly": "npm run build:hooks && npm run build",
     "test": "node scripts/run-tests.cjs",
     "test:coverage": "c8 --check-coverage --lines 70 --reporter text --include 'ez-agents/bin/lib/*.cjs' --exclude 'tests/**' --all node scripts/run-tests.cjs",
     "test:a11y": "node tests/accessibility/run-a11y-tests.cjs",
@@ -65,7 +89,7 @@
     "prepare": "husky"
   },
   "lint-staged": {
-    "*.cjs": [
+    "*.ts": [
       "node --test"
     ],
     "*.md": [
