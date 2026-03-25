@@ -2,7 +2,7 @@
 
 **Last Updated:** 2026-03-25
 **Current Milestone:** v6.0.0 Complete OOP Refactoring
-**Current Phase:** Phase 10 In Progress (Wave 10.1 Complete)
+**Current Phase:** Phase 10 In Progress (Wave 10.2 Complete)
 
 ---
 
@@ -26,7 +26,7 @@
 
 ### Milestone: v6.0.0 Complete OOP Refactoring 🔄
 
-**Status:** WAVE 10.1 COMPLETE, PHASE 10 IN PROGRESS
+**Status:** WAVES 10.1 & 10.2 COMPLETE, PHASE 10 IN PROGRESS
 
 **Goal:** Refactor the entire TypeScript codebase to apply object-oriented programming principles, eliminate duplicate patterns, and implement clean code standards.
 
@@ -46,11 +46,11 @@
 **Phase Plan:**
 - **Phase 10:** Foundation & Core Library (Part 1) — Design Patterns (CORE-01 to CORE-07)
   - ~~**Wave 10.1:** Convert functional modules to class-based architecture (CORE-01) ✅ COMPLETE~~
-  - **Wave 10.2:** Apply Factory pattern for object creation (CORE-02) — PENDING
-  - **Wave 10.3:** Apply Strategy pattern for interchangeable algorithms (CORE-03) — PENDING
-  - **Wave 10.4:** Apply Observer pattern for event-driven modules (CORE-04) — PENDING
-  - **Wave 10.5:** Apply Adapter pattern for incompatible interfaces (CORE-05) — PENDING
-  - **Wave 10.6:** Apply Decorator pattern for cross-cutting concerns (CORE-06) — PENDING
+  - ~~**Wave 10.2:** Apply Decorator pattern for cross-cutting concerns (CORE-06) ✅ COMPLETE~~
+  - **Wave 10.3:** Apply Factory pattern for object creation (CORE-02) — PENDING
+  - **Wave 10.4:** Apply Strategy pattern for interchangeable algorithms (CORE-03) — PENDING
+  - **Wave 10.5:** Apply Observer pattern for event-driven modules (CORE-04) — PENDING
+  - **Wave 10.6:** Apply Adapter pattern for incompatible interfaces (CORE-05) — PENDING
   - **Wave 10.7:** Apply Facade pattern for complex subsystems (CORE-07) — PENDING
 - **Phase 11:** Core Library (Part 2) — Clean Code Principles (CORE-08 to CORE-15)
 - **Phase 12:** Entry Points Refactoring (ENTRY-01 to ENTRY-09)
@@ -58,14 +58,14 @@
 - **Phase 14:** Code Quality Metrics & Validation (METRIC-01 to METRIC-08)
 - **Phase 15:** Build System & Documentation (BUILD-01 to BUILD-06, DOC-01 to DOC-06)
 
-**Next Action:** Execute Wave 10.2 (Factory Pattern)
+**Next Action:** Execute Wave 10.3 (Factory Pattern)
 
 ---
 
 ## Wave 10.1 Completion Summary
 
-**Wave:** 10.1 — Convert Functional Modules to Class-Based Architecture (CORE-01)  
-**Status:** ✅ COMPLETE  
+**Wave:** 10.1 — Convert Functional Modules to Class-Based Architecture (CORE-01)
+**Status:** ✅ COMPLETE
 **Completion Date:** 2026-03-25
 
 **Achievements:**
@@ -92,6 +92,41 @@
 - `bin/lib/skill-triggers.ts` — Added `SkillTriggerEvaluator` class
 - `bin/lib/skill-context.ts` — Added `SkillContextResolver` class
 - `.planning/STATE.md` — Updated with wave completion
+
+---
+
+## Wave 10.2 Completion Summary
+
+**Wave:** 10.2 — Apply Decorator Pattern for Cross-Cutting Concerns (CORE-06)
+**Status:** ✅ COMPLETE
+**Completion Date:** 2026-03-25
+
+**Achievements:**
+- Applied @LogExecution to 24 methods across 5 classes
+- Applied @ValidateInput to 1 method (SkillResolver.resolve)
+- Created comprehensive decorator usage documentation (DECORATORS.md)
+- TypeScript build passes successfully with decorators
+- Maintained backward compatibility with all existing exports
+
+**Files Modified:**
+- `bin/lib/session-manager.ts` — Added @LogExecution to 4 methods (loadState, saveState, createSession, clearSession)
+- `bin/lib/context-manager.ts` — Added @LogExecution to 4 methods (requestContext, getCached, clearCache, getCacheStats)
+- `bin/lib/skill-resolver.ts` — Added @LogExecution to 5 methods + @ValidateInput to 1 method
+- `bin/lib/circuit-breaker.ts` — Added @LogExecution to 4 methods (execute, getState, getStats, reset)
+- `bin/lib/error-cache.ts` — Added @LogExecution to 7 methods (fingerprint, record, isRecurring, get, clear, stats, getAll)
+- `bin/lib/decorators/DECORATORS.md` — Created decorator usage guide
+- `.planning/STATE.md` — Updated with wave completion
+- `.planning/ROADMAP.md` — Updated with wave completion
+- `.planning/phases/10-foundation-core-library-refactoring/10.2-SUMMARY.md` — Created wave summary
+
+**Classes Using Decorators:**
+- SessionManager (4 decorators)
+- ContextManager (4 decorators)
+- SkillResolver (6 decorators: 5 @LogExecution + 1 @ValidateInput)
+- CircuitBreaker (4 decorators)
+- ErrorCache (7 decorators)
+
+**Total:** 25 decorator applications across 5 classes
 
 ---
 
