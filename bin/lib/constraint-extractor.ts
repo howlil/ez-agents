@@ -255,7 +255,7 @@ export class ConstraintExtractor {
       try {
         const content = fs.readFileSync(readmePath, 'utf8');
         if (content.includes('## Team') || content.includes('## Contributors') || content.includes('## Maintainers')) {
-          result.sources.push({ type: 'readme_team_section', value: true });
+          result.sources.push({ type: 'readme_team_section', count: 1 });
         }
       } catch {
         // Ignore read errors
@@ -381,7 +381,7 @@ export class ConstraintExtractor {
         for (const { regex, requirement, type } of patterns) {
           if (regex.test(content)) {
             const match = content.match(regex);
-            if (match) {
+            if (match && match.index !== undefined) {
               compliance.push({
                 type: 'compliance',
                 requirement,
@@ -433,7 +433,7 @@ export class ConstraintExtractor {
 
         for (const { regex, severity } of patterns) {
           const match = content.match(regex);
-          if (match) {
+          if (match && match.index !== undefined) {
             factors.push({
               type: 'legacy',
               factor: match[0],
@@ -458,9 +458,9 @@ export class ConstraintExtractor {
         const pkg = JSON.parse(fs.readFileSync(pkgPath, 'utf8'));
         const allDeps = { ...pkg.dependencies, ...pkg.devDependencies };
 
-        for (const [name, version] of Object.entries(allDeps)) {
+        for (const [name, version] of Object.entries(allDeps) as Array<[string, string]>) {
           // Check for very old version patterns (0.x or 1.x for major packages)
-          if (version.match(/^[\^~]?[01]\./)) {
+          if (version && version.match(/^[\^~]?[01]\./)) {
             factors.push({
               type: 'legacy',
               factor: `Outdated dependency: ${name}@${version}`,

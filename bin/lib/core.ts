@@ -5,7 +5,8 @@
 import * as fs from 'fs';
 import * as path from 'path';
 import * as os from 'os';
-import { safeExec, auditExec } from './safe-exec.js';
+import { safeExec } from './safe-exec.js';
+import { auditExec } from './audit-exec.js';
 import { defaultLogger as logger } from './logger.js';
 
 /** Normalize a relative path to always use forward slashes (cross-platform). */
@@ -263,7 +264,7 @@ function normalizePhaseName(phase: string | number): string {
   const phaseStr = String(phase);
   const match = phaseStr.match(/^(\d+)([A-Z])?((?:\.\d+)*)/i);
   if (!match) return phaseStr;
-  const padded = match[1].padStart(2, '0');
+  const padded = (match[1] ?? '').padStart(2, '0');
   const letter = match[2] ? match[2].toUpperCase() : '';
   const decimal = match[3] || '';
   return padded + letter + decimal;
@@ -279,7 +280,7 @@ function comparePhaseNum(a: string | number, b: string | number): number {
   const pa = String(a).match(/^(\d+)([A-Z])?((?:\.\d+)*)/i);
   const pb = String(b).match(/^(\d+)([A-Z])?((?:\.\d+)*)/i);
   if (!pa || !pb) return String(a).localeCompare(String(b));
-  const intDiff = parseInt(pa[1], 10) - parseInt(pb[1], 10);
+  const intDiff = parseInt(pa[1] ?? '0', 10) - parseInt(pb[1] ?? '0', 10);
   if (intDiff !== 0) return intDiff;
   // No letter sorts before letter: 12 < 12A < 12B
   const la = (pa[2] || '').toUpperCase();
@@ -296,8 +297,8 @@ function comparePhaseNum(a: string | number, b: string | number): number {
   if (aDecParts.length === 0 && bDecParts.length > 0) return -1;
   if (bDecParts.length === 0 && aDecParts.length > 0) return 1;
   for (let i = 0; i < maxLen; i++) {
-    const av = Number.isFinite(aDecParts[i]) ? aDecParts[i] : 0;
-    const bv = Number.isFinite(bDecParts[i]) ? bDecParts[i] : 0;
+    const av = Number.isFinite(aDecParts[i] ?? NaN) ? aDecParts[i]! : 0;
+    const bv = Number.isFinite(bDecParts[i] ?? NaN) ? bDecParts[i]! : 0;
     if (av !== bv) return av - bv;
   }
   return 0;
@@ -355,7 +356,7 @@ function searchPhaseInDir(baseDir: string, relBase: string, normalized: string):
     return {
       found: true,
       directory: toPosixPath(path.join(relBase, match)),
-      phase_number: phaseNumber,
+      phase_number: phaseNumber ?? '',
       phase_name: phaseName,
       phase_slug: phaseName ? phaseName.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '') : null,
       plans,
@@ -402,7 +403,7 @@ function findPhaseInternal(cwd: string, phase: string): PhaseSearchResult | null
 
     for (const archiveName of archiveDirs) {
       const versionMatch = archiveName.match(/^(v[\d.]+)-phases$/);
-      const version: string = versionMatch ? versionMatch[1] ?? '' : '';
+      const version: string = versionMatch?.[1] ?? '';
       const archivePath = path.join(milestonesDir, archiveName);
       const relBase = '.planning/milestones/' + archiveName;
       const result = searchPhaseInDir(archivePath, relBase, normalized);
@@ -448,7 +449,7 @@ function getArchivedPhaseDirs(cwd: string): ArchivedPhaseDir[] {
 
     for (const archiveName of phaseDirs) {
       const versionMatch = archiveName.match(/^(v[\d.]+)-phases$/);
-      const version = versionMatch ? versionMatch[1] : '';
+      const version = versionMatch?.[1] ?? '';
       const archivePath = path.join(milestonesDir, archiveName);
       const entries = fs.readdirSync(archivePath, { withFileTypes: true });
       const dirs = entries.filter(e => e.isDirectory()).map(e => e.name).sort((a, b) => comparePhaseNum(a, b));
@@ -498,15 +499,15 @@ function getRoadmapPhaseInternal(cwd: string, phaseNum: string | number): Roadma
     const headerMatch = content.match(phasePattern);
     if (!headerMatch) return null;
 
-    const phaseName = headerMatch[1].trim();
-    const headerIndex = headerMatch.index || 0;
+    const phaseName = headerMatch[1]?.trim() ?? '';
+    const headerIndex = headerMatch.index ?? 0;
     const restOfContent = content.slice(headerIndex);
     const nextHeaderMatch = restOfContent.match(/\n#{2,4}\s+Phase\s+\d/i);
-    const sectionEnd = nextHeaderMatch ? headerIndex + (nextHeaderMatch.index || 0) : content.length;
+    const sectionEnd = nextHeaderMatch ? headerIndex + (nextHeaderMatch.index ?? 0) : content.length;
     const section = content.slice(headerIndex, sectionEnd).trim();
 
     const goalMatch = section.match(/\*\*Goal:\*\*\s*([^\n]+)/i);
-    const goal = goalMatch ? goalMatch[1].trim() : null;
+    const goal = goalMatch?.[1]?.trim() ?? null;
 
     return {
       found: true,
@@ -594,7 +595,7 @@ function getMilestoneInfo(cwd: string): MilestoneInfo {
     if (inProgressMatch) {
       return {
         version: 'v' + inProgressMatch[1],
-        name: inProgressMatch[2].trim(),
+        name: inProgressMatch[2]?.trim() ?? '',
       };
     }
 
@@ -604,7 +605,7 @@ function getMilestoneInfo(cwd: string): MilestoneInfo {
     if (headingMatch) {
       return {
         version: 'v' + headingMatch[1],
-        name: headingMatch[2].trim(),
+        name: headingMatch[2]?.trim() ?? '',
       };
     }
     // Fallback: try bare version match
@@ -660,7 +661,7 @@ function getMilestonePhaseFilter(cwd: string): MilestonePhaseFilter {
   const isDirInMilestone = (dirName: string): boolean => {
     const m = dirName.match(/^0*(\d+[A-Za-z]?(?:\.\d+)*)/);
     if (!m) return false;
-    return normalized.has(m[1].toLowerCase());
+    return normalized.has((m[1] ?? '').toLowerCase());
   };
   isDirInMilestone.phaseCount = milestonePhaseNums.size;
   return isDirInMilestone;
