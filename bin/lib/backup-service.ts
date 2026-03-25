@@ -5,19 +5,82 @@
  * Backups are stored in .planning/recovery/backups/<backup-id>/
  *
  * Usage:
- *   const BackupService = require('./backup-service.cjs');
+ *   import BackupService from './backup-service.js';
  *   const backupService = new BackupService(cwd, options);
  *   const result = backupService.createBackup({ label: 'manual', scope: [...] });
  */
 
-const fs = require('fs');
-const path = require('path');
-const crypto = require('crypto');
-const { execSync } = require('child_process');
-const { safePlanningWriteSync } = require('./planning-write.cjs');
-const Logger = require('./logger.cjs');
+import * as fs from 'fs';
+import * as path from 'path';
+import * as crypto from 'crypto';
+import { execSync } from 'child_process';
+import { safePlanningWriteSync } from './planning-write.js';
+import { defaultLogger as logger } from './logger.js';
 
-const logger = new Logger();
+// ─── Type Definitions ────────────────────────────────────────────────────────
+
+export interface FileInfo {
+  originalPath: string;
+  relativePath: string;
+  content: string;
+  sha256: string;
+  size_bytes: number;
+}
+
+export interface ManifestFileEntry {
+  path: string;
+  sha256: string;
+  size_bytes: number;
+}
+
+export interface BackupManifest {
+  backup_id: string;
+  created_at: string;
+  scope: string[];
+  commit_sha: string | null;
+  files: ManifestFileEntry[];
+}
+
+export interface BackupOptions {
+  label?: string;
+  scope?: string[];
+  verify?: boolean;
+}
+
+export interface BackupResult {
+  backup_id: string;
+  backupDir: string;
+  manifest: BackupManifest;
+  fileCount: number;
+  verify: VerificationResult | null;
+}
+
+export interface VerificationResult {
+  valid: boolean;
+  errors: string[];
+  warnings: string[];
+  manifest?: BackupManifest;
+}
+
+export interface BackupInfo {
+  name: string;
+  path: string;
+  manifest: BackupManifest | null;
+  createdAt: string;
+}
+
+export interface RetentionSettings {
+  local_backups: number;
+  drill_reports: number;
+}
+
+export interface BackupServiceOptions {
+  scope?: string[];
+  retention?: Partial<RetentionSettings>;
+  logger?: typeof logger;
+}
+
+// ─── Constants ───────────────────────────────────────────────────────────────
 
 /**
  * Default backup scope for EZ Agents repository
@@ -34,20 +97,25 @@ const DEFAULT_BACKUP_SCOPE = [
 /**
  * Default retention settings
  */
-const DEFAULT_RETENTION = {
+const DEFAULT_RETENTION: RetentionSettings = {
   local_backups: 10,
   drill_reports: 12
 };
 
-class BackupService {
+// ─── BackupService Class ─────────────────────────────────────────────────────
+
+export class BackupService {
+  private cwd: string;
+  private scope: string[];
+  private retention: RetentionSettings;
+  private backupsDir: string;
+
   /**
    * Create a BackupService instance
-   * @param {string} cwd - Working directory (project root)
-   * @param {Object} options - Configuration options
-   * @param {string[]} options.scope - Override default backup scope
-   * @param {Object} options.retention - Retention settings
+   * @param cwd - Working directory (project root)
+   * @param options - Configuration options
    */
-  constructor(cwd, options = {}) {
+  constructor(cwd: string, options: BackupServiceOptions = {}) {
     this.cwd = cwd || process.cwd();
     this.scope = options.scope || DEFAULT_BACKUP_SCOPE;
     this.retention = {
@@ -59,9 +127,9 @@ class BackupService {
 
   /**
    * Get current git commit SHA
-   * @returns {string|null} - Commit SHA or null if not in git repo
+   * @returns Commit SHA or null if not in git repo
    */
-  _getCommitSha() {
+  private _getCommitSha(): string | null {
     try {
       const sha = execSync('git rev-parse HEAD', {
         cwd: this.cwd,
@@ -70,34 +138,35 @@ class BackupService {
       }).trim();
       return sha;
     } catch (err) {
-      logger.warn('Could not get git commit SHA', { error: err.message });
+      const error = err as Error & { code?: string };
+      logger.warn('Could not get git commit SHA', { error: error.message });
       return null;
     }
   }
 
   /**
    * Calculate SHA-256 hash of file content
-   * @param {string} content - File content
-   * @returns {string} - SHA-256 hash
+   * @param content - File content
+   * @returns SHA-256 hash
    */
-  _calculateSha256(content) {
+  private _calculateSha256(content: string): string {
     return crypto.createHash('sha256').update(content).digest('hex');
   }
 
   /**
    * Get file size in bytes
-   * @param {string} filePath - File path
-   * @returns {number} - File size
+   * @param filePath - File path
+   * @returns File size
    */
-  _getFileSize(filePath) {
+  private _getFileSize(filePath: string): number {
     return fs.statSync(filePath).size;
   }
 
   /**
    * Generate unique backup ID
-   * @returns {string} - Backup ID
+   * @returns Backup ID
    */
-  _generateBackupId() {
+  private _generateBackupId(): string {
     const timestamp = Date.now();
     const random = crypto.randomBytes(4).toString('hex');
     return `${timestamp}-${random}`;
@@ -105,11 +174,11 @@ class BackupService {
 
   /**
    * Collect files from backup scope
-   * @param {string[]} scope - Paths to include
-   * @returns {Object[]} - Array of file info objects
+   * @param scope - Paths to include
+   * @returns Array of file info objects
    */
-  _collectFiles(scope) {
-    const files = [];
+  private _collectFiles(scope: string[]): FileInfo[] {
+    const files: FileInfo[] = [];
 
     for (const scopePath of scope) {
       const fullPath = path.join(this.cwd, scopePath);
@@ -133,7 +202,8 @@ class BackupService {
             size_bytes: this._getFileSize(fullPath)
           });
         } catch (err) {
-          logger.warn('Failed to read file', { path: scopePath, error: err.message });
+          const error = err as Error;
+          logger.warn('Failed to read file', { path: scopePath, error: error.message });
         }
       } else if (stat.isDirectory()) {
         // Directory - walk recursively
@@ -147,12 +217,12 @@ class BackupService {
 
   /**
    * Walk directory recursively
-   * @param {string} dirPath - Directory path
-   * @param {string} basePath - Base path for relative calculation
-   * @returns {Object[]} - Array of file info objects
+   * @param dirPath - Directory path
+   * @param basePath - Base path for relative calculation
+   * @returns Array of file info objects
    */
-  _walkDirectory(dirPath, basePath) {
-    const files = [];
+  private _walkDirectory(dirPath: string, basePath: string): FileInfo[] {
+    const files: FileInfo[] = [];
 
     try {
       const entries = fs.readdirSync(dirPath, { withFileTypes: true });
@@ -182,15 +252,17 @@ class BackupService {
               size_bytes: this._getFileSize(fullPath)
             });
           } catch (err) {
+            const error = err as Error;
             logger.warn('Failed to read file during directory walk', {
               path: fullPath,
-              error: err.message
+              error: error.message
             });
           }
         }
       }
     } catch (err) {
-      logger.warn('Failed to walk directory', { path: dirPath, error: err.message });
+      const error = err as Error;
+      logger.warn('Failed to walk directory', { path: dirPath, error: error.message });
     }
 
     return files;
@@ -198,13 +270,11 @@ class BackupService {
 
   /**
    * Create a backup
-   * @param {Object} options - Backup options
-   * @param {string} options.label - Backup label (default: 'manual')
-   * @param {string[]} options.scope - Override default scope
-   * @param {boolean} options.verify - Verify backup after creation
-   * @returns {Object} - Backup result with backupDir and manifest
+   * @param options - Backup options
+   * @returns Backup result with backupDir and manifest
    */
-  createBackup({ label = 'manual', scope, verify = false } = {}) {
+  createBackup(options: BackupOptions = {}): BackupResult {
+    const { label = 'manual', scope, verify = false } = options;
     const backupScope = scope || this.scope;
     const backupId = this._generateBackupId();
     const backupDir = path.join(this.backupsDir, `${Date.now()}-${label}`);
@@ -232,7 +302,7 @@ class BackupService {
     }
 
     // Create manifest
-    const manifest = {
+    const manifest: BackupManifest = {
       backup_id: backupId,
       created_at: new Date().toISOString(),
       scope: backupScope,
@@ -255,7 +325,7 @@ class BackupService {
     });
 
     // Verify if requested
-    let verifyResult = null;
+    let verifyResult: VerificationResult | null = null;
     if (verify) {
       verifyResult = this.verifyBackup(backupDir);
     }
@@ -274,10 +344,10 @@ class BackupService {
 
   /**
    * Verify a backup by checking checksums
-   * @param {string} backupDir - Backup directory path
-   * @returns {Object} - Verification result
+   * @param backupDir - Backup directory path
+   * @returns Verification result
    */
-  verifyBackup(backupDir) {
+  verifyBackup(backupDir: string): VerificationResult {
     const manifestPath = path.join(backupDir, 'manifest.json');
 
     if (!fs.existsSync(manifestPath)) {
@@ -285,24 +355,27 @@ class BackupService {
       logger.error('Backup verification failed', { error });
       return {
         valid: false,
-        errors: [error]
+        errors: [error],
+        warnings: []
       };
     }
 
-    let manifest;
+    let manifest: BackupManifest;
     try {
-      manifest = JSON.parse(fs.readFileSync(manifestPath, 'utf-8'));
+      manifest = JSON.parse(fs.readFileSync(manifestPath, 'utf-8')) as BackupManifest;
     } catch (err) {
-      const error = `Failed to parse manifest: ${err.message}`;
-      logger.error('Backup verification failed', { error });
+      const error = err as Error;
+      const errorMsg = `Failed to parse manifest: ${error.message}`;
+      logger.error('Backup verification failed', { error: errorMsg });
       return {
         valid: false,
-        errors: [error]
+        errors: [errorMsg],
+        warnings: []
       };
     }
 
-    const errors = [];
-    const warnings = [];
+    const errors: string[] = [];
+    const warnings: string[] = [];
 
     for (const file of manifest.files) {
       const filePath = path.join(backupDir, file.path);
@@ -320,7 +393,8 @@ class BackupService {
           errors.push(`Checksum mismatch for ${file.path}: expected ${file.sha256}, got ${actualSha256}`);
         }
       } catch (err) {
-        errors.push(`Failed to read ${file.path}: ${err.message}`);
+        const error = err as Error;
+        errors.push(`Failed to read ${file.path}: ${error.message}`);
       }
     }
 
@@ -342,10 +416,10 @@ class BackupService {
 
   /**
    * Prune old backups to respect retention policy
-   * @param {number} maxBackups - Maximum number of backups to keep
-   * @returns {Object} - Prune result
+   * @param maxBackups - Maximum number of backups to keep
+   * @returns Prune result
    */
-  pruneBackups(maxBackups) {
+  pruneBackups(maxBackups: number): { pruned: string[] } {
     if (!fs.existsSync(this.backupsDir)) {
       return { pruned: [] };
     }
@@ -363,17 +437,19 @@ class BackupService {
       .sort((a, b) => a.mtime - b.mtime); // Oldest first
 
     const toPrune = backups.length - maxBackups;
-    const pruned = [];
+    const pruned: string[] = [];
 
     if (toPrune > 0) {
       for (let i = 0; i < toPrune; i++) {
         const backup = backups[i];
+        if (!backup) continue;
         try {
           fs.rmSync(backup.path, { recursive: true, force: true });
           pruned.push(backup.name);
           logger.info('Pruned old backup', { name: backup.name });
         } catch (err) {
-          logger.error('Failed to prune backup', { name: backup.name, error: err.message });
+          const error = err as Error;
+          logger.error('Failed to prune backup', { name: backup.name, error: error.message });
         }
       }
     }
@@ -383,9 +459,9 @@ class BackupService {
 
   /**
    * List all backups
-   * @returns {Object[]} - Array of backup info objects
+   * @returns Array of backup info objects
    */
-  listBackups() {
+  listBackups(): BackupInfo[] {
     if (!fs.existsSync(this.backupsDir)) {
       return [];
     }
@@ -398,11 +474,11 @@ class BackupService {
       .map(name => {
         const backupPath = path.join(this.backupsDir, name);
         const manifestPath = path.join(backupPath, 'manifest.json');
-        let manifest = null;
+        let manifest: BackupManifest | null = null;
 
         if (fs.existsSync(manifestPath)) {
           try {
-            manifest = JSON.parse(fs.readFileSync(manifestPath, 'utf-8'));
+            manifest = JSON.parse(fs.readFileSync(manifestPath, 'utf-8')) as BackupManifest;
           } catch (err) {
             // Ignore manifest parse errors
           }
@@ -415,8 +491,9 @@ class BackupService {
           createdAt: manifest?.created_at || fs.statSync(backupPath).mtime.toISOString()
         };
       })
-      .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt)); // Newest first
+      .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()); // Newest first
   }
 }
 
-module.exports = BackupService;
+// Default export for backward compatibility
+export default BackupService;

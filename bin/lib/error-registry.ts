@@ -15,15 +15,45 @@
  *   SESSION, CONTEXT, SECURITY, GIT, QUALITY, PHASE, AGENT, RCA, CACHE, GATE
  */
 
-const SEVERITY = {
+// ─── Type Definitions ────────────────────────────────────────────────────────
+
+export type SeverityLevel = 'critical' | 'error' | 'warning' | 'info' | 'debug';
+
+export interface ErrorCodeDefinition {
+  code: string;
+  severity: SeverityLevel;
+}
+
+export interface ErrorCodeLookupResult extends ErrorCodeDefinition {
+  category: string;
+  name: string;
+}
+
+export type ErrorCategory =
+  | 'SESSION'
+  | 'CONTEXT'
+  | 'SECURITY'
+  | 'GIT'
+  | 'QUALITY'
+  | 'PHASE'
+  | 'AGENT'
+  | 'RCA'
+  | 'CACHE'
+  | 'GATE';
+
+// ─── Severity Levels ─────────────────────────────────────────────────────────
+
+export const SEVERITY: Record<string, SeverityLevel> = {
   CRITICAL: 'critical',  // System unusable — immediate exit
   ERROR: 'error',        // Operation failed — retry or exit
   WARNING: 'warning',    // Recoverable issue — continue with warning
   INFO: 'info',          // Normal operation — informational
   DEBUG: 'debug'         // Detailed tracing — development only
-};
+} as const;
 
-const ERROR_CODES = {
+// ─── Error Codes by Category ─────────────────────────────────────────────────
+
+export const ERROR_CODES: Record<string, Record<string, ErrorCodeDefinition>> = {
   SESSION: {
     NOT_FOUND: { code: 'ERR_SESSION_NOT_FOUND', severity: SEVERITY.ERROR },
     CHAIN_BROKEN: { code: 'ERR_SESSION_CHAIN_BROKEN', severity: SEVERITY.CRITICAL },
@@ -99,53 +129,52 @@ const ERROR_CODES = {
     EXECUTION_FAILED: { code: 'ERR_GATE_EXECUTION_FAILED', severity: SEVERITY.ERROR },
     VALIDATION_FAILED: { code: 'ERR_GATE_VALIDATION_FAILED', severity: SEVERITY.ERROR },
     BYPASS_REQUIRES_REASON: { code: 'ERR_GATE_BYPASS_REQUIRES_REASON', severity: SEVERITY.ERROR }
-  },
+  }
+} as const;
 
-  // Generic fallback
-  UNKNOWN: { code: 'ERR_UNKNOWN', severity: SEVERITY.ERROR }
-};
+// ─── Lookup Functions ────────────────────────────────────────────────────────
 
 /**
  * Get error code metadata
- * @param {string} category - Error category (SESSION, CONTEXT, etc.)
- * @param {string} name - Error name (NOT_FOUND, CHAIN_BROKEN, etc.)
- * @returns {{code: string, severity: string}|null} Error metadata or null
+ * @param category - Error category (SESSION, CONTEXT, etc.)
+ * @param name - Error name (NOT_FOUND, CHAIN_BROKEN, etc.)
+ * @returns Error metadata or null
  */
-function getErrorCode(category, name) {
+export function getErrorCode(category: string, name: string): ErrorCodeDefinition | null {
   return ERROR_CODES[category]?.[name] || null;
 }
 
 /**
  * Get all error codes
- * @returns {Object} All error codes by category
+ * @returns All error codes by category
  */
-function getAllCodes() {
+export function getAllCodes(): Record<string, Record<string, ErrorCodeDefinition>> {
   return ERROR_CODES;
 }
 
 /**
  * Get severity level by name
- * @param {string} name - Severity name (CRITICAL, ERROR, etc.)
- * @returns {string|null} Severity value or null
+ * @param name - Severity name (CRITICAL, ERROR, etc.)
+ * @returns Severity value or null
  */
-function getSeverity(name) {
+export function getSeverity(name: string): SeverityLevel | null {
   return SEVERITY[name] || null;
 }
 
 /**
  * Get all severity levels
- * @returns {Object} All severity levels
+ * @returns All severity levels
  */
-function getAllSeverities() {
+export function getAllSeverities(): Record<string, SeverityLevel> {
   return SEVERITY;
 }
 
 /**
  * Lookup error by code string
- * @param {string} codeString - Full error code (e.g., 'ERR_SESSION_NOT_FOUND')
- * @returns {{category: string, name: string, code: string, severity: string}|null}
+ * @param codeString - Full error code (e.g., 'ERR_SESSION_NOT_FOUND')
+ * @returns Error metadata or null
  */
-function lookupByCode(codeString) {
+export function lookupByCode(codeString: string): ErrorCodeLookupResult | null {
   for (const [category, errors] of Object.entries(ERROR_CODES)) {
     for (const [name, data] of Object.entries(errors)) {
       if (data.code === codeString) {
@@ -158,14 +187,15 @@ function lookupByCode(codeString) {
 
 /**
  * Validate error code format
- * @param {string} code - Error code to validate
- * @returns {boolean} True if valid format
+ * @param code - Error code to validate
+ * @returns True if valid format
  */
-function isValidCode(code) {
+export function isValidCode(code: string): boolean {
   return lookupByCode(code) !== null;
 }
 
-module.exports = {
+// Default export for backward compatibility
+export default {
   SEVERITY,
   ERROR_CODES,
   getErrorCode,

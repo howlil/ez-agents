@@ -85,7 +85,7 @@ export async function retry<T>(operation: () => Promise<T>, options: RetryOption
   }
 
   const error = new Error(`Operation failed after ${(lastAttempt ?? 0) + 1} attempts: ${(lastError as Error).message}`);
-  error.cause = lastError;
+  Object.assign(error, { cause: lastError });
   throw error;
 }
 
