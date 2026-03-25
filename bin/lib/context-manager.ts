@@ -18,6 +18,7 @@ import { ContextRelevanceScorer, type ScoredFile } from './context-relevance-sco
 import { ContextCompressor, type CompressionResult } from './context-compressor.js';
 import { ContextDeduplicator } from './context-deduplicator.js';
 import { ContextMetadataTracker } from './context-metadata-tracker.js';
+import { LogExecution } from './decorators/index.js';
 
 /**
  * Context source information
@@ -162,6 +163,7 @@ export class ContextManager {
    * @param options - Context options
    * @returns Aggregated context with optimization stats
    */
+  @LogExecution('ContextManager.requestContext', { logParams: false, logResult: false })
   async requestContext(options: ContextOptions = {}): Promise<ContextResult> {
     const {
       files = [],
@@ -465,6 +467,7 @@ export class ContextManager {
    * @param key - Cache key (URL)
    * @returns Cached entry or undefined
    */
+  @LogExecution('ContextManager.getCached', { logParams: true, paramName: 'key' })
   getCached(key: string): CacheEntry | undefined {
     return this.cache.get(key);
   }
@@ -472,6 +475,7 @@ export class ContextManager {
   /**
    * Clear the cache
    */
+  @LogExecution('ContextManager.clearCache', { logParams: false })
   clearCache(): void {
     this.cache.clear();
   }
@@ -480,6 +484,7 @@ export class ContextManager {
    * Get cache statistics
    * @returns Cache statistics
    */
+  @LogExecution('ContextManager.getCacheStats', { logParams: false })
   getCacheStats(): { size: number; keys: string[] } {
     return this.cache.stats();
   }
