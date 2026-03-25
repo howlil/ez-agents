@@ -187,7 +187,7 @@ export class SkillResolverFacade {
       return {
         skill,
         matchResult,
-        validation: validation ?? { valid: false, issues: [] },
+        validation: validation ?? { valid: false, errors: [] },
         rationale: matchResult.rationale
       };
     } catch (error) {

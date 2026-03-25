@@ -144,7 +144,7 @@ export class ContextManagerFacade {
       maxFiles,
       enableCompression,
       enableDeduplication,
-      taskId
+      taskId: taskId ?? ''
     });
 
     logger.info('ContextManagerFacade.gather completed', {

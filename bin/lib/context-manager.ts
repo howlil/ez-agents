@@ -281,7 +281,7 @@ export class ContextManager {
 
       if (enableCompression) {
         const result = await this.compressor.compressFile(file.path, content);
-        if (result.compressed) {
+        if (result.reduction > 0) {
           content = result.content;
           compressionInfo = result;
           totalOriginal += result.originalSize;
