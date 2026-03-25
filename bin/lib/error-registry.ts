@@ -43,13 +43,13 @@ export type ErrorCategory =
 
 // ─── Severity Levels ─────────────────────────────────────────────────────────
 
-export const SEVERITY: Record<string, SeverityLevel> = {
-  CRITICAL: 'critical',  // System unusable — immediate exit
-  ERROR: 'error',        // Operation failed — retry or exit
-  WARNING: 'warning',    // Recoverable issue — continue with warning
-  INFO: 'info',          // Normal operation — informational
-  DEBUG: 'debug'         // Detailed tracing — development only
-} as const;
+export const SEVERITY = {
+  CRITICAL: 'critical' as SeverityLevel,  // System unusable — immediate exit
+  ERROR: 'error' as SeverityLevel,        // Operation failed — retry or exit
+  WARNING: 'warning' as SeverityLevel,    // Recoverable issue — continue with warning
+  INFO: 'info' as SeverityLevel,          // Normal operation — informational
+  DEBUG: 'debug' as SeverityLevel         // Detailed tracing — development only
+};
 
 // ─── Error Codes by Category ─────────────────────────────────────────────────
 
@@ -158,7 +158,7 @@ export function getAllCodes(): Record<string, Record<string, ErrorCodeDefinition
  * @returns Severity value or null
  */
 export function getSeverity(name: string): SeverityLevel | null {
-  return SEVERITY[name] || null;
+  return SEVERITY[name as keyof typeof SEVERITY] ?? null;
 }
 
 /**
@@ -166,7 +166,7 @@ export function getSeverity(name: string): SeverityLevel | null {
  * @returns All severity levels
  */
 export function getAllSeverities(): Record<string, SeverityLevel> {
-  return SEVERITY;
+  return SEVERITY as Record<string, SeverityLevel>;
 }
 
 /**

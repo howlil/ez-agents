@@ -7,13 +7,7 @@
  * Detects script tags, JavaScript URLs, event handlers, and other security threats.
  */
 
-interface SecurityFinding {
-  type: string;
-  severity: string;
-  description: string;
-  pattern: string | null;
-  matches: string[];
-}
+import type { SecurityFinding } from './context-errors.js';
 
 interface ScanResult {
   safe: boolean;
@@ -23,7 +17,7 @@ interface ScanResult {
 interface SecurityPattern {
   name: string;
   regex: RegExp;
-  severity: string;
+  severity: 'high' | 'medium' | 'low';
   description: string;
 }
 

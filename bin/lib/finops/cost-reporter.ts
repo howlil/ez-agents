@@ -5,7 +5,7 @@
 
 import fs from 'fs';
 import path from 'path';
-import { CostTracker } from '../cost-tracker.js';
+import CostTracker from '../cost-tracker.js';
 
 // ─── Type Definitions ────────────────────────────────────────────────────────
 
