@@ -175,7 +175,7 @@ export function extractRequirementIds(text: string): string[] {
  * @param tasks - Array of task objects
  * @returns Map of reqId -> Set of task IDs
  */
-export function buildRequirementTaskMap(tasks: Array<{ id?: string; requirements?: string[]; name?: string; description?: string }>): Map<string, Set<string>> {
+export function buildRequirementTaskMap(tasks: Array<{ id?: string; requirements?: string[] | undefined; name?: string; description?: string }>): Map<string, Set<string>> {
   const map = new Map<string, Set<string>>();
 
   if (!tasks || !Array.isArray(tasks)) {
@@ -211,7 +211,7 @@ export function buildRequirementTaskMap(tasks: Array<{ id?: string; requirements
  * @param phases - Array of phase objects
  * @returns Map of reqId -> Set of phase IDs
  */
-export function buildRequirementPhaseMap(phases: Array<{ id?: string; requirements?: string[]; name?: string; description?: string }>): Map<string, Set<string>> {
+export function buildRequirementPhaseMap(phases: Array<{ id?: string; requirements?: string[] | undefined; name?: string; description?: string }>): Map<string, Set<string>> {
   const map = new Map<string, Set<string>>();
 
   if (!phases || !Array.isArray(phases)) {
@@ -262,6 +262,7 @@ export async function executeGate1(context: z.infer<typeof gateContextSchema>): 
   // Check each requirement
   for (let i = 0; i < context.requirements.length; i++) {
     const req = context.requirements[i];
+    if (!req) continue;
     const reqPath = `requirements[${i}]`;
 
     // Check 1: Requirement mapping
@@ -290,9 +291,9 @@ export async function executeGate1(context: z.infer<typeof gateContextSchema>): 
     }
 
     // Check 3: Acceptance criteria specificity (warning)
-    for (let j = 0; j < req.acceptanceCriteria.length; j++) {
-      const criterion = req.acceptanceCriteria[j];
-      if (criterion.length < 20) {
+    for (let j = 0; j < (req.acceptanceCriteria?.length ?? 0); j++) {
+      const criterion = req.acceptanceCriteria?.[j];
+      if (criterion && criterion.length < 20) {
         warnings.push(
           `${reqPath}.acceptanceCriteria[${j}]: Criterion for '${req.id}' is very short ` +
           `(${criterion.length} chars). Consider adding more specific, testable criteria.`
