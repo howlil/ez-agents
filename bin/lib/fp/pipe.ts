@@ -126,19 +126,19 @@ export function tap<T>(fn: UnaryFunction<T, void>): UnaryFunction<T, T> {
  * const curriedAdd = curry(add);
  * curriedAdd(1)(2); // 3
  * ```
- * 
+ *
  * @param fn - Function to curry
  * @returns Curried function
  */
 export function curry<T extends AnyFunction>(fn: T): CurriedFunction<T> {
-  return function curried(...args: any[]): any {
+  return function curried(this: any, ...args: any[]): any {
     if (args.length >= fn.length) {
       return fn.apply(this, args);
     }
-    return function (...moreArgs: any[]) {
+    return function (this: any, ...moreArgs: any[]) {
       return curried.apply(this, [...args, ...moreArgs]);
     };
-  };
+  } as CurriedFunction<T>;
 }
 
 type CurriedFunction<T extends AnyFunction> = T extends (
@@ -171,7 +171,7 @@ export function partial<T extends AnyFunction, A extends Partial<Parameters<T>>>
   fn: T,
   ...args: A
 ): (...rest: Parameters<T>[A['length'] & number][]) => ReturnType<T> {
-  return function (...rest: any[]): any {
+  return function (this: any, ...rest: any[]): any {
     return fn.apply(this, [...args, ...rest]);
   };
 }

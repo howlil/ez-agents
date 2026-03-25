@@ -187,8 +187,9 @@ export function milestoneComplete(
         try {
           const content = fs.readFileSync(path.join(phasesDir, dir, s), 'utf-8');
           const fm = extractFrontmatter(content);
-          if (fm['one-liner']) {
-            accomplishments.push(fm['one-liner']);
+          const oneLiner = fm['one-liner'];
+          if (oneLiner && typeof oneLiner === 'string') {
+            accomplishments.push(oneLiner);
           }
           // Count tasks
           const taskMatches = content.match(/##\s*Task\s*\d+/gi) || [];
@@ -263,7 +264,7 @@ export function milestoneComplete(
       /(\*\*Last Activity Description:\*\*\s*).*/,
       `$1${version} milestone completed and archive`
     );
-    writeStateMd(statePath, stateContent, cwd);
+    writeStateMd(statePath, stateContent);
   }
 
   // Archive phase directories if requested

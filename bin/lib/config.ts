@@ -4,7 +4,7 @@
 
 import * as fs from 'fs';
 import * as path from 'path';
-import { output, error, Config } from './core.js';
+import { output, error } from './core.js';
 import { safePlanningWriteSync } from './planning-write.js';
 
 const VALID_CONFIG_KEYS = new Set([
@@ -30,9 +30,9 @@ interface DepthToGranularityMap {
 }
 
 interface UserDefaults {
-  [key: string]: any;
+  [key: string]: unknown;
   workflow?: {
-    [key: string]: any;
+    [key: string]: unknown;
   };
   depth?: string;
   granularity?: string;
@@ -117,7 +117,7 @@ export function ensureConfigSection(cwd: string, raw?: boolean): void {
     path.join(homedir, '.ez', 'defaults.json'),
   ];
   const existingDefaultsPath = defaultsCandidates.find(p => fs.existsSync(p));
-  const globalDefaultsPath = existingDefaultsPath || defaultsCandidates[0];
+  const globalDefaultsPath: string = existingDefaultsPath || defaultsCandidates[0]!;
   let userDefaults: UserDefaults = {};
   
   try {
@@ -126,7 +126,10 @@ export function ensureConfigSection(cwd: string, raw?: boolean): void {
       // Migrate deprecated "depth" key to "granularity"
       if ('depth' in userDefaults && !('granularity' in userDefaults)) {
         const depthToGranularity: DepthToGranularityMap = { quick: 'coarse', standard: 'standard', comprehensive: 'fine' };
-        userDefaults.granularity = depthToGranularity[userDefaults.depth] || userDefaults.depth;
+        const depthValue = userDefaults.depth;
+        if (depthValue !== undefined) {
+          userDefaults.granularity = depthToGranularity[depthValue] || depthValue;
+        }
         delete userDefaults.depth;
         try {
           fs.writeFileSync(globalDefaultsPath, JSON.stringify(userDefaults, null, 2), 'utf-8');
@@ -225,13 +228,13 @@ export function configSet(cwd: string, keyPath: string, value: string, raw?: boo
   }
 
   // Parse value (handle booleans and numbers)
-  let parsedValue: any = value;
+  let parsedValue: unknown = value;
   if (value === 'true') parsedValue = true;
   else if (value === 'false') parsedValue = false;
   else if (!isNaN(Number(value)) && value !== '') parsedValue = Number(value);
 
   // Load existing config or start with empty object
-  let config: Record<string, any> = {};
+  let config: Record<string, unknown> = {};
   try {
     if (fs.existsSync(configPath)) {
       config = JSON.parse(fs.readFileSync(configPath, 'utf-8'));
@@ -242,17 +245,17 @@ export function configSet(cwd: string, keyPath: string, value: string, raw?: boo
 
   // Set nested value using dot notation (e.g., "workflow.research")
   const keys = keyPath.split('.');
-  let current: any = config;
-  
+  let current: Record<string, unknown> = config;
+
   for (let i = 0; i < keys.length - 1; i++) {
-    const key = keys[i];
+    const key = keys[i]!;
     if (current[key] === undefined || typeof current[key] !== 'object') {
       current[key] = {};
     }
-    current = current[key];
+    current = current[key] as Record<string, unknown>;
   }
-  
-  current[keys[keys.length - 1]] = parsedValue;
+
+  current[keys[keys.length - 1]!] = parsedValue;
 
   // Write back
   try {
@@ -277,7 +280,7 @@ export function configGet(cwd: string, keyPath: string, raw?: boolean): void {
     error('Usage: config-get <key.path>');
   }
 
-  let config: Record<string, any> = {};
+  let config: Record<string, unknown> = {};
   try {
     if (fs.existsSync(configPath)) {
       config = JSON.parse(fs.readFileSync(configPath, 'utf-8'));
@@ -293,13 +296,13 @@ export function configGet(cwd: string, keyPath: string, raw?: boolean): void {
 
   // Traverse dot-notation path (e.g., "workflow.auto_advance")
   const keys = keyPath.split('.');
-  let current: any = config;
-  
+  let current: Record<string, unknown> = config;
+
   for (const key of keys) {
     if (current === undefined || current === null || typeof current !== 'object') {
       error(`Key not found: ${keyPath}`);
     }
-    current = current[key];
+    current = current[key] as Record<string, unknown>;
   }
 
   if (current === undefined) {

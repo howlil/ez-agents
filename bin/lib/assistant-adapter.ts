@@ -90,17 +90,19 @@ export function parseToolCall(response: string): ToolCall[] {
   // Simple parsing - in production would use proper JSON/XML parsing
   const toolPattern = /<tool>([\s\S]*?)<\/tool>/g;
   let match;
-  
+
   while ((match = toolPattern.exec(response)) !== null) {
     try {
-      const toolData = JSON.parse(match[1]);
+      const toolContent = match[1];
+      if (!toolContent) continue;
+      const toolData = JSON.parse(toolContent);
       toolCalls.push({
         name: toolData.name,
         arguments: toolData.arguments || {}
       });
     } catch (err) {
       logger.warn('Failed to parse tool call', {
-        raw: match[1],
+        raw: match[1] ?? '',
         error: err instanceof Error ? err.message : 'Unknown'
       });
     }
@@ -112,7 +114,7 @@ export function parseToolCall(response: string): ToolCall[] {
 /**
  * Format tool result for assistant
  */
-export function formatToolResult(toolCall: ToolCall, result: any): string {
+export function formatToolResult(toolCall: ToolCall, result: unknown): string {
   return JSON.stringify({
     tool: toolCall.name,
     arguments: toolCall.arguments,

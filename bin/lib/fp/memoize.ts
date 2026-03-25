@@ -4,9 +4,9 @@
  * Utilities for caching function results and memoizing expensive operations.
  */
 
-// ─── Type Definitions ────────────────────────────────────────────────────────
+import type { AnyFunction } from './pipe.js';
 
-export type AnyFunction = (...args: any[]) => any;
+// ─── Type Definitions ────────────────────────────────────────────────────────
 
 export interface CacheOptions {
   maxSize?: number;
@@ -22,7 +22,8 @@ export interface Cache<K, V> {
   size: number;
 }
 
-export interface MemoizedFunction<T extends AnyFunction> extends T {
+export interface MemoizedFunction<T extends AnyFunction> {
+  (...args: Parameters<T>): ReturnType<T>;
   cache: Map<string, { value: ReturnType<T>; timestamp: number }>;
   clear(): void;
 }
@@ -35,15 +36,6 @@ export interface MemoizedFunction<T extends AnyFunction> extends T {
 export function createCache<K = string, V = any>(options: CacheOptions = {}): Cache<K, V> {
   const { maxSize = 1000, maxAge } = options;
   const store = new Map<K, { value: V; timestamp: number }>();
-
-  function cleanup(): void {
-    const now = Date.now();
-    for (const [key, entry] of store.entries()) {
-      if (maxAge && now - entry.timestamp > maxAge) {
-        store.delete(key);
-      }
-    }
-  }
 
   function enforceSizeLimit(): void {
     while (store.size >= maxSize && store.size > 0) {
@@ -122,7 +114,7 @@ export function memoize<T extends AnyFunction>(
   const cache = new Map<string, { value: ReturnType<T>; timestamp: number }>();
   const { maxAge } = options;
 
-  function serializeArgs(args: IArguments): string {
+  function serializeArgs(args: readonly any[]): string {
     return JSON.stringify(Array.from(args));
   }
 
@@ -172,7 +164,7 @@ export function memoizeAsync<T extends (...args: any[]) => Promise<any>>(
   const cache = new Map<string, { value: Awaited<ReturnType<T>>; timestamp: number }>();
   const { maxAge } = options;
 
-  function serializeArgs(args: IArguments): string {
+  function serializeArgs(args: readonly any[]): string {
     return JSON.stringify(Array.from(args));
   }
 

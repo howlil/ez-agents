@@ -5,7 +5,6 @@
 import * as fs from 'fs';
 import * as path from 'path';
 import { escapeRegex, loadConfig, output, error } from './core.js';
-import { extractFrontmatter, reconstructFrontmatter } from './frontmatter.js';
 import { safePlanningWriteSync } from './planning-write.js';
 import { defaultLogger as logger } from './logger.js';
 
@@ -17,7 +16,7 @@ export interface StateData {
   status?: string;
   progress?: string;
   lastActivity?: string;
-  [key: string]: any;
+  [key: string]: unknown;
 }
 
 export interface MetricOptions {
@@ -46,11 +45,11 @@ export function extractStateField(content: string, fieldName: string): string | 
   const escaped = escapeRegex(fieldName);
   const boldPattern = new RegExp(`\\*\\*${escaped}:\\*\\*\\s*(.+)`, 'i');
   const boldMatch = content.match(boldPattern);
-  if (boldMatch) return boldMatch[1].trim();
-  
+  if (boldMatch) return boldMatch[1]!.trim();
+
   const plainPattern = new RegExp(`^${escaped}:\\s*(.+)`, 'im');
   const plainMatch = content.match(plainPattern);
-  return plainMatch ? plainMatch[1].trim() : null;
+  return plainMatch ? plainMatch[1]!.trim() : null;
 }
 
 /**
@@ -63,36 +62,21 @@ export function replaceStateField(content: string, fieldName: string, newValue: 
   if (boldPattern.test(content)) {
     return content.replace(boldPattern, (_match, prefix) => `${prefix}${newValue}`);
   }
-  
+
   const plainPattern = new RegExp(`(^${escaped}:\\s*)(.*)`, 'im');
   if (plainPattern.test(content)) {
     return content.replace(plainPattern, (_match, prefix) => `${prefix}${newValue}`);
   }
-  
+
   return null;
 }
 
 /**
  * Write STATE.md content with proper handling
  */
-export function writeStateMd(statePath: string, content: string, cwd: string): void {
+export function writeStateMd(statePath: string, content: string): void {
   safePlanningWriteSync(statePath, content);
 }
-
-/**
- * Read text from argument or file
- */
-function readTextArgOrFile(cwd: string, value: string | undefined, filePath: string | undefined, label: string): string {
-  if (!filePath) return value || '';
-  
-  const resolvedPath = path.isAbsolute(filePath) ? filePath : path.join(cwd, filePath);
-  try {
-    return fs.readFileSync(resolvedPath, 'utf-8').trimEnd();
-  } catch {
-    throw new Error(`${label} file not found: ${filePath}`);
-  }
-}
-
 // ─── Command Functions ───────────────────────────────────────────────────────
 
 /**
@@ -163,7 +147,7 @@ export function stateGet(cwd: string, section?: string, raw?: boolean): void {
     const boldPattern = new RegExp(`\\*\\*${fieldEscaped}:\\*\\*\\s*(.*)`, 'i');
     const boldMatch = content.match(boldPattern);
     if (boldMatch) {
-      output({ [section]: boldMatch[1].trim() }, raw, boldMatch[1].trim());
+      output({ [section]: boldMatch[1]!.trim() }, raw, boldMatch[1]!.trim());
       return;
     }
 
@@ -171,7 +155,7 @@ export function stateGet(cwd: string, section?: string, raw?: boolean): void {
     const plainPattern = new RegExp(`^${fieldEscaped}:\\s*(.*)`, 'im');
     const plainMatch = content.match(plainPattern);
     if (plainMatch) {
-      output({ [section]: plainMatch[1].trim() }, raw, plainMatch[1].trim());
+      output({ [section]: plainMatch[1]!.trim() }, raw, plainMatch[1]!.trim());
       return;
     }
 
@@ -179,7 +163,7 @@ export function stateGet(cwd: string, section?: string, raw?: boolean): void {
     const sectionPattern = new RegExp(`##\\s*${fieldEscaped}\\s*\n([\\s\\S]*?)(?=\\n##|$)`, 'i');
     const sectionMatch = content.match(sectionPattern);
     if (sectionMatch) {
-      output({ [section]: sectionMatch[1].trim() }, raw, sectionMatch[1].trim());
+      output({ [section]: sectionMatch[1]!.trim() }, raw, sectionMatch[1]!.trim());
       return;
     }
 
@@ -197,7 +181,7 @@ export function statePatch(cwd: string, patches: Record<string, string>, raw?: b
   const statePath = path.join(cwd, '.planning', 'STATE.md');
   try {
     let content = fs.readFileSync(statePath, 'utf-8');
-    const results = { updated: [], failed: [] };
+    const results: { updated: string[]; failed: string[] } = { updated: [], failed: [] };
 
     for (const [field, value] of Object.entries(patches)) {
       const updated = replaceStateField(content, field, value);
@@ -210,7 +194,7 @@ export function statePatch(cwd: string, patches: Record<string, string>, raw?: b
     }
 
     if (results.updated.length > 0) {
-      writeStateMd(statePath, content, cwd);
+      writeStateMd(statePath, content);
     }
 
     output(results, raw, results.updated.length > 0 ? 'true' : 'false');
@@ -228,16 +212,16 @@ export function stateUpdate(cwd: string, field: string, value: string, raw?: boo
   try {
     let content = fs.readFileSync(statePath, 'utf-8');
     const updated = replaceStateField(content, field, value);
-    
+
     if (updated !== null) {
-      writeStateMd(statePath, updated, cwd);
-      output({ updated: true });
+      writeStateMd(statePath, updated);
+      output({ updated: true }, raw, 'true');
     } else {
-      output({ updated: false, reason: `Field "${field}" not found in STATE.md` });
+      output({ updated: false, reason: `Field "${field}" not found in STATE.md` }, raw, 'false');
     }
   } catch (err) {
     logger.error('Failed to update STATE.md', { statePath, field, error: err instanceof Error ? err.message : 'Unknown' });
-    output({ updated: false, reason: 'STATE.md not found' });
+    output({ updated: false, reason: 'STATE.md not found' }, raw, 'false');
   }
 }
 
@@ -254,7 +238,7 @@ export function stateAdvancePlan(cwd: string, raw?: boolean): void {
   let content = fs.readFileSync(statePath, 'utf-8');
   const currentPlanStr = extractStateField(content, 'Current Plan');
   const totalPlansStr = extractStateField(content, 'Total Plans in Phase');
-  const today = new Date().toISOString().split('T')[0];
+  const today = new Date().toISOString().split('T')[0]!;
 
   const currentPlan = currentPlanStr ? parseInt(currentPlanStr, 10) : NaN;
   const totalPlans = totalPlansStr ? parseInt(totalPlansStr, 10) : NaN;
@@ -267,7 +251,7 @@ export function stateAdvancePlan(cwd: string, raw?: boolean): void {
   if (currentPlan >= totalPlans) {
     content = replaceStateField(content, 'Status', 'Phase complete — ready for verification') || content;
     content = replaceStateField(content, 'Last Activity', today) || content;
-    writeStateMd(statePath, content, cwd);
+    writeStateMd(statePath, content);
     output({ 
       advanced: false, 
       reason: 'last_plan', 
@@ -280,7 +264,7 @@ export function stateAdvancePlan(cwd: string, raw?: boolean): void {
     content = replaceStateField(content, 'Current Plan', String(newPlan)) || content;
     content = replaceStateField(content, 'Status', 'Ready to execute') || content;
     content = replaceStateField(content, 'Last Activity', today) || content;
-    writeStateMd(statePath, content, cwd);
+    writeStateMd(statePath, content);
     output({ 
       advanced: true, 
       previous_plan: currentPlan, 
@@ -313,7 +297,7 @@ export function stateRecordMetric(cwd: string, options: MetricOptions, raw?: boo
   const metricsMatch = content.match(metricsPattern);
 
   if (metricsMatch) {
-    let tableBody = metricsMatch[2].trimEnd();
+    let tableBody = metricsMatch[2]!.trimEnd();
     const newRow = `| Phase ${phase} P${plan} | ${duration} | ${tasks || '-'} tasks | ${files || '-'} files |`;
 
     if (tableBody.trim() === '' || tableBody.includes('None yet')) {
@@ -323,7 +307,7 @@ export function stateRecordMetric(cwd: string, options: MetricOptions, raw?: boo
     }
 
     content = content.replace(metricsPattern, (_match, header) => `${header}${tableBody}\n`);
-    writeStateMd(statePath, content, cwd);
+    writeStateMd(statePath, content);
     output({ recorded: true, phase, plan, duration }, raw, 'true');
   } else {
     output({ recorded: false, reason: 'Performance Metrics section not found in STATE.md' }, raw, 'false');

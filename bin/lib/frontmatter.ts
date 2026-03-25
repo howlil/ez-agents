@@ -3,17 +3,16 @@
  */
 
 import * as fs from 'fs';
-import * as path from 'path';
-import { safeReadFile, output, error } from './core.js';
+import { safeReadFile } from './core.js';
 
 // ─── Type Definitions ────────────────────────────────────────────────────────
 
 export interface FrontmatterData {
-  [key: string]: any;
+  [key: string]: unknown;
 }
 
 interface StackFrame {
-  obj: any;
+  obj: Record<string, unknown>;
   key: string | null;
   indent: number;
 }
@@ -30,7 +29,7 @@ export function extractFrontmatter(content: string): FrontmatterData {
   const match = content.match(/^---\n([\s\S]+?)\n---/);
   if (!match) return frontmatter;
 
-  const yaml = match[1];
+  const yaml = match[1]!;
   const lines = yaml.split('\n');
 
   // Stack to track nested objects: [{obj, key, indent}]
@@ -42,27 +41,27 @@ export function extractFrontmatter(content: string): FrontmatterData {
 
     // Calculate indentation (number of leading spaces)
     const indentMatch = line.match(/^(\s*)/);
-    const indent = indentMatch ? indentMatch[1].length : 0;
+    const indent = indentMatch ? indentMatch[1]!.length : 0;
 
     // Pop stack back to appropriate level
-    while (stack.length > 1 && indent <= stack[stack.length - 1].indent) {
+    while (stack.length > 1 && indent <= stack[stack.length - 1]!.indent) {
       stack.pop();
     }
 
-    const current = stack[stack.length - 1];
+    const current = stack[stack.length - 1]!;
 
     // Check for key: value pattern
     const keyMatch = line.match(/^(\s*)([a-zA-Z0-9_-]+):\s*(.*)/);
     if (keyMatch) {
-      const key = keyMatch[2];
-      const value = keyMatch[3].trim();
+      const key = keyMatch[2]!;
+      const value = keyMatch[3]!.trim();
 
       if (value === '' || value === '[') {
         // Key with no value or opening bracket — could be nested object or array
         current.obj[key] = value === '[' ? [] : {};
         current.key = null;
         // Push new context for potential nested content
-        stack.push({ obj: current.obj[key], key: null, indent });
+        stack.push({ obj: current.obj[key] as any, key: null, indent });
       } else if (value.startsWith('[') && value.endsWith(']')) {
         // Inline array: key: [a, b, c]
         current.obj[key] = value
@@ -83,12 +82,12 @@ export function extractFrontmatter(content: string): FrontmatterData {
       // If current context is an empty object, convert to array
       if (typeof current.obj === 'object' && !Array.isArray(current.obj) && Object.keys(current.obj).length === 0) {
         // Find the key in parent that points to this object and convert it
-        const parent = stack.length > 1 ? stack[stack.length - 2] : null;
+        const parent = stack.length > 1 ? stack[stack.length - 2]! : null;
         if (parent) {
           for (const k of Object.keys(parent.obj)) {
             if (parent.obj[k] === current.obj) {
               parent.obj[k] = [itemValue];
-              current.obj = parent.obj[k];
+              current.obj = parent.obj[k] as Record<string, unknown>;
               break;
             }
           }

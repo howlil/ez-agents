@@ -43,7 +43,7 @@ export function mapObject<T, K extends string, U>(
   obj: Record<K, T>,
   fn: Transform<[K, T], U>
 ): U[] {
-  return Object.entries(obj).map(([key, value]) => fn([key as K, value]));
+  return Object.entries(obj).map(([key, value]) => fn([key as K, value as T]));
 }
 
 // ─── Filter Functions ────────────────────────────────────────────────────────
@@ -70,8 +70,8 @@ export function filterObject<T, K extends string>(
 ): Record<K, T> {
   const result: Partial<Record<K, T>> = {};
   for (const [key, value] of Object.entries(obj)) {
-    if (predicate(key as K, value)) {
-      result[key as K] = value;
+    if (predicate(key as K, value as T)) {
+      result[key as K] = value as T;
     }
   }
   return result as Record<K, T>;
@@ -150,7 +150,7 @@ export function reduceObject<T, R, K extends string>(
   initial: R
 ): R {
   return Object.entries(obj).reduce(
-    (acc, [key, value]) => fn(acc, key as K, value),
+    (acc, [key, value]) => fn(acc, key as K, value as T),
     initial
   );
 }
@@ -200,7 +200,9 @@ export function takeWhile<T>(arr: T[], predicate: Predicate<T>): T[] {
  */
 export function dropWhile<T>(arr: T[], predicate: Predicate<T>): T[] {
   let i = 0;
-  while (i < arr.length && predicate(arr[i])) {
+  while (i < arr.length) {
+    const item = arr[i];
+    if (item === undefined || !predicate(item)) break;
     i++;
   }
   return arr.slice(i);
@@ -226,8 +228,8 @@ export function chunk<T>(arr: T[], size: number): T[][] {
  * @param depth - Depth to flatten (default: 1)
  * @returns Flattened array
  */
-export function flatten<T>(arr: any[], depth: number = 1): T[] {
-  return arr.flat(depth);
+export function flatten<T, U extends T[]>(arr: U, depth: number = 1): T[] {
+  return arr.flat(depth) as T[];
 }
 
 /**
@@ -239,7 +241,7 @@ export function zip<T>(...arrs: T[][]): T[][] {
   const minLength = Math.min(...arrs.map(arr => arr.length));
   const result: T[][] = [];
   for (let i = 0; i < minLength; i++) {
-    result.push(arrs.map(arr => arr[i]));
+    result.push(arrs.map((arr): T => arr[i]!));
   }
   return result;
 }

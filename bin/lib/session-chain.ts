@@ -328,14 +328,14 @@ export class SessionChain {
       return null;
     }
 
-    const missingTimestamp = timestampMatch[1];
+    const missingTimestamp = timestampMatch[1]!;
 
     // Find session with closest timestamp
     let closestMatch: { session_id: string } | null = null;
     let minDiff = Infinity;
 
     for (const session of allSessions) {
-      const sessionTimestamp = session.session_id.replace('session-', '');
+      const sessionTimestamp = (session.session_id as string).replace('session-', '');
       const diff = this._compareTimestamps(missingTimestamp, sessionTimestamp);
 
       if (diff < minDiff) {

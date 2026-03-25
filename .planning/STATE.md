@@ -5,27 +5,27 @@
 
 ## Current Position
 
-**Phase:** Not started (defining requirements)
-**Plan:** —
-**Status:** Defining requirements
-**Last activity:** 2026-03-25 — Milestone v5.0.0 started
+**Phase:** Phase 8 Complete (Wave 1)
+**Plan:** 08-01 (Entry Points & Build System Migration)
+**Status:** Phase 8 Complete - All entry points migrated to TypeScript
+**Last activity:** 2026-03-25 — Phase 8 completed
 
 ## Progress
 
-[                            ] 0%
+[████████████████████████] 100%
 
 ## Metrics
 
-- Plans completed: 8
+- Plans completed: 10
 - Plans total: 15
-- Phases completed: 5
-- Phases total: TBD
+- Phases completed: 8
+- Phases total: 15
 
 ## Current Session
 
 - Last session: 2026-03-25
-- Stopped at: Milestone v5.0.0 initialization
-- Resume file: —
+- Stopped at: Phase 8 completion
+- Resume file: .planning/phases/08-entry-points-build-system/08-01-SUMMARY.md
 
 ## Decisions
 
@@ -46,6 +46,8 @@
 | Test migration | Phase 4 migration | Incremental test conversion |
 | Documentation | Phase 5 migration | MIGRATION.md created |
 | v5.0.0 scope | Milestone initialization | Complete TypeScript migration |
+| Wave 3 subdirectory migration | Phase 6 | 24 modules migrated (deploy, perf, analytics, gates) |
+| Entry points migration | Phase 8 | 7 entry points migrated (install, update, build-hooks, fix-qwen, 3 hooks) |
 
 ## Blockers
 
@@ -62,6 +64,7 @@ None
 - `.planning/phases/03-architecture-refactoring/` — Phase 3 artifacts
 - `.planning/phases/04-testing-quality/` — Phase 4 artifacts
 - `.planning/phases/05-documentation-release/` — Phase 5 artifacts
+- `.planning/phases/06-complete-library-migration/` — Phase 6 artifacts
 - `MIGRATION.md` — Migration guide
 
 ## TypeScript Migration Progress
@@ -71,41 +74,54 @@ None
 **Phase 3 Complete:** 5 TypeScript files (935 lines)
 **Phase 4 Complete:** 1 TypeScript test file (~100 lines)
 **Phase 5 Complete:** 1 Documentation file (~400 lines)
-**Total:** 23 TypeScript files (~4,606 lines)
+**Phase 6 Wave 1 Complete:** 58 TypeScript files
+**Phase 6 Wave 2 Complete:** 23 TypeScript files
+**Phase 6 Wave 3 Complete:** 24 TypeScript files (deploy, perf, analytics, gates)
+**Phase 8 Complete:** 7 TypeScript files (install, update, build-hooks, fix-qwen-installation, 3 hooks)
+
+**Total:** 135 TypeScript files (~15,000+ lines estimated)
 
 **Remaining work for v5.0.0:**
-- ~340 `.cjs` files in `bin/lib/` and tests
-- ~13 `.js` entry points and scripts
+- ~316 `.cjs` files in `bin/lib/` and tests
 - Full type coverage and validation
 
 | Module | Lines | Status |
 |--------|-------|--------|
-| safe-path.ts | 128 | ✓ Complete |
-| logger.ts | 126 | ✓ Complete |
-| core.ts | 486 | ✓ Complete |
-| config.ts | 311 | ✓ Complete |
-| frontmatter.ts | 232 | ✓ Complete |
-| state.ts | 318 | ✓ Complete |
-| phase.ts | 264 | ✓ Complete |
-| roadmap.ts | 246 | ✓ Complete |
-| planning-write.ts | 138 | ✓ Complete |
-| safe-exec.ts | 224 | ✓ Complete |
-| error-cache.ts | 132 | ✓ Complete |
-| file-lock.ts | 186 | ✓ Complete |
-| session-manager.ts | 142 | ✓ Complete |
-| git-utils.ts | 178 | ✓ Complete |
-| model-provider.ts | 118 | ✓ Complete |
-| assistant-adapter.ts | 142 | ✓ Complete |
-| fp/transform.ts | 246 | ✓ Complete |
-| fp/pipe.ts | 162 | ✓ Complete |
-| fp/memoize.ts | 230 | ✓ Complete |
-| fp/immutable.ts | 286 | ✓ Complete |
-| fp/index.ts | 11 | ✓ Complete |
-| tests/circuit-breaker.test.ts | ~100 | ✓ Complete |
-| MIGRATION.md | ~400 | ✓ Complete |
+| deploy/deploy-detector.ts | ~90 | ✓ Complete (Wave 3) |
+| deploy/deploy-status.ts | ~85 | ✓ Complete (Wave 3) |
+| deploy/deploy-rollback.ts | ~70 | ✓ Complete (Wave 3) |
+| deploy/deploy-pre-flight.ts | ~60 | ✓ Complete (Wave 3) |
+| deploy/deploy-health-check.ts | ~95 | ✓ Complete (Wave 3) |
+| deploy/deploy-env-manager.ts | ~140 | ✓ Complete (Wave 3) |
+| deploy/deploy-runner.ts | ~100 | ✓ Complete (Wave 3) |
+| deploy/deploy-audit-log.ts | ~85 | ✓ Complete (Wave 3) |
+| perf/api-monitor.ts | ~120 | ✓ Complete (Wave 3) |
+| perf/db-optimizer.ts | ~95 | ✓ Complete (Wave 3) |
+| perf/frontend-performance.ts | ~75 | ✓ Complete (Wave 3) |
+| perf/perf-analyzer.ts | ~115 | ✓ Complete (Wave 3) |
+| perf/perf-reporter.ts | ~145 | ✓ Complete (Wave 3) |
+| perf/regression-detector.ts | ~110 | ✓ Complete (Wave 3) |
+| perf/perf-baseline.ts | ~105 | ✓ Complete (Wave 3) |
+| analytics/analytics-collector.ts | ~100 | ✓ Complete (Wave 3) |
+| analytics/analytics-reporter.ts | ~150 | ✓ Complete (Wave 3) |
+| analytics/cohort-analyzer.ts | ~145 | ✓ Complete (Wave 3) |
+| analytics/funnel-analyzer.ts | ~200 | ✓ Complete (Wave 3) |
+| analytics/nps-tracker.ts | ~160 | ✓ Complete (Wave 3) |
+| gates/gate-01-requirement.ts | ~320 | ✓ Complete (Wave 3) |
+| gates/gate-02-architecture.ts | ~260 | ✓ Complete (Wave 3) |
+| gates/gate-03-code.ts | ~300 | ✓ Complete (Wave 3) |
+| gates/gate-04-security.ts | ~380 | ✓ Complete (Wave 3) |
 
-**v4.0.0 milestone complete. Starting v5.0.0.**
+**v5.0.0 Milestone: Wave 3 of Phase 6 complete.**
 
 ---
 
-*Last updated: 2026-03-25 after v4.0.0 completion — Starting v5.0.0 Complete TypeScript Migration*
+### Quick Tasks Completed
+
+| # | Description | Date | Commit | Directory |
+|---|-------------|------|--------|-----------|
+| 260325-jg2 | Fix TypeScript errors when opening files | 2026-03-25 | 7b000bb | [260325-jg2-semua-file-ts-saat-saya-buka-eror](./quick/260325-jg2-semua-file-ts-saat-saya-buka-eror/) |
+
+---
+
+*Last updated: 2026-03-25 — Completed quick task 260325-jg2: Fix TypeScript errors when opening files*

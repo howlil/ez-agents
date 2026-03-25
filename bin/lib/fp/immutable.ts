@@ -96,13 +96,13 @@ export function merge<T extends object>(obj: T, ...updates: Array<Partial<T>>): 
 
 /**
  * Deep merge multiple objects
- * 
+ *
  * @param obj - Base object
  * @param updates - Objects to deep merge
  * @returns Deep merged object
  */
 export function mergeDeep<T extends object>(obj: T, ...updates: Array<DeepPartial<T>>): T {
-  return updates.reduce((acc, update) => updateDeep(acc, update), obj);
+  return updates.reduce((acc, update) => updateDeep(acc, update), obj) as T;
 }
 
 /**
