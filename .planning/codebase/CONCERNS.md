@@ -1,254 +1,519 @@
-# Tech Debt & Code Quality Concerns Report
+# Technical Concerns
 
-**Generated:** 2026-03-21  
-**Phase:** 37-03 — Tech Debt Hotspot Identification Engine  
-**Scope:** ez-agents codebase
+## Overview
 
----
-
-## Executive Summary
-
-This report identifies tech debt hotspots, code quality issues, security considerations, performance bottlenecks, and fragile areas in the ez-agents codebase using automated analysis tools.
-
-**Analysis Tools:**
-- `TechDebtAnalyzer` — Detects TODO/FIXME/HACK/XXX/BUG/DEPRECATED markers
-- `CodeComplexityAnalyzer` — Analyzes cyclomatic complexity, large files, duplicate code
-- `npm audit` — Security vulnerability scanning
+This document tracks technical debt, known issues, complexity hotspots, and improvement opportunities in the ez-agents codebase.
 
 ---
 
-## 1. Tech Debt Markers
+## Critical Concerns
 
-### Summary by Severity
+### 1. Skipped Tests
 
-| Severity | Count | Weight |
-|----------|-------|--------|
-| Critical | 3     | 4      |
-| High     | 12    | 3      |
-| Medium   | 8+    | 2      |
-| Low      | 20+   | 1      |
+**Files:**
+- `tests/circuit-breaker.test.cjs.skip`
+- `tests/verify.test.cjs.skip`
 
-### Critical Issues (Weight = 4)
+**Issue:** Tests temporarily disabled but not tracked for re-enablement.
 
-**DEPRECATED markers requiring immediate attention:**
+**Impact:** Reduced test coverage for critical reliability features.
 
-1. **bin/lib/project-reporter.cjs:337**
-   - Content: `criticalDebt.length} critical debt markers found (DEPRECATED, critical FIXMEs)`
-   - Action: Review and update deprecated code patterns
-
-2. **bin/lib/tech-debt-analyzer.cjs:5**
-   - Content: Documentation comment mentioning DEPRECATED marker
-   - Action: Informational (marker definition)
-
-3. **bin/lib/tech-debt-analyzer.cjs:23**
-   - Content: `{ marker: 'DEPRECATED', severity: 'Critical', weight: 4 }`
-   - Action: Informational (marker definition)
-
-### High Priority Issues (Weight = 3)
-
-**BUG and XXX markers:**
-
-1. **bin/lib/chief-strategist.cjs:25, 75**
-   - Content: BUG work type mapping
-   - Action: Review bug handling logic
-
-2. **bin/lib/logger.cjs:6, 52, 111, 116**
-   - Content: DEBUG level references (false positives from documentation)
-   - Action: No action needed (documentation)
-
-3. **bin/lib/release-validator.cjs:104**
-   - Content: grep command for tech debt detection
-   - Action: Review grep pattern for Windows compatibility
-
-4. **bin/lib/tech-debt-analyzer.cjs:5, 21**
-   - Content: XXX marker definition and documentation
-   - Action: Informational (marker definition)
-
-### Medium Priority Issues (Weight = 2)
-
-**FIXME and REFACTOR markers:**
-
-1. **bin/lib/project-reporter.cjs:337, 339**
-   - Content: Critical debt marker handling
-   - Action: Review FIXME handling in project reporter
-
-2. **bin/lib/release-validator.cjs:104, 110**
-   - Content: Tech debt grep patterns
-   - Action: Ensure Windows compatibility
-
-3. **bin/lib/chief-strategist.cjs:26, 79**
-   - Content: REFACTOR work type mapping
-   - Action: Informational (work type definition)
+**Recommendation:**
+- Create GitHub issues for each skipped test
+- Set deadline for re-enablement
+- Document reason for skipping in file header
 
 ---
 
-## 2. Code Complexity Analysis
+### 2. Large Entry Point Files
 
-### Complexity Thresholds
+**Files:**
+- `bin/install.js` (3222 lines)
+- `ez-agents/bin/ez-tools.cjs` (1693 lines)
 
-- **Function complexity limit:** 10
-- **File line limit:** 300 (warning), 500 (critical)
-- **Max function parameters:** 4
-- **Max function statements:** 30
-- **Max nesting depth:** 4
+**Issue:** Entry point files exceed recommended size (>1000 lines).
 
-### Files Requiring Attention
+**Impact:**
+- Harder to maintain and understand
+- Higher risk of merge conflicts
+- Difficult to test comprehensively
 
-**Note:** Current analysis shows no files exceeding the default thresholds (500 lines, 100KB). The codebase maintains good modularity.
-
-### Complexity Hotspots
-
-The following files have moderate complexity that should be monitored:
-
-1. **bin/lib/tech-debt-analyzer.cjs** — Multiple methods, pattern matching logic
-2. **bin/lib/code-complexity-analyzer.cjs** — ESLint integration, chunk hashing
-3. **bin/lib/chief-strategist.cjs** — Work type routing, agent coordination
-4. **bin/lib/project-reporter.cjs** — Multi-metric aggregation
+**Recommendation:**
+- Extract installer runtime detection to `bin/lib/runtime-detector.cjs`
+- Extract config directory resolution to `bin/lib/config-resolver.cjs`
+- Extract content conversion to `bin/lib/content-converter.cjs`
+- Split ez-tools commands into separate modules under `ez-agents/bin/commands/`
 
 ---
 
-## 3. Large File Detection
+### 3. Complex State Management
 
-### Thresholds
+**File:** `bin/lib/state.cjs` (737 lines)
 
-- **Lines:** 500 (Medium severity), 1000+ (High severity)
-- **Size:** 100KB (Medium severity)
+**Issue:** Single module handles 10+ different state operations.
 
-### Current Status
+**Impact:**
+- High cognitive load for maintainers
+- Risk of regression when modifying
+- Difficult to test all code paths
 
-✅ **No large files detected** — All source files are within acceptable size limits.
-
----
-
-## 4. Duplicate Code Detection
-
-### Detection Method
-
-- Chunk size: 10 lines
-- Overlap: 5 lines
-- Hash algorithm: MD5
-
-### Current Status
-
-✅ **No significant duplicate code patterns detected** — Code maintains good DRY principles.
+**Recommendation:**
+Consider splitting into focused modules:
+- `state-load.cjs` - Load operations
+- `state-update.cjs` - Update/patch operations
+- `state-metrics.cjs` - Metric recording
+- `state-progress.cjs` - Progress tracking
+- `state-session.cjs` - Session history
 
 ---
 
-## 5. Security Considerations
+## Medium-Term Concerns
 
-### Dependency Risk Analysis
+### 4. Context Manager Complexity
 
-**Recommendation:** Run `npm audit` regularly to check for security vulnerabilities.
+**File:** `bin/lib/context-manager.cjs` (~300 lines) plus 6 supporting modules
 
-### Security Best Practices Implemented
+**Issue:** Context optimization pipeline has many moving parts.
 
-1. ✅ No hardcoded secrets or API keys in source code
-2. ✅ Audit log validation prevents token/password leakage
-3. ✅ File operations use safe path joining
-4. ✅ Error handling prevents information disclosure
+**Components:**
+- `context-relevance-scorer.cjs`
+- `context-deduplicator.cjs`
+- `context-compressor.cjs`
+- `context-metadata-tracker.cjs`
+- `context-cache.cjs`
+- `context-errors.cjs`
 
-### Areas for Improvement
+**Impact:** Complex interactions between components can cause subtle bugs.
 
-1. **bin/lib/tech-debt-analyzer.cjs** — Uses `execSync` for grep; ensure proper input sanitization
-2. **bin/lib/code-complexity-analyzer.cjs** — Uses `crypto.createHash`; ensure no sensitive data is hashed
-
----
-
-## 6. Performance Bottlenecks
-
-### Identified Patterns
-
-1. **File System Operations**
-   - Multiple `fs.readFileSync` calls in loops
-   - Consider async alternatives for large codebases
-
-2. **Grep Fallback**
-   - Pure JS fallback on Windows may be slower than native grep
-   - Consider using `findstr` on Windows for better performance
-
-3. **Duplicate Detection**
-   - MD5 hashing of all 10-line chunks
-   - O(n²) comparison for duplicate detection
-   - Consider optimization for very large codebases
+**Recommendation:**
+- Add integration tests for full pipeline
+- Document data flow between components
+- Consider adding tracing/debug mode
 
 ---
 
-## 7. Fragile Areas
+### 5. Git Workflow Engine Size
 
-### High-Risk Files
+**File:** `bin/lib/git-workflow-engine.cjs` (~300 lines)
 
-1. **bin/lib/tech-debt-analyzer.cjs**
-   - Risk: Grep command compatibility across platforms
-   - Mitigation: Pure JS fallback implemented
+**Issue:** Comprehensive git workflow handling in single module.
 
-2. **bin/lib/code-complexity-analyzer.cjs**
-   - Risk: ESLint dependency may not be available
-   - Mitigation: Fallback complexity analysis implemented
+**Impact:** Git operations are critical; bugs can cause data loss.
 
-3. **bin/lib/project-reporter.cjs**
-   - Risk: Multiple critical FIXME markers
-   - Mitigation: Track and prioritize resolution
-
-### Test Coverage Gaps
-
-1. **Windows-specific testing** — Limited test coverage for Windows path handling
-2. **Large codebase testing** — Tests use small fixture projects
-3. **ESLint integration testing** — Fallback path tested more than ESLint path
+**Recommendation:**
+- Add more error recovery tests
+- Document all git error scenarios
+- Consider adding git operation logging for debugging
 
 ---
 
-## 8. Recommendations
+### 6. Model Provider Abstraction
 
-### Immediate Actions (Critical)
+**File:** `bin/lib/model-provider.cjs` (~150 lines)
 
-1. Review DEPRECATED markers in `bin/lib/project-reporter.cjs`
-2. Ensure Windows compatibility for all execSync calls
+**Issue:** Supporting 4 different AI providers with unified API.
 
-### Short-Term Improvements (High)
+**Impact:**
+- Provider-specific bugs may slip through
+- API differences may cause subtle issues
+- New provider additions require careful testing
 
-1. Add Windows-specific test cases for tech-debt-analyzer
-2. Implement async file operations for better performance
-3. Add test coverage for ESLint integration path
-
-### Medium-Term Enhancements (Medium)
-
-1. Consider using `findstr` on Windows instead of pure JS fallback
-2. Add performance benchmarks for large codebases
-3. Implement incremental analysis (only analyze changed files)
-
-### Long-Term Goals (Low)
-
-1. Add support for custom debt marker patterns via config
-2. Implement trend analysis (tech debt over time)
-3. Add auto-fix suggestions for common patterns
+**Recommendation:**
+- Add provider-specific test fixtures
+- Document known provider differences
+- Add integration tests for each provider
 
 ---
 
-## Appendix A: Severity Scoring
+### 7. Dependency Versions
 
-| Severity | Weight | Description |
-|----------|--------|-------------|
-| Critical | 4      | Immediate action required (DEPRECATED, security issues) |
-| High     | 3      | Should be addressed soon (BUG, XXX, performance) |
-| Medium   | 2      | Should be tracked (FIXME, HACK, REFACTOR) |
-| Low      | 1      | Nice to have (TODO, OPTIMIZE) |
+**Current versions in `package.json`:**
 
----
+| Package | Version | Latest | Status |
+|---------|---------|--------|--------|
+| eslint | ^8.57.0 | 9.x | Major behind |
+| vitest | ^4.1.0 | Current | OK |
+| husky | ^9.1.7 | Current | OK |
+| c8 | ^11.0.0 | Current | OK |
 
-## Appendix B: Files Analyzed
+**Issue:** ESLint 8.x is behind current major version.
 
-**Source Directories:**
-- `src/`
-- `app/`
-- `lib/`
-- `commands/`
-- `bin/`
-- `agents/`
-- `hooks/`
+**Impact:**
+- Missing latest linting rules
+- Potential security fixes in 9.x
+- Migration effort will increase over time
 
-**File Extensions:**
-- `.ts`, `.tsx`, `.js`, `.jsx`, `.cjs`, `.mjs`
+**Recommendation:**
+- Plan ESLint 9.x migration
+- Test with eslint-config updates
+- Update `.eslintrc.json` format if needed
 
 ---
 
-*Report generated by Tech Debt Hotspot Identification Engine (Phase 37-03)*
+## Low-Priority Concerns
+
+### 8. Documentation Coverage
+
+**Issue:** JSDoc coverage may be incomplete.
+
+**Impact:**
+- Harder for new contributors
+- API documentation may be outdated
+
+**Recommendation:**
+- Run JSDoc generation regularly
+- Add JSDoc linting to CI
+- Document all exported functions
+
+---
+
+### 9. Hook Compilation
+
+**File:** `scripts/build-hooks.js`
+
+**Issue:** Hooks compiled from `.js` to `.cjs` adds build step complexity.
+
+**Impact:**
+- Extra step before publishing
+- Potential for stale compiled files
+- Debugging requires source maps
+
+**Recommendation:**
+- Add source map generation
+- Consider writing hooks in `.cjs` directly
+- Add pre-publish verification for compiled hooks
+
+---
+
+### 10. Test Fixture Management
+
+**Directory:** `tests/fixtures/`
+
+**Issue:** Fixtures may become outdated as codebase evolves.
+
+**Impact:** Tests may pass with outdated fixtures but fail in production.
+
+**Recommendation:**
+- Add fixture validation tests
+- Document fixture update process
+- Consider generating fixtures from templates
+
+---
+
+## Performance Considerations
+
+### 11. Context Budget Management
+
+**Issue:** Context usage can grow quickly with large codebases.
+
+**Current thresholds:**
+- 0-30%: PEAK (optimal)
+- 30-50%: GOOD (target)
+- 50-70%: DEGRADING
+- 70%+: POOR (risk of truncation)
+
+**Impact:** Large projects may hit context limits.
+
+**Recommendation:**
+- Monitor context usage in production
+- Add context usage alerts
+- Implement more aggressive compression strategies
+
+---
+
+### 12. File Lock Timeout
+
+**File:** `bin/lib/file-lock.cjs` (~150 lines)
+
+**Issue:** File locking prevents concurrent access but may cause deadlocks.
+
+**Impact:** Agent workflows may hang if locks aren't released.
+
+**Recommendation:**
+- Add lock timeout monitoring
+- Log lock acquisition/release
+- Add deadlock detection
+
+---
+
+## Security Considerations
+
+### 13. Secret Detection
+
+**File:** `.gitleaks.toml`
+
+**Issue:** Secret scanning relies on pattern matching.
+
+**Impact:** New secret formats may not be detected.
+
+**Recommendation:**
+- Regularly update gitleaks patterns
+- Add custom patterns for project-specific secrets
+- Consider pre-commit secret scanning
+
+---
+
+### 14. Command Injection Prevention
+
+**Files:** `bin/lib/safe-exec.cjs`, `bin/lib/audit-exec.cjs`
+
+**Issue:** Command execution wrappers must be kept up-to-date.
+
+**Impact:** Vulnerable to injection if not properly maintained.
+
+**Recommendation:**
+- Regular security audits
+- Add command injection tests
+- Document safe execution patterns
+
+---
+
+### 15. Path Traversal Prevention
+
+**File:** `bin/lib/safe-path.cjs`
+
+**Issue:** Path validation must handle all edge cases.
+
+**Impact:** Potential unauthorized file access.
+
+**Recommendation:**
+- Add path traversal test cases
+- Test on Windows, Linux, macOS
+- Document path validation rules
+
+---
+
+## Scalability Considerations
+
+### 16. Agent Spawn Overhead
+
+**Issue:** Each agent spawn has context gathering overhead.
+
+**Impact:** Large projects may have slow agent startup.
+
+**Recommendation:**
+- Profile context gathering time
+- Cache context where safe
+- Consider lazy context loading
+
+---
+
+### 17. State File Size
+
+**File:** `.planning/STATE.md`
+
+**Issue:** State file grows with session history.
+
+**Impact:** Slower state loading over time.
+
+**Recommendation:**
+- Implement state rotation
+- Archive old session history
+- Compress state data
+
+---
+
+### 18. Phase Directory Growth
+
+**Directory:** `.planning/phases/`
+
+**Issue:** Many phases create many directories.
+
+**Impact:** File system performance may degrade.
+
+**Recommendation:**
+- Archive completed phases
+- Implement phase cleanup
+- Consider hierarchical phase organization
+
+---
+
+## Improvement Opportunities
+
+### 19. Enhanced Error Reporting
+
+**Opportunity:** Add structured error reporting with error codes.
+
+**Benefits:**
+- Easier debugging
+- Better user error messages
+- Searchable error documentation
+
+**Implementation:**
+```javascript
+// Example error format
+{
+  code: 'EZ_STATE_001',
+  message: 'STATE.md not found',
+  context: { planningDir: '/path/to/.planning' },
+  suggestion: 'Run /ez:new-project to initialize'
+}
+```
+
+---
+
+### 20. Performance Metrics Dashboard
+
+**Opportunity:** Add performance metrics collection and visualization.
+
+**Metrics to track:**
+- Agent spawn time
+- Context gathering duration
+- Plan execution time
+- File operation latency
+
+**Benefits:**
+- Identify performance bottlenecks
+- Track performance over time
+- Set performance budgets
+
+---
+
+### 21. Enhanced Logging
+
+**Opportunity:** Add structured logging with log levels.
+
+**Benefits:**
+- Better debugging
+- Production observability
+- Log aggregation compatible
+
+**Implementation:**
+```javascript
+logger.info('Agent spawned', {
+  agent: 'ez-planner',
+  model: 'claude-sonnet',
+  phase: '01-foundation',
+  plan: '03'
+});
+```
+
+---
+
+### 22. Configuration Validation
+
+**Opportunity:** Add schema validation for configuration files.
+
+**Files to validate:**
+- `.planning/config.json`
+- AI tool configuration files
+
+**Benefits:**
+- Catch configuration errors early
+- Better error messages
+- Documentation of valid config
+
+---
+
+### 23. Migration Scripts
+
+**Opportunity:** Add migration scripts for breaking changes.
+
+**Use cases:**
+- STATE.md format changes
+- ROADMAP.md format changes
+- Configuration updates
+
+**Benefits:**
+- Smoother upgrades
+- Backward compatibility
+- Clear migration path
+
+---
+
+### 24. Plugin System
+
+**Opportunity:** Allow custom skills and workflows.
+
+**Benefits:**
+- Community contributions
+- Custom workflows per team
+- Extensibility without core changes
+
+**Considerations:**
+- Security model for plugins
+- Plugin discovery mechanism
+- Version compatibility
+
+---
+
+## Known Limitations
+
+### 25. Windows Path Handling
+
+**Issue:** Some path operations may have edge cases on Windows.
+
+**Impact:** Occasional path conversion issues.
+
+**Workaround:** Use WSL or ensure forward slashes.
+
+**Fix:** Comprehensive Windows path testing.
+
+---
+
+### 26. Large File Context
+
+**Issue:** Very large files (>10k lines) may cause context issues.
+
+**Impact:** Context budget exhaustion.
+
+**Workaround:** Use context compression or exclude large files.
+
+**Fix:** Implement streaming context for large files.
+
+---
+
+### 27. Concurrent Agent Execution
+
+**Issue:** Limited support for truly parallel agent execution.
+
+**Impact:** Wave-based execution is sequential within waves.
+
+**Fix:** Implement true parallel execution with proper locking.
+
+---
+
+## Action Items
+
+### Immediate (Next Sprint)
+
+- [ ] Create issues for skipped tests
+- [ ] Document reason for test skips
+- [ ] Review ESLint 9.x migration path
+
+### Short-term (Next Month)
+
+- [ ] Split large entry point files
+- [ ] Add source maps for hook compilation
+- [ ] Update gitleaks patterns
+
+### Medium-term (Next Quarter)
+
+- [ ] Refactor state management module
+- [ ] Add structured error reporting
+- [ ] Implement performance metrics
+
+### Long-term (Next 6 Months)
+
+- [ ] Consider plugin system design
+- [ ] Evaluate true parallel execution
+- [ ] Plan major version with breaking changes
+
+---
+
+## Debt Tracking
+
+| ID | Concern | Priority | Status | Owner |
+|----|---------|----------|--------|-------|
+| 1 | Skipped tests | Critical | Open | - |
+| 2 | Large entry files | Critical | Open | - |
+| 3 | Complex state mgmt | Critical | Open | - |
+| 4 | Context complexity | Medium | Open | - |
+| 5 | Git workflow size | Medium | Open | - |
+| 6 | Model provider abstraction | Medium | Open | - |
+| 7 | ESLint version | Medium | Open | - |
+
+---
+
+*Last updated: March 2026*
+*Next review: After v4.1.0 release*
