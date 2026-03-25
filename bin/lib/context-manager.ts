@@ -19,6 +19,7 @@ import { ContextCompressor, type CompressionResult } from './context-compressor.
 import { ContextDeduplicator } from './context-deduplicator.js';
 import { ContextMetadataTracker } from './context-metadata-tracker.js';
 import { LogExecution } from './decorators/index.js';
+import { EventBus } from './observer/EventBus.js';
 
 /**
  * Context source information
@@ -140,6 +141,7 @@ export class ContextManager {
   private compressor: ContextCompressor;
   private deduplicator: ContextDeduplicator;
   private metadataTracker: ContextMetadataTracker;
+  private eventBus: EventBus;
 
   /**
    * Create a new ContextManager instance
@@ -156,6 +158,7 @@ export class ContextManager {
     this.compressor = new ContextCompressor();
     this.deduplicator = new ContextDeduplicator({ enableFuzzyMatch: true });
     this.metadataTracker = new ContextMetadataTracker(this.cwd);
+    this.eventBus = EventBus.getInstance();
   }
 
   /**
@@ -176,6 +179,13 @@ export class ContextManager {
       enableDeduplication = false,
       taskId
     } = options;
+
+    // Emit context gather event
+    this.eventBus.emit('context:gather', {
+      files: files.length > 0 ? files : [],
+      urls: urls.length > 0 ? urls : [],
+      timestamp: Date.now()
+    });
 
     const contextParts: string[] = [];
     const sources: ContextSource[] = [];
@@ -210,6 +220,12 @@ export class ContextManager {
       this.scorer = new ContextRelevanceScorer(task, { minScore, maxFiles });
       const scoredFiles: ScoredFile[] = this.scorer.scoreFiles(allFiles.map((f) => f.path));
       const scoredPaths = new Set(scoredFiles.map((f) => f.path));
+
+      // Emit context score event
+      this.eventBus.emit('context:score', {
+        query: task,
+        timestamp: Date.now()
+      });
 
       // Filter to scored files and attach scores
       filesToProcess = allFiles
@@ -251,12 +267,20 @@ export class ContextManager {
     let totalOriginal = 0;
     let totalCompressed = 0;
 
+    // Emit context compress event if compression is enabled
+    if (enableCompression) {
+      this.eventBus.emit('context:compress', {
+        strategy: 'default',
+        timestamp: Date.now()
+      });
+    }
+
     for (const file of uniqueFiles) {
       let content = file.content;
       let compressionInfo: CompressionResult | null = null;
 
       if (enableCompression) {
-        const result = this.compressor.compressFile(file.path, content);
+        const result = await this.compressor.compressFile(file.path, content);
         if (result.compressed) {
           content = result.content;
           compressionInfo = result;
