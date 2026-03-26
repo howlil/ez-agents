@@ -63,15 +63,15 @@ describe('Cost Tracking Integration (COST-01, COST-02, COST-03)', () => {
       // Aggregate by agent
       const agg = tracker.aggregate({ phase: 44, by_agent: true });
 
-      expect(agg.by_agent).toBeTruthy() // 'must have by_agent breakdown';
-      expect('ez-planner' in agg.by_agent).toBeTruthy() // 'must have ez-planner entry';
-      expect('ez-executor' in agg.by_agent).toBeTruthy() // 'must have ez-executor entry';
+      expect(agg.by_agent).toBeTruthy()
+      expect(agg.by_agent && 'ez-planner' in agg.by_agent).toBeTruthy()
+      expect(agg.by_agent && 'ez-executor' in agg.by_agent).toBeTruthy()
 
       // Verify ez-planner total (0.0105 + 0.00525 = 0.01575)
-      expect(Math.abs(agg.by_agent['ez-planner'].cost - 0.01575) < 0.0001).toBeTruthy() // `ez-planner cost must be ~0.01575, got ${agg.by_agent['ez-planner'].cost}`;
+      expect(agg.by_agent && Math.abs(agg.by_agent['ez-planner']?.cost - 0.01575) < 0.0001).toBeTruthy()
 
       // Verify ez-executor total
-      expect(Math.abs(agg.by_agent['ez-executor'].cost - 0.021) < 0.0001).toBeTruthy() // `ez-executor cost must be ~0.021, got ${agg.by_agent['ez-executor'].cost}`;
+      expect(agg.by_agent && Math.abs(agg.by_agent['ez-executor']?.cost - 0.021) < 0.0001).toBeTruthy()
     });
 
     test('triggers alerts at budget thresholds', async () => {
@@ -102,12 +102,12 @@ describe('Cost Tracking Integration (COST-01, COST-02, COST-03)', () => {
       });
 
       const budget50 = await tracker.checkBudget();
-      expect(budget50.alerts).toBeTruthy() // 'must have alerts array';
-      expect(budget50.alerts.some(a => a.threshold === 50)).toBeTruthy() // 'must trigger 50% alert';
+      expect(budget50.alerts).toBeTruthy()
+      expect(budget50.alerts && budget50.alerts.some((a: any) => a.threshold === 50)).toBeTruthy()
 
       // Verify alert was logged
       const loggedAlerts = alerts.getAlerts();
-      expect(loggedAlerts.some(a => a.threshold === 50)).toBeTruthy() // '50% alert must be logged';
+      expect(loggedAlerts.some(a => a.threshold === 50)).toBeTruthy()
 
       // Record additional cost to reach 75%
       await tracker.record({
@@ -122,7 +122,7 @@ describe('Cost Tracking Integration (COST-01, COST-02, COST-03)', () => {
       });
 
       const budget75 = await tracker.checkBudget();
-      expect(budget75.alerts?.some(a => a.threshold === 75)).toBeTruthy() // 'must trigger 75% alert';
+      expect(budget75.alerts?.some(a => a.threshold === 75)).toBeTruthy()
 
       // Record additional cost to reach 90%
       await tracker.record({
@@ -137,18 +137,18 @@ describe('Cost Tracking Integration (COST-01, COST-02, COST-03)', () => {
       });
 
       const budget90 = await tracker.checkBudget();
-      expect(budget90.alerts?.some(a => a.threshold === 90)).toBeTruthy() // 'must trigger 90% alert';
-      expect(budget90.status).toBe('warning', 'status should be warning at 90%');
+      expect(budget90.alerts?.some(a => a.threshold === 90)).toBeTruthy()
+      expect(budget90.status).toBe('warning');
     });
 
     test('model downgrade based on budget pressure', () => {
       // ModelTierManager not yet implemented - skipping test
-      expect(true).toBeTruthy() // 'test placeholder until ModelTierManager is implemented';
+      expect(true).toBeTruthy()
     });
 
     test('logs model downgrade events', async () => {
       // ModelTierManager not yet implemented - skipping test
-      expect(true).toBeTruthy() // 'test placeholder until ModelTierManager is implemented';
+      expect(true).toBeTruthy()
     });
 
     test('full flow: record cost ? check budget ? trigger alert ? model downgrade', async () => {
@@ -180,21 +180,21 @@ describe('Cost Tracking Integration (COST-01, COST-02, COST-03)', () => {
 
       // Step 2: Check budget
       const budgetStatus = await tracker.checkBudget();
-      expect(budgetStatus.status).toBe('warning', 'status should be warning');
-      expect(budgetStatus.percentUsed !== undefined && budgetStatus.percentUsed >= 90).toBeTruthy() // 'percentUsed should be >= 90';
+      expect(budgetStatus.status).toBe('warning');
+      expect(budgetStatus.percentUsed !== undefined && budgetStatus.percentUsed >= 90).toBeTruthy()
 
       // Step 3: Verify alert triggered
-      expect(budgetStatus.alerts?.some(a => a.threshold === 90)).toBeTruthy() // '90% alert should be triggered';
+      expect(budgetStatus.alerts?.some(a => a.threshold === 90)).toBeTruthy()
 
       const loggedAlerts = alerts.getAlerts();
-      expect(loggedAlerts.some(a => a.threshold === 90)).toBeTruthy() // '90% alert should be logged';
+      expect(loggedAlerts.some(a => a.threshold === 90)).toBeTruthy()
 
       // Step 4: Model selection - skip until ModelTierManager is implemented
       // Step 5: Verify per-agent tracking
       const agg = tracker.aggregate({ phase: 44, by_agent: true });
-      expect(agg.by_agent !== undefined).toBeTruthy() // 'must have by_agent breakdown';
-      expect(agg.by_agent['ez-planner']).toBeTruthy() // 'must have ez-planner breakdown';
-      expect(Math.abs(agg.by_agent['ez-planner'].cost - 0.90) < 0.001).toBeTruthy() // 'ez-planner cost must be ~0.90';
+      expect(agg.by_agent !== undefined).toBeTruthy()
+      expect(agg.by_agent && agg.by_agent['ez-planner']).toBeTruthy()
+      expect(agg.by_agent && Math.abs(agg.by_agent['ez-planner']?.cost - 0.90) < 0.001).toBeTruthy()
     });
   });
 
@@ -216,7 +216,7 @@ describe('Cost Tracking Integration (COST-01, COST-02, COST-03)', () => {
       await alerts.logAlert(alert); // Try to log same alert
 
       const loggedAlerts = alerts.getAlerts();
-      expect(loggedAlerts.length).toBe(1, 'should prevent duplicate alert');
+      expect(loggedAlerts.length).toBe(1);
     });
 
     test('allows different threshold alerts', async () => {
@@ -246,7 +246,7 @@ describe('Cost Tracking Integration (COST-01, COST-02, COST-03)', () => {
       await alerts.logAlert(alert75);
 
       const loggedAlerts = alerts.getAlerts();
-      expect(loggedAlerts.length).toBe(2, 'should allow different threshold alerts');
+      expect(loggedAlerts.length).toBe(2);
     });
   });
 
@@ -272,12 +272,12 @@ describe('Cost Tracking Integration (COST-01, COST-02, COST-03)', () => {
 
       const agg = tracker.aggregate({ phase: 44, by_agent: true });
 
-      expect(Object.keys(agg.by_agent ?? {}).length).toBe(4, 'must have 4 agents');
+      expect(Object.keys(agg.by_agent ?? {}).length).toBe(4);
 
       for (let i = 0; i < agents.length; i++) {
         const agentData = agg.by_agent?.[agents[i]!];
-        expect(agentData).toBeTruthy() // `must have ${agents[i]} entry`;
-        expect(agentData && Math.abs(agentData.cost - (costs[i] ?? 0)) < 0.001).toBeTruthy() // `${agents[i]} cost must be ~${costs[i]}`;
+        expect(agentData).toBeTruthy()
+        expect(agentData && Math.abs(agentData.cost - (costs[i] ?? 0)) < 0.001).toBeTruthy()
       }
     });
 
@@ -318,7 +318,7 @@ describe('Cost Tracking Integration (COST-01, COST-02, COST-03)', () => {
       });
 
       const agg = tracker.aggregate({ phase: 44 });
-      expect(agg.total && Math.abs(agg.total.cost - 0.045) < 0.001).toBeTruthy() // 'total cost must be sum of all agents';
+      expect(agg.total && Math.abs(agg.total.cost - 0.045) < 0.001).toBeTruthy()
     });
   });
 });

@@ -26,7 +26,7 @@ describe('FunnelAnalyzer', () => {
   afterEach(() => cleanup(tmpDir));
 
   test('constructor does not throw', () => {
-    expect(analyzer).toBeTruthy() // 'FunnelAnalyzer instance must be created without throwing';
+    expect(analyzer).toBeTruthy()
   });
 
   test('defineFunnel() creates funnel with ordered steps', async () => {
@@ -45,14 +45,14 @@ describe('FunnelAnalyzer', () => {
     const dataPath = path.join(tmpDir, '.planning', 'funnels.json');
     const data = JSON.parse(fs.readFileSync(dataPath, 'utf8'));
 
-    expect(Array.isArray(data.funnels)).toBeTruthy() // 'funnels.json must have funnels array';
-    expect(data.funnels.length).toBe(1, 'must have 1 funnel');
+    expect(Array.isArray(data.funnels)).toBeTruthy()
+    expect(data.funnels.length).toBe(1);
 
     const saved = data.funnels[0];
-    expect(saved.name).toBe('user_onboarding', 'funnel name must match');
-    expect(saved.steps.length).toBe(4, 'must have 4 steps');
-    expect(saved.steps[0].name).toBe('landing_page_view', 'first step must match');
-    expect(saved.steps[3].name).toBe('onboarding_completed', 'last step must match');
+    expect(saved.name).toBe('user_onboarding');
+    expect(saved.steps.length).toBe(4);
+    expect(saved.steps[0].name).toBe('landing_page_view');
+    expect(saved.steps[3].name).toBe('onboarding_completed');
   });
 
   test('trackConversion() records user progression through funnel', async () => {
@@ -72,10 +72,10 @@ describe('FunnelAnalyzer', () => {
     const dataPath = path.join(tmpDir, '.planning', 'funnels.json');
     const data = JSON.parse(fs.readFileSync(dataPath, 'utf8'));
 
-    expect(data.conversions).toBeTruthy() // 'must have conversions data';
+    expect(data.conversions).toBeTruthy()
     const checkoutConversions = data.conversions['checkout'];
-    expect(checkoutConversions).toBeTruthy() // 'must have checkout funnel conversions';
-    expect(checkoutConversions.length).toBe(3, 'must have 3 conversion records');
+    expect(checkoutConversions).toBeTruthy()
+    expect(checkoutConversions.length).toBe(3);
   });
 
   test('getConversionRates() returns percentage at each step', async () => {

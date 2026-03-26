@@ -54,10 +54,8 @@ Directory created/
 Directory exists/
 -p/
 
-# Test result artifacts (keep only latest)
+# Test result artifacts
 tests/staging/results/*.json
-!tests/staging/results/qwen-code-battle-report.json
-!tests/staging/results/qwen-code-simple-result.json
 
 # Old test scripts
 run-all-tests.bat

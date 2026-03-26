@@ -113,7 +113,7 @@ function selectScenario(): TestScenario {
     }
   }
 
-  return testScenarios[0];
+  return testScenarios[0]!;
 }
 
 // Main test function

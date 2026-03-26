@@ -7,7 +7,6 @@
 
 import * as helpers from './helpers.js';
 import * as fs from 'fs';
-import { describe, test, expect, beforeEach, afterEach, beforeAll, afterAll, it } from 'vitest';
 
 // Declare global test helpers
 declare global {
@@ -18,15 +17,7 @@ declare global {
   var createTempDir: typeof import('./test-utils.js').createTempDir;
   var cleanupTempDir: typeof import('./test-utils.js').cleanupTempDir;
   var fs: typeof import('fs');
-  var describe: typeof import('vitest')['describe'];
-  var test: typeof import('vitest')['test'];
-  var it: typeof import('vitest')['it'];
-  var expect: typeof import('vitest')['expect'];
-  var beforeEach: typeof import('vitest')['beforeEach'];
-  var afterEach: typeof import('vitest')['afterEach'];
-  var beforeAll: typeof import('vitest')['beforeAll'];
-  var afterAll: typeof import('vitest')['afterAll'];
-}
+  }
 
 // Assign globals
 globalThis.createTempProject = helpers.createTempProject;

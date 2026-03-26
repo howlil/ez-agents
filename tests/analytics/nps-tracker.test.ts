@@ -26,7 +26,7 @@ describe('NPSTracker', () => {
   afterEach(() => cleanup(tmpDir));
 
   test('constructor does not throw', () => {
-    expect(tracker).toBeTruthy() // 'NPSTracker instance must be created without throwing';
+    expect(tracker).toBeTruthy()
   });
 
   test('recordResponse() categorizes promoters (9-10), passives (7-8), detractors (0-6)', async () => {
@@ -39,16 +39,16 @@ describe('NPSTracker', () => {
     const dataPath = path.join(tmpDir, '.planning', 'nps.json');
     const data = JSON.parse(fs.readFileSync(dataPath, 'utf8'));
 
-    expect(Array.isArray(data.responses)).toBeTruthy() // 'nps.json must have responses array';
-    expect(data.responses.length).toBe(5, 'must have 5 responses');
+    expect(Array.isArray(data.responses)).toBeTruthy()
+    expect(data.responses.length).toBe(5);
 
     const promoters = data.responses.filter(r => r.category === 'promoter');
     const passives = data.responses.filter(r => r.category === 'passive');
     const detractors = data.responses.filter(r => r.category === 'detractor');
 
-    expect(promoters.length).toBe(2, 'must have 2 promoters (scores 9-10)');
-    expect(passives.length).toBe(1, 'must have 1 passive (score 7-8)');
-    expect(detractors.length).toBe(2, 'must have 2 detractors (scores 0-6)');
+    expect(promoters.length).toBe(2);
+    expect(passives.length).toBe(1);
+    expect(detractors.length).toBe(2);
   });
 
   test('calculateScore() returns NPS = %promoters - %detractors', async () => {
@@ -61,12 +61,12 @@ describe('NPSTracker', () => {
 
     const result = tracker.calculateScore();
 
-    expect(result).toBeTruthy() // 'calculateScore must return result';
-    expect(result?.nps).toBe(25, 'NPS must be 25 (50% promoters - 25% detractors)');
-    expect(result?.totalResponses).toBe(4, 'totalResponses must be 4');
-    expect(result?.promoters).toBe(2, 'promoters count must be 2');
-    expect(result?.passives).toBe(1, 'passives count must be 1');
-    expect(result?.detractors).toBe(1, 'detractors count must be 1');
+    expect(result).toBeTruthy()
+    expect(result?.nps).toBe(25);
+    expect(result?.totalResponses).toBe(4);
+    expect(result?.promoters).toBe(2);
+    expect(result?.passives).toBe(1);
+    expect(result?.detractors).toBe(1);
   });
 
   test('getTrend() returns NPS change over time periods', async () => {

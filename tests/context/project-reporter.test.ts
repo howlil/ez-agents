@@ -46,13 +46,13 @@ describe('ProjectReporter', () => {
 
     const report = reporter.generate(structure, stack, techDebt);
 
-    expect(report).toBeTruthy() // 'Should return report';
-    expect(report.includes('# Project Analysis Report')).toBeTruthy() // 'Should have header';
-    expect(report.includes('## File Structure')).toBeTruthy() // 'Should have file structure section';
-    expect(report.includes('## Technology Stack')).toBeTruthy() // 'Should have tech stack section';
-    expect(report.includes('## Architecture Overview')).toBeTruthy() // 'Should have architecture section';
-    expect(report.includes('## Pain Points')).toBeTruthy() // 'Should have pain points section';
-    expect(report.includes('## Recommendations')).toBeTruthy() // 'Should have recommendations section';
+    expect(report).toBeTruthy()
+    expect(report.includes('# Project Analysis Report')).toBeTruthy()
+    expect(report.includes('## File Structure')).toBeTruthy()
+    expect(report.includes('## Technology Stack')).toBeTruthy()
+    expect(report.includes('## Architecture Overview')).toBeTruthy()
+    expect(report.includes('## Pain Points')).toBeTruthy()
+    expect(report.includes('## Recommendations')).toBeTruthy()
   });
 
   it('buildArchitectureOverview includes pattern summary', () => {
@@ -69,8 +69,8 @@ describe('ProjectReporter', () => {
 
     const overview = reporter.buildArchitectureOverview(structure, stack);
 
-    expect(overview.includes('Pattern')).toBeTruthy() // 'Should include pattern section';
-    expect(overview.includes('Next.js') || overview.includes('Component')).toBeTruthy() // 'Should detect pattern';
+    expect(overview.includes('Pattern')).toBeTruthy()
+    expect(overview.includes('Next.js') || overview.includes('Component')).toBeTruthy()
   });
 
   it('buildArchitectureOverview includes layer descriptions', () => {
@@ -88,7 +88,7 @@ describe('ProjectReporter', () => {
 
     const overview = reporter.buildArchitectureOverview(structure, stack);
 
-    expect(overview.includes('Layers')).toBeTruthy() // 'Should include layers section';
+    expect(overview.includes('Layers')).toBeTruthy()
   });
 
   it('buildPainPoints sorts issues by severity', () => {
@@ -103,12 +103,12 @@ describe('ProjectReporter', () => {
 
     const painPoints = reporter.buildPainPoints(techDebt);
 
-    expect(painPoints.includes('Pain Points')).toBeTruthy() // 'Should have pain points header';
+    expect(painPoints.includes('Pain Points')).toBeTruthy()
     // Critical should appear before High in the output
     const criticalIndex = painPoints.indexOf('Critical');
     const highIndex = painPoints.indexOf('High');
     if (criticalIndex >= 0 && highIndex >= 0) {
-      expect(criticalIndex < highIndex).toBeTruthy() // 'Critical should appear before High';
+      expect(criticalIndex < highIndex).toBeTruthy()
     }
   });
 
@@ -123,8 +123,8 @@ describe('ProjectReporter', () => {
 
     const recommendations = reporter.buildRecommendations(techDebt, stack);
 
-    expect(recommendations.includes('Recommendations')).toBeTruthy() // 'Should have recommendations header';
-    expect(recommendations.includes('Effort:')).toBeTruthy() // 'Should include effort estimates';
+    expect(recommendations.includes('Recommendations')).toBeTruthy()
+    expect(recommendations.includes('Effort:')).toBeTruthy()
   });
 
   it('buildFileStructureSummary creates directory tree', () => {
@@ -142,8 +142,8 @@ describe('ProjectReporter', () => {
 
     const summary = reporter.buildFileStructureSummary(structure);
 
-    expect(summary.includes('File Structure')).toBeTruthy() // 'Should have file structure header';
-    expect(summary.includes('Directory Layout')).toBeTruthy() // 'Should have directory layout';
+    expect(summary.includes('File Structure')).toBeTruthy()
+    expect(summary.includes('Directory Layout')).toBeTruthy()
   });
 
   it('buildTechStackSummary lists languages, frameworks, databases', () => {
@@ -158,10 +158,10 @@ describe('ProjectReporter', () => {
 
     const summary = reporter.buildTechStackSummary(stack);
 
-    expect(summary.includes('Technology Stack')).toBeTruthy() // 'Should have tech stack header';
-    expect(summary.includes('typescript')).toBeTruthy() // 'Should list language';
-    expect(summary.includes('React')).toBeTruthy() // 'Should list frameworks';
-    expect(summary.includes('PostgreSQL')).toBeTruthy() // 'Should list databases';
+    expect(summary.includes('Technology Stack')).toBeTruthy()
+    expect(summary.includes('typescript')).toBeTruthy()
+    expect(summary.includes('React')).toBeTruthy()
+    expect(summary.includes('PostgreSQL')).toBeTruthy()
   });
 
   it('generate handles empty data gracefully', () => {
@@ -171,8 +171,8 @@ describe('ProjectReporter', () => {
 
     const report = reporter.generate(structure, stack, techDebt);
 
-    expect(report).toBeTruthy() // 'Should return report even for empty data';
-    expect(report.length > 0).toBeTruthy() // 'Report should not be empty';
+    expect(report).toBeTruthy()
+    expect(report.length > 0).toBeTruthy()
   });
 
   it('buildPainPoints handles empty findings', () => {
@@ -180,7 +180,7 @@ describe('ProjectReporter', () => {
 
     const painPoints = reporter.buildPainPoints(techDebt);
 
-    expect(painPoints.includes('Pain Points')).toBeTruthy() // 'Should have pain points header';
+    expect(painPoints.includes('Pain Points')).toBeTruthy()
   });
 
   it('buildRecommendations handles empty findings', () => {
@@ -189,6 +189,6 @@ describe('ProjectReporter', () => {
 
     const recommendations = reporter.buildRecommendations(techDebt, stack);
 
-    expect(recommendations.includes('Recommendations')).toBeTruthy() // 'Should have recommendations header';
+    expect(recommendations.includes('Recommendations')).toBeTruthy()
   });
 });

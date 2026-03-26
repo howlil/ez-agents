@@ -250,8 +250,8 @@ export class NpsTracker {
     // Determine direction
     let direction: 'improving' | 'declining' | 'stable' = 'stable';
     if (periods.length >= 2) {
-      const firstNps = periods[0].nps;
-      const lastNps = periods[periods.length - 1].nps;
+      const firstNps = periods[0]?.nps || 0;
+      const lastNps = periods[periods.length - 1]?.nps || 0;
       if (lastNps > firstNps) {
         direction = 'improving';
       } else if (lastNps < firstNps) {

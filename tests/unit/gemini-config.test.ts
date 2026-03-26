@@ -28,18 +28,18 @@ Use \${PHASE} in shell examples.
     const result = convertClaudeToGeminiAgent(input);
     const frontmatter = result.split('---')[1] || '';
 
-    expect(frontmatter.includes('name: ez-codebase-mapper')).toBeTruthy() // 'keeps name';
-    expect(frontmatter.includes('description: Explores codebase and writes structured analysis documents.')).toBeTruthy() // 'keeps description';
-    expect(frontmatter.includes('tools:')).toBeTruthy() // 'adds Gemini tools array';
-    expect(frontmatter.includes('  - read_file')).toBeTruthy() // 'maps Read -> read_file';
-    expect(frontmatter.includes('  - run_shell_command')).toBeTruthy() // 'maps Bash -> run_shell_command';
-    expect(frontmatter.includes('  - search_file_content')).toBeTruthy() // 'maps Grep -> search_file_content';
-    expect(frontmatter.includes('  - glob')).toBeTruthy() // 'maps Glob -> glob';
-    expect(frontmatter.includes('  - write_file')).toBeTruthy() // 'maps Write -> write_file';
-    expect(!frontmatter.includes('color:')).toBeTruthy() // 'drops unsupported color field';
-    expect(!frontmatter.includes('skills:')).toBeTruthy() // 'drops unsupported skills field';
-    expect(!frontmatter.includes('ez-mapper-workflow')).toBeTruthy() // 'drops skills list items';
-    expect(result.includes('$PHASE')).toBeTruthy() // 'escapes ${PHASE} shell variable for Gemini';
-    expect(!result.includes('${PHASE}')).toBeTruthy() // 'removes Gemini template-string pattern';
+    expect(frontmatter.includes('name: ez-codebase-mapper')).toBeTruthy()
+    expect(frontmatter.includes('description: Explores codebase and writes structured analysis documents.')).toBeTruthy()
+    expect(frontmatter.includes('tools:')).toBeTruthy()
+    expect(frontmatter.includes('  - read_file')).toBeTruthy()
+    expect(frontmatter.includes('  - run_shell_command')).toBeTruthy()
+    expect(frontmatter.includes('  - search_file_content')).toBeTruthy()
+    expect(frontmatter.includes('  - glob')).toBeTruthy()
+    expect(frontmatter.includes('  - write_file')).toBeTruthy()
+    expect(!frontmatter.includes('color:')).toBeTruthy()
+    expect(!frontmatter.includes('skills:')).toBeTruthy()
+    expect(!frontmatter.includes('ez-mapper-workflow')).toBeTruthy()
+    expect(result.includes('$PHASE')).toBeTruthy()
+    expect(!result.includes('${PHASE}')).toBeTruthy()
   });
 });

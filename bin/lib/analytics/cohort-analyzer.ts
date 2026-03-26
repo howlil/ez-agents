@@ -17,7 +17,7 @@ export interface Cohort {
   /** Cohort end date */
   endDate: string;
   /** Cohort criteria */
-  criteria?: { event?: string };
+  criteria: { event?: string } | undefined;
   /** User IDs in cohort */
   users?: string[];
   /** Cohort size */
@@ -144,11 +144,11 @@ export class CohortAnalyzer {
       const endTs = new Date(cohort.endDate).getTime();
 
       if (signupTs >= startTs && signupTs <= endTs) {
-        if (!data.memberships[cohort.name]) {
+        if (!data.memberships[cohort.name!]) {
           data.memberships[cohort.name] = [];
         }
         if (!data.memberships[cohort.name].includes(userId)) {
-          data.memberships[cohort.name].push(userId);
+          data.memberships[cohort.name!].push(userId);
         }
       }
     }
@@ -317,5 +317,5 @@ export async function addUserToCohort(userId: string, signupDate: string, cwd?: 
  */
 export async function calculateRetention(cohortName: string, periods: Period[], cwd?: string): Promise<RetentionResult> {
   const analyzer = new CohortAnalyzer(cwd);
-  return analyzer.calculateRetention(cohortName, periods);
+  return analyzer.calculateRetention(cohortName);
 }

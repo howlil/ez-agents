@@ -178,7 +178,7 @@ export class FunnelAnalyzer {
         userSteps[conv.userId] = new Set();
       }
       for (const step of conv.steps) {
-        userSteps[conv.userId].add(step);
+        (userSteps[conv.userId] = userSteps[conv.userId] || new Set()).add(step);
       }
     }
 
@@ -244,13 +244,13 @@ export class FunnelAnalyzer {
     for (let i = 0; i < funnel.steps.length - 1; i++) {
       const currentStep = funnel.steps[i];
       const nextStep = funnel.steps[i + 1];
-      const current = stepCounts[currentStep.name] || 0;
-      const next = stepCounts[nextStep.name] || 0;
+      const current = stepCounts[currentStep!.name] || 0;
+      const next = stepCounts[nextStep!.name] || 0;
       const dropRate = current > 0 ? Math.round(((current - next) / current) * 100) : 0;
       
       points.push({
-        fromStep: currentStep.name,
-        toStep: nextStep.name,
+        fromStep: currentStep!.name,
+        toStep: nextStep!.name,
         dropRate
       });
     }
@@ -348,7 +348,7 @@ export async function trackConversion(funnelName: string, userId: string, comple
  * @param funnelName - Funnel name
  * @param cwd - Working directory
  */
-export async function getConversionRates(funnelName: string, cwd?: string): Promise<{ steps: FunnelStep[]; totalUsers: number }> {
+export async function getConversionRates(funnelName: string, cwd?: string): Promise<{ funnel: string; steps: Array<{ name: string; users: number; rate: number }> }> {
   const analyzer = new FunnelAnalyzer(cwd);
   return analyzer.getConversionRates(funnelName);
 }
@@ -358,7 +358,7 @@ export async function getConversionRates(funnelName: string, cwd?: string): Prom
  * @param funnelName - Funnel name
  * @param cwd - Working directory
  */
-export async function getDropOffPoints(funnelName: string, cwd?: string): Promise<{ steps: FunnelStep[]; dropOff: DropOffAnalysis[]; totalUsers: number }> {
+export async function getDropOffPoints(funnelName: string, cwd?: string): Promise<{ points: Array<{ fromStep: string; toStep: string; dropRate: number }>; totalUsers: number }> {
   const analyzer = new FunnelAnalyzer(cwd);
   return analyzer.getDropOffPoints(funnelName);
 }

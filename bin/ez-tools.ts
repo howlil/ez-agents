@@ -12,7 +12,7 @@ import { fileURLToPath } from 'url';
 import { output, error } from './lib/core.js';
 import { extractFrontmatter } from './lib/frontmatter.js';
 import { cmdVerifyArtifacts, cmdVerifyKeyLinks, cmdVerifyPhaseCompleteness, cmdValidateHealth } from './lib/verify.js';
-import { roadmapAnalyze, roadmapGetPhase, roadmapUpdatePhaseStatus } from './lib/roadmap.js';
+import { roadmapAnalyze, roadmapGetPhase, roadmapUpdatePhaseStatus, roadmapUpdatePlanProgress } from './lib/roadmap.js';
 import { stateLoad, stateUpdate } from './lib/state.js';
 import { cmdInitNewProject, cmdInitNewMilestone, cmdInitPhaseOp, cmdInitProgress, cmdInitQuick, cmdInitVerifyWork, cmdInitMapCodebase, cmdInitResume, cmdInitPlanPhase, cmdInitExecutePhase } from './lib/init.js';
 import { configGet, configSet } from './lib/config.js';
@@ -161,13 +161,13 @@ async function main(): Promise<void> {
       }
 
       case 'progress': {
-        await cmdProgressRender(raw);
+        await cmdProgressRender(cwd, undefined, raw);
         break;
       }
 
       case 'stats': {
         const format = flags.format as string || 'json';
-        await cmdStats(format, raw);
+        await cmdStats(cwd, format, raw);
         break;
       }
 
@@ -187,7 +187,7 @@ async function main(): Promise<void> {
       }
 
       case 'resolve-model': {
-        await cmdResolveModel(args[0] || '', raw);
+        await cmdResolveModel(cwd, args[0] || '', raw);
         break;
       }
 
@@ -202,25 +202,25 @@ async function main(): Promise<void> {
       }
 
       case 'list-todos': {
-        await cmdListTodos(cwd);
+        await cmdListTodos(cwd, undefined);
         break;
       }
 
       case 'todo-complete': {
         const file = args[0] || '';
         const todo = args[1] || '';
-        await cmdTodoComplete(cwd, file, todo, raw);
+        await cmdTodoComplete(cwd, file, todo);
         break;
       }
 
       case 'verify-path':
       case 'verifyPath': {
-        cmdVerifyPathExists(args[0] || '');
+        cmdVerifyPathExists(cwd, args[0] || '', undefined);
         break;
       }
 
       case 'history-digest': {
-        await cmdHistoryDigest(cwd);
+        await cmdHistoryDigest(cwd, undefined);
         break;
       }
 
@@ -228,14 +228,14 @@ async function main(): Promise<void> {
         const message = args[0] || '';
         const filesFlag = flags.files as string;
         const files = filesFlag ? filesFlag.split(',') : [];
-        await cmdCommit(cwd, message, files, raw);
+        await cmdCommit(cwd, message, files, raw, undefined);
         break;
       }
 
       case 'summary-extract': {
         const filePath = args[0] || '';
         const fields = flags.fields as string;
-        await cmdSummaryExtract(cwd, filePath, fields || '', raw);
+        await cmdSummaryExtract(cwd, filePath || '', fields || '', raw);
         break;
       }
 
@@ -250,7 +250,7 @@ async function main(): Promise<void> {
       case 'scaffold': {
         const phase = flags.phase as string;
         const name = flags.name as string;
-        await cmdScaffold(cwd, { phase, name }, raw);
+        await cmdScaffold(cwd, undefined, { phase, name }, raw);
         break;
       }
 
@@ -261,7 +261,7 @@ async function main(): Promise<void> {
           const field = flags.field as string;
           const result = extractFrontmatter(filePath);
           if (field && result) {
-            output({ value: result[field] } as Record<string, unknown>, raw, result[field]);
+            output({ value: result[field] } as Record<string, unknown>, raw, String(result[field]));
           } else {
             output(result as Record<string, unknown>, raw);
           }
@@ -289,7 +289,7 @@ async function main(): Promise<void> {
       case 'validate': {
         if (subcommand === 'health' || command === 'health') {
           const options = { json: flags.json === true, repair: flags.repair === true };
-          cmdValidateHealth(cwd, options, raw);
+          cmdValidateHealth(cwd, { json: options.json, repair: false }, raw);
         } else {
           error(`Unknown validate subcommand: ${subcommand || ''}`);
         }
@@ -332,7 +332,7 @@ async function main(): Promise<void> {
           case 'complete': {
             const version = args[0] || '';
             const name = flags.name as string || '';
-            await milestoneComplete(cwd, version, name, raw);
+            await milestoneComplete(cwd, { version, name }, raw);
             break;
           }
           default: error(`Unknown milestone subcommand: ${subcommand || ''}`);
@@ -397,7 +397,7 @@ async function main(): Promise<void> {
             const format = flags.format as string || 'json';
             const report = await generateReport({ type: reportType as 'daily' | 'weekly' | 'monthly' }, cwd);
             if (format === 'json') {
-              output(report as Record<string, unknown>, raw);
+              output(report as any, raw);
             } else {
               console.log(`Report generated: ${reportType} (${format})`);
             }

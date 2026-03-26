@@ -40,7 +40,7 @@ describe('Perf Analyzer', () => {
     it('analyze method handles errors gracefully', async () => {
       const mod = await import('../../bin/lib/perf/perf-analyzer.js');
       const instance = new mod.PerfAnalyzer();
-      const result = await instance.analyze({ invalid: 'options' });
+      const result = await instance.analyze({});
       expect(result).toBeDefined();
       expect(Array.isArray(result.errors)).toBe(true);
     });

@@ -26,7 +26,7 @@ describe('CohortAnalyzer', () => {
   afterEach(() => cleanup(tmpDir));
 
   test('constructor does not throw', () => {
-    expect(analyzer).toBeTruthy() // 'CohortAnalyzer instance must be created without throwing';
+    expect(analyzer).toBeTruthy()
   });
 
   test('defineCohort() creates cohort by signup period', async () => {
@@ -42,13 +42,13 @@ describe('CohortAnalyzer', () => {
     const dataPath = path.join(tmpDir, '.planning', 'cohorts.json');
     const data = JSON.parse(fs.readFileSync(dataPath, 'utf8'));
 
-    expect(Array.isArray(data.cohorts)).toBeTruthy() // 'cohorts.json must have cohorts array';
-    expect(data.cohorts.length).toBe(1, 'must have 1 cohort');
+    expect(Array.isArray(data.cohorts)).toBeTruthy()
+    expect(data.cohorts.length).toBe(1);
 
     const saved = data.cohorts[0];
-    expect(saved.name).toBe('january_2026', 'cohort name must match');
-    expect(saved.startDate).toBe('2026-01-01', 'startDate must match');
-    expect(saved.endDate).toBe('2026-01-31', 'endDate must match');
+    expect(saved.name).toBe('january_2026');
+    expect(saved.startDate).toBe('2026-01-01');
+    expect(saved.endDate).toBe('2026-01-31');
   });
 
   test('addUserToCohort() assigns user based on signup date', async () => {
@@ -65,12 +65,12 @@ describe('CohortAnalyzer', () => {
     const dataPath = path.join(tmpDir, '.planning', 'cohorts.json');
     const data = JSON.parse(fs.readFileSync(dataPath, 'utf8'));
 
-    expect(data.memberships).toBeTruthy() // 'must have memberships data';
+    expect(data.memberships).toBeTruthy()
     const week1Members = data.memberships['week1_march'];
-    expect(week1Members).toBeTruthy() // 'must have week1_march members';
-    expect(week1Members.length).toBe(2, 'must have 2 members');
-    expect(week1Members.includes('user-1')).toBeTruthy() // 'must include user-1';
-    expect(week1Members.includes('user-2')).toBeTruthy() // 'must include user-2';
+    expect(week1Members).toBeTruthy()
+    expect(week1Members.length).toBe(2);
+    expect(week1Members.includes('user-1')).toBeTruthy()
+    expect(week1Members.includes('user-2')).toBeTruthy()
   });
 
   test('calculateRetention() returns retention rate per period', async () => {
@@ -102,8 +102,8 @@ describe('CohortAnalyzer', () => {
 
     const retention = analyzer.calculateRetention('test_cohort');
 
-    expect(retention).toBeTruthy() // 'calculateRetention must return data';
-    expect(Array.isArray(retention.periods)).toBeTruthy() // 'must have periods array';
+    expect(retention).toBeTruthy()
+    expect(Array.isArray(retention.periods)).toBeTruthy()
     expect(retention.periods[0]?.rate || 0).toBeGreaterThanOrEqual(0);
     expect(retention.periods[1]?.rate || 0).toBeGreaterThanOrEqual(0);
     expect(retention.periods[2]?.rate || 0).toBeGreaterThanOrEqual(0);
@@ -143,7 +143,7 @@ describe('CohortAnalyzer', () => {
 
     const comparison = await analyzer.compareCohorts(['cohort_a', 'cohort_b']);
 
-    expect(comparison).toBeTruthy() // 'compareCohorts must return data';
+    expect(comparison).toBeTruthy()
     expect(Array.isArray(comparison.cohorts || comparison)).toBeTruthy();
     expect((comparison.cohorts || []).length).toBeGreaterThanOrEqual(1);
     expect(comparison.summary || comparison.cohorts).toBeTruthy();

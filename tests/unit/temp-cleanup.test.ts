@@ -19,10 +19,10 @@ test('TEMP-02: temp files are removed after successful cleanup path', async () =
   tempDirs.push(tmpDir);
 
   const tempPath = await createTempFile('temp-success-', tmpDir, 'ok');
-  expect(fs.existsSync(tempPath)).toBeTruthy() // 'temp file should exist after creation';
+  expect(fs.existsSync(tempPath)).toBeTruthy()
 
   await cleanupTemp(tempPath);
-  expect(!fs.existsSync(tempPath)).toBeTruthy() // 'temp file should be deleted after cleanupTemp';
+  expect(!fs.existsSync(tempPath)).toBeTruthy()
 });
 
 test('TEMP-02: temp files are removed even when wrapped operation throws', async () => {

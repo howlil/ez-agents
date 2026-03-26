@@ -67,7 +67,7 @@ async function installPackage(version: string = 'latest'): Promise<InstallationR
 
     return {
       success: true,
-      version: installedVersion,
+      version: installedVersion || '',
       path: installPath,
     };
   } catch (error: any) {

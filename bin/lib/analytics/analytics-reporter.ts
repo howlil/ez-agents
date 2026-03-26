@@ -143,8 +143,8 @@ export class AnalyticsReporter {
     const report: AnalyticsReport = {
       generatedAt: new Date().toISOString(),
       period: {
-        startDate: options.startDate || startDate,
-        endDate: options.endDate || endDate
+        startDate: options.startDate || String(startDate),
+        endDate: options.endDate || String(endDate)
       },
       metrics: {
         totalEvents: events.length,

@@ -2,7 +2,7 @@
  * Learning Tracker - Stub Implementation
  * 
  * This is a stub for tests that expect the learning-tracker module.
- * To be implemented in a future phase.
+ * To be implemented in a future phase || undefined.
  */
 
 export interface LearningEntry {
@@ -10,7 +10,7 @@ export interface LearningEntry {
   category: string;
   description: string;
   timestamp: number;
-  phase?: string;
+  phase: string | undefined;
 }
 
 export interface LearningSummary {

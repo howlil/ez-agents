@@ -120,7 +120,7 @@ describe('BackupService', () => {
         expect(file.path).toBeTruthy();
         expect(file.sha256).toBeTruthy();
         expect(typeof file.size_bytes === 'number').toBeTruthy();
-        expect(file.sha256).toMatch(/^[a-f0-9]{64}$/, 'sha256 should be valid hex');
+        expect(file.sha256).toMatch(/^[a-f0-9]{64}$/);
       }
     });
 
@@ -147,7 +147,7 @@ describe('BackupService', () => {
 
       // pruneResult.pruned is an array of pruned backup names
       expect(Array.isArray(pruneResult.pruned)).toBeTruthy();
-      expect(pruneResult.pruned.length).toBe(backupsBefore.length - 3, `should prune ${backupsBefore.length - 3} backups`);
+      expect(pruneResult.pruned.length).toBe(backupsBefore.length - 3);
 
       const backupsAfter = backupService.listBackups();
       const afterCount = Array.isArray(backupsAfter) ? backupsAfter.length : 0;
