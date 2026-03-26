@@ -10,6 +10,12 @@ import * as path from 'path';
  * Analytics report options
  */
 export interface AnalyticsReportOptions {
+  /** Report type */
+  type?: 'daily' | 'weekly' | 'monthly' | 'custom';
+  /** Start date (ISO) */
+  startDate?: string;
+  /** End date (ISO) */
+  endDate?: string;
   /** Include NPS data */
   includeNps?: boolean;
   /** Include funnel data */
@@ -19,14 +25,49 @@ export interface AnalyticsReportOptions {
 }
 
 /**
- * NPS result structure
+ * Report period
  */
-interface NpsResult {
-  score: number;
-  promoters: number;
-  passives: number;
-  detractors: number;
-  total: number;
+export interface ReportPeriod {
+  /** Start date */
+  startDate: string;
+  /** End date */
+  endDate: string;
+}
+
+/**
+ * Aggregated metrics
+ */
+export interface AggregatedMetrics {
+  /** Summary metrics */
+  summary: {
+    totalEvents: number;
+    totalSessions: number;
+    totalUsers: number;
+  };
+  /** Metrics by source */
+  bySource: Array<{ source: string; count: number }>;
+}
+
+/**
+ * Report schedule configuration
+ */
+export interface ReportSchedule {
+  /** Schedule ID */
+  id: string;
+  /** Schedule name */
+  name: string;
+  /** Report type */
+  type: string;
+  /** Recipients */
+  recipients: string[];
+  /** Output format */
+  format: string;
+  /** Cron expression */
+  cron: string;
+  /** Enabled status */
+  enabled: boolean;
+  /** Created at */
+  createdAt: string;
 }
 
 /**
@@ -34,73 +75,177 @@ interface NpsResult {
  */
 export interface AnalyticsReport {
   /** Report timestamp */
-  timestamp: string;
-  /** Report summary */
-  summary: {
-    totalEvents: number;
-    uniqueEventTypes: number;
-    npsScore: number;
+  generatedAt: string;
+  /** Report period */
+  period: ReportPeriod;
+  /** Report metrics */
+  metrics: {
+    totalUsers?: number;
+    activeUsers?: number;
+    totalEvents?: number;
+    [key: string]: unknown;
   };
-  /** Events data */
-  events: {
-    byType: Record<string, number>;
-    recent: unknown[];
-  };
-  /** NPS data */
-  nps: NpsResult;
-  /** Recommendations */
-  recommendations: Array<{ category: string; priority: string; suggestion: string }>;
+}
+
+/**
+ * Schedule options
+ */
+export interface ScheduleOptions {
+  /** Schedule name */
+  name: string;
+  /** Report type */
+  type: string;
+  /** Recipients */
+  recipients: string[];
+  /** Output format */
+  format: string;
+  /** Cron expression */
+  cron: string;
+}
+
+/**
+ * Export options
+ */
+export interface ExportOptions {
+  /** Export format */
+  format: 'json' | 'csv';
+  /** Output filename */
+  filename: string;
 }
 
 export class AnalyticsReporter {
   private readonly cwd: string;
   private readonly reportsDir: string;
+  private readonly schedulesPath: string;
 
   constructor(cwd?: string) {
     this.cwd = cwd || process.cwd();
     this.reportsDir = path.join(this.cwd, '.planning', 'analytics', 'reports');
+    this.schedulesPath = path.join(this.cwd, '.planning', 'report-schedules.json');
     this.ensureDir();
   }
 
   /**
-   * Generate aggregated analytics report
+   * Generate analytics report
    * @param options - Report options
    * @returns Analytics report
    */
   async generateReport(options: AnalyticsReportOptions = {}): Promise<AnalyticsReport> {
-    const { calculateNPS } = await import('./nps-tracker.js');
     const { AnalyticsCollector } = await import('./analytics-collector.js');
-
+    
     const collector = new AnalyticsCollector(this.cwd);
     const events = collector.getAllEvents();
-    const nps = calculateNPS(this.cwd);
+    const sessions = collector.getAllSessions();
 
-    // Group events by type
-    const eventsByType: Record<string, number> = {};
-    for (const event of events) {
-      const eventType = event.eventType;
-      if (eventType) {
-        if (!eventsByType[eventType]) {
-          eventsByType[eventType] = 0;
-        }
-        eventsByType[eventType]++;
+    const startDate = options.startDate || new Date().toISOString().split('T')[0];
+    const endDate = options.endDate || new Date().toISOString().split('T')[0];
+
+    const report: AnalyticsReport = {
+      generatedAt: new Date().toISOString(),
+      period: {
+        startDate: options.startDate || startDate,
+        endDate: options.endDate || endDate
+      },
+      metrics: {
+        totalEvents: events.length,
+        totalUsers: new Set(sessions.map(s => s.userId)).size,
+        activeUsers: sessions.filter(s => s.endTime).length
       }
+    };
+
+    return report;
+  }
+
+  /**
+   * Aggregate metrics from multiple sources
+   * @param options - Aggregation options
+   * @returns Aggregated metrics
+   */
+  async aggregateMetrics(options: { sources: string[]; startDate: string; endDate: string }): Promise<AggregatedMetrics> {
+    const { AnalyticsCollector } = await import('./analytics-collector.js');
+    
+    const collector = new AnalyticsCollector(this.cwd);
+    const events = collector.getAllEvents();
+    const sessions = collector.getAllSessions();
+
+    const bySource: Array<{ source: string; count: number }> = [];
+    
+    for (const source of options.sources) {
+      let count = 0;
+      if (source === 'events') {
+        count = events.length;
+      } else if (source === 'sessions') {
+        count = sessions.length;
+      } else if (source === 'conversions') {
+        // Placeholder for conversions
+        count = 0;
+      }
+      bySource.push({ source, count });
     }
 
     return {
-      timestamp: new Date().toISOString(),
       summary: {
         totalEvents: events.length,
-        uniqueEventTypes: Object.keys(eventsByType).length,
-        npsScore: nps.score
+        totalSessions: sessions.length,
+        totalUsers: new Set(sessions.map(s => s.userId)).size
       },
-      events: {
-        byType: eventsByType,
-        recent: events.slice(-10)
-      },
-      nps,
-      recommendations: this.generateRecommendations(events, nps)
+      bySource
     };
+  }
+
+  /**
+   * Export report to file
+   * @param report - Report to export
+   * @param options - Export options
+   * @returns Path to exported file
+   */
+  async exportReport(report: AnalyticsReport, options: ExportOptions): Promise<string> {
+    const filename = options.filename.includes('.') ? options.filename : `${options.filename}.${options.format}`;
+    const filePath = path.join(this.reportsDir, filename);
+
+    let content: string;
+    if (options.format === 'json') {
+      content = JSON.stringify(report, null, 2);
+    } else {
+      // CSV format
+      const rows = [['generatedAt', 'startDate', 'endDate']];
+      rows.push([report.generatedAt, report.period.startDate, report.period.endDate]);
+      
+      // Add metrics
+      for (const [key, value] of Object.entries(report.metrics)) {
+        rows.push([key, String(value)]);
+      }
+      
+      content = rows.map(row => row.join(',')).join('\n');
+    }
+
+    fs.writeFileSync(filePath, content, 'utf8');
+    return filePath;
+  }
+
+  /**
+   * Schedule recurring report
+   * @param options - Schedule options
+   * @returns Schedule configuration
+   */
+  async scheduleReport(options: ScheduleOptions): Promise<ReportSchedule> {
+    const schedules = this.getSchedules();
+    
+    const schedule: ReportSchedule = {
+      id: `schedule-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+      name: options.name,
+      type: options.type,
+      recipients: options.recipients,
+      format: options.format,
+      cron: options.cron,
+      enabled: true,
+      createdAt: new Date().toISOString()
+    };
+
+    schedules.schedules.push(schedule);
+    this.saveSchedules(schedules);
+
+    return schedule;
   }
 
   /**
@@ -118,31 +263,22 @@ export class AnalyticsReporter {
   }
 
   /**
-   * Generate recommendations from analytics
-   * @param events - Events array
-   * @param nps - NPS data
-   * @returns Recommendations
+   * Get all schedules
+   * @returns Schedules data
    */
-  private generateRecommendations(events: unknown[], nps: NpsResult): Array<{ category: string; priority: string; suggestion: string }> {
-    const recommendations: Array<{ category: string; priority: string; suggestion: string }> = [];
-
-    if (nps.score < 0) {
-      recommendations.push({
-        category: 'nps',
-        priority: 'high',
-        suggestion: 'NPS is negative — investigate detractor feedback'
-      });
+  private getSchedules(): { schedules: ReportSchedule[] } {
+    if (!fs.existsSync(this.schedulesPath)) {
+      return { schedules: [] };
     }
+    return JSON.parse(fs.readFileSync(this.schedulesPath, 'utf8'));
+  }
 
-    if (events.length < 100) {
-      recommendations.push({
-        category: 'tracking',
-        priority: 'medium',
-        suggestion: 'Low event volume — ensure all key actions are tracked'
-      });
-    }
-
-    return recommendations;
+  /**
+   * Save schedules
+   * @param data - Schedules data
+   */
+  private saveSchedules(data: { schedules: ReportSchedule[] }): void {
+    fs.writeFileSync(this.schedulesPath, JSON.stringify(data, null, 2), 'utf8');
   }
 
   /**
@@ -167,13 +303,35 @@ export async function generateReport(options: AnalyticsReportOptions = {}, cwd?:
 }
 
 /**
- * Save analytics report
- * @param report - Report to save
- * @param filename - Filename
+ * Aggregate metrics
+ * @param options - Aggregation options
  * @param cwd - Working directory
- * @returns Path to saved report
+ * @returns Aggregated metrics
  */
-export function saveReport(report: AnalyticsReport, filename: string, cwd?: string): string {
+export async function aggregateMetrics(options: { sources: string[]; startDate: string; endDate: string }, cwd?: string): Promise<AggregatedMetrics> {
   const reporter = new AnalyticsReporter(cwd);
-  return reporter.saveReport(report, filename);
+  return reporter.aggregateMetrics(options);
+}
+
+/**
+ * Export report
+ * @param report - Report to export
+ * @param options - Export options
+ * @param cwd - Working directory
+ * @returns Path to exported file
+ */
+export async function exportReport(report: AnalyticsReport, options: ExportOptions, cwd?: string): Promise<string> {
+  const reporter = new AnalyticsReporter(cwd);
+  return reporter.exportReport(report, options);
+}
+
+/**
+ * Schedule report
+ * @param options - Schedule options
+ * @param cwd - Working directory
+ * @returns Schedule configuration
+ */
+export async function scheduleReport(options: ScheduleOptions, cwd?: string): Promise<ReportSchedule> {
+  const reporter = new AnalyticsReporter(cwd);
+  return reporter.scheduleReport(options);
 }

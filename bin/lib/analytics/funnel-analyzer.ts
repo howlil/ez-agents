@@ -7,23 +7,47 @@ import * as fs from 'fs';
 import * as path from 'path';
 
 /**
- * Funnel step tracking entry
+ * Funnel step definition
  */
-interface StepEntry {
+export interface FunnelStepDef {
   /** Step name */
-  step: string;
-  /** Timestamp of step completion */
+  name: string;
+  /** Step order */
+  order: number;
+}
+
+/**
+ * Funnel definition
+ */
+export interface Funnel {
+  /** Funnel name */
+  name: string;
+  /** Funnel steps in order */
+  steps: FunnelStepDef[];
+  /** Creation timestamp */
+  createdAt?: string;
+}
+
+/**
+ * User conversion record
+ */
+export interface ConversionRecord {
+  /** User ID */
+  userId: string;
+  /** Steps completed */
+  steps: string[];
+  /** Timestamp */
   timestamp: string;
 }
 
 /**
  * Funnel data structure
  */
-interface FunnelData {
-  /** Funnel steps in order */
-  steps: string[];
-  /** User progressions */
-  users: Record<string, StepEntry[]>;
+export interface FunnelsData {
+  /** Funnels array */
+  funnels: Funnel[];
+  /** Conversion records by funnel name */
+  conversions: Record<string, ConversionRecord[]>;
 }
 
 /**
@@ -34,6 +58,8 @@ export interface FunnelStep {
   name: string;
   /** Number of users at this step */
   users: number;
+  /** Conversion rate percentage */
+  conversionRate?: number;
 }
 
 /**
@@ -60,152 +86,290 @@ export interface FunnelAnalysisResult {
   dropOff: DropOffAnalysis[];
   /** Total number of users */
   totalUsers: number;
+  /** Conversion rate */
+  conversionRate?: number;
+}
+
+/**
+ * Funnel definition input
+ */
+export interface FunnelDefinition {
+  /** Funnel name */
+  name: string;
+  /** Funnel steps */
+  steps: FunnelStepDef[];
 }
 
 export class FunnelAnalyzer {
   private readonly cwd: string;
-  private readonly funnelPath: string;
+  private readonly funnelsPath: string;
 
   constructor(cwd?: string) {
     this.cwd = cwd || process.cwd();
-    this.funnelPath = path.join(this.cwd, '.planning', 'analytics', 'funnels.json');
+    this.funnelsPath = path.join(this.cwd, '.planning', 'funnels.json');
     this.ensureFile();
   }
 
   /**
-   * Track user progression through funnel step
-   * @param funnelName - Funnel name
-   * @param userId - User ID
-   * @param step - Current step name
+   * Define a funnel with ordered steps
+   * @param funnel - Funnel definition { name, steps }
    */
-  trackStep(funnelName: string, userId: string, step: string): void {
-    const funnels = this.getFunnels();
+  async defineFunnel(funnel: FunnelDefinition): Promise<void> {
+    const data = this.getFunnelsData();
+    
+    // Sort steps by order
+    const sortedSteps = [...funnel.steps].sort((a, b) => a.order - b.order);
+    
+    const newFunnel: Funnel = {
+      name: funnel.name,
+      steps: sortedSteps,
+      createdAt: new Date().toISOString()
+    };
 
-    if (!funnels[funnelName]) {
-      funnels[funnelName] = { steps: [], users: {} };
+    data.funnels.push(newFunnel);
+    if (!data.conversions[funnel.name]) {
+      data.conversions[funnel.name] = [];
     }
-
-    const funnel = funnels[funnelName];
-    if (!funnel) return;
-
-    // Add step if new
-    if (!funnel.steps.includes(step)) {
-      funnel.steps.push(step);
-    }
-
-    // Track user progression
-    if (!funnel.users[userId]) {
-      funnel.users[userId] = [];
-    }
-    const userProgress = funnel.users[userId];
-    if (userProgress) {
-      userProgress.push({ step, timestamp: new Date().toISOString() });
-    }
-
-    this.saveFunnels(funnels);
+    this.saveFunnelsData(data);
   }
 
   /**
-   * Analyze funnel conversion
+   * Track user conversion through funnel
    * @param funnelName - Funnel name
-   * @returns Funnel analysis { steps, dropOff }
+   * @param userId - User ID
+   * @param completedSteps - Array of step names completed
    */
-  analyzeFunnel(funnelName: string): FunnelAnalysisResult {
-    const funnels = this.getFunnels();
-    const funnel = funnels[funnelName] as FunnelData;
-
-    if (!funnel || funnel.steps.length === 0) {
-      return { steps: [], dropOff: [], totalUsers: 0 };
+  async trackConversion(funnelName: string, userId: string, completedSteps: string[]): Promise<void> {
+    const data = this.getFunnelsData();
+    
+    if (!data.conversions[funnelName]) {
+      data.conversions[funnelName] = [];
     }
 
+    data.conversions[funnelName].push({
+      userId,
+      steps: completedSteps,
+      timestamp: new Date().toISOString()
+    });
+
+    this.saveFunnelsData(data);
+  }
+
+  /**
+   * Get conversion rates for funnel
+   * @param funnelName - Funnel name
+   * @returns Conversion rates by step
+   */
+  async getConversionRates(funnelName: string): Promise<{ steps: FunnelStep[]; totalUsers: number }> {
+    const data = this.getFunnelsData();
+    const funnel = data.funnels.find(f => f.name === funnelName);
+    
+    if (!funnel) {
+      throw new Error(`Funnel ${funnelName} not found`);
+    }
+
+    const conversions = data.conversions[funnelName] || [];
     const stepCounts: Record<string, number> = {};
-    const userSteps: Record<string, number> = {};
+    const userSteps: Record<string, Set<string>> = {};
+
+    // Count unique users at each step
+    for (const conv of conversions) {
+      if (!userSteps[conv.userId]) {
+        userSteps[conv.userId] = new Set();
+      }
+      for (const step of conv.steps) {
+        userSteps[conv.userId].add(step);
+      }
+    }
 
     // Count users at each step
-    for (const [userId, steps] of Object.entries(funnel.users)) {
-      const uniqueSteps = Array.from(new Set(steps.map(s => s.step)));
-      for (const step of uniqueSteps) {
+    for (const userStepSet of Object.values(userSteps)) {
+      for (const step of userStepSet) {
         stepCounts[step] = (stepCounts[step] || 0) + 1;
       }
-      userSteps[userId] = uniqueSteps.length;
     }
 
-    // Calculate drop-off between steps
+    const totalUsers = Object.keys(userSteps).length;
+    const steps: FunnelStep[] = funnel.steps.map(step => ({
+      name: step.name,
+      users: stepCounts[step.name] || 0,
+      conversionRate: totalUsers > 0 ? Math.round(((stepCounts[step.name] || 0) / totalUsers) * 100) : 0
+    }));
+
+    return { steps, totalUsers };
+  }
+
+  /**
+   * Get drop-off points in funnel
+   * @param funnelName - Funnel name
+   * @returns Drop-off analysis
+   */
+  async getDropOffPoints(funnelName: string): Promise<{ steps: FunnelStep[]; dropOff: DropOffAnalysis[]; totalUsers: number }> {
+    const data = this.getFunnelsData();
+    const funnel = data.funnels.find(f => f.name === funnelName);
+    
+    if (!funnel) {
+      throw new Error(`Funnel ${funnelName} not found`);
+    }
+
+    const conversions = data.conversions[funnelName] || [];
+    const stepCounts: Record<string, number> = {};
+    const userSteps: Record<string, Set<string>> = {};
+
+    // Count unique users at each step
+    for (const conv of conversions) {
+      if (!userSteps[conv.userId]) {
+        userSteps[conv.userId] = new Set();
+      }
+      for (const step of conv.steps) {
+        userSteps[conv.userId].add(step);
+      }
+    }
+
+    // Count users at each step
+    for (const userStepSet of Object.values(userSteps)) {
+      for (const step of userStepSet) {
+        stepCounts[step] = (stepCounts[step] || 0) + 1;
+      }
+    }
+
+    const totalUsers = Object.keys(userSteps).length;
+    
+    // Build steps array
+    const steps: FunnelStep[] = funnel.steps.map(step => ({
+      name: step.name,
+      users: stepCounts[step.name] || 0
+    }));
+
+    // Calculate drop-off between consecutive steps
     const dropOff: DropOffAnalysis[] = [];
     for (let i = 0; i < funnel.steps.length - 1; i++) {
       const currentStep = funnel.steps[i];
       const nextStep = funnel.steps[i + 1];
-      if (!currentStep || !nextStep) continue;
-      const current = stepCounts[currentStep] || 0;
-      const next = stepCounts[nextStep] || 0;
+      const current = stepCounts[currentStep.name] || 0;
+      const next = stepCounts[nextStep.name] || 0;
+      
       dropOff.push({
-        from: currentStep,
-        to: nextStep,
+        from: currentStep.name,
+        to: nextStep.name,
         dropOff: current - next,
         dropOffRate: current > 0 ? Math.round(((current - next) / current) * 100) : 0
       });
     }
 
-    return {
-      steps: funnel.steps.map(step => ({
-        name: step,
-        users: stepCounts[step] || 0
-      })),
-      dropOff,
-      totalUsers: Object.keys(funnel.users).length
-    };
+    return { steps, dropOff, totalUsers };
   }
 
   /**
-   * Get all funnels
-   * @returns All funnels
+   * Compare multiple funnels
+   * @param funnelNames - Array of funnel names to compare
+   * @returns Comparative metrics
    */
-  getFunnels(): Record<string, FunnelData> {
-    if (!fs.existsSync(this.funnelPath)) return {};
-    return JSON.parse(fs.readFileSync(this.funnelPath, 'utf8'));
+  async compareFunnels(funnelNames: string[]): Promise<Record<string, { totalUsers: number; conversionRate?: number; steps: number }>> {
+    const data = this.getFunnelsData();
+    const result: Record<string, { totalUsers: number; conversionRate?: number; steps: number }> = {};
+
+    for (const name of funnelNames) {
+      const funnel = data.funnels.find(f => f.name === name);
+      if (!funnel) continue;
+
+      const conversions = data.conversions[name] || [];
+      const uniqueUsers = new Set(conversions.map(c => c.userId));
+      
+      // Find users who completed all steps
+      const completedAll = conversions.filter(c => c.steps.length === funnel.steps.length).length;
+      
+      result[name] = {
+        totalUsers: uniqueUsers.size,
+        conversionRate: uniqueUsers.size > 0 ? Math.round((completedAll / uniqueUsers.size) * 100) : 0,
+        steps: funnel.steps.length
+      };
+    }
+
+    return result;
   }
 
   /**
-   * Save funnels
-   * @param funnels - Funnels to save
+   * Get all funnels data
+   * @returns Funnels data
    */
-  private saveFunnels(funnels: Record<string, FunnelData>): void {
-    fs.writeFileSync(this.funnelPath, JSON.stringify(funnels, null, 2), 'utf8');
+  private getFunnelsData(): FunnelsData {
+    if (!fs.existsSync(this.funnelsPath)) {
+      return { funnels: [], conversions: {} };
+    }
+    return JSON.parse(fs.readFileSync(this.funnelsPath, 'utf8'));
+  }
+
+  /**
+   * Save funnels data
+   * @param data - Data to save
+   */
+  private saveFunnelsData(data: FunnelsData): void {
+    fs.writeFileSync(this.funnelsPath, JSON.stringify(data, null, 2), 'utf8');
   }
 
   /**
    * Ensure funnels file exists
    */
   private ensureFile(): void {
-    const dir = path.dirname(this.funnelPath);
+    const dir = path.dirname(this.funnelsPath);
     if (!fs.existsSync(dir)) {
       fs.mkdirSync(dir, { recursive: true });
     }
-    if (!fs.existsSync(this.funnelPath)) {
-      fs.writeFileSync(this.funnelPath, '{}', 'utf8');
+    if (!fs.existsSync(this.funnelsPath)) {
+      fs.writeFileSync(this.funnelsPath, JSON.stringify({ funnels: [], conversions: {} }, null, 2), 'utf8');
     }
   }
 }
 
 /**
- * Track funnel step
- * @param funnelName - Funnel name
- * @param userId - User ID
- * @param step - Step name
+ * Define a funnel
+ * @param funnel - Funnel definition
  * @param cwd - Working directory
  */
-export function trackStep(funnelName: string, userId: string, step: string, cwd?: string): void {
+export async function defineFunnel(funnel: FunnelDefinition, cwd?: string): Promise<void> {
   const analyzer = new FunnelAnalyzer(cwd);
-  return analyzer.trackStep(funnelName, userId, step);
+  return analyzer.defineFunnel(funnel);
 }
 
 /**
- * Analyze funnel
+ * Track conversion
+ * @param funnelName - Funnel name
+ * @param userId - User ID
+ * @param completedSteps - Completed steps
+ * @param cwd - Working directory
+ */
+export async function trackConversion(funnelName: string, userId: string, completedSteps: string[], cwd?: string): Promise<void> {
+  const analyzer = new FunnelAnalyzer(cwd);
+  return analyzer.trackConversion(funnelName, userId, completedSteps);
+}
+
+/**
+ * Get conversion rates
  * @param funnelName - Funnel name
  * @param cwd - Working directory
- * @returns Funnel analysis
  */
-export function analyzeFunnel(funnelName: string, cwd?: string): FunnelAnalysisResult {
+export async function getConversionRates(funnelName: string, cwd?: string): Promise<{ steps: FunnelStep[]; totalUsers: number }> {
   const analyzer = new FunnelAnalyzer(cwd);
-  return analyzer.analyzeFunnel(funnelName);
+  return analyzer.getConversionRates(funnelName);
+}
+
+/**
+ * Get drop-off points
+ * @param funnelName - Funnel name
+ * @param cwd - Working directory
+ */
+export async function getDropOffPoints(funnelName: string, cwd?: string): Promise<{ steps: FunnelStep[]; dropOff: DropOffAnalysis[]; totalUsers: number }> {
+  const analyzer = new FunnelAnalyzer(cwd);
+  return analyzer.getDropOffPoints(funnelName);
+}
+
+/**
+ * Compare funnels
+ * @param funnelNames - Funnel names
+ * @param cwd - Working directory
+ */
+export async function compareFunnels(funnelNames: string[], cwd?: string): Promise<Record<string, { totalUsers: number; conversionRate?: number; steps: number }>> {
+  const analyzer = new FunnelAnalyzer(cwd);
+  return analyzer.compareFunnels(funnelNames);
 }
