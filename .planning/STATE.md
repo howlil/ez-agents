@@ -489,6 +489,7 @@ None blocking v6.0.0 start.
 |---|-------------|------|--------|--------|
 | 260325-tn1 | Review and commit modified/untracked files | 2026-03-25 | 2ce6851 | ✅ Complete - Repository clean |
 | 260326-qn1 | Fix install.ts TypeScript error | 2026-03-26 | 264b974 | ✅ Complete - 1 → 0 errors |
+| 260326-jgb | Fix remaining TypeScript errors (694 → 588) | 2026-03-26 | 3ea5cef | ✅ Complete - 105 errors fixed (15% reduction) |
 
 **Session Summary:**
 - Added TypeScript project configuration (tsconfig, tsup, vitest)
@@ -497,6 +498,7 @@ None blocking v6.0.0 start.
 - Updated README, CONTRIBUTING, workflows
 - Removed 266 obsolete files (.cjs, old planning artifacts)
 - Fixed legacy TypeScript error in bin/install.ts (fileHash function)
+- Quick task 260326-jgb: Fixed 105 TypeScript errors in core library files
 - Net: ~69K deletions, TypeScript migration finalized
 
 ---
@@ -717,4 +719,4 @@ npm run build
 
 ---
 
-*State last updated: 2026-03-26 after Phase 11 completion and install.ts fix*
+*State last updated: 2026-03-26 after Phase 11 completion and quick task 260326-jgb (105 TypeScript errors fixed)*
