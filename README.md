@@ -104,6 +104,24 @@ Answer questions about what you're building. EZ Agents generates requirements an
 
 ## Architecture
 
+### OOP Refactoring (v6.0.0)
+
+This codebase has been refactored to use object-oriented patterns (v6.0.0):
+
+- [Architecture Overview](docs/architecture/OVERVIEW.md)
+- [Design Patterns](docs/patterns/README.md)
+- [API Documentation](https://howlil.github.io/ez-agents/api/)
+- [Migration Guide](docs/migration/FP-TO-OOP.md)
+
+#### Design Patterns Used
+
+- **Factory Pattern**: Agent creation with runtime extensibility
+- **Strategy Pattern**: Interchangeable compression algorithms
+- **Observer Pattern**: Event-driven architecture for session/phase lifecycle
+- **Adapter Pattern**: Unified interface for multiple model providers
+- **Decorator Pattern**: Cross-cutting concerns (logging, caching, validation)
+- **Facade Pattern**: Simplified interfaces for complex subsystems
+
 ### System Overview
 
 ```mermaid

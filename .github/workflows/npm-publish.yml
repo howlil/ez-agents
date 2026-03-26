@@ -36,6 +36,15 @@ jobs:
       - name: Build hooks
         run: npm run build:hooks
 
+      - name: Build package
+        run: npm run build
+
+      - name: Clean Docker Package Test
+        run: |
+          npm pack
+          docker build -t ez-agents-package-test -f Dockerfile.package-test .
+          docker run --rm ez-agents-package-test
+
       - name: Check if version changed
         id: version-check
         run: |

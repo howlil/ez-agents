@@ -1,0 +1,22 @@
+FROM node:20-alpine
+
+WORKDIR /app
+
+# Install package from local tarball
+COPY *.tgz /tmp/package.tgz
+RUN npm install /tmp/package.tgz --global
+
+# Test installation
+RUN ez-agents --version
+RUN ez-agents --help
+
+# Verify exports work
+RUN node -e "import('@howlil/ez-agents').then(m => console.log('Main export OK'))"
+
+# Verify subpath exports work
+RUN node -e "import('@howlil/ez-agents/factories').then(m => console.log('Factories export OK'))"
+RUN node -e "import('@howlil/ez-agents/strategies').then(m => console.log('Strategies export OK'))"
+RUN node -e "import('@howlil/ez-agents/adapters').then(m => console.log('Adapters export OK'))"
+RUN node -e "import('@howlil/ez-agents/observer').then(m => console.log('Observer export OK'))"
+RUN node -e "import('@howlil/ez-agents/decorators').then(m => console.log('Decorators export OK'))"
+RUN node -e "import('@howlil/ez-agents/facades').then(m => console.log('Facades export OK'))"

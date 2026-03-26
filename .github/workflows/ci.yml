@@ -37,6 +37,16 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
+      - name: Duplicate Code Check
+        run: npm run check:duplicates
+
+      - name: Code Complexity Check
+        run: npm run check:complexity
+
+      - name: TSDoc Coverage Check
+        run: npm run check:tsdoc
+        continue-on-error: true
+
       - name: Lint (Blocking)
         run: npm run lint
         env:
