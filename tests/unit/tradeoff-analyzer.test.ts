@@ -1,6 +1,4 @@
-﻿#!/usr/bin/env node
-
-/**
+﻿/**
  * Unit Tests for Trade-off Analyzer
  *
  * Tests analysis generation, reversibility assessment, and template validation.
@@ -8,7 +6,7 @@
 
 import assert from 'node:assert';
 import { test } from './test-utils.js';
-import { TradeOffAnalyzer, TRADEOFF_TEMPLATE } from '../../ez-agents/bin/lib/tradeoff-analyzer.js';
+import { TradeOffAnalyzer, TRADEOFF_TEMPLATE } from '../../bin/lib/tradeoff-analyzer.js';
 
 console.log('Running Trade-off Analyzer Tests...\n');
 
@@ -95,12 +93,13 @@ test('generateAnalysis includes all required sections', () => {
 // Test: _calculateReviewDate based on reversibility
 test('calculateReviewDate returns future date', () => {
   const analyzer = new TradeOffAnalyzer();
-  
+
   // Access private method via prototype or test indirectly
+  // @ts-expect-error Accessing private method for testing
   const reviewDate = analyzer._calculateReviewDate('Easy');
   const futureDate = new Date();
   futureDate.setMonth(futureDate.getMonth() + 6);
-  
+
   const reviewDateObj = new Date(reviewDate);
   assert.ok(reviewDateObj >= new Date(), 'Review date should be in future');
 });

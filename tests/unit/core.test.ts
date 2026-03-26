@@ -90,7 +90,7 @@ describe('loadConfig', () => {
   test('returns model_overrides as null when not in config', () => {
     writeConfig({ model_profile: 'balanced' });
     const config = loadConfig(tmpDir);
-    expect(config.model_overrides).toBeUndefined();
+    expect(config.model_overrides).toBeNull();
   });
 
   test('returns defaults when config.json contains invalid JSON', () => {
@@ -255,11 +255,11 @@ describe('generateSlugInternal', () => {
 
   test('returns null for null input', () => {
     // @ts-expect-error Testing with undefined for edge case
-    assert.strictEqual(generateSlugInternal(undefined), undefined);
+    expect(generateSlugInternal(undefined)).toBeNull();
   });
 
   test('returns null for empty string', () => {
-    assert.strictEqual(generateSlugInternal(''), undefined);
+    expect(generateSlugInternal('')).toBeNull();
   });
 });
 
@@ -340,7 +340,7 @@ describe('safeReadFile', () => {
   });
 
   test('returns null for missing file', () => {
-    assert.strictEqual(safeReadFile('/nonexistent/path/file.txt'), undefined);
+    expect(safeReadFile('/nonexistent/path/file.txt')).toBeNull();
   });
 });
 
@@ -535,7 +535,7 @@ describe('searchPhaseInDir', () => {
   test('returns null when phase not found', () => {
     fs.mkdirSync(path.join(phasesDir, '01-foundation'));
     const result = searchPhaseInDir(phasesDir, '.planning/phases', '99');
-    assert.strictEqual(result, undefined);
+    expect(result).toBeNull();
   });
 
   test('generates phase_slug from directory name', () => {
@@ -568,13 +568,13 @@ describe('findPhaseInternal', () => {
 
   test('returns null for non-existent phase', () => {
     const result = findPhaseInternal(tmpDir, '99');
-    assert.strictEqual(result, undefined);
+    expect(result).toBeNull();
   });
 
   test('returns null for null phase', () => {
     // @ts-expect-error Testing with undefined for edge case
     const result = findPhaseInternal(tmpDir, undefined);
-    assert.strictEqual(result, undefined);
+    expect(result).toBeNull();
   });
 
   test('searches archived milestones when not in current', () => {
@@ -632,14 +632,14 @@ describe('getRoadmapPhaseInternal', () => {
       '### Phase 1: Foundation\n**Goal**: Build the base\n'
     );
     const result = getRoadmapPhaseInternal(tmpDir, '1');
-    assert.strictEqual(result?.found, true);
-    assert.strictEqual(result?.phase_name, 'Foundation');
-    assert.strictEqual(result?.goal, undefined);
+    expect(result?.found).toBe(true);
+    expect(result?.phase_name).toBe('Foundation');
+    expect(result?.goal).toBeNull();
   });
 
   test('returns null when roadmap missing', () => {
     const result = getRoadmapPhaseInternal(tmpDir, '1');
-    assert.strictEqual(result, undefined);
+    expect(result).toBeNull();
   });
 
   test('returns null when phase not in roadmap', () => {
@@ -648,13 +648,13 @@ describe('getRoadmapPhaseInternal', () => {
       '### Phase 1: Foundation\n**Goal**: Build the base\n'
     );
     const result = getRoadmapPhaseInternal(tmpDir, '99');
-    assert.strictEqual(result, undefined);
+    expect(result).toBeNull();
   });
 
   test('returns null for null phase number', () => {
     // @ts-expect-error Testing with undefined for edge case
     const result = getRoadmapPhaseInternal(tmpDir, undefined);
-    assert.strictEqual(result, undefined);
+    expect(result).toBeNull();
   });
 
   test('extracts full section text', () => {

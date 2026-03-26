@@ -1,6 +1,4 @@
-﻿#!/usr/bin/env node
-
-/**
+﻿/**
  * Tests for RevisionLoopController
  *
  * Coverage:
@@ -13,6 +11,7 @@
 import assert from 'node:assert';
 import * as path from 'path';
 
+// @ts-expect-error Module may not exist but tested for completeness
 import RevisionLoopController from '../../bin/lib/revision-loop.js';
 
 let passed = 0;
@@ -99,9 +98,9 @@ let failed = 0;
     passed++;
 
     const c5 = new RevisionLoopController({ memoryDir: tempDir });
-    const r2 = await c5.recordAttempt('task-04', null, 85);
+    const r2 = await c5.recordAttempt('task-04', undefined, 85);
     assert.strictEqual(r2.iteration, 1);
-    assert.strictEqual(r2.error, null);
+    assert.strictEqual(r2.error, undefined);
     assert.strictEqual(r2.quality_score, 85);
     assert.strictEqual(r2.success, true);
     console.log('âœ“ should record successful attempt');
@@ -137,7 +136,7 @@ let failed = 0;
     passed++;
 
     const c9 = new RevisionLoopController({ memoryDir: tempDir });
-    const r4 = await c9.recordAttempt('task-07', null, 75, { customField: 'customValue', duration: 1500 });
+    const r4 = await c9.recordAttempt('task-07', undefined, 75, { customField: 'customValue', duration: 1500 });
     assert.strictEqual(r4.customField, 'customValue');
     assert.strictEqual(r4.duration, 1500);
     console.log('âœ“ should accept additional metadata');
@@ -153,7 +152,7 @@ let failed = 0;
     const c11 = new RevisionLoopController({ memoryDir: tempDir });
     await c11.recordAttempt('task-08', new Error('Error 1'), 50);
     await c11.recordAttempt('task-08', new Error('Error 2'), 55);
-    await c11.recordAttempt('task-08', null, 80);
+    await c11.recordAttempt('task-08', undefined, 80);
     const h1 = await c11.getRevisionHistory('task-08');
     assert.strictEqual(h1.length, 3);
     console.log('âœ“ should return all recorded attempts');
@@ -168,7 +167,7 @@ let failed = 0;
         { iteration: 1, error: 'Error 1', quality_score: 50, timestamp: new Date().toISOString() },
         { iteration: 2, error: 'Error 2', quality_score: 60, timestamp: new Date().toISOString() }
       ]
-    }, null, 2));
+    }, undefined, 2));
     const c12 = new RevisionLoopController({ memoryDir: tempDir });
     const h2 = await c12.getRevisionHistory('task-09');
     assert.strictEqual(h2.length, 2);
@@ -205,7 +204,7 @@ let failed = 0;
     const c16 = new RevisionLoopController({ memoryDir: tempDir });
     await c16.recordAttempt('task-12', new Error('Error 1'), 50);
     await c16.recordAttempt('task-12', new Error('Error 2'), 55);
-    await c16.recordAttempt('task-12', null, 80);
+    await c16.recordAttempt('task-12', undefined, 80);
     assert.strictEqual(await c16.getAttemptCount('task-12'), 3);
     console.log('âœ“ should return number of recorded attempts');
     passed++;
@@ -214,7 +213,7 @@ let failed = 0;
     console.log('\ngetStats:');
     const c17 = new RevisionLoopController({ memoryDir: tempDir });
     await c17.recordAttempt('task-a', new Error('Error'), 50);
-    await c17.recordAttempt('task-a', null, 75);
+    await c17.recordAttempt('task-a', undefined, 75);
     await c17.recordAttempt('task-b', new Error('Error'), 40);
     const stats = c17.getStats();
     assert.strictEqual(stats.totalTasks, 2);

@@ -1,6 +1,4 @@
-﻿#!/usr/bin/env node
-
-/**
+﻿/**
  * Unit Tests for Skill Resolver
  *
  * Tests conflict detection, classification, priority rule application,
@@ -9,7 +7,7 @@
 
 import assert from 'node:assert';
 import { test } from './test-utils.js';
-import { SkillResolver, PRIORITY_RULES, CONFLICT_TYPES } from '../../ez-agents/bin/lib/skill-resolver.js';
+import { SkillResolver, PRIORITY_RULES, CONFLICT_TYPES } from '../../bin/lib/skill-resolver.js';
 
 console.log('Running Skill Resolver Tests...\n');
 
@@ -36,13 +34,17 @@ test('PRIORITY_RULES contains data integrity > performance rule', () => {
 test('SkillResolver instantiates with default options', () => {
   const resolver = new SkillResolver();
   assert.ok(resolver, 'Resolver should be instantiated');
+  // @ts-expect-error Accessing private member for testing
   assert.ok(resolver.priorityRules, 'Should have priority rules');
+  // @ts-expect-error Accessing private member for testing
   assert.deepStrictEqual(resolver.context, {});
+  // @ts-expect-error Accessing private member for testing
   assert.deepStrictEqual(resolver.decisionLog, []);
 });
 
 test('SkillResolver accepts custom context', () => {
   const resolver = new SkillResolver({ context: { project_phase: 'MVP' } });
+  // @ts-expect-error Accessing private member for testing
   assert.strictEqual(resolver.context.project_phase, 'MVP');
 });
 
@@ -50,11 +52,12 @@ test('SkillResolver accepts custom context', () => {
 test('detectConflict returns no conflict when skills agree', () => {
   const resolver = new SkillResolver();
   const skills = [
-    { name: 'security-skill', recommendations: [{ aspect: 'auth', value: 'JWT', tags: ['security'] }] },
-    { name: 'api-skill', recommendations: [{ aspect: 'transport', value: 'HTTPS', tags: ['security'] }] }
+    { name: 'security-skill', description: '', version: '1.0.0', tags: [], prerequisites: [], best_practices: [], anti_patterns: [], scope: 'global', path: '', body: '', recommendations: [{ aspect: 'auth', value: 'JWT', tags: ['security'] }] },
+    { name: 'api-skill', description: '', version: '1.0.0', tags: [], prerequisites: [], best_practices: [], anti_patterns: [], scope: 'global', path: '', body: '', recommendations: [{ aspect: 'transport', value: 'HTTPS', tags: ['security'] }] }
   ];
+  // @ts-expect-error Testing with partial skill objects
   const result = resolver.detectConflict(skills);
-  assert.strictEqual(result.hasConflict, false);
+  assert.strictEqual(result?.hasConflict, false);
   assert.deepStrictEqual(result.conflicts, []);
 });
 
@@ -62,12 +65,14 @@ test('detectConflict detects conflict on same aspect with different values', () 
   const resolver = new SkillResolver();
   // Skills use workflow property, not recommendations
   const skills = [
-    { name: 'skill-a', tags: ['performance'], workflow: { caching: ['use-redis'] } },
-    { name: 'skill-b', tags: ['simplicity'], workflow: { caching: ['no-caching'] } }
+    { name: 'skill-a', description: '', version: '1.0.0', tags: ['performance'], prerequisites: [], best_practices: [], anti_patterns: [], scope: 'global', path: '', body: '', workflow: { caching: ['use-redis'] } },
+    { name: 'skill-b', description: '', version: '1.0.0', tags: ['simplicity'], prerequisites: [], best_practices: [], anti_patterns: [], scope: 'global', path: '', body: '', workflow: { caching: ['no-caching'] } }
   ];
+  // @ts-expect-error Testing with partial skill objects
   const result = resolver.detectConflict(skills);
-  assert.strictEqual(result.hasConflict, true);
-  assert.strictEqual(result.conflicts.length, 1);
+  assert.strictEqual(result?.hasConflict, true);
+  assert.strictEqual(result?.conflicts.length, 1);
+  if (!result?.conflicts[0]) throw new Error('Expected conflict');
   assert.strictEqual(result.conflicts[0].aspect, 'caching');
 });
 
@@ -76,11 +81,14 @@ test('classifyConflict identifies Security vs Speed conflict', () => {
   const resolver = new SkillResolver();
   const conflict = {
     aspect: 'validation',
+    type: 'Security vs Speed',
+    skills: ['security', 'speed'],
     recommendations: [
       { skillName: 'security', value: 'strict-validation', tags: ['security'] },
       { skillName: 'speed', value: 'skip-validation', tags: ['speed', 'delivery'] }
     ]
   };
+  // @ts-expect-error Testing with partial conflict object
   const type = resolver.classifyConflict(conflict);
   assert.strictEqual(type, 'Security vs Speed');
 });
@@ -89,11 +97,14 @@ test('classifyConflict returns default type when no known tags match', () => {
   const resolver = new SkillResolver();
   const conflict = {
     aspect: 'color-scheme',
+    type: 'Visual vs Branding',
+    skills: ['skill-a', 'skill-b'],
     recommendations: [
       { skillName: 'skill-a', value: 'blue', tags: ['visual'] },
       { skillName: 'skill-b', value: 'red', tags: ['branding'] }
     ]
   };
+  // @ts-expect-error Testing with partial conflict object
   const type = resolver.classifyConflict(conflict);
   assert.ok(typeof type === 'string', 'Should return a string type');
 });
@@ -102,38 +113,50 @@ test('classifyConflict returns default type when no known tags match', () => {
 test('resolve returns no-conflict result when skills are compatible', () => {
   const resolver = new SkillResolver();
   const skills = [
-    { name: 'monolith', tags: ['simplicity'], workflow: { deployment: ['single-unit'] } }
+    { name: 'monolith', description: '', version: '1.0.0', tags: ['simplicity'], prerequisites: [], best_practices: [], anti_patterns: [], scope: 'global', path: '', body: '', workflow: { deployment: ['single-unit'] } }
   ];
+  // @ts-expect-error Testing with partial skill objects
   const result = resolver.resolve(skills, {});
   assert.ok(result, 'Should return a result');
   assert.ok('decision' in result, 'Should have decision property');
-  assert.strictEqual(result.escalated, false);
+  assert.strictEqual(result?.escalated, false);
 });
 
 test('resolve logs decisions when conflicts are found', () => {
   const resolver = new SkillResolver();
   const skills = [
-    { name: 'fast-skill', tags: ['speed', 'delivery'], workflow: { validation: ['skip-validation'] } },
-    { name: 'secure-skill', tags: ['security'], workflow: { validation: ['strict-validation'] } }
+    { name: 'fast-skill', description: '', version: '1.0.0', tags: ['speed', 'delivery'], prerequisites: [], best_practices: [], anti_patterns: [], scope: 'global', path: '', body: '', workflow: { validation: ['skip-validation'] } },
+    { name: 'secure-skill', description: '', version: '1.0.0', tags: ['security'], prerequisites: [], best_practices: [], anti_patterns: [], scope: 'global', path: '', body: '', workflow: { validation: ['strict-validation'] } }
   ];
+  // @ts-expect-error Testing with partial skill objects
   resolver.resolve(skills, {});
+  // @ts-expect-error Accessing private member for testing
   assert.ok(Array.isArray(resolver.decisionLog), 'decisionLog should be an array');
 });
 
 // Test: logDecision
 test('logDecision appends to decisionLog', () => {
   const resolver = new SkillResolver();
-  resolver.logDecision({ type: 'test', resolution: 'test-resolution', rationale: 'test' });
+  // @ts-expect-error Accessing private member for testing
+  resolver.logDecision({ conflict: undefined, resolution: undefined, context: { type: 'test' }, timestamp: new Date().toISOString() });
+  // @ts-expect-error Accessing private member for testing
   assert.strictEqual(resolver.decisionLog.length, 1);
-  assert.strictEqual(resolver.decisionLog[0].type, 'test');
+  // @ts-expect-error Accessing private member for testing
+  const entry = resolver.decisionLog[0];
+  if (!entry) throw new Error('Expected entry');
+  assert.strictEqual((entry as any).type, 'test');
 });
 
 test('logDecision stores the decision entry as-is', () => {
   const resolver = new SkillResolver();
-  const entry = { type: 'test', resolution: 'resolved', timestamp: new Date().toISOString() };
+  const entry = { conflict: undefined, resolution: undefined, context: { type: 'test' }, timestamp: new Date().toISOString() };
+  // @ts-expect-error Accessing private member for testing
   resolver.logDecision(entry);
-  assert.ok(resolver.decisionLog[0].timestamp, 'Should preserve timestamp');
-  assert.strictEqual(resolver.decisionLog[0].type, 'test');
+  // @ts-expect-error Accessing private member for testing
+  const logEntry = resolver.decisionLog[0];
+  if (!logEntry) throw new Error('Expected log entry');
+  assert.ok((logEntry as any).timestamp, 'Should preserve timestamp');
+  assert.strictEqual((logEntry as any).context.type, 'test');
 });
 
 // Summary
