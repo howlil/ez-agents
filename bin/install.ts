@@ -55,7 +55,7 @@ const claudeToCopilotTools = {
 };
 
 // Get version from package.json
-import pkg from '../package.json' assert { type: 'json' };
+import pkg from '../package.json' with { type: 'json' };
 
 // Parse args
 const args = process.argv.slice(2);
@@ -2338,9 +2338,10 @@ const MANIFEST_NAME = 'ez-file-manifest.json';
 /**
  * Compute SHA256 hash of file contents
  */
-function fileHash(filePath) {
+function fileHash(filePath: string): string {
   const content = fs.readFileSync(filePath);
-  return crypto.createHash('sha256').update(content).digest('hex');
+  // Convert to Uint8Array to satisfy BinaryLike type requirement
+  return crypto.createHash('sha256').update(new Uint8Array(content)).digest('hex');
 }
 
 /**

@@ -32,7 +32,7 @@
     "outDir": "./dist",
     "rootDir": ".",
     "skipLibCheck": true,
-    "types": ["node"]
+    "types": ["node", "vitest/globals"]
   },
   "include": ["bin/**/*", "scripts/**/*", "hooks/**/*", "tests/**/*"],
   "exclude": ["node_modules", "dist", "ez-agents"]
