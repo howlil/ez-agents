@@ -77,10 +77,10 @@ describe('NPSTracker', () => {
     await tracker.recordResponse({ userId: 'u3', score: 5, timestamp: now - 86400000 * 1 }); // 1 day ago
     await tracker.recordResponse({ userId: 'u4', score: 4, timestamp: now });
 
-    const trend = tracker.getTrend({ periodDays: 7 });
+    const trend = tracker.getTrendWithOptions({ periodDays: 7 });
 
-    expect(trend).toBeTruthy() // 'getTrend must return trend data';
-    expect(Array.isArray(trend.periods)).toBeTruthy() // 'trend must have periods array';
-    expect(trend.direction).toBeTruthy() // 'trend must have direction (improving/declining/stable');
+    expect(trend).toBeTruthy(); // 'getTrend must return trend data';
+    expect(Array.isArray(trend.periods)).toBeTruthy(); // 'trend must have periods array';
+    expect(trend.direction).toBeTruthy(); // 'trend must have direction (improving/declining/stable)';
   });
 });

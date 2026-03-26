@@ -12,6 +12,24 @@ import * as path from 'path';
 export type NpsCategory = 'promoter' | 'passive' | 'detractor';
 
 /**
+ * NPS response data
+ */
+export interface NpsResponse {
+  /** User ID */
+  userId?: string;
+  /** Score value (0-10) */
+  score: number;
+  /** Optional feedback */
+  feedback?: string;
+  /** Score category */
+  category?: NpsCategory;
+  /** Timestamp of response */
+  timestamp?: string | number;
+  /** Optional metadata */
+  [key: string]: unknown;
+}
+
+/**
  * NPS score entry
  */
 export interface NpsScoreEntry {
@@ -30,7 +48,7 @@ export interface NpsScoreEntry {
  */
 export interface NpsResult {
   /** Net Promoter Score (-100 to 100) */
-  score: number;
+  nps: number;
   /** Number of promoters (9-10) */
   promoters: number;
   /** Number of passives (7-8) */
@@ -39,6 +57,8 @@ export interface NpsResult {
   detractors: number;
   /** Total number of responses */
   total: number;
+  /** Total responses */
+  totalResponses?: number;
 }
 
 /**
@@ -53,18 +73,38 @@ export interface NpsTrendEntry {
   total: number;
 }
 
+/**
+ * NPS trend result
+ */
+export interface NpsTrend {
+  /** Trend periods */
+  periods: NpsTrendEntry[];
+  /** Trend direction */
+  direction: 'improving' | 'declining' | 'stable';
+}
+
+/**
+ * Trend options
+ */
+export interface TrendOptions {
+  /** Number of days per period */
+  periodDays?: number;
+}
+
 export class NpsTracker {
   private readonly cwd: string;
   private readonly scoresPath: string;
+  private readonly npsPath: string;
 
   constructor(cwd?: string) {
     this.cwd = cwd || process.cwd();
     this.scoresPath = path.join(this.cwd, '.planning', 'analytics', 'nps-scores.json');
+    this.npsPath = path.join(this.cwd, '.planning', 'nps.json');
     this.ensureFile();
   }
 
   /**
-   * Record an NPS score
+   * Record an NPS score (legacy method)
    * @param score - Score 0-10
    * @param metadata - Optional metadata
    */
@@ -86,13 +126,33 @@ export class NpsTracker {
   }
 
   /**
-   * Calculate current NPS
+   * Record an NPS response with categorization
+   * @param response - Response object with userId, score, feedback
+   */
+  async recordResponse(response: NpsResponse): Promise<void> {
+    if (response.score < 0 || response.score > 10) {
+      throw new Error('NPS score must be between 0 and 10');
+    }
+
+    const data: NpsResponse = {
+      ...response,
+      category: this.categorizeScore(response.score),
+      timestamp: response.timestamp || Date.now()
+    };
+
+    const npsData = this.getNpsData();
+    npsData.responses.push(data);
+    fs.writeFileSync(this.npsPath, JSON.stringify(npsData, null, 2), 'utf8');
+  }
+
+  /**
+   * Calculate current NPS (legacy method)
    * @returns NPS result { score, promoters, passives, detractors }
    */
   calculateNPS(): NpsResult {
     const scores = this.getScores();
     if (scores.length === 0) {
-      return { score: 0, promoters: 0, passives: 0, detractors: 0, total: 0 };
+      return { nps: 0, promoters: 0, passives: 0, detractors: 0, total: 0 };
     }
 
     const promoters = scores.filter(s => s.score >= 9).length;
@@ -102,11 +162,33 @@ export class NpsTracker {
 
     const nps = Math.round(((promoters - detractors) / total) * 100);
 
-    return { score: nps, promoters, passives, detractors, total };
+    return { nps, promoters, passives, detractors, total };
   }
 
   /**
-   * Get NPS trend over time
+   * Calculate NPS score from recorded responses
+   * @returns NPS result with nps, promoters, passives, detractors, totalResponses
+   */
+  calculateScore(): NpsResult {
+    const npsData = this.getNpsData();
+    const responses = npsData.responses || [];
+    
+    if (responses.length === 0) {
+      return { nps: 0, promoters: 0, passives: 0, detractors: 0, total: 0, totalResponses: 0 };
+    }
+
+    const promoters = responses.filter(r => r.score >= 9).length;
+    const passives = responses.filter(r => r.score >= 7 && r.score <= 8).length;
+    const detractors = responses.filter(r => r.score <= 6).length;
+    const total = responses.length;
+
+    const nps = Math.round(((promoters / total) * 100) - ((detractors / total) * 100));
+
+    return { nps, promoters, passives, detractors, total, totalResponses: total };
+  }
+
+  /**
+   * Get NPS trend over time (legacy method)
    * @returns Trend data
    */
   getTrend(): NpsTrendEntry[] {
@@ -119,12 +201,65 @@ export class NpsTracker {
       const nps = this.calculateNPSFromScores(cumulative);
       trend.push({
         timestamp: score.timestamp,
-        nps: nps.score,
+        nps: nps.nps,
         total: cumulative.length
       });
     }
 
     return trend;
+  }
+
+  /**
+   * Get NPS trend with period options
+   * @param options - Trend options with periodDays
+   * @returns Trend result with periods and direction
+   */
+  getTrendWithOptions(options?: TrendOptions): NpsTrend {
+    const npsData = this.getNpsData();
+    const responses = npsData.responses || [];
+    const periodDays = options?.periodDays || 7;
+    
+    // Group responses by period
+    const periods: NpsTrendEntry[] = [];
+    const now = Date.now();
+    const periodMs = periodDays * 24 * 60 * 60 * 1000;
+    
+    // Sort responses by timestamp
+    const sorted = [...responses].sort((a, b) => {
+      const tsA = typeof a.timestamp === 'number' ? a.timestamp : Date.parse(String(a.timestamp));
+      const tsB = typeof b.timestamp === 'number' ? b.timestamp : Date.parse(String(b.timestamp));
+      return tsA - tsB;
+    });
+
+    // Calculate cumulative NPS for each response
+    let cumulative: NpsResponse[] = [];
+    for (const response of sorted) {
+      cumulative.push(response);
+      const promoters = cumulative.filter(r => r.score >= 9).length;
+      const detractors = cumulative.filter(r => r.score <= 6).length;
+      const total = cumulative.length;
+      const nps = Math.round(((promoters / total) * 100) - ((detractors / total) * 100));
+      
+      periods.push({
+        timestamp: String(response.timestamp),
+        nps,
+        total
+      });
+    }
+
+    // Determine direction
+    let direction: 'improving' | 'declining' | 'stable' = 'stable';
+    if (periods.length >= 2) {
+      const firstNps = periods[0].nps;
+      const lastNps = periods[periods.length - 1].nps;
+      if (lastNps > firstNps) {
+        direction = 'improving';
+      } else if (lastNps < firstNps) {
+        direction = 'declining';
+      }
+    }
+
+    return { periods, direction };
   }
 
   /**
@@ -147,11 +282,11 @@ export class NpsTracker {
     const promoters = scores.filter(s => s.score >= 9).length;
     const detractors = scores.filter(s => s.score <= 6).length;
     const total = scores.length;
-    return { score: Math.round(((promoters - detractors) / total) * 100), promoters, passives: 0, detractors, total };
+    return { nps: Math.round(((promoters - detractors) / total) * 100), promoters, passives: 0, detractors, total };
   }
 
   /**
-   * Get all scores
+   * Get all scores (legacy)
    * @returns All scores
    */
   getScores(): NpsScoreEntry[] {
@@ -160,15 +295,37 @@ export class NpsTracker {
   }
 
   /**
-   * Ensure scores file exists
+   * Get NPS data with responses
+   * @returns NPS data object
+   */
+  getNpsData(): { responses: NpsResponse[] } {
+    if (!fs.existsSync(this.npsPath)) {
+      return { responses: [] };
+    }
+    const data = JSON.parse(fs.readFileSync(this.npsPath, 'utf8'));
+    return data || { responses: [] };
+  }
+
+  /**
+   * Ensure files exist
    */
   private ensureFile(): void {
-    const dir = path.dirname(this.scoresPath);
-    if (!fs.existsSync(dir)) {
-      fs.mkdirSync(dir, { recursive: true });
+    // Ensure analytics directory
+    const scoresDir = path.dirname(this.scoresPath);
+    if (!fs.existsSync(scoresDir)) {
+      fs.mkdirSync(scoresDir, { recursive: true });
     }
     if (!fs.existsSync(this.scoresPath)) {
       fs.writeFileSync(this.scoresPath, '[]', 'utf8');
+    }
+    
+    // Ensure nps.json directory
+    const npsDir = path.dirname(this.npsPath);
+    if (!fs.existsSync(npsDir)) {
+      fs.mkdirSync(npsDir, { recursive: true });
+    }
+    if (!fs.existsSync(this.npsPath)) {
+      fs.writeFileSync(this.npsPath, JSON.stringify({ responses: [] }, null, 2), 'utf8');
     }
   }
 }
