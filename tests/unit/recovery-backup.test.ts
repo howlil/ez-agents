@@ -8,7 +8,7 @@
 import * as fs from 'fs';
 import * as path from 'path';
 
-import { createTempGitProject, cleanup } from '../helpers.ts';
+import { createTempGitProject, cleanup } from '../helpers/index.js';
 import { BackupService } from '../../bin/lib/backup-service.js';
 
 describe('BackupService', () => {

@@ -69,7 +69,7 @@ test('XSS-010: Multiple script tags', () => {
 });
 
 // JavaScript URL XSS patterns (8 tests)
-test('XSS-011: Basic javascript URL').toBeTruthy() // ( => {
+test('XSS-011: Basic javascript URL', () => {
   const result = scanner.scan('<a href="javascript:alert(1)">click</a>');
   expect(result?.safe).toBe(false);
 });
@@ -276,4 +276,4 @@ test('XSS-CLEAN-002: Safe HTML with classes', () => {
 test('XSS-CLEAN-003: Safe markdown', () => {
   const result = scanner.scan('# Heading\n\nThis is **bold** and *italic* text.');
   expect(result?.safe).toBe(true);
-});
+});

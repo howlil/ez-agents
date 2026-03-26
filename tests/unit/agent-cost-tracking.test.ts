@@ -9,7 +9,7 @@
 
 import * as path from 'path';
 import * as fs from 'fs';
-import { createTempProject, cleanup } from '../helpers.ts';
+import { createTempProject, cleanup } from '../helpers/index.js';
 import CostTracker from '../../bin/lib/cost-tracker.js';
 
 describe('CostTracker - Per-Agent Tracking (COST-01)', () => {

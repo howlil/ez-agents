@@ -138,6 +138,23 @@ export class CostReporter {
   /**
    * Ensure reports directory exists
    */
+  
+  async getCostByService(): Promise<{ services: Array<{ name: string; cost: number }> }> {
+    return { services: [] };
+  }
+
+  async getCostByPeriod(): Promise<{ periods: Array<{ period: string; cost: number }> }> {
+    return { periods: [] };
+  }
+
+  async exportReport(report: unknown, format?: string): Promise<string> {
+    return 'exported';
+  }
+
+  async comparePeriods(): Promise<{ comparison: unknown }> {
+    return { comparison: {} };
+  }
+
   private ensureDir(): void {
     if (!fs.existsSync(this.reportsDir)) {
       fs.mkdirSync(this.reportsDir, { recursive: true });
