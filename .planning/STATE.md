@@ -572,10 +572,12 @@ npm run build
 - ✅ Fixed context module imports and async/await
 - ✅ Fixed facades (ContextManager, SkillResolver) - exactOptionalPropertyTypes
 - ✅ Fixed CompressionResult and ValidationResult types
-- ⚠️ ~890 errors remaining (frontmatter, gates, deploy-runner, etc.)
-- **Progress:** 45 errors fixed (6% reduction)
+- ✅ Fixed frontmatter null safety (~15 errors)
+- ✅ Fixed discussion-synthesizer undefined types (4 errors)
+- ⚠️ ~870 errors remaining (index.ts, git-workflow-engine, strategies, etc.)
+- **Progress:** 65 errors fixed (8% reduction)
 
-**Next:** Continue TypeScript error fixes (frontmatter, framework-detector, discussion-synthesizer), then resume Phase 11 Tasks 2-8
+**Next:** Continue TypeScript error fixes (index.ts exports, task-formatter, git-workflow-engine, strategies), then resume Phase 11 Tasks 2-8
 
 ---
 
