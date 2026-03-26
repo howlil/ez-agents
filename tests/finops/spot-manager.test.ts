@@ -8,12 +8,12 @@
  * Requirement: COST-05
  */
 
-const { test, describe, beforeEach, afterEach } = require('node:test');
-import assert from 'node:assert';
+
+
 import * as path from 'path';
 import * as fs from 'fs';
 
-import SpotManager from '../../bin/lib/spot-manager.js';
+import { SpotManager } from '../../bin/lib/finops/spot-manager.js';
 
 describe('SpotManager', () => {
   let tmpDir, manager;
@@ -26,7 +26,7 @@ describe('SpotManager', () => {
   afterEach(() => cleanup(tmpDir));
 
   test('constructor does not throw', () => {
-    assert.ok(manager, 'SpotManager instance must be created without throwing');
+    expect(manager).toBeTruthy() // 'SpotManager instance must be created without throwing';
   });
 
   test('requestSpotInstance() provisions spot instance with max price', async () => {
@@ -36,11 +36,11 @@ describe('SpotManager', () => {
       availabilityZone: 'us-east-1a'
     });
 
-    assert.ok(instance, 'requestSpotInstance must return instance');
-    assert.ok(instance.id, 'instance must have id');
-    assert.strictEqual(instance.instanceType, 'm5.large', 'instanceType must match');
-    assert.strictEqual(instance.maxPrice, 0.05, 'maxPrice must match');
-    assert.strictEqual(instance.status, 'pending', 'initial status must be pending');
+    expect(instance).toBeTruthy() // 'requestSpotInstance must return instance';
+    expect(instance.id).toBeTruthy() // 'instance must have id';
+    expect(instance.instanceType).toBe('m5.large', 'instanceType must match');
+    expect(instance.maxPrice).toBe(0.05, 'maxPrice must match');
+    expect(instance.status).toBe('pending', 'initial status must be pending');
   });
 
   test('handleInterruption() gracefully handles spot instance termination', async () => {
@@ -57,9 +57,9 @@ describe('SpotManager', () => {
       terminationTime: '2026-03-21T10:02:00.000Z'
     });
 
-    assert.ok(result, 'handleInterruption must return result');
-    assert.strictEqual(result.action, 'checkpoint_and_terminate', 'must checkpoint and terminate');
-    assert.ok(result.checkpointCreated, 'must create checkpoint');
+    expect(result).toBeTruthy() // 'handleInterruption must return result';
+    expect(result?.action).toBe('checkpoint_and_terminate', 'must checkpoint and terminate');
+    expect(result.checkpointCreated).toBeTruthy() // 'must create checkpoint';
   });
 
   test('getSpotSavings() calculates savings vs on-demand pricing', async () => {
@@ -72,12 +72,12 @@ describe('SpotManager', () => {
 
     const savings = manager.getSpotSavings();
 
-    assert.ok(savings, 'getSpotSavings must return data');
-    assert.strictEqual(savings.totalHours, 10, 'totalHours must be 10');
-    assert.strictEqual(savings.spotCost, 0.30, 'spotCost must be 0.30 (10 * 0.03)');
-    assert.strictEqual(savings.onDemandCost, 1.00, 'onDemandCost must be 1.00 (10 * 0.10)');
-    assert.strictEqual(savings.amountSaved, 0.70, 'amountSaved must be 0.70');
-    assert.strictEqual(savings.percentSaved, 70, 'percentSaved must be 70%');
+    expect(savings).toBeTruthy() // 'getSpotSavings must return data';
+    expect(savings.totalHours).toBe(10, 'totalHours must be 10');
+    expect(savings.spotCost).toBe(0.30, 'spotCost must be 0.30 (10 * 0.03)');
+    expect(savings.onDemandCost).toBe(1.00, 'onDemandCost must be 1.00 (10 * 0.10)');
+    expect(savings.amountSaved).toBe(0.70, 'amountSaved must be 0.70');
+    expect(savings.percentSaved).toBe(70, 'percentSaved must be 70%');
   });
 
   test('getOptimalSpotConfig() recommends best spot instance configuration', async () => {
@@ -99,9 +99,9 @@ describe('SpotManager', () => {
       reliabilityTarget: 0.95 // 95% uptime target
     });
 
-    assert.ok(config, 'getOptimalSpotConfig must return config');
-    assert.ok(config.recommendedMaxPrice, 'must have recommendedMaxPrice');
-    assert.ok(config.expectedSavings, 'must have expectedSavings');
-    assert.ok(config.interruptionRisk, 'must have interruptionRisk');
+    expect(config).toBeTruthy() // 'getOptimalSpotConfig must return config';
+    expect(config.recommendedMaxPrice).toBeTruthy() // 'must have recommendedMaxPrice';
+    expect(config.expectedSavings).toBeTruthy() // 'must have expectedSavings';
+    expect(config.interruptionRisk).toBeTruthy() // 'must have interruptionRisk';
   });
 });

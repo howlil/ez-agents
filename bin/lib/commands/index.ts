@@ -87,3 +87,17 @@ export class CommandFactory {
     return Array.from(this.commands.keys());
   }
 }
+
+// Concrete command exports
+export { GenerateSlugCommand } from './generate-slug.command.js';
+export { CurrentTimestampCommand } from './current-timestamp.command.js';
+export { VerifyPathCommand } from './verify-path.command.js';
+export { ResolveModelCommand } from './resolve-model.command.js';
+export { ListTodosCommand } from './list-todos.command.js';
+
+// Command options types
+export type { GenerateSlugOptions } from './generate-slug.command.js';
+export type { TimestampFormat } from './current-timestamp.command.js';
+export type { CurrentTimestampOptions } from './current-timestamp.command.js';
+export type { VerifyPathOptions } from './verify-path.command.js';
+export type { ListTodosOptions, TodoEntry } from './list-todos.command.js';

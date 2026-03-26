@@ -1,12 +1,12 @@
-﻿/**
+/**
  * EZ Tools Tests - Roadmap
  */
 
-const { test, describe, beforeEach, afterEach } = require('node:test');
-import assert from 'node:assert';
+
+
 import * as fs from 'fs';
 import * as path from 'path';
-import { runEzTools, createTempProject, cleanup } from '../helpers.js';
+import { runEzTools, createTempProject, cleanup } from '../helpers.ts';
 
 describe('roadmap get-phase command', () => {
   let tmpDir;
@@ -39,13 +39,13 @@ Some description here.
     );
 
     const result = runEzTools('roadmap get-phase 1', tmpDir);
-    assert.ok(result.success, `Command failed: ${result.error}`);
+    expect(result.success).toBeTruthy() // `Command failed: ${result.error}`;
 
     const output = JSON.parse(result.output);
-    assert.strictEqual(output.found, true, 'phase should be found');
-    assert.strictEqual(output.phase_number, '1', 'phase number correct');
-    assert.strictEqual(output.phase_name, 'Foundation', 'phase name extracted');
-    assert.strictEqual(output.goal, 'Set up project infrastructure', 'goal extracted');
+    expect(output.found).toBe(true, 'phase should be found');
+    expect(output.phase_number).toBe('1', 'phase number correct');
+    expect(output.phase_name).toBe('Foundation', 'phase name extracted');
+    expect(output.goal).toBe('Set up project infrastructure', 'goal extracted');
   });
 
   test('returns not found for missing phase', () => {
@@ -59,10 +59,10 @@ Some description here.
     );
 
     const result = runEzTools('roadmap get-phase 5', tmpDir);
-    assert.ok(result.success, `Command failed: ${result.error}`);
+    expect(result.success).toBeTruthy() // `Command failed: ${result.error}`;
 
     const output = JSON.parse(result.output);
-    assert.strictEqual(output.found, false, 'phase should not be found');
+    expect(output.found).toBe(false, 'phase should not be found');
   });
 
   test('handles decimal phase numbers', () => {
@@ -79,12 +79,12 @@ Some description here.
     );
 
     const result = runEzTools('roadmap get-phase 2.1', tmpDir);
-    assert.ok(result.success, `Command failed: ${result.error}`);
+    expect(result.success).toBeTruthy() // `Command failed: ${result.error}`;
 
     const output = JSON.parse(result.output);
-    assert.strictEqual(output.found, true, 'decimal phase should be found');
-    assert.strictEqual(output.phase_name, 'Hotfix', 'phase name correct');
-    assert.strictEqual(output.goal, 'Emergency fix', 'goal extracted');
+    expect(output.found).toBe(true, 'decimal phase should be found');
+    expect(output.phase_name).toBe('Hotfix', 'phase name correct');
+    expect(output.goal).toBe('Emergency fix', 'goal extracted');
   });
 
   test('extracts full section content', () => {
@@ -106,21 +106,21 @@ This phase covers:
     );
 
     const result = runEzTools('roadmap get-phase 1', tmpDir);
-    assert.ok(result.success, `Command failed: ${result.error}`);
+    expect(result.success).toBeTruthy() // `Command failed: ${result.error}`;
 
     const output = JSON.parse(result.output);
-    assert.ok(output.section.includes('Database setup'), 'section includes description');
-    assert.ok(output.section.includes('CI/CD pipeline'), 'section includes all bullets');
-    assert.ok(!output.section.includes('Phase 2'), 'section does not include next phase');
+    expect(output.section.includes('Database setup')).toBeTruthy() // 'section includes description';
+    expect(output.section.includes('CI/CD pipeline')).toBeTruthy() // 'section includes all bullets';
+    expect(!output.section.includes('Phase 2')).toBeTruthy() // 'section does not include next phase';
   });
 
   test('handles missing ROADMAP.md gracefully', () => {
     const result = runEzTools('roadmap get-phase 1', tmpDir);
-    assert.ok(result.success, `Command failed: ${result.error}`);
+    expect(result.success).toBeTruthy() // `Command failed: ${result.error}`;
 
     const output = JSON.parse(result.output);
-    assert.strictEqual(output.found, false, 'should return not found');
-    assert.strictEqual(output.error, 'ROADMAP.md not found', 'should explain why');
+    expect(output.found).toBe(false, 'should return not found');
+    expect(output.error).toBe('ROADMAP.md not found', 'should explain why');
   });
 
   test('accepts ## phase headers (two hashes)', () => {
@@ -138,12 +138,12 @@ This phase covers:
     );
 
     const result = runEzTools('roadmap get-phase 1', tmpDir);
-    assert.ok(result.success, `Command failed: ${result.error}`);
+    expect(result.success).toBeTruthy() // `Command failed: ${result.error}`;
 
     const output = JSON.parse(result.output);
-    assert.strictEqual(output.found, true, 'phase with ## header should be found');
-    assert.strictEqual(output.phase_name, 'Foundation', 'phase name extracted');
-    assert.strictEqual(output.goal, 'Set up project infrastructure', 'goal extracted');
+    expect(output.found).toBe(true, 'phase with ## header should be found');
+    expect(output.phase_name).toBe('Foundation', 'phase name extracted');
+    expect(output.goal).toBe('Set up project infrastructure', 'goal extracted');
   });
 
   test('extracts goal when colon is outside bold (**Goal**: format)', () => {
@@ -161,11 +161,11 @@ This phase covers:
     );
 
     const result = runEzTools('roadmap get-phase 5', tmpDir);
-    assert.ok(result.success, `Command failed: ${result.error}`);
+    expect(result.success).toBeTruthy() // `Command failed: ${result.error}`;
 
     const output = JSON.parse(result.output);
-    assert.strictEqual(output.found, true, 'phase should be found');
-    assert.strictEqual(output.goal, 'The autonomous skill files exist following project conventions', 'goal extracted with colon outside bold');
+    expect(output.found).toBe(true, 'phase should be found');
+    expect(output.goal).toBe('The autonomous skill files exist following project conventions', 'goal extracted with colon outside bold');
   });
 
   test('extracts goal for both colon-inside and colon-outside bold formats', () => {
@@ -183,11 +183,11 @@ This phase covers:
 
     const result1 = runEzTools('roadmap get-phase 1', tmpDir);
     const output1 = JSON.parse(result1.output);
-    assert.strictEqual(output1.goal, 'Colon inside bold format', 'colon-inside-bold goal extracted');
+    expect(output1.goal).toBe('Colon inside bold format', 'colon-inside-bold goal extracted');
 
     const result2 = runEzTools('roadmap get-phase 2', tmpDir);
     const output2 = JSON.parse(result2.output);
-    assert.strictEqual(output2.goal, 'Colon outside bold format', 'colon-outside-bold goal extracted');
+    expect(output2.goal).toBe('Colon outside bold format', 'colon-outside-bold goal extracted');
   });
 
   test('detects malformed ROADMAP with summary list but no detail sections', () => {
@@ -203,18 +203,18 @@ This phase covers:
     );
 
     const result = runEzTools('roadmap get-phase 1', tmpDir);
-    assert.ok(result.success, `Command failed: ${result.error}`);
+    expect(result.success).toBeTruthy() // `Command failed: ${result.error}`;
 
     const output = JSON.parse(result.output);
-    assert.strictEqual(output.found, false, 'phase should not be found');
-    assert.strictEqual(output.error, 'malformed_roadmap', 'should identify malformed roadmap');
-    assert.ok(output.message.includes('missing'), 'should explain the issue');
+    expect(output.found).toBe(false, 'phase should not be found');
+    expect(output.error).toBe('malformed_roadmap', 'should identify malformed roadmap');
+    expect(output.message.includes('missing')).toBeTruthy() // 'should explain the issue';
   });
 });
 
-// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ─────────────────────────────────────────────────────────────────────────────
 // phase next-decimal command
-// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ─────────────────────────────────────────────────────────────────────────────
 
 
 describe('roadmap analyze command', () => {
@@ -230,10 +230,10 @@ describe('roadmap analyze command', () => {
 
   test('missing ROADMAP.md returns error', () => {
     const result = runEzTools('roadmap analyze', tmpDir);
-    assert.ok(result.success, `Command should succeed: ${result.error}`);
+    expect(result.success).toBeTruthy() // `Command should succeed: ${result.error}`;
 
     const output = JSON.parse(result.output);
-    assert.strictEqual(output.error, 'ROADMAP.md not found');
+    expect(output.error).toBe('ROADMAP.md not found');
   });
 
   test('parses phases with goals and disk status', () => {
@@ -263,18 +263,18 @@ describe('roadmap analyze command', () => {
     fs.writeFileSync(path.join(p2, '02-01-PLAN.md'), '# Plan');
 
     const result = runEzTools('roadmap analyze', tmpDir);
-    assert.ok(result.success, `Command failed: ${result.error}`);
+    expect(result.success).toBeTruthy() // `Command failed: ${result.error}`;
 
     const output = JSON.parse(result.output);
-    assert.strictEqual(output.phase_count, 3, 'should find 3 phases');
-    assert.strictEqual(output.phases[0].disk_status, 'complete', 'phase 1 complete');
-    assert.strictEqual(output.phases[1].disk_status, 'planned', 'phase 2 planned');
-    assert.strictEqual(output.phases[2].disk_status, 'no_directory', 'phase 3 no directory');
-    assert.strictEqual(output.completed_phases, 1, '1 phase complete');
-    assert.strictEqual(output.total_plans, 2, '2 total plans');
-    assert.strictEqual(output.total_summaries, 1, '1 total summary');
-    assert.strictEqual(output.progress_percent, 50, '50% complete');
-    assert.strictEqual(output.current_phase, '2', 'current phase is 2');
+    expect(output.phase_count).toBe(3, 'should find 3 phases');
+    expect(output.phases[0].disk_status).toBe('complete', 'phase 1 complete');
+    expect(output.phases[1].disk_status).toBe('planned', 'phase 2 planned');
+    expect(output.phases[2].disk_status).toBe('no_directory', 'phase 3 no directory');
+    expect(output.completed_phases).toBe(1, '1 phase complete');
+    expect(output.total_plans).toBe(2, '2 total plans');
+    expect(output.total_summaries).toBe(1, '1 total summary');
+    expect(output.progress_percent).toBe(50, '50% complete');
+    expect(output.current_phase).toBe('2', 'current phase is 2');
   });
 
   test('extracts goals and dependencies', () => {
@@ -293,12 +293,12 @@ describe('roadmap analyze command', () => {
     );
 
     const result = runEzTools('roadmap analyze', tmpDir);
-    assert.ok(result.success, `Command failed: ${result.error}`);
+    expect(result.success).toBeTruthy() // `Command failed: ${result.error}`;
 
     const output = JSON.parse(result.output);
-    assert.strictEqual(output.phases[0].goal, 'Initialize project');
+    expect(output.phases[0].goal).toBe('Initialize project');
     assert.strictEqual(output.phases[0].depends_on, 'Nothing');
-    assert.strictEqual(output.phases[1].goal, 'Build features');
+    expect(output.phases[1].goal).toBe('Build features');
     assert.strictEqual(output.phases[1].depends_on, 'Phase 1');
   });
 
@@ -318,13 +318,13 @@ describe('roadmap analyze command', () => {
     );
 
     const result = runEzTools('roadmap analyze', tmpDir);
-    assert.ok(result.success, `Command failed: ${result.error}`);
+    expect(result.success).toBeTruthy() // `Command failed: ${result.error}`;
 
     const output = JSON.parse(result.output);
-    assert.strictEqual(output.phases[0].goal, 'The autonomous skill files exist following project conventions', 'goal extracted with colon outside bold');
-    assert.strictEqual(output.phases[0].depends_on, 'Phase 4 (v1.23 complete)', 'depends_on extracted with colon outside bold');
-    assert.strictEqual(output.phases[1].goal, 'Grey area resolution works with proposals', 'second phase goal extracted');
-    assert.strictEqual(output.phases[1].depends_on, 'Phase 5', 'second phase depends_on extracted');
+    expect(output.phases[0].goal).toBe('The autonomous skill files exist following project conventions', 'goal extracted with colon outside bold');
+    expect(output.phases[0].depends_on).toBe('Phase 4 (v1.23 complete)', 'depends_on extracted with colon outside bold');
+    expect(output.phases[1].goal).toBe('Grey area resolution works with proposals', 'second phase goal extracted');
+    expect(output.phases[1].depends_on).toBe('Phase 5', 'second phase depends_on extracted');
   });
 
   test('handles mixed colon-inside and colon-outside bold formats in analyze', () => {
@@ -343,19 +343,19 @@ describe('roadmap analyze command', () => {
     );
 
     const result = runEzTools('roadmap analyze', tmpDir);
-    assert.ok(result.success, `Command failed: ${result.error}`);
+    expect(result.success).toBeTruthy() // `Command failed: ${result.error}`;
 
     const output = JSON.parse(result.output);
-    assert.strictEqual(output.phases[0].goal, 'Colon inside bold', 'colon-inside goal works');
-    assert.strictEqual(output.phases[0].depends_on, 'Nothing', 'colon-inside depends_on works');
-    assert.strictEqual(output.phases[1].goal, 'Colon outside bold', 'colon-outside goal works');
-    assert.strictEqual(output.phases[1].depends_on, 'Phase 1', 'colon-outside depends_on works');
+    expect(output.phases[0].goal).toBe('Colon inside bold', 'colon-inside goal works');
+    expect(output.phases[0].depends_on).toBe('Nothing', 'colon-inside depends_on works');
+    expect(output.phases[1].goal).toBe('Colon outside bold', 'colon-outside goal works');
+    expect(output.phases[1].depends_on).toBe('Phase 1', 'colon-outside depends_on works');
   });
 });
 
-// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ─────────────────────────────────────────────────────────────────────────────
 // roadmap analyze disk status variants
-// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ─────────────────────────────────────────────────────────────────────────────
 
 describe('roadmap analyze disk status variants', () => {
   let tmpDir;
@@ -383,11 +383,11 @@ describe('roadmap analyze disk status variants', () => {
     fs.writeFileSync(path.join(p1, '01-RESEARCH.md'), '# Research notes');
 
     const result = runEzTools('roadmap analyze', tmpDir);
-    assert.ok(result.success, `Command failed: ${result.error}`);
+    expect(result.success).toBeTruthy() // `Command failed: ${result.error}`;
 
     const output = JSON.parse(result.output);
-    assert.strictEqual(output.phases[0].disk_status, 'researched', 'disk_status should be researched');
-    assert.strictEqual(output.phases[0].has_research, true, 'has_research should be true');
+    expect(output.phases[0].disk_status).toBe('researched', 'disk_status should be researched');
+    expect(output.phases[0].has_research).toBe(true, 'has_research should be true');
   });
 
   test('returns discussed status for phase dir with only CONTEXT.md', () => {
@@ -405,11 +405,11 @@ describe('roadmap analyze disk status variants', () => {
     fs.writeFileSync(path.join(p1, '01-CONTEXT.md'), '# Context notes');
 
     const result = runEzTools('roadmap analyze', tmpDir);
-    assert.ok(result.success, `Command failed: ${result.error}`);
+    expect(result.success).toBeTruthy() // `Command failed: ${result.error}`;
 
     const output = JSON.parse(result.output);
-    assert.strictEqual(output.phases[0].disk_status, 'discussed', 'disk_status should be discussed');
-    assert.strictEqual(output.phases[0].has_context, true, 'has_context should be true');
+    expect(output.phases[0].disk_status).toBe('discussed', 'disk_status should be discussed');
+    expect(output.phases[0].has_context).toBe(true, 'has_context should be true');
   });
 
   test('returns empty status for phase dir with no recognized files', () => {
@@ -426,16 +426,16 @@ describe('roadmap analyze disk status variants', () => {
     fs.mkdirSync(p1, { recursive: true });
 
     const result = runEzTools('roadmap analyze', tmpDir);
-    assert.ok(result.success, `Command failed: ${result.error}`);
+    expect(result.success).toBeTruthy() // `Command failed: ${result.error}`;
 
     const output = JSON.parse(result.output);
-    assert.strictEqual(output.phases[0].disk_status, 'empty', 'disk_status should be empty');
+    expect(output.phases[0].disk_status).toBe('empty', 'disk_status should be empty');
   });
 });
 
-// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ─────────────────────────────────────────────────────────────────────────────
 // roadmap analyze milestone extraction
-// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ─────────────────────────────────────────────────────────────────────────────
 
 describe('roadmap analyze milestone extraction', () => {
   let tmpDir;
@@ -466,21 +466,21 @@ describe('roadmap analyze milestone extraction', () => {
     );
 
     const result = runEzTools('roadmap analyze', tmpDir);
-    assert.ok(result.success, `Command failed: ${result.error}`);
+    expect(result.success).toBeTruthy() // `Command failed: ${result.error}`;
 
     const output = JSON.parse(result.output);
-    assert.ok(Array.isArray(output.milestones), 'milestones should be an array');
-    assert.strictEqual(output.milestones.length, 2, 'should find 2 milestones');
-    assert.strictEqual(output.milestones[0].version, 'v1.0', 'first milestone version');
-    assert.ok(output.milestones[0].heading.includes('v1.0'), 'first milestone heading contains v1.0');
-    assert.strictEqual(output.milestones[1].version, 'v1.1', 'second milestone version');
-    assert.ok(output.milestones[1].heading.includes('v1.1'), 'second milestone heading contains v1.1');
+    expect(Array.isArray(output.milestones)).toBeTruthy() // 'milestones should be an array';
+    expect(output.milestones.length).toBe(2, 'should find 2 milestones');
+    expect(output.milestones[0].version).toBe('v1.0', 'first milestone version');
+    expect(output.milestones[0]?.heading?.includes('v1.0')).toBeTruthy() // 'first milestone heading contains v1.0';
+    expect(output.milestones[1].version).toBe('v1.1', 'second milestone version');
+    expect(output.milestones[1]?.heading?.includes('v1.1')).toBeTruthy() // 'second milestone heading contains v1.1';
   });
 });
 
-// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ─────────────────────────────────────────────────────────────────────────────
 // roadmap analyze missing phase details
-// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ─────────────────────────────────────────────────────────────────────────────
 
 describe('roadmap analyze missing phase details', () => {
   let tmpDir;
@@ -507,12 +507,12 @@ describe('roadmap analyze missing phase details', () => {
     );
 
     const result = runEzTools('roadmap analyze', tmpDir);
-    assert.ok(result.success, `Command failed: ${result.error}`);
+    expect(result.success).toBeTruthy() // `Command failed: ${result.error}`;
 
     const output = JSON.parse(result.output);
-    assert.ok(Array.isArray(output.missing_phase_details), 'missing_phase_details should be an array');
-    assert.ok(output.missing_phase_details.includes('1'), 'phase 1 should be in missing details');
-    assert.ok(!output.missing_phase_details.includes('2'), 'phase 2 should not be in missing details');
+    expect(Array.isArray(output.missing_phase_details)).toBeTruthy() // 'missing_phase_details should be an array';
+    expect(output.missing_phase_details.includes('1')).toBeTruthy() // 'phase 1 should be in missing details';
+    expect(!output.missing_phase_details.includes('2')).toBeTruthy() // 'phase 2 should not be in missing details';
   });
 
   test('returns null when all checklist phases have detail sections', () => {
@@ -532,16 +532,16 @@ describe('roadmap analyze missing phase details', () => {
     );
 
     const result = runEzTools('roadmap analyze', tmpDir);
-    assert.ok(result.success, `Command failed: ${result.error}`);
+    expect(result.success).toBeTruthy() // `Command failed: ${result.error}`;
 
     const output = JSON.parse(result.output);
-    assert.strictEqual(output.missing_phase_details, null, 'missing_phase_details should be null');
+    expect(output.missing_phase_details).toBe(undefined, 'missing_phase_details should be null');
   });
 });
 
-// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ─────────────────────────────────────────────────────────────────────────────
 // roadmap get-phase success criteria
-// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ─────────────────────────────────────────────────────────────────────────────
 
 describe('roadmap get-phase success criteria', () => {
   let tmpDir;
@@ -572,15 +572,15 @@ describe('roadmap get-phase success criteria', () => {
     );
 
     const result = runEzTools('roadmap get-phase 1', tmpDir);
-    assert.ok(result.success, `Command failed: ${result.error}`);
+    expect(result.success).toBeTruthy() // `Command failed: ${result.error}`;
 
     const output = JSON.parse(result.output);
-    assert.strictEqual(output.found, true, 'phase should be found');
-    assert.ok(Array.isArray(output.success_criteria), 'success_criteria should be an array');
-    assert.strictEqual(output.success_criteria.length, 3, 'should have 3 criteria');
-    assert.ok(output.success_criteria[0].includes('First criterion'), 'first criterion matches');
-    assert.ok(output.success_criteria[1].includes('Second criterion'), 'second criterion matches');
-    assert.ok(output.success_criteria[2].includes('Third criterion'), 'third criterion matches');
+    expect(output.found).toBe(true, 'phase should be found');
+    expect(Array.isArray(output.success_criteria)).toBeTruthy() // 'success_criteria should be an array';
+    expect(output.success_criteria.length).toBe(3, 'should have 3 criteria');
+    expect(output.success_criteria[0].includes('First criterion')).toBeTruthy() // 'first criterion matches';
+    expect(output.success_criteria[1].includes('Second criterion')).toBeTruthy() // 'second criterion matches';
+    expect(output.success_criteria[2].includes('Third criterion')).toBeTruthy() // 'third criterion matches';
   });
 
   test('returns empty array when no success criteria present', () => {
@@ -594,18 +594,18 @@ describe('roadmap get-phase success criteria', () => {
     );
 
     const result = runEzTools('roadmap get-phase 1', tmpDir);
-    assert.ok(result.success, `Command failed: ${result.error}`);
+    expect(result.success).toBeTruthy() // `Command failed: ${result.error}`;
 
     const output = JSON.parse(result.output);
-    assert.strictEqual(output.found, true, 'phase should be found');
-    assert.ok(Array.isArray(output.success_criteria), 'success_criteria should be an array');
-    assert.strictEqual(output.success_criteria.length, 0, 'should have empty criteria');
+    expect(output.found).toBe(true, 'phase should be found');
+    expect(Array.isArray(output.success_criteria)).toBeTruthy() // 'success_criteria should be an array';
+    expect(output.success_criteria.length).toBe(0, 'should have empty criteria');
   });
 });
 
-// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ─────────────────────────────────────────────────────────────────────────────
 // roadmap update-plan-progress command
-// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ─────────────────────────────────────────────────────────────────────────────
 
 describe('roadmap update-plan-progress command', () => {
   let tmpDir;
@@ -620,8 +620,8 @@ describe('roadmap update-plan-progress command', () => {
 
   test('missing phase number returns error', () => {
     const result = runEzTools('roadmap update-plan-progress', tmpDir);
-    assert.strictEqual(result.success, false, 'should fail without phase number');
-    assert.ok(result.error.includes('phase number required'), 'error should mention phase number required');
+    expect(result?.success).toBe(false, 'should fail without phase number');
+    expect(result.error!.includes('phase number required')).toBeTruthy() // 'error should mention phase number required';
   });
 
   test('nonexistent phase returns error', () => {
@@ -635,8 +635,8 @@ describe('roadmap update-plan-progress command', () => {
     );
 
     const result = runEzTools('roadmap update-plan-progress 99', tmpDir);
-    assert.strictEqual(result.success, false, 'should fail for nonexistent phase');
-    assert.ok(result.error.includes('not found'), 'error should mention not found');
+    expect(result?.success).toBe(false, 'should fail for nonexistent phase');
+    expect(result.error!.includes('not found')).toBeTruthy() // 'error should mention not found';
   });
 
   test('no plans found returns updated false', () => {
@@ -655,12 +655,12 @@ describe('roadmap update-plan-progress command', () => {
     fs.writeFileSync(path.join(p1, '01-CONTEXT.md'), '# Context');
 
     const result = runEzTools('roadmap update-plan-progress 1', tmpDir);
-    assert.ok(result.success, `Command failed: ${result.error}`);
+    expect(result.success).toBeTruthy() // `Command failed: ${result.error}`;
 
     const output = JSON.parse(result.output);
-    assert.strictEqual(output.updated, false, 'should not update');
-    assert.ok(output.reason.includes('No plans'), 'reason should mention no plans');
-    assert.strictEqual(output.plan_count, 0, 'plan_count should be 0');
+    expect(output.updated).toBe(false, 'should not update');
+    expect(output.reason.includes('No plans')).toBeTruthy() // 'reason should mention no plans';
+    expect(output.plan_count).toBe(0, 'plan_count should be 0');
   });
 
   test('updates progress for partial completion', () => {
@@ -688,18 +688,18 @@ describe('roadmap update-plan-progress command', () => {
     fs.writeFileSync(path.join(p1, '01-01-SUMMARY.md'), '# Summary 1');
 
     const result = runEzTools('roadmap update-plan-progress 1', tmpDir);
-    assert.ok(result.success, `Command failed: ${result.error}`);
+    expect(result.success).toBeTruthy() // `Command failed: ${result.error}`;
 
     const output = JSON.parse(result.output);
-    assert.strictEqual(output.updated, true, 'should update');
-    assert.strictEqual(output.plan_count, 2, 'plan_count should be 2');
-    assert.strictEqual(output.summary_count, 1, 'summary_count should be 1');
-    assert.strictEqual(output.status, 'In Progress', 'status should be In Progress');
-    assert.strictEqual(output.complete, false, 'should not be complete');
+    expect(output.updated).toBe(true, 'should update');
+    expect(output.plan_count).toBe(2, 'plan_count should be 2');
+    expect(output.summary_count).toBe(1, 'summary_count should be 1');
+    expect(output.status).toBe('In Progress', 'status should be In Progress');
+    expect(output.complete).toBe(false, 'should not be complete');
 
     // Verify file was actually modified
     const roadmapContent = fs.readFileSync(path.join(tmpDir, '.planning', 'ROADMAP.md'), 'utf-8');
-    assert.ok(roadmapContent.includes('1/2'), 'roadmap should contain updated plan count');
+    expect(roadmapContent.includes('1/2')).toBeTruthy() // 'roadmap should contain updated plan count';
   });
 
   test('updates progress and checks checkbox on completion', () => {
@@ -728,18 +728,18 @@ describe('roadmap update-plan-progress command', () => {
     fs.writeFileSync(path.join(p1, '01-01-SUMMARY.md'), '# Summary 1');
 
     const result = runEzTools('roadmap update-plan-progress 1', tmpDir);
-    assert.ok(result.success, `Command failed: ${result.error}`);
+    expect(result.success).toBeTruthy() // `Command failed: ${result.error}`;
 
     const output = JSON.parse(result.output);
-    assert.strictEqual(output.updated, true, 'should update');
-    assert.strictEqual(output.complete, true, 'should be complete');
-    assert.strictEqual(output.status, 'Complete', 'status should be Complete');
+    expect(output.updated).toBe(true, 'should update');
+    expect(output.complete).toBe(true, 'should be complete');
+    expect(output.status).toBe('Complete', 'status should be Complete');
 
     // Verify file was actually modified
     const roadmapContent = fs.readFileSync(path.join(tmpDir, '.planning', 'ROADMAP.md'), 'utf-8');
-    assert.ok(roadmapContent.includes('[x]'), 'checkbox should be checked');
-    assert.ok(roadmapContent.includes('completed'), 'should contain completion date text');
-    assert.ok(roadmapContent.includes('1/1'), 'roadmap should contain updated plan count');
+    expect(roadmapContent.includes('[x]')).toBeTruthy() // 'checkbox should be checked';
+    expect(roadmapContent.includes('completed')).toBeTruthy() // 'should contain completion date text';
+    expect(roadmapContent.includes('1/1')).toBeTruthy() // 'roadmap should contain updated plan count';
   });
 
   test('missing ROADMAP.md returns updated false', () => {
@@ -750,15 +750,15 @@ describe('roadmap update-plan-progress command', () => {
     fs.writeFileSync(path.join(p1, '01-01-SUMMARY.md'), '# Summary 1');
 
     const result = runEzTools('roadmap update-plan-progress 1', tmpDir);
-    assert.ok(result.success, `Command failed: ${result.error}`);
+    expect(result.success).toBeTruthy() // `Command failed: ${result.error}`;
 
     const output = JSON.parse(result.output);
-    assert.strictEqual(output.updated, false, 'should not update');
-    assert.ok(output.reason.includes('ROADMAP.md not found'), 'reason should mention missing ROADMAP.md');
+    expect(output.updated).toBe(false, 'should not update');
+    expect(output.reason.includes('ROADMAP.md not found')).toBeTruthy() // 'reason should mention missing ROADMAP.md';
   });
 });
 
-// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ─────────────────────────────────────────────────────────────────────────────
 // phase add command
-// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ─────────────────────────────────────────────────────────────────────────────
 

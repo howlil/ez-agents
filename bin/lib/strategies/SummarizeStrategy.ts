@@ -137,7 +137,10 @@ export class SummarizeStrategy implements CompressionStrategy {
 
     for (let i = 0; i < codeBlocks.length; i++) {
       const placeholder = `{{CODE_BLOCK_${i}}}`;
-      result = result.replace(placeholder, codeBlocks[i]);
+      const codeBlock = codeBlocks[i];
+      if (codeBlock !== undefined) {
+        result = result.replace(placeholder, codeBlock);
+      }
     }
 
     return result;

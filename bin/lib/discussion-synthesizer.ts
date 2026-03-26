@@ -143,7 +143,7 @@ function parseAgentSections(lines: string[]): AgentSection[] {
   let currentSection: { agent: string; heading: string } | null = null;
   let currentContent: string[] = [];
 
-  const agentHeadings = [
+  const agentHeadings: { pattern: RegExp; agent: string }[] = [
     { pattern: /## Requirements Perspective/, agent: 'requirements' },
     { pattern: /## Tech Lead Perspective/, agent: 'tech-lead' },
     { pattern: /## Observer Perspective/, agent: 'observer' },
@@ -153,31 +153,32 @@ function parseAgentSections(lines: string[]): AgentSection[] {
 
   for (let i = 0; i < lines.length; i++) {
     const line = lines[i];
+    if (line === undefined) continue;
 
     // Check if line starts a known section
     const matchedHeading = agentHeadings.find(h => h.pattern.test(line));
 
-    if (matchedHeading && matchedHeading.agent) {
+    if (matchedHeading !== undefined && matchedHeading.agent) {
       // Save previous section
-      if (currentSection) {
+      if (currentSection !== null) {
         sections.push({
           agent: currentSection.agent,
-          heading: currentSection.heading ?? '',
+          heading: currentSection.heading,
           content: currentContent.join('\n').trim()
         });
       }
       currentSection = { agent: matchedHeading.agent, heading: line };
       currentContent = [];
-    } else if (currentSection) {
+    } else if (currentSection !== null) {
       currentContent.push(line);
     }
   }
 
   // Push last section
-  if (currentSection) {
+  if (currentSection !== null) {
     sections.push({
       agent: currentSection.agent,
-      heading: currentSection.heading ?? '',
+      heading: currentSection.heading,
       content: currentContent.join('\n').trim()
     });
   }
@@ -335,14 +336,14 @@ export function checkParticipation(discussionPath: string): ParticipationCheck {
 
   const populated = (agent: string): boolean => {
     const section = discussion.sections.find(s => s.agent === agent);
-    return section && !section.content.includes('{Populated') && section.content.trim().length > 20;
+    return !!(section && !section.content.includes('{Populated') && section.content.trim().length > 20);
   };
 
   return {
     needsObserver: !populated('observer'),
     needsTechLead: !populated('tech-lead'),
     needsScrumMaster: !populated('scrum-master'),
-    needsRequirements: populated('requirements') ? !populated('requirements') : false
+    needsRequirements: !populated('requirements')
   };
 }
 

@@ -195,7 +195,7 @@ export function isPromotion(current: string, target: string): boolean {
  */
 export function getPreviousTier(tier: string): TierId | null {
   const idx = getTierIndex(tier);
-  return idx > 0 ? TIER_ORDER[idx - 1] : null;
+  return idx > 0 ? (TIER_ORDER[idx - 1] ?? null) : null;
 }
 
 // ─────────────────────────────────────────────
@@ -234,7 +234,13 @@ export function getGitStrategy(tier: string): GitStrategy {
     }
   };
 
-  return strategies[def.git_strategy];
+  return strategies[def.git_strategy] ?? {
+    strategy: 'trunk',
+    releaseBranchPrefix: null,
+    targetBranch: 'main',
+    syncBranch: null,
+    description: 'Tag directly on main. No release branch.'
+  };
 }
 
 /**

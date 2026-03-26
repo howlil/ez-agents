@@ -65,8 +65,8 @@ export interface FileTechDebt {
 // ─── TechDebtAnalyzer Class ──────────────────────────────────────────────────
 
 export class TechDebtAnalyzer {
-  private rootPath: string;
-  private patterns: DebtMarkerPattern[];
+  private readonly rootPath: string;
+  private readonly patterns: DebtMarkerPattern[];
 
   /**
    * Create a TechDebtAnalyzer instance

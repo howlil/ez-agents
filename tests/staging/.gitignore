@@ -1,0 +1,18 @@
+# Staging Test Results (keep only latest)
+tests/staging/results/*.json
+!tests/staging/results/qwen-code-battle-report.json
+!tests/staging/results/qwen-code-simple-result.json
+
+# OAuth credentials (NEVER commit these)
+**/oauth_creds.json
+**/.qwen/credentials.json
+**/.qwen/oauth_creds.json
+**/qwen-token.json
+
+# Performance test artifacts
+tests/staging/perf-*.log
+tests/staging/*.har
+
+# Temporary files
+*.tmp
+*.bak

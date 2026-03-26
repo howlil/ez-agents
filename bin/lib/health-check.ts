@@ -55,7 +55,7 @@ class HealthCheck {
   checkNodeVersion(): boolean {
     try {
       const version = process.version;
-      const major = parseInt(version.slice(1).split('.')[0]);
+      const major = parseInt(version.slice(1).split('.')[0] ?? '0');
       if (major < 16) {
         this.issues.push(`Node.js version ${version} is below required 16.x`);
         return false;
@@ -200,7 +200,20 @@ class HealthCheck {
 
     for (const dep of requiredDeps) {
       try {
-        import.meta.resolve(dep);
+        const resolveFn = import.meta.resolve;
+        if (resolveFn) {
+          const depPath = resolveFn(dep);
+          if (!depPath) {
+            missing.push(dep);
+          }
+        } else {
+          // Fallback: try require.resolve for CommonJS
+          try {
+            require.resolve(dep);
+          } catch {
+            missing.push(dep);
+          }
+        }
       } catch {
         missing.push(dep);
       }

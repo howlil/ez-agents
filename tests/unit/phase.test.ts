@@ -1,12 +1,12 @@
-﻿/**
+/**
  * EZ Tools Tests - Phase
  */
 
-const { test, describe, beforeEach, afterEach } = require('node:test');
-import assert from 'node:assert';
+
+
 import * as fs from 'fs';
 import * as path from 'path';
-import { runEzTools, createTempProject, cleanup } from '../helpers.js';
+import { runEzTools, createTempProject, cleanup } from '../helpers.ts';
 
 describe('phases list command', () => {
   let tmpDir;
@@ -21,11 +21,11 @@ describe('phases list command', () => {
 
   test('empty phases directory returns empty array', () => {
     const result = runEzTools('phases list', tmpDir);
-    assert.ok(result.success, `Command failed: ${result.error}`);
+    expect(result.success).toBeTruthy() // `Command failed: ${result.error}`;
 
     const output = JSON.parse(result.output);
     assert.deepStrictEqual(output.directories, [], 'directories should be empty');
-    assert.strictEqual(output.count, 0, 'count should be 0');
+    expect(output.count).toBe(0, 'count should be 0');
   });
 
   test('lists phase directories sorted numerically', () => {
@@ -35,10 +35,10 @@ describe('phases list command', () => {
     fs.mkdirSync(path.join(tmpDir, '.planning', 'phases', '01-foundation'), { recursive: true });
 
     const result = runEzTools('phases list', tmpDir);
-    assert.ok(result.success, `Command failed: ${result.error}`);
+    expect(result.success).toBeTruthy() // `Command failed: ${result.error}`;
 
     const output = JSON.parse(result.output);
-    assert.strictEqual(output.count, 3, 'should have 3 directories');
+    expect(output.count).toBe(3, 'should have 3 directories');
     assert.deepStrictEqual(
       output.directories,
       ['01-foundation', '02-api', '10-final'],
@@ -53,7 +53,7 @@ describe('phases list command', () => {
     fs.mkdirSync(path.join(tmpDir, '.planning', 'phases', '03-ui'), { recursive: true });
 
     const result = runEzTools('phases list', tmpDir);
-    assert.ok(result.success, `Command failed: ${result.error}`);
+    expect(result.success).toBeTruthy() // `Command failed: ${result.error}`;
 
     const output = JSON.parse(result.output);
     assert.deepStrictEqual(
@@ -72,7 +72,7 @@ describe('phases list command', () => {
     fs.writeFileSync(path.join(phaseDir, 'RESEARCH.md'), '# Research');
 
     const result = runEzTools('phases list --type plans', tmpDir);
-    assert.ok(result.success, `Command failed: ${result.error}`);
+    expect(result.success).toBeTruthy() // `Command failed: ${result.error}`;
 
     const output = JSON.parse(result.output);
     assert.deepStrictEqual(
@@ -90,7 +90,7 @@ describe('phases list command', () => {
     fs.writeFileSync(path.join(phaseDir, '01-02-SUMMARY.md'), '# Summary 2');
 
     const result = runEzTools('phases list --type summaries', tmpDir);
-    assert.ok(result.success, `Command failed: ${result.error}`);
+    expect(result.success).toBeTruthy() // `Command failed: ${result.error}`;
 
     const output = JSON.parse(result.output);
     assert.deepStrictEqual(
@@ -109,17 +109,17 @@ describe('phases list command', () => {
     fs.writeFileSync(path.join(phase02, '02-01-PLAN.md'), '# Plan');
 
     const result = runEzTools('phases list --type plans --phase 01', tmpDir);
-    assert.ok(result.success, `Command failed: ${result.error}`);
+    expect(result.success).toBeTruthy() // `Command failed: ${result.error}`;
 
     const output = JSON.parse(result.output);
     assert.deepStrictEqual(output.files, ['01-01-PLAN.md'], 'should only list phase 01 plans');
-    assert.strictEqual(output.phase_dir, 'foundation', 'should report phase name without number prefix');
+    expect(output.phase_dir).toBe('foundation', 'should report phase name without number prefix');
   });
 });
 
-// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ─────────────────────────────────────────────────────────────────────────────
 // roadmap get-phase command
-// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ─────────────────────────────────────────────────────────────────────────────
 
 
 describe('phase next-decimal command', () => {
@@ -138,10 +138,10 @@ describe('phase next-decimal command', () => {
     fs.mkdirSync(path.join(tmpDir, '.planning', 'phases', '07-next'), { recursive: true });
 
     const result = runEzTools('phase next-decimal 06', tmpDir);
-    assert.ok(result.success, `Command failed: ${result.error}`);
+    expect(result.success).toBeTruthy() // `Command failed: ${result.error}`;
 
     const output = JSON.parse(result.output);
-    assert.strictEqual(output.next, '06.1', 'should return 06.1');
+    expect(output.next).toBe('06.1', 'should return 06.1');
     assert.deepStrictEqual(output.existing, [], 'no existing decimals');
   });
 
@@ -151,10 +151,10 @@ describe('phase next-decimal command', () => {
     fs.mkdirSync(path.join(tmpDir, '.planning', 'phases', '06.2-patch'), { recursive: true });
 
     const result = runEzTools('phase next-decimal 06', tmpDir);
-    assert.ok(result.success, `Command failed: ${result.error}`);
+    expect(result.success).toBeTruthy() // `Command failed: ${result.error}`;
 
     const output = JSON.parse(result.output);
-    assert.strictEqual(output.next, '06.3', 'should return 06.3');
+    expect(output.next).toBe('06.3', 'should return 06.3');
     assert.deepStrictEqual(output.existing, ['06.1', '06.2'], 'lists existing decimals');
   });
 
@@ -164,39 +164,39 @@ describe('phase next-decimal command', () => {
     fs.mkdirSync(path.join(tmpDir, '.planning', 'phases', '06.3-third'), { recursive: true });
 
     const result = runEzTools('phase next-decimal 06', tmpDir);
-    assert.ok(result.success, `Command failed: ${result.error}`);
+    expect(result.success).toBeTruthy() // `Command failed: ${result.error}`;
 
     const output = JSON.parse(result.output);
     // Should take next after highest, not fill gap
-    assert.strictEqual(output.next, '06.4', 'should return 06.4, not fill gap at 06.2');
+    expect(output.next).toBe('06.4', 'should return 06.4, not fill gap at 06.2');
   });
 
   test('handles single-digit phase input', () => {
     fs.mkdirSync(path.join(tmpDir, '.planning', 'phases', '06-feature'), { recursive: true });
 
     const result = runEzTools('phase next-decimal 6', tmpDir);
-    assert.ok(result.success, `Command failed: ${result.error}`);
+    expect(result.success).toBeTruthy() // `Command failed: ${result.error}`;
 
     const output = JSON.parse(result.output);
-    assert.strictEqual(output.next, '06.1', 'should normalize to 06.1');
-    assert.strictEqual(output.base_phase, '06', 'base phase should be padded');
+    expect(output.next).toBe('06.1', 'should normalize to 06.1');
+    expect(output.base_phase).toBe('06', 'base phase should be padded');
   });
 
   test('returns error if base phase does not exist', () => {
     fs.mkdirSync(path.join(tmpDir, '.planning', 'phases', '01-start'), { recursive: true });
 
     const result = runEzTools('phase next-decimal 06', tmpDir);
-    assert.ok(result.success, `Command should succeed: ${result.error}`);
+    expect(result.success).toBeTruthy() // `Command should succeed: ${result.error}`;
 
     const output = JSON.parse(result.output);
-    assert.strictEqual(output.found, false, 'base phase not found');
-    assert.strictEqual(output.next, '06.1', 'should still suggest 06.1');
+    expect(output.found).toBe(false, 'base phase not found');
+    expect(output.next).toBe('06.1', 'should still suggest 06.1');
   });
 });
 
-// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ─────────────────────────────────────────────────────────────────────────────
 // phase-plan-index command
-// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ─────────────────────────────────────────────────────────────────────────────
 
 
 describe('phase-plan-index command', () => {
@@ -214,14 +214,14 @@ describe('phase-plan-index command', () => {
     fs.mkdirSync(path.join(tmpDir, '.planning', 'phases', '03-api'), { recursive: true });
 
     const result = runEzTools('phase-plan-index 03', tmpDir);
-    assert.ok(result.success, `Command failed: ${result.error}`);
+    expect(result.success).toBeTruthy() // `Command failed: ${result.error}`;
 
     const output = JSON.parse(result.output);
-    assert.strictEqual(output.phase, '03', 'phase number correct');
+    expect(output.phase).toBe('03', 'phase number correct');
     assert.deepStrictEqual(output.plans, [], 'plans should be empty');
     assert.deepStrictEqual(output.waves, {}, 'waves should be empty');
     assert.deepStrictEqual(output.incomplete, [], 'incomplete should be empty');
-    assert.strictEqual(output.has_checkpoints, false, 'no checkpoints');
+    expect(output.has_checkpoints).toBe(false, 'no checkpoints');
   });
 
   test('extracts single plan with frontmatter', () => {
@@ -243,17 +243,17 @@ files-modified: [prisma/schema.prisma, src/lib/db.ts]
     );
 
     const result = runEzTools('phase-plan-index 03', tmpDir);
-    assert.ok(result.success, `Command failed: ${result.error}`);
+    expect(result.success).toBeTruthy() // `Command failed: ${result.error}`;
 
     const output = JSON.parse(result.output);
-    assert.strictEqual(output.plans.length, 1, 'should have 1 plan');
-    assert.strictEqual(output.plans[0].id, '03-01', 'plan id correct');
-    assert.strictEqual(output.plans[0].wave, 1, 'wave extracted');
-    assert.strictEqual(output.plans[0].autonomous, true, 'autonomous extracted');
-    assert.strictEqual(output.plans[0].objective, 'Set up database schema', 'objective extracted');
+    expect(output.plans.length).toBe(1, 'should have 1 plan');
+    expect(output.plans[0].id).toBe('03-01', 'plan id correct');
+    expect(output.plans[0].wave).toBe(1, 'wave extracted');
+    expect(output.plans[0].autonomous).toBe(true, 'autonomous extracted');
+    expect(output.plans[0].objective).toBe('Set up database schema', 'objective extracted');
     assert.deepStrictEqual(output.plans[0].files_modified, ['prisma/schema.prisma', 'src/lib/db.ts'], 'files extracted');
-    assert.strictEqual(output.plans[0].task_count, 2, 'task count correct');
-    assert.strictEqual(output.plans[0].has_summary, false, 'no summary yet');
+    expect(output.plans[0].task_count).toBe(2, 'task count correct');
+    expect(output.plans[0].has_summary).toBe(false, 'no summary yet');
   });
 
   test('groups multiple plans by wave', () => {
@@ -297,10 +297,10 @@ objective: API routes
     );
 
     const result = runEzTools('phase-plan-index 03', tmpDir);
-    assert.ok(result.success, `Command failed: ${result.error}`);
+    expect(result.success).toBeTruthy() // `Command failed: ${result.error}`;
 
     const output = JSON.parse(result.output);
-    assert.strictEqual(output.plans.length, 3, 'should have 3 plans');
+    expect(output.plans.length).toBe(3, 'should have 3 plans');
     assert.deepStrictEqual(output.waves['1'], ['03-01', '03-02'], 'wave 1 has 2 plans');
     assert.deepStrictEqual(output.waves['2'], ['03-03'], 'wave 2 has 1 plan');
   });
@@ -317,11 +317,11 @@ objective: API routes
     fs.writeFileSync(path.join(phaseDir, '03-02-PLAN.md'), `---\nwave: 2\n---\n## Task 1`);
 
     const result = runEzTools('phase-plan-index 03', tmpDir);
-    assert.ok(result.success, `Command failed: ${result.error}`);
+    expect(result.success).toBeTruthy() // `Command failed: ${result.error}`;
 
     const output = JSON.parse(result.output);
-    assert.strictEqual(output.plans[0].has_summary, true, 'first plan has summary');
-    assert.strictEqual(output.plans[1].has_summary, false, 'second plan has no summary');
+    expect(output.plans[0].has_summary).toBe(true, 'first plan has summary');
+    expect(output.plans[1].has_summary).toBe(false, 'second plan has no summary');
     assert.deepStrictEqual(output.incomplete, ['03-02'], 'incomplete list correct');
   });
 
@@ -342,26 +342,26 @@ objective: Manual review needed
     );
 
     const result = runEzTools('phase-plan-index 03', tmpDir);
-    assert.ok(result.success, `Command failed: ${result.error}`);
+    expect(result.success).toBeTruthy() // `Command failed: ${result.error}`;
 
     const output = JSON.parse(result.output);
-    assert.strictEqual(output.has_checkpoints, true, 'should detect checkpoint');
-    assert.strictEqual(output.plans[0].autonomous, false, 'plan marked non-autonomous');
+    expect(output.has_checkpoints).toBe(true, 'should detect checkpoint');
+    expect(output.plans[0].autonomous).toBe(false, 'plan marked non-autonomous');
   });
 
   test('phase not found returns error', () => {
     const result = runEzTools('phase-plan-index 99', tmpDir);
-    assert.ok(result.success, `Command should succeed: ${result.error}`);
+    expect(result.success).toBeTruthy() // `Command should succeed: ${result.error}`;
 
     const output = JSON.parse(result.output);
-    assert.strictEqual(output.error, 'Phase not found', 'should report phase not found');
+    expect(output.error).toBe('Phase not found', 'should report phase not found');
   });
 });
 
 
-// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-// phase-plan-index â€” canonical XML format (template-aligned)
-// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ─────────────────────────────────────────────────────────────────────────────
+// phase-plan-index — canonical XML format (template-aligned)
+// ─────────────────────────────────────────────────────────────────────────────
 
 describe('phase-plan-index canonical format', () => {
   let tmpDir;
@@ -406,7 +406,7 @@ Output: App component
     );
 
     const result = runEzTools('phase-plan-index 04', tmpDir);
-    assert.ok(result.success, `Command failed: ${result.error}`);
+    expect(result.success).toBeTruthy() // `Command failed: ${result.error}`;
 
     const output = JSON.parse(result.output);
     assert.deepStrictEqual(
@@ -448,14 +448,10 @@ Output: App.tsx with routing
     );
 
     const result = runEzTools('phase-plan-index 04', tmpDir);
-    assert.ok(result.success, `Command failed: ${result.error}`);
+    expect(result.success).toBeTruthy() // `Command failed: ${result.error}`;
 
     const output = JSON.parse(result.output);
-    assert.strictEqual(
-      output.plans[0].objective,
-      'Build main application shell',
-      'objective should come from <objective> XML tag first line'
-    );
+    expect(output.plans[0].objective).toBe('Build main application shell', 'objective should come from <objective> XML tag first line');
   });
 
   test('task_count: counts <task> XML tags', () => {
@@ -501,14 +497,10 @@ Create UI components
     );
 
     const result = runEzTools('phase-plan-index 04', tmpDir);
-    assert.ok(result.success, `Command failed: ${result.error}`);
+    expect(result.success).toBeTruthy() // `Command failed: ${result.error}`;
 
     const output = JSON.parse(result.output);
-    assert.strictEqual(
-      output.plans[0].task_count,
-      3,
-      'should count all 3 <task> XML tags'
-    );
+    expect(output.plans[0].task_count).toBe(3, 'should count all 3 <task> XML tags');
   });
 
   test('all three fields work together in canonical plan format', () => {
@@ -570,19 +562,19 @@ Output: Chat component, API endpoints.
     );
 
     const result = runEzTools('phase-plan-index 04', tmpDir);
-    assert.ok(result.success, `Command failed: ${result.error}`);
+    expect(result.success).toBeTruthy() // `Command failed: ${result.error}`;
 
     const output = JSON.parse(result.output);
     const plan = output.plans[0];
-    assert.strictEqual(plan.objective, 'Implement complete Chat feature as vertical slice.', 'objective from XML tag');
+    expect(plan.objective).toBe('Implement complete Chat feature as vertical slice.', 'objective from XML tag');
     assert.deepStrictEqual(plan.files_modified, ['src/components/Chat.tsx', 'src/app/api/chat/route.ts'], 'files_modified with underscore');
-    assert.strictEqual(plan.task_count, 2, 'task_count from <task> XML tags');
+    expect(plan.task_count).toBe(2, 'task_count from <task> XML tags');
   });
 });
 
-// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ─────────────────────────────────────────────────────────────────────────────
 // state-snapshot command
-// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ─────────────────────────────────────────────────────────────────────────────
 
 
 describe('phase add command', () => {
@@ -612,22 +604,21 @@ describe('phase add command', () => {
     );
 
     const result = runEzTools('phase add User Dashboard', tmpDir);
-    assert.ok(result.success, `Command failed: ${result.error}`);
+    expect(result.success).toBeTruthy() // `Command failed: ${result.error}`;
 
     const output = JSON.parse(result.output);
-    assert.strictEqual(output.phase_number, 3, 'should be phase 3');
-    assert.strictEqual(output.slug, 'user-dashboard');
+    expect(output.phase_number).toBe(3, 'should be phase 3');
+    expect(output.slug).toBe('user-dashboard');
 
     // Verify directory created
-    assert.ok(
-      fs.existsSync(path.join(tmpDir, '.planning', 'phases', '03-user-dashboard')),
+    expect(fs.existsSync(path.join(tmpDir).toBeTruthy() // '.planning', 'phases', '03-user-dashboard'),
       'directory should be created'
     );
 
     // Verify ROADMAP updated
     const roadmap = fs.readFileSync(path.join(tmpDir, '.planning', 'ROADMAP.md'), 'utf-8');
-    assert.ok(roadmap.includes('### Phase 3: User Dashboard'), 'roadmap should include new phase');
-    assert.ok(roadmap.includes('**Depends on:** Phase 2'), 'should depend on previous');
+    expect(roadmap.includes('### Phase 3: User Dashboard')).toBeTruthy() // 'roadmap should include new phase';
+    expect(roadmap.includes('**Depends on:** Phase 2')).toBeTruthy() // 'should depend on previous';
   });
 
   test('handles empty roadmap', () => {
@@ -637,10 +628,10 @@ describe('phase add command', () => {
     );
 
     const result = runEzTools('phase add Initial Setup', tmpDir);
-    assert.ok(result.success, `Command failed: ${result.error}`);
+    expect(result.success).toBeTruthy() // `Command failed: ${result.error}`;
 
     const output = JSON.parse(result.output);
-    assert.strictEqual(output.phase_number, 1, 'should be phase 1');
+    expect(output.phase_number).toBe(1, 'should be phase 1');
   });
 
   test('phase add includes **Requirements**: TBD in new ROADMAP entry', () => {
@@ -650,16 +641,16 @@ describe('phase add command', () => {
     );
 
     const result = runEzTools('phase add User Dashboard', tmpDir);
-    assert.ok(result.success, `Command failed: ${result.error}`);
+    expect(result.success).toBeTruthy() // `Command failed: ${result.error}`;
 
     const roadmap = fs.readFileSync(path.join(tmpDir, '.planning', 'ROADMAP.md'), 'utf-8');
-    assert.ok(roadmap.includes('**Requirements**: TBD'), 'new phase entry should include Requirements TBD');
+    expect(roadmap.includes('**Requirements**: TBD')).toBeTruthy() // 'new phase entry should include Requirements TBD';
   });
 });
 
-// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ─────────────────────────────────────────────────────────────────────────────
 // phase insert command
-// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ─────────────────────────────────────────────────────────────────────────────
 
 
 describe('phase insert command', () => {
@@ -688,21 +679,20 @@ describe('phase insert command', () => {
     fs.mkdirSync(path.join(tmpDir, '.planning', 'phases', '01-foundation'), { recursive: true });
 
     const result = runEzTools('phase insert 1 Fix Critical Bug', tmpDir);
-    assert.ok(result.success, `Command failed: ${result.error}`);
+    expect(result.success).toBeTruthy() // `Command failed: ${result.error}`;
 
     const output = JSON.parse(result.output);
-    assert.strictEqual(output.phase_number, '01.1', 'should be 01.1');
-    assert.strictEqual(output.after_phase, '1');
+    expect(output.phase_number).toBe('01.1', 'should be 01.1');
+    expect(output.after_phase).toBe('1');
 
     // Verify directory
-    assert.ok(
-      fs.existsSync(path.join(tmpDir, '.planning', 'phases', '01.1-fix-critical-bug')),
+    expect(fs.existsSync(path.join(tmpDir).toBeTruthy() // '.planning', 'phases', '01.1-fix-critical-bug'),
       'decimal phase directory should be created'
     );
 
     // Verify ROADMAP
     const roadmap = fs.readFileSync(path.join(tmpDir, '.planning', 'ROADMAP.md'), 'utf-8');
-    assert.ok(roadmap.includes('Phase 01.1: Fix Critical Bug (INSERTED)'), 'roadmap should include inserted phase');
+    expect(roadmap.includes('Phase 01.1: Fix Critical Bug (INSERTED)')).toBeTruthy() // 'roadmap should include inserted phase';
   });
 
   test('increments decimal when siblings exist', () => {
@@ -721,10 +711,10 @@ describe('phase insert command', () => {
     fs.mkdirSync(path.join(tmpDir, '.planning', 'phases', '01.1-hotfix'), { recursive: true });
 
     const result = runEzTools('phase insert 1 Another Fix', tmpDir);
-    assert.ok(result.success, `Command failed: ${result.error}`);
+    expect(result.success).toBeTruthy() // `Command failed: ${result.error}`;
 
     const output = JSON.parse(result.output);
-    assert.strictEqual(output.phase_number, '01.2', 'should be 01.2');
+    expect(output.phase_number).toBe('01.2', 'should be 01.2');
   });
 
   test('rejects missing phase', () => {
@@ -734,8 +724,8 @@ describe('phase insert command', () => {
     );
 
     const result = runEzTools('phase insert 99 Fix Something', tmpDir);
-    assert.ok(!result.success, 'should fail for missing phase');
-    assert.ok(result.error.includes('not found'), 'error mentions not found');
+    expect(!result.success).toBeTruthy() // 'should fail for missing phase';
+    expect(result.error!.includes('not found')).toBeTruthy() // 'error mentions not found';
   });
 
   test('handles padding mismatch between input and roadmap', () => {
@@ -754,13 +744,13 @@ describe('phase insert command', () => {
 
     // Pass unpadded "9.05" but roadmap has "09.05"
     const result = runEzTools('phase insert 9.05 Padding Test', tmpDir);
-    assert.ok(result.success, `Command failed: ${result.error}`);
+    expect(result.success).toBeTruthy() // `Command failed: ${result.error}`;
 
     const output = JSON.parse(result.output);
-    assert.strictEqual(output.after_phase, '9.05');
+    expect(output.after_phase).toBe('9.05');
 
     const roadmap = fs.readFileSync(path.join(tmpDir, '.planning', 'ROADMAP.md'), 'utf-8');
-    assert.ok(roadmap.includes('(INSERTED)'), 'roadmap should include inserted phase');
+    expect(roadmap.includes('(INSERTED)')).toBeTruthy() // 'roadmap should include inserted phase';
   });
 
   test('phase insert includes **Requirements**: TBD in new ROADMAP entry', () => {
@@ -771,10 +761,10 @@ describe('phase insert command', () => {
     fs.mkdirSync(path.join(tmpDir, '.planning', 'phases', '01-foundation'), { recursive: true });
 
     const result = runEzTools('phase insert 1 Fix Critical Bug', tmpDir);
-    assert.ok(result.success, `Command failed: ${result.error}`);
+    expect(result.success).toBeTruthy() // `Command failed: ${result.error}`;
 
     const roadmap = fs.readFileSync(path.join(tmpDir, '.planning', 'ROADMAP.md'), 'utf-8');
-    assert.ok(roadmap.includes('**Requirements**: TBD'), 'inserted phase entry should include Requirements TBD');
+    expect(roadmap.includes('**Requirements**: TBD')).toBeTruthy() // 'inserted phase entry should include Requirements TBD';
   });
 
   test('handles #### heading depth from multi-milestone roadmaps', () => {
@@ -794,19 +784,19 @@ describe('phase insert command', () => {
     fs.mkdirSync(path.join(tmpDir, '.planning', 'phases', '05-feature-work'), { recursive: true });
 
     const result = runEzTools('phase insert 5 Hotfix', tmpDir);
-    assert.ok(result.success, `Command failed: ${result.error}`);
+    expect(result.success).toBeTruthy() // `Command failed: ${result.error}`;
 
     const output = JSON.parse(result.output);
-    assert.strictEqual(output.phase_number, '05.1');
+    expect(output.phase_number).toBe('05.1');
 
     const roadmap = fs.readFileSync(path.join(tmpDir, '.planning', 'ROADMAP.md'), 'utf-8');
-    assert.ok(roadmap.includes('Phase 05.1: Hotfix (INSERTED)'), 'roadmap should include inserted phase');
+    expect(roadmap.includes('Phase 05.1: Hotfix (INSERTED)')).toBeTruthy() // 'roadmap should include inserted phase';
   });
 });
 
-// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ─────────────────────────────────────────────────────────────────────────────
 // phase remove command
-// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ─────────────────────────────────────────────────────────────────────────────
 
 
 describe('phase remove command', () => {
@@ -851,36 +841,32 @@ describe('phase remove command', () => {
 
     // Remove phase 2
     const result = runEzTools('phase remove 2', tmpDir);
-    assert.ok(result.success, `Command failed: ${result.error}`);
+    expect(result.success).toBeTruthy() // `Command failed: ${result.error}`;
 
     const output = JSON.parse(result.output);
-    assert.strictEqual(output.removed, '2');
+    expect(output.removed).toBe('2');
     assert.strictEqual(output.directory_deleted, '02-auth');
 
     // Phase 3 should be renumbered to 02
-    assert.ok(
-      fs.existsSync(path.join(tmpDir, '.planning', 'phases', '02-features')),
+    expect(fs.existsSync(path.join(tmpDir).toBeTruthy() // '.planning', 'phases', '02-features'),
       'phase 3 should be renumbered to 02-features'
     );
-    assert.ok(
-      !fs.existsSync(path.join(tmpDir, '.planning', 'phases', '03-features')),
+    expect(!fs.existsSync(path.join(tmpDir).toBeTruthy() // '.planning', 'phases', '03-features'),
       'old 03-features should not exist'
     );
 
     // Files inside should be renamed
-    assert.ok(
-      fs.existsSync(path.join(tmpDir, '.planning', 'phases', '02-features', '02-01-PLAN.md')),
+    expect(fs.existsSync(path.join(tmpDir).toBeTruthy() // '.planning', 'phases', '02-features', '02-01-PLAN.md'),
       'plan file should be renumbered to 02-01'
     );
-    assert.ok(
-      fs.existsSync(path.join(tmpDir, '.planning', 'phases', '02-features', '02-02-PLAN.md')),
+    expect(fs.existsSync(path.join(tmpDir).toBeTruthy() // '.planning', 'phases', '02-features', '02-02-PLAN.md'),
       'plan 2 should be renumbered to 02-02'
     );
 
     // ROADMAP should be updated
     const roadmap = fs.readFileSync(path.join(tmpDir, '.planning', 'ROADMAP.md'), 'utf-8');
-    assert.ok(!roadmap.includes('Phase 2: Auth'), 'removed phase should not be in roadmap');
-    assert.ok(roadmap.includes('Phase 2: Features'), 'phase 3 should be renumbered to 2');
+    expect(!roadmap.includes('Phase 2: Auth')).toBeTruthy() // 'removed phase should not be in roadmap';
+    expect(roadmap.includes('Phase 2: Features')).toBeTruthy() // 'phase 3 should be renumbered to 2';
   });
 
   test('rejects removal of phase with summaries unless --force', () => {
@@ -895,12 +881,12 @@ describe('phase remove command', () => {
 
     // Should fail without --force
     const result = runEzTools('phase remove 1', tmpDir);
-    assert.ok(!result.success, 'should fail without --force');
-    assert.ok(result.error.includes('executed plan'), 'error mentions executed plans');
+    expect(!result.success).toBeTruthy() // 'should fail without --force';
+    expect(result.error!.includes('executed plan')).toBeTruthy() // 'error mentions executed plans';
 
     // Should succeed with --force
     const forceResult = runEzTools('phase remove 1 --force', tmpDir);
-    assert.ok(forceResult.success, `Force remove failed: ${forceResult.error}`);
+    expect(forceResult.success).toBeTruthy() // `Force remove failed: ${forceResult.error}`;
   });
 
   test('removes decimal phase and renumbers siblings', () => {
@@ -915,15 +901,13 @@ describe('phase remove command', () => {
     fs.mkdirSync(path.join(tmpDir, '.planning', 'phases', '06.3-fix-c'), { recursive: true });
 
     const result = runEzTools('phase remove 6.2', tmpDir);
-    assert.ok(result.success, `Command failed: ${result.error}`);
+    expect(result.success).toBeTruthy() // `Command failed: ${result.error}`;
 
     // 06.3 should become 06.2
-    assert.ok(
-      fs.existsSync(path.join(tmpDir, '.planning', 'phases', '06.2-fix-c')),
+    expect(fs.existsSync(path.join(tmpDir).toBeTruthy() // '.planning', 'phases', '06.2-fix-c'),
       '06.3 should be renumbered to 06.2'
     );
-    assert.ok(
-      !fs.existsSync(path.join(tmpDir, '.planning', 'phases', '06.3-fix-c')),
+    expect(!fs.existsSync(path.join(tmpDir).toBeTruthy() // '.planning', 'phases', '06.3-fix-c'),
       'old 06.3 should not exist'
     );
   });
@@ -943,13 +927,13 @@ describe('phase remove command', () => {
     runEzTools('phase remove 2', tmpDir);
 
     const state = fs.readFileSync(path.join(tmpDir, '.planning', 'STATE.md'), 'utf-8');
-    assert.ok(state.includes('**Total Phases:** 1'), 'total phases should be decremented');
+    expect(state.includes('**Total Phases:** 1')).toBeTruthy() // 'total phases should be decremented';
   });
 });
 
-// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ─────────────────────────────────────────────────────────────────────────────
 // phase complete command
-// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ─────────────────────────────────────────────────────────────────────────────
 
 
 describe('phase complete command', () => {
@@ -991,24 +975,24 @@ describe('phase complete command', () => {
     fs.mkdirSync(path.join(tmpDir, '.planning', 'phases', '02-api'), { recursive: true });
 
     const result = runEzTools('phase complete 1', tmpDir);
-    assert.ok(result.success, `Command failed: ${result.error}`);
+    expect(result.success).toBeTruthy() // `Command failed: ${result.error}`;
 
     const output = JSON.parse(result.output);
-    assert.strictEqual(output.completed_phase, '1');
+    expect(output.completed_phase).toBe('1');
     assert.strictEqual(output.plans_executed, '1/1');
-    assert.strictEqual(output.next_phase, '02');
+    expect(output.next_phase).toBe('02');
     assert.strictEqual(output.is_last_phase, false);
 
     // Verify STATE.md updated
     const state = fs.readFileSync(path.join(tmpDir, '.planning', 'STATE.md'), 'utf-8');
-    assert.ok(state.includes('**Current Phase:** 02'), 'should advance to phase 02');
-    assert.ok(state.includes('**Status:** Ready to plan'), 'status should be ready to plan');
-    assert.ok(state.includes('**Current Plan:** Not started'), 'plan should be reset');
+    expect(state.includes('**Current Phase:** 02')).toBeTruthy() // 'should advance to phase 02';
+    expect(state.includes('**Status:** Ready to plan')).toBeTruthy() // 'status should be ready to plan';
+    expect(state.includes('**Current Plan:** Not started')).toBeTruthy() // 'plan should be reset';
 
     // Verify ROADMAP checkbox
     const roadmap = fs.readFileSync(path.join(tmpDir, '.planning', 'ROADMAP.md'), 'utf-8');
-    assert.ok(roadmap.includes('[x]'), 'phase should be checked off');
-    assert.ok(roadmap.includes('completed'), 'completion date should be added');
+    expect(roadmap.includes('[x]')).toBeTruthy() // 'phase should be checked off';
+    expect(roadmap.includes('completed')).toBeTruthy() // 'completion date should be added';
   });
 
   test('detects last phase in milestone', () => {
@@ -1027,14 +1011,14 @@ describe('phase complete command', () => {
     fs.writeFileSync(path.join(p1, '01-01-SUMMARY.md'), '# Summary');
 
     const result = runEzTools('phase complete 1', tmpDir);
-    assert.ok(result.success, `Command failed: ${result.error}`);
+    expect(result.success).toBeTruthy() // `Command failed: ${result.error}`;
 
     const output = JSON.parse(result.output);
-    assert.strictEqual(output.is_last_phase, true, 'should detect last phase');
-    assert.strictEqual(output.next_phase, null, 'no next phase');
+    expect(output.is_last_phase).toBe(true, 'should detect last phase');
+    expect(output.next_phase).toBe(undefined, 'no next phase');
 
     const state = fs.readFileSync(path.join(tmpDir, '.planning', 'STATE.md'), 'utf-8');
-    assert.ok(state.includes('Milestone complete'), 'status should be milestone complete');
+    expect(state.includes('Milestone complete')).toBeTruthy() // 'status should be milestone complete';
   });
 
   test('updates REQUIREMENTS.md traceability when phase completes', () => {
@@ -1092,22 +1076,22 @@ describe('phase complete command', () => {
     fs.mkdirSync(path.join(tmpDir, '.planning', 'phases', '02-api'), { recursive: true });
 
     const result = runEzTools('phase complete 1', tmpDir);
-    assert.ok(result.success, `Command failed: ${result.error}`);
+    expect(result.success).toBeTruthy() // `Command failed: ${result.error}`;
 
     const req = fs.readFileSync(path.join(tmpDir, '.planning', 'REQUIREMENTS.md'), 'utf-8');
 
     // Checkboxes updated for phase 1 requirements
-    assert.ok(req.includes('- [x] **AUTH-01**'), 'AUTH-01 checkbox should be checked');
-    assert.ok(req.includes('- [x] **AUTH-02**'), 'AUTH-02 checkbox should be checked');
+    expect(req.includes('- [x] **AUTH-01**')).toBeTruthy() // 'AUTH-01 checkbox should be checked';
+    expect(req.includes('- [x] **AUTH-02**')).toBeTruthy() // 'AUTH-02 checkbox should be checked';
     // Other requirements unchanged
-    assert.ok(req.includes('- [ ] **AUTH-03**'), 'AUTH-03 should remain unchecked');
-    assert.ok(req.includes('- [ ] **API-01**'), 'API-01 should remain unchecked');
+    expect(req.includes('- [ ] **AUTH-03**')).toBeTruthy() // 'AUTH-03 should remain unchecked';
+    expect(req.includes('- [ ] **API-01**')).toBeTruthy() // 'API-01 should remain unchecked';
 
     // Traceability table updated
-    assert.ok(req.includes('| AUTH-01 | Phase 1 | Complete |'), 'AUTH-01 status should be Complete');
-    assert.ok(req.includes('| AUTH-02 | Phase 1 | Complete |'), 'AUTH-02 status should be Complete');
-    assert.ok(req.includes('| AUTH-03 | Phase 2 | Pending |'), 'AUTH-03 should remain Pending');
-    assert.ok(req.includes('| API-01 | Phase 2 | Pending |'), 'API-01 should remain Pending');
+    expect(req.includes('| AUTH-01 | Phase 1 | Complete |')).toBeTruthy() // 'AUTH-01 status should be Complete';
+    expect(req.includes('| AUTH-02 | Phase 1 | Complete |')).toBeTruthy() // 'AUTH-02 status should be Complete';
+    expect(req.includes('| AUTH-03 | Phase 2 | Pending |')).toBeTruthy() // 'AUTH-03 should remain Pending';
+    expect(req.includes('| API-01 | Phase 2 | Pending |')).toBeTruthy() // 'API-01 should remain Pending';
   });
 
   test('handles requirements with bracket format [REQ-01, REQ-02]', () => {
@@ -1165,22 +1149,22 @@ describe('phase complete command', () => {
     fs.mkdirSync(path.join(tmpDir, '.planning', 'phases', '02-api'), { recursive: true });
 
     const result = runEzTools('phase complete 1', tmpDir);
-    assert.ok(result.success, `Command failed: ${result.error}`);
+    expect(result.success).toBeTruthy() // `Command failed: ${result.error}`;
 
     const req = fs.readFileSync(path.join(tmpDir, '.planning', 'REQUIREMENTS.md'), 'utf-8');
 
     // Checkboxes updated for phase 1 requirements (brackets stripped)
-    assert.ok(req.includes('- [x] **AUTH-01**'), 'AUTH-01 checkbox should be checked');
-    assert.ok(req.includes('- [x] **AUTH-02**'), 'AUTH-02 checkbox should be checked');
+    expect(req.includes('- [x] **AUTH-01**')).toBeTruthy() // 'AUTH-01 checkbox should be checked';
+    expect(req.includes('- [x] **AUTH-02**')).toBeTruthy() // 'AUTH-02 checkbox should be checked';
     // Other requirements unchanged
-    assert.ok(req.includes('- [ ] **AUTH-03**'), 'AUTH-03 should remain unchecked');
-    assert.ok(req.includes('- [ ] **API-01**'), 'API-01 should remain unchecked');
+    expect(req.includes('- [ ] **AUTH-03**')).toBeTruthy() // 'AUTH-03 should remain unchecked';
+    expect(req.includes('- [ ] **API-01**')).toBeTruthy() // 'API-01 should remain unchecked';
 
     // Traceability table updated
-    assert.ok(req.includes('| AUTH-01 | Phase 1 | Complete |'), 'AUTH-01 status should be Complete');
-    assert.ok(req.includes('| AUTH-02 | Phase 1 | Complete |'), 'AUTH-02 status should be Complete');
-    assert.ok(req.includes('| AUTH-03 | Phase 2 | Pending |'), 'AUTH-03 should remain Pending');
-    assert.ok(req.includes('| API-01 | Phase 2 | Pending |'), 'API-01 should remain Pending');
+    expect(req.includes('| AUTH-01 | Phase 1 | Complete |')).toBeTruthy() // 'AUTH-01 status should be Complete';
+    expect(req.includes('| AUTH-02 | Phase 1 | Complete |')).toBeTruthy() // 'AUTH-02 status should be Complete';
+    expect(req.includes('| AUTH-03 | Phase 2 | Pending |')).toBeTruthy() // 'AUTH-03 should remain Pending';
+    expect(req.includes('| API-01 | Phase 2 | Pending |')).toBeTruthy() // 'API-01 should remain Pending';
   });
 
   test('handles phase with no requirements mapping', () => {
@@ -1221,12 +1205,12 @@ describe('phase complete command', () => {
     fs.writeFileSync(path.join(p1, '01-01-SUMMARY.md'), '# Summary');
 
     const result = runEzTools('phase complete 1', tmpDir);
-    assert.ok(result.success, `Command failed: ${result.error}`);
+    expect(result.success).toBeTruthy() // `Command failed: ${result.error}`;
 
     // REQUIREMENTS.md should be unchanged
     const req = fs.readFileSync(path.join(tmpDir, '.planning', 'REQUIREMENTS.md'), 'utf-8');
-    assert.ok(req.includes('- [ ] **REQ-01**'), 'REQ-01 should remain unchecked');
-    assert.ok(req.includes('| REQ-01 | Phase 2 | Pending |'), 'REQ-01 should remain Pending');
+    expect(req.includes('- [ ] **REQ-01**')).toBeTruthy() // 'REQ-01 should remain unchecked';
+    expect(req.includes('| REQ-01 | Phase 2 | Pending |')).toBeTruthy() // 'REQ-01 should remain Pending';
   });
 
   test('handles missing REQUIREMENTS.md gracefully', () => {
@@ -1252,7 +1236,7 @@ describe('phase complete command', () => {
     fs.writeFileSync(path.join(p1, '01-01-SUMMARY.md'), '# Summary');
 
     const result = runEzTools('phase complete 1', tmpDir);
-    assert.ok(result.success, `Command should succeed even without REQUIREMENTS.md: ${result.error}`);
+    expect(result.success).toBeTruthy() // `Command should succeed even without REQUIREMENTS.md: ${result.error}`;
   });
 
   test('returns requirements_updated field in result', () => {
@@ -1294,9 +1278,9 @@ describe('phase complete command', () => {
     fs.writeFileSync(path.join(p1, '01-01-SUMMARY.md'), '# Summary');
 
     const result = runEzTools('phase complete 1', tmpDir);
-    assert.ok(result.success, `Command failed: ${result.error}`);
+    expect(result.success).toBeTruthy() // `Command failed: ${result.error}`;
     const parsed = JSON.parse(result.output);
-    assert.strictEqual(parsed.requirements_updated, true, 'requirements_updated should be true');
+    expect(parsed.requirements_updated).toBe(true, 'requirements_updated should be true');
   });
 
   test('handles In Progress status in traceability table', () => {
@@ -1340,11 +1324,11 @@ describe('phase complete command', () => {
     fs.writeFileSync(path.join(p1, '01-01-SUMMARY.md'), '# Summary');
 
     const result = runEzTools('phase complete 1', tmpDir);
-    assert.ok(result.success, `Command failed: ${result.error}`);
+    expect(result.success).toBeTruthy() // `Command failed: ${result.error}`;
 
     const req = fs.readFileSync(path.join(tmpDir, '.planning', 'REQUIREMENTS.md'), 'utf-8');
-    assert.ok(req.includes('| AUTH-01 | Phase 1 | Complete |'), 'In Progress should become Complete');
-    assert.ok(req.includes('| AUTH-02 | Phase 1 | Complete |'), 'Pending should become Complete');
+    expect(req.includes('| AUTH-01 | Phase 1 | Complete |')).toBeTruthy() // 'In Progress should become Complete';
+    expect(req.includes('| AUTH-02 | Phase 1 | Complete |')).toBeTruthy() // 'Pending should become Complete';
   });
 
   test('scoped regex does not cross phase boundaries', () => {
@@ -1392,12 +1376,12 @@ describe('phase complete command', () => {
     fs.mkdirSync(path.join(tmpDir, '.planning', 'phases', '02-auth'), { recursive: true });
 
     const result = runEzTools('phase complete 1', tmpDir);
-    assert.ok(result.success, `Command failed: ${result.error}`);
+    expect(result.success).toBeTruthy() // `Command failed: ${result.error}`;
 
     // Phase 1 has no Requirements field, so Phase 2's AUTH-01 should NOT be updated
     const req = fs.readFileSync(path.join(tmpDir, '.planning', 'REQUIREMENTS.md'), 'utf-8');
-    assert.ok(req.includes('- [ ] **AUTH-01**'), 'AUTH-01 should remain unchecked (belongs to Phase 2)');
-    assert.ok(req.includes('| AUTH-01 | Phase 2 | Pending |'), 'AUTH-01 should remain Pending (belongs to Phase 2)');
+    expect(req.includes('- [ ] **AUTH-01**')).toBeTruthy() // 'AUTH-01 should remain unchecked (belongs to Phase 2');
+    expect(req.includes('| AUTH-01 | Phase 2 | Pending |')).toBeTruthy() // 'AUTH-01 should remain Pending (belongs to Phase 2');
   });
 
   test('handles multi-level decimal phase without regex crash', () => {
@@ -1463,42 +1447,42 @@ describe('phase complete command', () => {
     fs.writeFileSync(path.join(p321, '03.2.1-01-SUMMARY.md'), '# Summary');
 
     const result = runEzTools('phase complete 03.2.1', tmpDir);
-    assert.ok(result.success, `Command should not crash on regex metacharacters: ${result.error}`);
+    expect(result.success).toBeTruthy() // `Command should not crash on regex metacharacters: ${result.error}`;
 
     const req = fs.readFileSync(path.join(tmpDir, '.planning', 'REQUIREMENTS.md'), 'utf-8');
-    assert.ok(req.includes('- [ ] **AMT-01**'), 'AMT-01 should remain unchanged');
+    expect(req.includes('- [ ] **AMT-01**')).toBeTruthy() // 'AMT-01 should remain unchanged';
   });
 });
 
-// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ─────────────────────────────────────────────────────────────────────────────
 // comparePhaseNum and normalizePhaseName (imported directly)
-// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ─────────────────────────────────────────────────────────────────────────────
 
-import { comparePhaseNum, normalizePhaseName } from '../../ez-agents/bin/lib/core.js';
+import { comparePhaseNum, normalizePhaseName } from '../../bin/lib/core.js';
 
 describe('comparePhaseNum', () => {
   test('sorts integer phases numerically', () => {
-    assert.ok(comparePhaseNum('2', '10') < 0);
-    assert.ok(comparePhaseNum('10', '2') > 0);
-    assert.strictEqual(comparePhaseNum('5', '5'), 0);
+    expect(comparePhaseNum('2').toBeTruthy() // '10' < 0);
+    expect(comparePhaseNum('10').toBeTruthy() // '2' > 0);
+    expect(comparePhaseNum('5').toBe('5'), 0);
   });
 
   test('sorts decimal phases correctly', () => {
-    assert.ok(comparePhaseNum('12', '12.1') < 0);
-    assert.ok(comparePhaseNum('12.1', '12.2') < 0);
-    assert.ok(comparePhaseNum('12.2', '13') < 0);
+    expect(comparePhaseNum('12').toBeTruthy() // '12.1' < 0);
+    expect(comparePhaseNum('12.1').toBeTruthy() // '12.2' < 0);
+    expect(comparePhaseNum('12.2').toBeTruthy() // '13' < 0);
   });
 
   test('sorts letter-suffix phases correctly', () => {
-    assert.ok(comparePhaseNum('12', '12A') < 0);
-    assert.ok(comparePhaseNum('12A', '12B') < 0);
-    assert.ok(comparePhaseNum('12B', '13') < 0);
+    expect(comparePhaseNum('12').toBeTruthy() // '12A' < 0);
+    expect(comparePhaseNum('12A').toBeTruthy() // '12B' < 0);
+    expect(comparePhaseNum('12B').toBeTruthy() // '13' < 0);
   });
 
   test('sorts hybrid phases correctly', () => {
-    assert.ok(comparePhaseNum('12A', '12A.1') < 0);
-    assert.ok(comparePhaseNum('12A.1', '12A.2') < 0);
-    assert.ok(comparePhaseNum('12A.2', '12B') < 0);
+    expect(comparePhaseNum('12A').toBeTruthy() // '12A.1' < 0);
+    expect(comparePhaseNum('12A.1').toBeTruthy() // '12A.2' < 0);
+    expect(comparePhaseNum('12A.2').toBeTruthy() // '12B' < 0);
   });
 
   test('handles full sort order', () => {
@@ -1516,58 +1500,58 @@ describe('comparePhaseNum', () => {
   });
 
   test('case insensitive letter matching', () => {
-    assert.ok(comparePhaseNum('12a', '12B') < 0);
-    assert.ok(comparePhaseNum('12A', '12b') < 0);
-    assert.strictEqual(comparePhaseNum('12a', '12A'), 0);
+    expect(comparePhaseNum('12a').toBeTruthy() // '12B' < 0);
+    expect(comparePhaseNum('12A').toBeTruthy() // '12b' < 0);
+    expect(comparePhaseNum('12a').toBe('12A'), 0);
   });
 
   test('sorts multi-level decimal phases correctly', () => {
-    assert.ok(comparePhaseNum('3.2', '3.2.1') < 0);
-    assert.ok(comparePhaseNum('3.2.1', '3.2.2') < 0);
-    assert.ok(comparePhaseNum('3.2.1', '3.3') < 0);
-    assert.ok(comparePhaseNum('3.2.1', '4') < 0);
-    assert.strictEqual(comparePhaseNum('3.2.1', '3.2.1'), 0);
+    expect(comparePhaseNum('3.2').toBeTruthy() // '3.2.1' < 0);
+    expect(comparePhaseNum('3.2.1').toBeTruthy() // '3.2.2' < 0);
+    expect(comparePhaseNum('3.2.1').toBeTruthy() // '3.3' < 0);
+    expect(comparePhaseNum('3.2.1').toBeTruthy() // '4' < 0);
+    expect(comparePhaseNum('3.2.1').toBe('3.2.1'), 0);
   });
 
   test('falls back to localeCompare for non-phase strings', () => {
     const result = comparePhaseNum('abc', 'def');
-    assert.strictEqual(typeof result, 'number');
+    expect(typeof result).toBe('number');
   });
 });
 
 describe('normalizePhaseName', () => {
   test('pads single-digit integers', () => {
-    assert.strictEqual(normalizePhaseName('3'), '03');
+    expect(normalizePhaseName('3')).toBe('03');
     assert.strictEqual(normalizePhaseName('12'), '12');
   });
 
   test('handles decimal phases', () => {
-    assert.strictEqual(normalizePhaseName('3.1'), '03.1');
+    expect(normalizePhaseName('3.1')).toBe('03.1');
     assert.strictEqual(normalizePhaseName('12.2'), '12.2');
   });
 
   test('handles letter-suffix phases', () => {
-    assert.strictEqual(normalizePhaseName('3A'), '03A');
+    expect(normalizePhaseName('3A')).toBe('03A');
     assert.strictEqual(normalizePhaseName('12B'), '12B');
   });
 
   test('handles hybrid phases', () => {
-    assert.strictEqual(normalizePhaseName('3A.1'), '03A.1');
+    expect(normalizePhaseName('3A.1')).toBe('03A.1');
     assert.strictEqual(normalizePhaseName('12A.2'), '12A.2');
   });
 
   test('uppercases letters', () => {
-    assert.strictEqual(normalizePhaseName('3a'), '03A');
+    expect(normalizePhaseName('3a')).toBe('03A');
     assert.strictEqual(normalizePhaseName('12b.1'), '12B.1');
   });
 
   test('handles multi-level decimal phases', () => {
-    assert.strictEqual(normalizePhaseName('3.2.1'), '03.2.1');
+    expect(normalizePhaseName('3.2.1')).toBe('03.2.1');
     assert.strictEqual(normalizePhaseName('12.3.4'), '12.3.4');
   });
 
   test('returns non-matching input unchanged', () => {
-    assert.strictEqual(normalizePhaseName('abc'), 'abc');
+    expect(normalizePhaseName('abc')).toBe('abc');
   });
 });
 
@@ -1591,7 +1575,7 @@ describe('letter-suffix phase sorting', () => {
     fs.mkdirSync(path.join(tmpDir, '.planning', 'phases', '13-deploy'), { recursive: true });
 
     const result = runEzTools('phases list', tmpDir);
-    assert.ok(result.success, `Command failed: ${result.error}`);
+    expect(result.success).toBeTruthy() // `Command failed: ${result.error}`;
 
     const output = JSON.parse(result.output);
     assert.deepStrictEqual(
@@ -1602,9 +1586,9 @@ describe('letter-suffix phase sorting', () => {
   });
 });
 
-// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ─────────────────────────────────────────────────────────────────────────────
 // milestone-scoped next-phase in phase complete
-// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ─────────────────────────────────────────────────────────────────────────────
 
 describe('phase complete milestone-scoped next-phase', () => {
   let tmpDir;
@@ -1650,21 +1634,21 @@ describe('phase complete milestone-scoped next-phase', () => {
       fs.writeFileSync(path.join(phaseDir, `${padded}-01-SUMMARY.md`), '# Summary');
     }
 
-    // Phase 5 â€” completing this one
+    // Phase 5 — completing this one
     const p5 = path.join(tmpDir, '.planning', 'phases', '05-auth');
     fs.mkdirSync(p5, { recursive: true });
     fs.writeFileSync(path.join(p5, '05-01-PLAN.md'), '# Plan');
     fs.writeFileSync(path.join(p5, '05-01-SUMMARY.md'), '# Summary');
 
-    // Phase 6 â€” next phase in milestone
+    // Phase 6 — next phase in milestone
     fs.mkdirSync(path.join(tmpDir, '.planning', 'phases', '06-dashboard'), { recursive: true });
 
     const result = runEzTools('phase complete 5', tmpDir);
-    assert.ok(result.success, `Command failed: ${result.error}`);
+    expect(result.success).toBeTruthy() // `Command failed: ${result.error}`;
 
     const output = JSON.parse(result.output);
-    assert.strictEqual(output.is_last_phase, false, 'should NOT be last phase â€” phase 6 is in milestone');
-    assert.strictEqual(output.next_phase, '06', 'next phase should be 06');
+    expect(output.is_last_phase).toBe(false, 'should NOT be last phase — phase 6 is in milestone');
+    expect(output.next_phase).toBe('06', 'next phase should be 06');
   });
 
   test('detects last phase when only milestone phases are considered', () => {
@@ -1695,17 +1679,17 @@ describe('phase complete milestone-scoped next-phase', () => {
     }
 
     const result = runEzTools('phase complete 5', tmpDir);
-    assert.ok(result.success, `Command failed: ${result.error}`);
+    expect(result.success).toBeTruthy() // `Command failed: ${result.error}`;
 
     const output = JSON.parse(result.output);
     // Without the fix, dirs 06 on disk would make is_last_phase=false
     // With the fix, only phase 5 is in milestone, so it IS the last phase
-    assert.strictEqual(output.is_last_phase, true, 'should be last phase â€” only phase 5 is in milestone');
-    assert.strictEqual(output.next_phase, null, 'no next phase in milestone');
+    expect(output.is_last_phase).toBe(true, 'should be last phase — only phase 5 is in milestone');
+    expect(output.next_phase).toBe(undefined, 'no next phase in milestone');
   });
 });
 
-// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ─────────────────────────────────────────────────────────────────────────────
 // milestone complete command
-// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ─────────────────────────────────────────────────────────────────────────────
 

@@ -87,8 +87,8 @@ export const TRADEOFF_TEMPLATE = `## Trade-off Analysis
 // ─── TradeOffAnalyzer Class ──────────────────────────────────────────────────
 
 export class TradeOffAnalyzer {
-  private logger: Logger;
-  private template: string;
+  private readonly logger: Logger;
+  private readonly template: string;
 
   /**
    * Create a TradeOffAnalyzer instance
@@ -212,7 +212,7 @@ ${implications}`;
     }
 
     if (options.length === 1) {
-      return options[0];
+      return options[0] ?? { name: 'Unknown option', pros: [], cons: [] };
     }
 
     // Simple scoring based on context
@@ -234,7 +234,7 @@ ${implications}`;
     });
 
     scores.sort((a, b) => b.score - a.score);
-    return scores[0].option;
+    return scores[0]?.option ?? { name: 'Unknown option', pros: [], cons: [] };
   }
 
   /**
@@ -250,8 +250,8 @@ ${implications}`;
       reasons.push(`Key advantages: ${option.pros.slice(0, 3).join(', ')}`);
     }
 
-    if (option.context_fit?.includes(context.project_phase || '')) {
-      reasons.push(`Well-suited for ${context.project_phase} phase`);
+    if (option.context_fit?.includes(context.project_phase ?? '')) {
+      reasons.push(`Well-suited for ${context.project_phase ?? 'current'} phase`);
     }
 
     if (option.alignment?.length) {
@@ -292,11 +292,11 @@ ${implications}`;
       'Hard': 1
     };
 
-    const reviewMonths = months[level] || 3;
+    const reviewMonths = months[level] ?? 3;
     const reviewDate = new Date();
     reviewDate.setMonth(reviewDate.getMonth() + reviewMonths);
 
-    return reviewDate.toISOString().split('T')[0];
+    return reviewDate.toISOString().split('T')[0] ?? '';
   }
 
   /**

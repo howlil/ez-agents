@@ -1,5 +1,6 @@
-/** @type {import('dependency-cruiser').IConfiguration} */
-module.exports = {
+import type { Configuration } from 'dependency-cruiser';
+
+const config: Configuration = {
   forbidden: [
     {
       name: 'no-circular',
@@ -26,3 +27,5 @@ module.exports = {
     },
   },
 };
+
+export default config;

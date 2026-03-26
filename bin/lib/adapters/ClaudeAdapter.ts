@@ -23,8 +23,8 @@ import type { ToolCall } from '../assistant-adapter.js';
  * Implements the ModelProviderAdapter interface for Anthropic Claude API.
  */
 export class ClaudeAdapter implements ModelProviderAdapter {
-  private apiKey: string;
-  private modelName: string;
+  private readonly apiKey: string;
+  private readonly modelName: string;
 
   /**
    * Create Claude adapter

@@ -1,30 +1,48 @@
 import { describe, it, expect } from 'vitest';
 
 describe('Perf Analyzer', () => {
-  describe('analyze()', () => {
-    it('runs all analyzers', async () => {
-      const { analyze } = await import('../../ez-agents/bin/lib/perf/perf-analyzer.cjs');
-      expect(analyze).toBeDefined();
+  describe('class exports', () => {
+    it('exports PerfAnalyzer class', async () => {
+      const mod = await import('../../bin/lib/perf/perf-analyzer.js');
+      expect(mod.PerfAnalyzer).toBeDefined();
+    });
+  });
+
+  describe('instance methods', () => {
+    it('can create instance', async () => {
+      const mod = await import('../../bin/lib/perf/perf-analyzer.js');
+      const instance = new mod.PerfAnalyzer();
+      expect(instance).toBeDefined();
     });
 
-    it('aggregates results', async () => {
-      const { analyze } = await import('../../ez-agents/bin/lib/perf/perf-analyzer.cjs');
-      expect(analyze).toBeDefined();
+    it('has analyze method', async () => {
+      const mod = await import('../../bin/lib/perf/perf-analyzer.js');
+      const instance = new mod.PerfAnalyzer();
+      expect(instance.analyze).toBeDefined();
     });
 
-    it('includes timestamp', async () => {
-      const { analyze } = await import('../../ez-agents/bin/lib/perf/perf-analyzer.cjs');
-      expect(analyze).toBeDefined();
+    it('analyze method returns structured result', async () => {
+      const mod = await import('../../bin/lib/perf/perf-analyzer.js');
+      const instance = new mod.PerfAnalyzer();
+      const result = await instance.analyze({});
+      expect(result).toBeDefined();
+      expect(result.timestamp).toBeDefined();
+      expect(result.errors).toBeDefined();
     });
 
-    it('returns structured result', async () => {
-      const { analyze } = await import('../../ez-agents/bin/lib/perf/perf-analyzer.cjs');
-      expect(analyze).toBeDefined();
+    it('analyze method includes timestamp', async () => {
+      const mod = await import('../../bin/lib/perf/perf-analyzer.js');
+      const instance = new mod.PerfAnalyzer();
+      const result = await instance.analyze({});
+      expect(result.timestamp).toBeDefined();
     });
 
-    it('handles analyzer failures gracefully', async () => {
-      const { analyze } = await import('../../ez-agents/bin/lib/perf/perf-analyzer.cjs');
-      expect(analyze).toBeDefined();
+    it('analyze method handles errors gracefully', async () => {
+      const mod = await import('../../bin/lib/perf/perf-analyzer.js');
+      const instance = new mod.PerfAnalyzer();
+      const result = await instance.analyze({ invalid: 'options' });
+      expect(result).toBeDefined();
+      expect(Array.isArray(result.errors)).toBe(true);
     });
   });
 });

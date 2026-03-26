@@ -1,0 +1,81 @@
+# EZ Agents Staging Test Environment
+# Multi-stage build for performance testing with real Qwen token
+
+FROM node:20-alpine AS base
+
+# Install dependencies for native modules
+RUN apk add --no-cache python3 make g++
+
+# Set working directory
+WORKDIR /app
+
+# Copy package files
+COPY package*.json ./
+
+FROM base AS dependencies
+
+# Install all dependencies (including devDependencies for testing)
+RUN npm ci
+
+FROM base AS builder
+
+COPY --from=dependencies /app/node_modules ./node_modules
+COPY . .
+
+# Build the package
+RUN npm run build
+
+# Skip typecheck for staging tests (already validated in CI)
+# RUN npm run typecheck
+
+FROM base AS production
+
+# Install only production dependencies (skip prepare scripts like husky)
+COPY package*.json ./
+RUN npm ci --only=production --ignore-scripts
+
+# Copy built artifacts from builder
+COPY --from=builder /app/dist ./dist
+COPY --from=builder /app/commands ./commands
+COPY --from=builder /app/agents ./agents
+COPY --from=builder /app/ez-agents ./ez-agents
+
+# Create non-root user for security
+RUN addgroup -g 1001 -S nodejs && \
+    adduser -S nodejs -u 1001
+
+# Create directory for Qwen credentials
+RUN mkdir -p /root/.qwen && chown -R nodejs:nodejs /root/.qwen
+
+USER nodejs
+
+# Health check
+HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
+    CMD node -e "console.log('Health check passed')"
+
+FROM production AS staging
+
+USER root
+
+# Install test dependencies
+COPY package*.json ./
+RUN npm ci
+
+# Copy all source files for testing
+COPY --from=builder /app/bin ./bin
+COPY --from=builder /app/tests ./tests
+COPY --from=builder /app/scripts ./scripts
+COPY --from=builder /app/vitest.config.ts ./
+COPY --from=builder /app/tsconfig.json ./
+
+# Install Qwen Code CLI globally
+RUN npm install -g @qwen-code/qwen-code
+
+# Create directory for Qwen credentials with proper permissions
+RUN mkdir -p /root/.qwen && chmod 777 /root/.qwen
+
+# Keep as root for Qwen Code CLI access
+USER root
+
+# Default command (override in docker-compose)
+CMD ["npm", "run", "test:staging"]

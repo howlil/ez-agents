@@ -1,27 +1,23 @@
-﻿/**
+/**
  * Backup Service Tests
- * 
+ *
  * Tests for BackupService: backup creation, manifest integrity, retention pruning,
  * and checksum verification.
  */
 
-const { describe, it, beforeEach, afterEach } = require('node:test');
-import assert from 'node:assert';
 import * as fs from 'fs';
 import * as path from 'path';
 
-import { createTempGitProject, cleanup } from '../helpers.js';
+import { createTempGitProject, cleanup } from '../helpers.ts';
+import { BackupService } from '../../bin/lib/backup-service.js';
 
 describe('BackupService', () => {
-  let tmpDir;
-  let BackupService;
+  let tmpDir: string;
+  let backupService: BackupService;
 
   beforeEach(() => {
     tmpDir = createTempGitProject();
-    // Clear module cache to get fresh instances
-    const backupServicePath = require.resolve('../ez-agents/bin/lib/backup-service.cjs');
-    delete require.cache[backupServicePath];
-    BackupService = require('../ez-agents/bin/lib/backup-service.cjs');
+    backupService = new BackupService(tmpDir);
   });
 
   afterEach(() => {
@@ -30,8 +26,6 @@ describe('BackupService', () => {
 
   describe('createBackup()', () => {
     it('copies only configured recovery paths and skips missing optional paths', () => {
-      const backupService = new BackupService(tmpDir);
-
       // Create some files that are in the default backup scope
       fs.mkdirSync(path.join(tmpDir, '.planning', 'phases'), { recursive: true });
       fs.writeFileSync(path.join(tmpDir, '.planning', 'PROJECT.md'), '# Project\n');
@@ -41,12 +35,12 @@ describe('BackupService', () => {
       const result = backupService.createBackup({ label: 'test', scope: ['.planning', 'package.json'] });
 
       // Verify backup was created
-      assert.ok(result.backupDir, 'createBackup should return backupDir');
-      assert.ok(fs.existsSync(result.backupDir), 'backup directory should exist');
+      expect(result.backupDir).toBeTruthy();
+      expect(fs.existsSync(result.backupDir)).toBeTruthy();
 
       // Verify only specified paths are included
-      const backupFiles = [];
-      function walkDir(dir, baseDir) {
+      const backupFiles: string[] = [];
+      function walkDir(dir: string, baseDir: string) {
         const entries = fs.readdirSync(dir, { withFileTypes: true });
         for (const entry of entries) {
           const fullPath = path.join(dir, entry.name);
@@ -62,19 +56,11 @@ describe('BackupService', () => {
       walkDir(result.backupDir, result.backupDir);
 
       // Should contain .planning and package.json but not missing paths
-      assert.ok(
-        backupFiles.some(f => f.startsWith('.planning')),
-        'backup should contain .planning files'
-      );
-      assert.ok(
-        backupFiles.includes('package.json'),
-        'backup should contain package.json'
-      );
+      expect(backupFiles.some(f => f.startsWith('.planning'))).toBeTruthy();
+      expect(backupFiles.includes('package.json')).toBeTruthy();
     });
 
     it('backs up files to .planning/recovery/backups/<backup-id>/', () => {
-      const backupService = new BackupService(tmpDir);
-
       // Create required files
       fs.mkdirSync(path.join(tmpDir, '.planning', 'phases'), { recursive: true });
       fs.writeFileSync(path.join(tmpDir, '.planning', 'PROJECT.md'), '# Project\n');
@@ -83,19 +69,14 @@ describe('BackupService', () => {
 
       // Verify backup is in correct location (normalize path separators for cross-platform)
       const normalizedPath = result.backupDir.replace(/\\/g, '/');
-      assert.ok(
-        normalizedPath.includes('.planning/recovery/backups/'),
-        `backup should be in .planning/recovery/backups/, got ${result.backupDir}`
-      );
+      expect(normalizedPath.includes('.planning/recovery/backups/')).toBeTruthy();
 
       // Verify directory structure exists
       const backupsDir = path.join(tmpDir, '.planning', 'recovery', 'backups');
-      assert.ok(fs.existsSync(backupsDir), 'backups directory should exist');
+      expect(fs.existsSync(backupsDir)).toBeTruthy();
     });
 
     it('manifest.json contains backup_id, created_at, scope, commit_sha, and files', () => {
-      const backupService = new BackupService(tmpDir);
-
       // Create required files
       fs.mkdirSync(path.join(tmpDir, '.planning', 'phases'), { recursive: true });
       fs.writeFileSync(path.join(tmpDir, '.planning', 'PROJECT.md'), '# Project\n');
@@ -104,30 +85,28 @@ describe('BackupService', () => {
 
       // Read manifest
       const manifestPath = path.join(result.backupDir, 'manifest.json');
-      assert.ok(fs.existsSync(manifestPath), 'manifest.json should exist');
+      expect(fs.existsSync(manifestPath)).toBeTruthy();
 
       const manifest = JSON.parse(fs.readFileSync(manifestPath, 'utf-8'));
 
       // Verify required fields
-      assert.ok(manifest.backup_id, 'manifest should have backup_id');
-      assert.ok(manifest.created_at, 'manifest should have created_at');
-      assert.ok(Array.isArray(manifest.scope), 'manifest should have scope array');
-      assert.ok('commit_sha' in manifest, 'manifest should have commit_sha');
-      assert.ok(Array.isArray(manifest.files), 'manifest should have files array');
+      expect(manifest.backup_id).toBeTruthy();
+      expect(manifest.created_at).toBeTruthy();
+      expect(Array.isArray(manifest.scope)).toBeTruthy();
+      expect('commit_sha' in manifest).toBeTruthy();
+      expect(Array.isArray(manifest.files)).toBeTruthy();
     });
 
     it('file entries contain path, sha256, and size_bytes', () => {
-      const backupService = new BackupService(tmpDir);
-
       // Create a test file
       fs.mkdirSync(path.join(tmpDir, '.planning'), { recursive: true });
       const testFile = path.join(tmpDir, '.planning', 'test.txt');
       const testContent = 'test content';
       fs.writeFileSync(testFile, testContent);
 
-      const result = backupService.createBackup({ 
-        label: 'test', 
-        scope: ['.planning/test.txt'] 
+      const result = backupService.createBackup({
+        label: 'test',
+        scope: ['.planning/test.txt']
       });
 
       // Read manifest
@@ -135,19 +114,17 @@ describe('BackupService', () => {
         fs.readFileSync(path.join(result.backupDir, 'manifest.json'), 'utf-8')
       );
 
-      assert.ok(manifest.files.length > 0, 'should have backed up files');
+      expect(manifest.files.length > 0).toBeTruthy();
 
       for (const file of manifest.files) {
-        assert.ok(file.path, 'file entry should have path');
-        assert.ok(file.sha256, 'file entry should have sha256');
-        assert.ok(typeof file.size_bytes === 'number', 'file entry should have size_bytes');
-        assert.match(file.sha256, /^[a-f0-9]{64}$/, 'sha256 should be valid hex');
+        expect(file.path).toBeTruthy();
+        expect(file.sha256).toBeTruthy();
+        expect(typeof file.size_bytes === 'number').toBeTruthy();
+        expect(file.sha256).toMatch(/^[a-f0-9]{64}$/, 'sha256 should be valid hex');
       }
     });
 
     it('retention pruning respects recovery.retention.local_backups', () => {
-      const backupService = new BackupService(tmpDir);
-
       // Create required files
       fs.mkdirSync(path.join(tmpDir, '.planning', 'phases'), { recursive: true });
       fs.writeFileSync(path.join(tmpDir, '.planning', 'PROJECT.md'), '# Project\n');
@@ -163,25 +140,23 @@ describe('BackupService', () => {
       const backupsBefore = backupService.listBackups();
       // listBackups returns array of objects with 'name' property
       const backupCount = Array.isArray(backupsBefore) ? backupsBefore.length : 0;
-      assert.ok(backupCount >= 5, `should have 5+ backups before pruning, got ${backupCount}`);
+      expect(backupCount >= 5).toBeTruthy();
 
       // Prune to keep only 3
       const pruneResult = backupService.pruneBackups(3);
 
       // pruneResult.pruned is an array of pruned backup names
-      assert.ok(Array.isArray(pruneResult.pruned), 'pruned should be an array');
-      assert.strictEqual(pruneResult.pruned.length, backupsBefore.length - 3, `should prune ${backupsBefore.length - 3} backups`);
+      expect(Array.isArray(pruneResult.pruned)).toBeTruthy();
+      expect(pruneResult.pruned.length).toBe(backupsBefore.length - 3, `should prune ${backupsBefore.length - 3} backups`);
 
       const backupsAfter = backupService.listBackups();
       const afterCount = Array.isArray(backupsAfter) ? backupsAfter.length : 0;
-      assert.strictEqual(afterCount, 3);
+      expect(afterCount).toBe(3);
     });
   });
 
   describe('verifyBackup()', () => {
     it('succeeds when checksums match', () => {
-      const backupService = new BackupService(tmpDir);
-
       // Create required files
       fs.mkdirSync(path.join(tmpDir, '.planning', 'phases'), { recursive: true });
       fs.writeFileSync(path.join(tmpDir, '.planning', 'PROJECT.md'), '# Project\n');
@@ -190,12 +165,10 @@ describe('BackupService', () => {
 
       // Verify should succeed
       const verification = backupService.verifyBackup(result.backupDir);
-      assert.strictEqual(verification.valid, true);
+      expect(verification.valid).toBe(true);
     });
 
     it('fails on checksum mismatch', () => {
-      const backupService = new BackupService(tmpDir);
-
       // Create required files
       fs.mkdirSync(path.join(tmpDir, '.planning', 'phases'), { recursive: true });
       const testFile = path.join(tmpDir, '.planning', 'PROJECT.md');
@@ -209,9 +182,9 @@ describe('BackupService', () => {
 
       // Verify should return invalid result (not throw)
       const verification = backupService.verifyBackup(result.backupDir);
-      assert.strictEqual(verification.valid, false);
-      assert.ok(verification.errors.length > 0, 'should have errors');
-      assert.ok(verification.errors.some(e => e.includes('Checksum mismatch')), 'should have checksum mismatch error');
+      expect(verification.valid).toBe(false);
+      expect(verification.errors.length > 0).toBeTruthy();
+      expect(verification.errors.some(e => e.includes('Checksum mismatch'))).toBeTruthy();
     });
   });
 });

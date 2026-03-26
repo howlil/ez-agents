@@ -10,7 +10,10 @@ commands.html
 
 # Build artifacts (committed to npm, not git)
 hooks/dist/
+
+# OAuth credentials (NEVER commit)
 QWEN.md
+oauth_creds.json
 
 # Coverage artifacts
 coverage/
@@ -45,3 +48,19 @@ bin/lib/builder/
 bin/lib/observer/
 bin/lib/repositories/
 bin/lib/services/
+
+# Temporary test directories
+Directory created/
+Directory exists/
+-p/
+
+# Test result artifacts (keep only latest)
+tests/staging/results/*.json
+!tests/staging/results/qwen-code-battle-report.json
+!tests/staging/results/qwen-code-simple-result.json
+
+# Old test scripts
+run-all-tests.bat
+run-all-tests.ps1
+HOW_TO_RUN_TESTS.md
+STAGING_QUICKSTART.md

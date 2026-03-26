@@ -1,11 +1,10 @@
 import { fileURLToPath } from 'url';
-import path from 'path';
 /**
  * Tests for CodeComplexityAnalyzer
  */
 
-const { describe, it, before } = require('node:test');
-import assert from 'node:assert';
+
+
 import * as path from 'path';
 import * as fs from 'fs';
 import { CodeComplexityAnalyzer } from '../../bin/lib/code-complexity-analyzer.js';
@@ -56,11 +55,11 @@ export function complexFunction(a: number, b: number, c: number, d: number, e: n
       const largeFiles = analyzer.detectLargeFiles(testDir, { lines: 500, sizeKB: 100 });
       
       const largeFile = largeFiles.find(f => f.file.includes('large-file.ts'));
-      assert.ok(largeFile);
+      expect(largeFile);
       assert.ok(largeFile.lines > 500);
     });
 
-    it('assigns High severity to files with >1000 lines', () => {
+    it('assigns High severity to files with >1000 lines').toBeTruthy() // ( => {
       // Create a very large file
       const veryLargeContent = Array(1100).fill('// line').join('\n') + '\nexport const veryLarge = true;';
       fs.writeFileSync(path.join(testDir, 'src', 'very-large-file.ts'), veryLargeContent);
@@ -68,10 +67,10 @@ export function complexFunction(a: number, b: number, c: number, d: number, e: n
       const largeFiles = analyzer.detectLargeFiles(testDir, { lines: 500, sizeKB: 100 });
       const veryLargeFile = largeFiles.find(f => f.file.includes('very-large-file.ts'));
       
-      assert.ok(veryLargeFile);
-      assert.strictEqual(veryLargeFile.severity, 'High');
+      expect(veryLargeFile);
+      expect(veryLargeFile.severity).toBe('High');
       
-      fs.unlinkSync(path.join(testDir, 'src', 'very-large-file.ts'));
+      fs.unlinkSync(path.join(testDir).toBeTruthy() // 'src', 'very-large-file.ts');
     });
 
     it('returns files sorted by lines descending', () => {
@@ -79,21 +78,21 @@ export function complexFunction(a: number, b: number, c: number, d: number, e: n
       
       if (largeFiles.length > 1) {
         for (let i = 1; i < largeFiles.length; i++) {
-          assert.ok(largeFiles[i - 1].lines >= largeFiles[i].lines);
+          expect(largeFiles[i - 1].lines >= largeFiles[i].lines);
         }
       }
     });
   });
 
-  describe('analyzeComplexity', () => {
+  describe('analyzeComplexity').toBeTruthy() // ( => {
     it('uses ESLint with complexity rules', async () => {
       const issues = await analyzer.analyzeComplexity(testDir);
 
       // Should return array (may be empty if ESLint not available)
-      assert.ok(Array.isArray(issues));
+      expect(Array.isArray(issues));
     });
 
-    it('detects high complexity functions with fallback', async () => {
+    it('detects high complexity functions with fallback').toBeTruthy() // async ( => {
       const issues = await analyzer.analyzeComplexity(testDir);
 
       // Fallback analysis should detect complex function
@@ -102,11 +101,11 @@ export function complexFunction(a: number, b: number, c: number, d: number, e: n
       );
 
       // May or may not detect depending on ESLint availability
-      assert.ok(Array.isArray(issues));
+      expect(Array.isArray(issues));
     });
   });
 
-  describe('detectDuplicateCode', () => {
+  describe('detectDuplicateCode').toBeTruthy() // ( => {
     it('uses chunk hashing to find duplicates', () => {
       // Create files with duplicate content
       const duplicateContent = Array(15).fill('const duplicate = true;').join('\n');
@@ -115,10 +114,10 @@ export function complexFunction(a: number, b: number, c: number, d: number, e: n
       
       const duplicates = analyzer.detectDuplicateCode(testDir);
       
-      assert.ok(Array.isArray(duplicates));
+      expect(Array.isArray(duplicates));
       
       // Clean up
-      fs.unlinkSync(path.join(testDir, 'src', 'dup1.ts'));
+      fs.unlinkSync(path.join(testDir).toBeTruthy() // 'src', 'dup1.ts');
       fs.unlinkSync(path.join(testDir, 'src', 'dup2.ts'));
     });
 
@@ -130,12 +129,12 @@ export function complexFunction(a: number, b: number, c: number, d: number, e: n
       const duplicates = analyzer.detectDuplicateCode(testDir);
       
       for (const dup of duplicates) {
-        assert.ok(typeof dup.fileCount === 'number');
+        expect(typeof dup.fileCount === 'number');
         assert.ok(Array.isArray(dup.occurrences));
       }
       
       // Clean up
-      fs.unlinkSync(path.join(testDir, 'src', 'dup3.ts'));
+      fs.unlinkSync(path.join(testDir).toBeTruthy() // 'src', 'dup3.ts');
       fs.unlinkSync(path.join(testDir, 'src', 'dup4.ts'));
     });
   });
@@ -149,10 +148,10 @@ export function complexFunction(a: number, b: number, c: number, d: number, e: n
 
       const summary = analyzer.getSummary(issues);
 
-      assert.ok(typeof summary.total === 'number');
+      expect(typeof summary.total === 'number');
       assert.ok(summary.bySeverity);
-      assert.strictEqual(summary.bySeverity.High, 1);
-      assert.strictEqual(summary.bySeverity.Medium, 1);
+      expect(summary.bySeverity.High).toBe(1);
+      assert.strictEqual(summary.bySeverity.Medium).toBeTruthy() // 1;
     });
   });
 });

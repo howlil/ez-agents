@@ -133,3 +133,23 @@ export async function runTestsWithCounters(testFn: (context: {
     }
   }
 }
+
+/**
+ * Type guard to check if an error has a code property.
+ * @param err - Unknown error from catch block
+ * @returns True if error is an Error with a code property
+ */
+export function isErrorWithCode(err: unknown): err is Error & { code: string } {
+  return err instanceof Error && 'code' in err && typeof err.code === 'string';
+}
+
+/**
+ * Assert that a value is an Error.
+ * @param err - Unknown error from catch block
+ * @throws If err is not an Error
+ */
+export function assertError(err: unknown): asserts err is Error {
+  if (!(err instanceof Error)) {
+    throw new Error(`Expected Error but got ${typeof err}`);
+  }
+}

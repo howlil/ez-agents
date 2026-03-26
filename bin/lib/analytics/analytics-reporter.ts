@@ -53,8 +53,8 @@ export interface AnalyticsReport {
 }
 
 export class AnalyticsReporter {
-  private cwd: string;
-  private reportsDir: string;
+  private readonly cwd: string;
+  private readonly reportsDir: string;
 
   constructor(cwd?: string) {
     this.cwd = cwd || process.cwd();

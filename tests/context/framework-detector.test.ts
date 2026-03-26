@@ -1,11 +1,10 @@
 import { fileURLToPath } from 'url';
-import path from 'path';
 /**
  * Framework Detector Tests
  * Tests for FrameworkDetector class
  */
 
-const { describe, it, before } = require('node:test');
+
 const { strict: assert } = require('assert');
 import * as path from 'path';
 import * as fs from 'fs';
@@ -24,31 +23,32 @@ describe('FrameworkDetector', () => {
     const configs = detector.detectFromConfig(testRoot);
     
     // Check if tsconfig is detected (if it exists in test fixture)
-    assert.ok(configs, 'Should return configs object');
+    expect(configs).toBeTruthy() // 'Should return configs object';
   });
 
   it('detectFromConfig finds jest when jest.config.js exists', () => {
     const configs = detector.detectFromConfig(testRoot);
     
-    assert.ok(configs, 'Should return configs object');
+    expect(configs).toBeTruthy() // 'Should return configs object';
     // Jest config detection depends on fixture
   });
 
   it('detectFromConfig finds docker when Dockerfile exists', () => {
     const configs = detector.detectFromConfig(testRoot);
     
-    assert.ok(configs, 'Should return configs object');
+    expect(configs).toBeTruthy() // 'Should return configs object';
     // Docker detection depends on fixture
   });
 
   it('detectFromConfig returns object with framework keys', () => {
     const configs = detector.detectFromConfig(testRoot);
-    
-    assert.ok(typeof configs === 'object', 'Should return object');
+
+    expect(typeof configs === 'object').toBeTruthy() // 'Should return object';
     // Each detected framework should have config, path, confidence
     for (const [framework, info] of Object.entries(configs)) {
-      assert.ok(info.path, `Framework ${framework} should have path`);
-      assert.ok(info.confidence, `Framework ${framework} should have confidence`);
+      const frameworkInfo = info as { path?: string; confidence?: number };
+      expect(frameworkInfo.path).toBeTruthy() // `Framework ${framework} should have path`;
+      expect(frameworkInfo.confidence).toBeTruthy() // `Framework ${framework} should have confidence`;
     }
   });
 
@@ -60,7 +60,7 @@ describe('FrameworkDetector', () => {
       import { useState } from 'react';
       
       export function Component() {
-        const [state, setState] = useState(null);
+        const [state, setState] = useState(undefined);
         return <div>{state}</div>;
       }
     `;
@@ -69,7 +69,7 @@ describe('FrameworkDetector', () => {
     
     const imports = detector.detectFromImports([testFile]);
     
-    assert.ok(imports.React || imports['React'], 'Should detect React');
+    expect(imports.React || imports['React']).toBeTruthy() // 'Should detect React';
     
     // Cleanup
     fs.unlinkSync(testFile);
@@ -89,7 +89,7 @@ describe('FrameworkDetector', () => {
     
     const imports = detector.detectFromImports([testFile]);
     
-    assert.ok(imports['Next.js'], 'Should detect Next.js');
+    expect(imports['Next.js']).toBeTruthy() // 'Should detect Next.js';
     
     // Cleanup
     fs.unlinkSync(testFile);
@@ -110,7 +110,7 @@ describe('FrameworkDetector', () => {
     
     const imports = detector.detectFromImports([testFile]);
     
-    assert.ok(imports.Express, 'Should detect Express');
+    expect(imports.Express).toBeTruthy() // 'Should detect Express';
     
     // Cleanup
     fs.unlinkSync(testFile);
@@ -133,8 +133,8 @@ describe('FrameworkDetector', () => {
     
     const imports = detector.detectFromImports([testFile]);
     
-    assert.ok(imports.React || imports['React'], 'Should detect React');
-    assert.ok(imports['Next.js'], 'Should detect Next.js');
+    expect(imports.React || imports['React']).toBeTruthy() // 'Should detect React';
+    expect(imports['Next.js']).toBeTruthy() // 'Should detect Next.js';
     
     // Cleanup
     fs.unlinkSync(testFile);
@@ -152,8 +152,8 @@ describe('FrameworkDetector', () => {
     
     const imports = detector.detectFromImports([testFile]);
     
-    assert.ok(typeof imports === 'object', 'Should return object');
-    assert.strictEqual(Object.keys(imports).length, 0, 'Should have no frameworks');
+    expect(typeof imports === 'object').toBeTruthy() // 'Should return object';
+    expect(Object.keys(imports).length).toBe(0, 'Should have no frameworks');
     
     // Cleanup
     fs.unlinkSync(testFile);
@@ -164,7 +164,7 @@ describe('FrameworkDetector', () => {
     const testContent = `
       import React, { createContext, useContext } from 'react';
       
-      const MyContext = createContext(null);
+      const MyContext = createContext(undefined);
       
       function MyComponent() {
         const value = useContext(MyContext);
@@ -176,8 +176,8 @@ describe('FrameworkDetector', () => {
     
     const patterns = detector.detectFrameworkPatterns([testFile]);
     
-    assert.ok(patterns.React, 'Should detect React patterns');
-    assert.ok(patterns.React.total > 0, 'Should have match count');
+    expect(patterns.React).toBeTruthy() // 'Should detect React patterns';
+    expect(patterns.React.total > 0).toBeTruthy() // 'Should have match count';
     
     // Cleanup
     fs.unlinkSync(testFile);
@@ -186,11 +186,11 @@ describe('FrameworkDetector', () => {
   it('analyze returns comprehensive framework analysis', () => {
     const result = detector.analyze(testRoot);
     
-    assert.ok(result, 'Should return analysis result');
-    assert.ok(result.frameworks, 'Should have frameworks');
-    assert.ok(result.summary, 'Should have summary');
-    assert.ok(typeof result.summary.total === 'number', 'Should have total count');
-    assert.ok(result.summary.byConfidence, 'Should have confidence breakdown');
+    expect(result).toBeTruthy() // 'Should return analysis result';
+    expect(result.frameworks).toBeTruthy() // 'Should have frameworks';
+    expect(result.summary).toBeTruthy() // 'Should have summary';
+    expect(typeof result.summary.total === 'number').toBeTruthy() // 'Should have total count';
+    expect(result.summary.byConfidence).toBeTruthy() // 'Should have confidence breakdown';
   });
 });
 

@@ -64,8 +64,8 @@ export interface ContextItem {
  * ContextRelevanceScorer class for scoring context relevance
  */
 export class ContextRelevanceScorer {
-  private defaultWeights: ScoringWeights;
-  private task: string;
+  private readonly defaultWeights: ScoringWeights;
+  private readonly task: string;
 
   /**
    * Create a ContextRelevanceScorer instance

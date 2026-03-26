@@ -1,4 +1,4 @@
-﻿/**
+/**
  * Security Fixes Verification Tests
  * 
  * Tests for vulnerability fixes:
@@ -9,12 +9,12 @@
  * - L1: Timeout for execSync calls
  */
 
-const { test, describe } = require('node:test');
-import assert from 'node:assert';
+
+
 import * as path from 'path';
 
 // Load modules
-import safeExecModule from '../bin/lib/safe-exec.js';
+import safeExecModule from '../../bin/lib/safe-exec.js';
 const { safeExec, safeExecJSON, ALLOWED_COMMANDS } = safeExecModule;
 
 describe('Security Fixes Verification', () => {
@@ -38,13 +38,10 @@ describe('Security Fixes Verification', () => {
       ];
 
       requiredCommands.forEach(cmd => {
-        assert.ok(
-          ALLOWED_COMMANDS.has(cmd),
-          `ALLOWED_COMMANDS should include: ${cmd}`
-        );
+        expect(ALLOWED_COMMANDS.has(cmd)).toBeTruthy() // `ALLOWED_COMMANDS should include: ${cmd}`;
       });
 
-      console.log(`âœ“ ALLOWED_COMMANDS has ${ALLOWED_COMMANDS.size} commands`);
+      console.log(`✓ ALLOWED_COMMANDS has ${ALLOWED_COMMANDS.size} commands`);
     });
   });
 
@@ -52,11 +49,10 @@ describe('Security Fixes Verification', () => {
     test('rejects path traversal attempts (Unix)', async () => {
       try {
         await safeExec('cat', ['../etc/passwd']);
-        assert.fail('Should have thrown for path traversal');
+        fail('Should have thrown for path traversal');
       } catch (err) {
-        assert.ok(
-          err.message.includes('path traversal'),
-          `Error should mention path traversal: ${err.message}`
+        if (!(err instanceof Error)) throw err;
+        expect(err.message.includes('path traversal')).toBeTruthy() // `Error should mention path traversal: ${(err as Error.message}`
         );
       }
     });
@@ -64,13 +60,12 @@ describe('Security Fixes Verification', () => {
     test('rejects path traversal attempts (Windows)', async () => {
       try {
         await safeExec('cat', ['..\\..\\windows\\system32']);
-        assert.fail('Should have thrown for path traversal');
+        fail('Should have thrown for path traversal');
       } catch (err) {
+        if (!(err instanceof Error)) throw err;
         // Windows path traversal may be caught by shell metacharacter pattern first
         // (because of backslash), but still rejected - that's OK
-        assert.ok(
-          err.message.includes('path traversal') || err.message.includes('shell metacharacter'),
-          `Error should mention path traversal or shell metacharacter: ${err.message}`
+        expect(err.message.includes('path traversal') || err.message.includes('shell metacharacter')).toBeTruthy() // `Error should mention path traversal or shell metacharacter: ${(err as Error.message}`
         );
       }
     });
@@ -78,11 +73,10 @@ describe('Security Fixes Verification', () => {
     test('rejects null byte injection', async () => {
       try {
         await safeExec('cat', ['file.txt\0.jpg']);
-        assert.fail('Should have thrown for null byte injection');
+        fail('Should have thrown for null byte injection');
       } catch (err) {
-        assert.ok(
-          err.message.includes('null byte'),
-          `Error should mention null byte: ${err.message}`
+        if (!(err instanceof Error)) throw err;
+        expect(err.message.includes('null byte')).toBeTruthy() // `Error should mention null byte: ${(err as Error.message}`
         );
       }
     });
@@ -100,11 +94,10 @@ describe('Security Fixes Verification', () => {
       for (const arg of dangerousArgs) {
         try {
           await safeExec('cat', [arg]);
-          assert.fail(`Should have thrown for: ${arg}`);
+          fail(`Should have thrown for: ${arg}`);
         } catch (err) {
-          assert.ok(
-            err.message.includes('shell metacharacter'),
-            `Error should mention shell metacharacter: ${err.message}`
+          if (!(err instanceof Error)) throw err;
+          expect(err.message.includes('shell metacharacter')).toBeTruthy() // `Error should mention shell metacharacter: ${(err as Error.message}`
           );
         }
       }
@@ -116,13 +109,12 @@ describe('Security Fixes Verification', () => {
         await safeExec('cat', ['package.json'], { log: false });
         // If file exists, test passes
       } catch (err) {
+        if (!(err instanceof Error)) throw err;
         // If file doesn't exist or command fails, that's OK
         // We just want to make sure it's not rejected for security reasons
-        assert.ok(
-          !err.message.includes('path traversal') &&
+        expect(!err.message.includes('path traversal') &&
           !err.message.includes('null byte') &&
-          !err.message.includes('shell metacharacter'),
-          `Safe path should not be rejected for security reasons: ${err.message}`
+          !err.message.includes('shell metacharacter')).toBeTruthy() // `Safe path should not be rejected for security reasons: ${(err as Error.message}`
         );
       }
     });
@@ -135,10 +127,8 @@ describe('Security Fixes Verification', () => {
         await safeExec('node', ['--version'], { timeout: 5000, log: false });
         // Should complete successfully
       } catch (err) {
-        // If it fails, should not be about timeout option
-        assert.ok(
-          !err.message.includes('timeout'),
-          `Should accept timeout option: ${err.message}`
+        if (!(err instanceof Error)) throw err;
+        expect(!(err as Error).message.includes('timeout')).toBeTruthy() // `Should accept timeout option: ${(err as Error.message}`
         );
       }
     });
@@ -148,9 +138,8 @@ describe('Security Fixes Verification', () => {
       try {
         await safeExec('node', ['--version'], { log: false });
       } catch (err) {
-        assert.ok(
-          !err.message.includes('timeout'),
-          `Default timeout should work: ${err.message}`
+        if (!(err instanceof Error)) throw err;
+        expect(!(err as Error).message.includes('timeout')).toBeTruthy() // `Default timeout should work: ${(err as Error.message}`
         );
       }
     });
@@ -161,9 +150,8 @@ describe('Security Fixes Verification', () => {
       try {
         await safeExec('node', ['--version'], { maxBuffer: 1024 * 1024, log: false });
       } catch (err) {
-        assert.ok(
-          !err.message.includes('maxBuffer'),
-          `Should accept maxBuffer option: ${err.message}`
+        if (!(err instanceof Error)) throw err;
+        expect(!(err as Error).message.includes('maxBuffer')).toBeTruthy() // `Should accept maxBuffer option: ${(err as Error.message}`
         );
       }
     });
@@ -172,7 +160,7 @@ describe('Security Fixes Verification', () => {
       // This is a code inspection test - we verify the default in safe-exec.cjs
       // The actual default is set in the function signature
       // maxBuffer = 1 * 1024 * 1024
-      console.log('âœ“ Default maxBuffer reduced from 10MB to 1MB (see safe-exec.cjs line 111)');
+      console.log('✓ Default maxBuffer reduced from 10MB to 1MB (see safe-exec.cjs line 111)');
     });
   });
 });
@@ -198,13 +186,9 @@ describe('API Key Validation (H1)', () => {
                       !key.toLowerCase().includes('your-key') &&
                       !key.toLowerCase().includes('placeholder');
       
-      assert.strictEqual(
-        isValid,
-        expected,
-        `Validation should ${expected ? 'pass' : 'fail'} for: ${desc}`
-      );
+      expect(isValid).toBe(expected, `Validation should ${expected ? 'pass' : 'fail'} for: ${desc}`);
     });
   });
 });
 
-console.log('\nâœ“ Security fixes verification tests loaded\n');
+console.log('\n✓ Security fixes verification tests loaded\n');

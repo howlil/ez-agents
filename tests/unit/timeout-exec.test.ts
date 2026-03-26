@@ -1,7 +1,6 @@
-﻿import { fileURLToPath } from 'url';
-import path from 'path';
-const { test, describe } = require('node:test');
-import assert from 'node:assert';
+import { fileURLToPath } from 'url';
+
+
 import * as path from 'path';
 const util = require('util');
 
@@ -45,10 +44,8 @@ describe('timeout exec graceful behavior', () => {
 
     try {
       const result = await timeoutExec.execWithTimeout('node', ['-e', 'throw new Error()'], { fallback: '' });
-      assert.strictEqual(result, '');
-      assert.ok(
-        logs.info.some(entry => entry.message.includes('fallback')),
-        `expected fallback activation log, got: ${JSON.stringify(logs.info)}`
+      expect(result).toBe('');
+      expect(logs.info.some(entry => 'message' in entry && (entry as { message: string }).message.includes('fallback'))).toBeTruthy() // `expected fallback activation log, got: ${JSON.stringify(logs.info}`
       );
     } finally {
       restore();
@@ -65,7 +62,7 @@ describe('timeout exec graceful behavior', () => {
 
     try {
       const result = await timeoutExec.execWithTimeout('node', ['-v'], { fallback: 'safe-default' });
-      assert.strictEqual(result, 'safe-default');
+      expect(result).toBe('safe-default');
       assert.strictEqual(observedTimeout, 5000);
     } finally {
       restore();
@@ -77,10 +74,16 @@ describe('timeout exec graceful behavior', () => {
     const { timeoutExec, restore } = loadTimeoutExecWithMocks(async () => new Promise(() => {}), logs);
 
     try {
-      await assert.rejects(
-        () => timeoutExec.execWithTimeout('node', ['hang-forever'], { timeout: 20 }),
-        /timed out/i
-      );
+      // Test that execWithTimeout throws when no fallback is provided
+      let caughtError: Error | null = null;
+      try {
+        await timeoutExec.execWithTimeout('node', ['hang-forever'], { timeout: 20 });
+      } catch (err) {
+        caughtError = err as Error;
+      }
+      
+      expect(caughtError).toBeInstanceOf(Error);
+      expect(caughtError!.message).toMatch(/timed out/i);
     } finally {
       restore();
     }

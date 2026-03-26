@@ -294,5 +294,5 @@ export async function executeGate3(context: z.infer<typeof gateContextSchema>): 
  * @param gateCoordinator - QualityGate coordinator instance
  */
 export function registerGate3(gateCoordinator: { registerGate: (name: string, schema: z.ZodSchema, executor: (ctx: unknown) => Promise<GateResult>) => void }): void {
-  gateCoordinator.registerGate('gate-03-code', gateContextSchema, executeGate3);
+  gateCoordinator.registerGate('gate-03-code', gateContextSchema, (ctx: unknown) => executeGate3(ctx as z.infer<typeof gateContextSchema>));
 }

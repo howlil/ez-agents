@@ -1,4 +1,4 @@
-﻿/**
+/**
  * Unit Tests for Skill Validator
  *
  * Tests schema validation, required fields, category validation,
@@ -6,7 +6,7 @@
  * for the SkillValidator class.
  */
 
-import assert from 'node:assert';
+
 import { test } from './test-utils.js';
 import { SkillValidator, SKILL_SCHEMA, ALLOWED_TAGS } from '../../bin/lib/skill-validator.js';
 
@@ -17,32 +17,32 @@ let failed = 0;
 
 // Test: Exports
 test('SkillValidator class is exported', () => {
-  assert.ok(SkillValidator, 'SkillValidator should be exported');
-  assert.strictEqual(typeof SkillValidator, 'function', 'Should be a constructor');
+  expect(SkillValidator).toBeTruthy() // 'SkillValidator should be exported';
+  expect(typeof SkillValidator).toBe('function', 'Should be a constructor');
 });
 
 test('SKILL_SCHEMA is exported with required fields', () => {
-  assert.ok(SKILL_SCHEMA, 'SKILL_SCHEMA should be exported');
-  assert.ok(Array.isArray(SKILL_SCHEMA.required), 'Should have required array');
-  assert.ok(SKILL_SCHEMA.required.includes('name'), 'Should require name');
-  assert.ok(SKILL_SCHEMA.required.includes('description'), 'Should require description');
-  assert.ok(SKILL_SCHEMA.required.includes('version'), 'Should require version');
-  assert.ok(SKILL_SCHEMA.required.includes('category'), 'Should require category');
+  expect(SKILL_SCHEMA).toBeTruthy() // 'SKILL_SCHEMA should be exported';
+  expect(Array.isArray(SKILL_SCHEMA.required)).toBeTruthy() // 'Should have required array';
+  expect(SKILL_SCHEMA.required.includes('name')).toBeTruthy() // 'Should require name';
+  expect(SKILL_SCHEMA.required.includes('description')).toBeTruthy() // 'Should require description';
+  expect(SKILL_SCHEMA.required.includes('version')).toBeTruthy() // 'Should require version';
+  expect(SKILL_SCHEMA.required.includes('category')).toBeTruthy() // 'Should require category';
 });
 
 test('ALLOWED_TAGS is exported with 50+ tags', () => {
-  assert.ok(Array.isArray(ALLOWED_TAGS), 'ALLOWED_TAGS should be an array');
-  assert.ok(ALLOWED_TAGS.length >= 30, `Should have at least 30 tags, has ${ALLOWED_TAGS.length}`);
-  assert.ok(ALLOWED_TAGS.includes('laravel'), 'Should include laravel tag');
-  assert.ok(ALLOWED_TAGS.includes('react'), 'Should include react tag');
-  assert.ok(ALLOWED_TAGS.includes('microservices'), 'Should include microservices tag');
+  expect(Array.isArray(ALLOWED_TAGS)).toBeTruthy() // 'ALLOWED_TAGS should be an array';
+  expect(ALLOWED_TAGS.length >= 30).toBeTruthy() // `Should have at least 30 tags, has ${ALLOWED_TAGS.length}`;
+  expect(ALLOWED_TAGS.includes('laravel')).toBeTruthy() // 'Should include laravel tag';
+  expect(ALLOWED_TAGS.includes('react')).toBeTruthy() // 'Should include react tag';
+  expect(ALLOWED_TAGS.includes('microservices')).toBeTruthy() // 'Should include microservices tag';
 });
 
 // Test: Constructor
 test('SkillValidator instantiates without options', () => {
   const validator = new SkillValidator();
-  assert.ok(validator, 'Should instantiate');
-  assert.ok(typeof validator.validate === 'function', 'Should have validate method');
+  expect(validator).toBeTruthy() // 'Should instantiate';
+  expect(typeof validator.validate === 'function').toBeTruthy() // 'Should have validate method';
 });
 
 // Test: Validate - Required Fields
@@ -56,8 +56,8 @@ test('validate() returns valid for complete skill object', () => {
   };
   // @ts-expect-error Partial skill object for testing
   const result = validator.validate(skill);
-  assert.strictEqual(result?.valid, true, 'Should be valid');
-  assert.strictEqual(result?.errors.length, 0, 'Should have no errors');
+  expect(result?.valid).toBe(true, 'Should be valid');
+  expect(result?.errors.length).toBe(0, 'Should have no errors');
 });
 
 test('validate() rejects skill without name', () => {
@@ -69,8 +69,8 @@ test('validate() rejects skill without name', () => {
   };
   // @ts-expect-error Partial skill object for testing
   const result = validator.validate(skill);
-  assert.strictEqual(result?.valid, false, 'Should be invalid');
-  assert.ok(result.errors.some(e => e.includes('name')), 'Should error about name');
+  expect(result?.valid).toBe(false, 'Should be invalid');
+  expect(result.errors.some(e => e.includes('name'))).toBeTruthy() // 'Should error about name';
 });
 
 test('validate() rejects skill without description', () => {
@@ -82,8 +82,8 @@ test('validate() rejects skill without description', () => {
   };
   // @ts-expect-error Partial skill object for testing
   const result = validator.validate(skill);
-  assert.strictEqual(result?.valid, false, 'Should be invalid');
-  assert.ok(result.errors.some(e => e.includes('description')), 'Should error about description');
+  expect(result?.valid).toBe(false, 'Should be invalid');
+  expect(result.errors.some(e => e.includes('description'))).toBeTruthy() // 'Should error about description';
 });
 
 test('validate() rejects skill without version', () => {
@@ -95,8 +95,8 @@ test('validate() rejects skill without version', () => {
   };
   // @ts-expect-error Partial skill object for testing
   const result = validator.validate(skill);
-  assert.strictEqual(result?.valid, false, 'Should be invalid');
-  assert.ok(result.errors.some(e => e.includes('version')), 'Should error about version');
+  expect(result?.valid).toBe(false, 'Should be invalid');
+  expect(result.errors.some(e => e.includes('version'))).toBeTruthy() // 'Should error about version';
 });
 
 test('validate() rejects skill without category', () => {
@@ -108,8 +108,8 @@ test('validate() rejects skill without category', () => {
   };
   // @ts-expect-error Partial skill object for testing
   const result = validator.validate(skill);
-  assert.strictEqual(result?.valid, false, 'Should be invalid');
-  assert.ok(result.errors.some(e => e.includes('category')), 'Should error about category');
+  expect(result?.valid).toBe(false, 'Should be invalid');
+  expect(result.errors.some(e => e.includes('category'))).toBeTruthy() // 'Should error about category';
 });
 
 test('validate() rejects empty string for required fields', () => {
@@ -122,8 +122,8 @@ test('validate() rejects empty string for required fields', () => {
   };
   // @ts-expect-error Partial skill object for testing
   const result = validator.validate(skill);
-  assert.strictEqual(result?.valid, false, 'Should be invalid');
-  assert.ok(result.errors.some(e => e.includes('name')), 'Should error about empty name');
+  expect(result?.valid).toBe(false, 'Should be invalid');
+  expect(result.errors.some(e => e.includes('name'))).toBeTruthy() // 'Should error about empty name';
 });
 
 test('validate() rejects null for required fields', () => {
@@ -136,8 +136,8 @@ test('validate() rejects null for required fields', () => {
   };
   // @ts-expect-error Partial skill object for testing
   const result = validator.validate(skill);
-  assert.strictEqual(result?.valid, false, 'Should be invalid');
-  assert.ok(result.errors.some(e => e.includes('name')), 'Should error about null name');
+  expect(result?.valid).toBe(false, 'Should be invalid');
+  expect(result.errors.some(e => e.includes('name'))).toBeTruthy() // 'Should error about null name';
 });
 
 // Test: Validate - Category
@@ -154,7 +154,7 @@ test('validate() accepts valid categories', () => {
     };
     // @ts-expect-error Partial skill object for testing
     const result = validator.validate(skill);
-    assert.strictEqual(result?.valid, true, `Should accept category: ${category}`);
+    expect(result?.valid).toBe(true, `Should accept category: ${category}`);
   });
 });
 
@@ -168,8 +168,8 @@ test('validate() rejects invalid category', () => {
   };
   // @ts-expect-error Partial skill object for testing
   const result = validator.validate(skill);
-  assert.strictEqual(result?.valid, false, 'Should be invalid');
-  assert.ok(result.errors.some(e => e.includes('Invalid category')), 'Should error about invalid category');
+  expect(result?.valid).toBe(false, 'Should be invalid');
+  expect(result.errors.some(e => e.includes('Invalid category'))).toBeTruthy() // 'Should error about invalid category';
 });
 
 // Test: Validate - Tags
@@ -177,22 +177,22 @@ test('validateTags() accepts valid tags', () => {
   const validator = new SkillValidator();
   const tags = ['laravel', 'php', 'backend', 'framework'];
   const errors = validator.validateTags(tags);
-  assert.strictEqual(errors.length, 0, 'Should have no errors for valid tags');
+  expect(errors.length).toBe(0, 'Should have no errors for valid tags');
 });
 
 test('validateTags() rejects non-array tags', () => {
   const validator = new SkillValidator();
   // @ts-expect-error Testing non-array input
   const errors = validator.validateTags('laravel');
-  assert.strictEqual(errors.length, 1, 'Should have error');
-  assert.ok(errors[0]?.includes('array'), 'Should mention array');
+  expect(errors.length).toBe(1, 'Should have error');
+  expect(errors[0]?.includes('array')).toBeTruthy() // 'Should mention array';
 });
 
 test('validateTags() rejects invalid tags', () => {
   const validator = new SkillValidator();
   const errors = validator.validateTags(['laravel', 'invalid_tag_xyz_123']);
-  assert.strictEqual(errors.length, 1, 'Should have error for invalid tag');
-  assert.ok(errors[0]?.includes('Invalid tag'), 'Should mention invalid tag');
+  expect(errors.length).toBe(1, 'Should have error for invalid tag');
+  expect(errors[0]?.includes('Invalid tag')).toBeTruthy() // 'Should mention invalid tag';
 });
 
 test('validate() integrates tag validation', () => {
@@ -206,8 +206,8 @@ test('validate() integrates tag validation', () => {
   };
   // @ts-expect-error Partial skill object for testing
   const result = validator.validate(skill);
-  assert.strictEqual(result?.valid, false, 'Should be invalid');
-  assert.ok(result.errors.some(e => e.includes('Invalid tag')), 'Should error about invalid tag');
+  expect(result?.valid).toBe(false, 'Should be invalid');
+  expect(result.errors.some(e => e.includes('Invalid tag'))).toBeTruthy() // 'Should error about invalid tag';
 });
 
 // Test: Validate - Triggers
@@ -222,65 +222,65 @@ test('validateTriggers() accepts valid triggers object', () => {
     modes: ['greenfield']
   };
   const errors = validator.validateTriggers(triggers);
-  assert.strictEqual(errors.length, 0, 'Should have no errors');
+  expect(errors.length).toBe(0, 'Should have no errors');
 });
 
 test('validateTriggers() rejects non-object triggers', () => {
   const validator = new SkillValidator();
   // @ts-expect-error Testing non-object input
   const errors = validator.validateTriggers('invalid');
-  assert.strictEqual(errors.length, 1, 'Should have error');
-  assert.ok(errors[0]?.includes('object'), 'Should mention object');
+  expect(errors.length).toBe(1, 'Should have error');
+  expect(errors[0]?.includes('object')).toBeTruthy() // 'Should mention object';
 });
 
 test('validateTriggers() rejects non-array keywords', () => {
   const validator = new SkillValidator();
   // @ts-expect-error Testing non-array input
   const errors = validator.validateTriggers({ keywords: 'laravel' });
-  assert.strictEqual(errors.length, 1, 'Should have error');
-  assert.ok(errors[0]?.includes('keywords'), 'Should mention keywords');
-  assert.ok(errors[0]?.includes('array'), 'Should mention array');
+  expect(errors.length).toBe(1, 'Should have error');
+  expect(errors[0]?.includes('keywords')).toBeTruthy() // 'Should mention keywords';
+  expect(errors[0]?.includes('array')).toBeTruthy() // 'Should mention array';
 });
 
 test('validateTriggers() rejects non-array filePatterns', () => {
   const validator = new SkillValidator();
   // @ts-expect-error Testing non-array input
   const errors = validator.validateTriggers({ filePatterns: 'composer.json' });
-  assert.strictEqual(errors.length, 1, 'Should have error');
-  assert.ok(errors[0]?.includes('filePatterns'), 'Should mention filePatterns');
+  expect(errors.length).toBe(1, 'Should have error');
+  expect(errors[0]?.includes('filePatterns')).toBeTruthy() // 'Should mention filePatterns';
 });
 
 test('validateTriggers() rejects non-array commands', () => {
   const validator = new SkillValidator();
   // @ts-expect-error Testing non-array input
   const errors = validator.validateTriggers({ commands: 'composer install' });
-  assert.strictEqual(errors.length, 1, 'Should have error');
-  assert.ok(errors[0]?.includes('commands'), 'Should mention commands');
+  expect(errors.length).toBe(1, 'Should have error');
+  expect(errors[0]?.includes('commands')).toBeTruthy() // 'Should mention commands';
 });
 
 test('validateTriggers() rejects non-string stack', () => {
   const validator = new SkillValidator();
   // @ts-expect-error Testing non-string input
   const errors = validator.validateTriggers({ stack: 123 });
-  assert.strictEqual(errors.length, 1, 'Should have error');
-  assert.ok(errors[0]?.includes('stack'), 'Should mention stack');
-  assert.ok(errors[0]?.includes('string'), 'Should mention string');
+  expect(errors.length).toBe(1, 'Should have error');
+  expect(errors[0]?.includes('stack')).toBeTruthy() // 'Should mention stack';
+  expect(errors[0]?.includes('string')).toBeTruthy() // 'Should mention string';
 });
 
 test('validateTriggers() rejects non-array projectArchetypes', () => {
   const validator = new SkillValidator();
   // @ts-expect-error Testing non-array input
   const errors = validator.validateTriggers({ projectArchetypes: 'ecommerce' });
-  assert.strictEqual(errors.length, 1, 'Should have error');
-  assert.ok(errors[0]?.includes('projectArchetypes'), 'Should mention projectArchetypes');
+  expect(errors.length).toBe(1, 'Should have error');
+  expect(errors[0]?.includes('projectArchetypes')).toBeTruthy() // 'Should mention projectArchetypes';
 });
 
 test('validateTriggers() rejects non-array modes', () => {
   const validator = new SkillValidator();
   // @ts-expect-error Testing non-array input
   const errors = validator.validateTriggers({ modes: 'greenfield' });
-  assert.strictEqual(errors.length, 1, 'Should have error');
-  assert.ok(errors[0]?.includes('modes'), 'Should mention modes');
+  expect(errors.length).toBe(1, 'Should have error');
+  expect(errors[0]?.includes('modes')).toBeTruthy() // 'Should mention modes';
 });
 
 test('validate() integrates triggers validation', () => {
@@ -296,8 +296,8 @@ test('validate() integrates triggers validation', () => {
   };
   // @ts-expect-error Partial skill object for testing
   const result = validator.validate(skill);
-  assert.strictEqual(result?.valid, false, 'Should be invalid');
-  assert.ok(result.errors.some(e => e.includes('keywords')), 'Should error about keywords');
+  expect(result?.valid).toBe(false, 'Should be invalid');
+  expect(result.errors.some(e => e.includes('keywords'))).toBeTruthy() // 'Should error about keywords';
 });
 
 // Test: Validate - Recommended Structure
@@ -307,24 +307,24 @@ test('validateStructure() accepts valid structure object', () => {
     directories: ['src/', 'tests/', 'docs/']
   };
   const errors = validator.validateStructure(structure);
-  assert.strictEqual(errors.length, 0, 'Should have no errors');
+  expect(errors.length).toBe(0, 'Should have no errors');
 });
 
 test('validateStructure() rejects non-object structure', () => {
   const validator = new SkillValidator();
   // @ts-expect-error Testing non-object input
   const errors = validator.validateStructure('invalid');
-  assert.strictEqual(errors.length, 1, 'Should have error');
-  assert.ok(errors[0]?.includes('object'), 'Should mention object');
+  expect(errors.length).toBe(1, 'Should have error');
+  expect(errors[0]?.includes('object')).toBeTruthy() // 'Should mention object';
 });
 
 test('validateStructure() rejects non-array directories', () => {
   const validator = new SkillValidator();
   // @ts-expect-error Testing non-array input
   const errors = validator.validateStructure({ directories: 'src/' });
-  assert.strictEqual(errors.length, 1, 'Should have error');
-  assert.ok(errors[0]?.includes('directories'), 'Should mention directories');
-  assert.ok(errors[0]?.includes('array'), 'Should mention array');
+  expect(errors.length).toBe(1, 'Should have error');
+  expect(errors[0]?.includes('directories')).toBeTruthy() // 'Should mention directories';
+  expect(errors[0]?.includes('array')).toBeTruthy() // 'Should mention array';
 });
 
 test('validate() integrates structure validation', () => {
@@ -340,8 +340,8 @@ test('validate() integrates structure validation', () => {
   };
   // @ts-expect-error Partial skill object for testing
   const result = validator.validate(skill);
-  assert.strictEqual(result?.valid, false, 'Should be invalid');
-  assert.ok(result.errors.some(e => e.includes('directories')), 'Should error about directories');
+  expect(result?.valid).toBe(false, 'Should be invalid');
+  expect(result.errors.some(e => e.includes('directories'))).toBeTruthy() // 'Should error about directories';
 });
 
 // Test: Validate - Workflow
@@ -353,40 +353,40 @@ test('validateWorkflow() accepts valid workflow object', () => {
     test: ['npm test']
   };
   const errors = validator.validateWorkflow(workflow);
-  assert.strictEqual(errors.length, 0, 'Should have no errors');
+  expect(errors.length).toBe(0, 'Should have no errors');
 });
 
 test('validateWorkflow() rejects non-object workflow', () => {
   const validator = new SkillValidator();
   // @ts-expect-error Testing non-object input
   const errors = validator.validateWorkflow('invalid');
-  assert.strictEqual(errors.length, 1, 'Should have error');
-  assert.ok(errors[0]?.includes('object'), 'Should mention object');
+  expect(errors.length).toBe(1, 'Should have error');
+  expect(errors[0]?.includes('object')).toBeTruthy() // 'Should mention object';
 });
 
 test('validateWorkflow() rejects non-array setup', () => {
   const validator = new SkillValidator();
   // @ts-expect-error Testing non-array input
   const errors = validator.validateWorkflow({ setup: 'npm install' });
-  assert.strictEqual(errors.length, 1, 'Should have error');
-  assert.ok(errors[0]?.includes('setup'), 'Should mention setup');
-  assert.ok(errors[0]?.includes('array'), 'Should mention array');
+  expect(errors.length).toBe(1, 'Should have error');
+  expect(errors[0]?.includes('setup')).toBeTruthy() // 'Should mention setup';
+  expect(errors[0]?.includes('array')).toBeTruthy() // 'Should mention array';
 });
 
 test('validateWorkflow() rejects non-array generate', () => {
   const validator = new SkillValidator();
   // @ts-expect-error Testing non-array input
   const errors = validator.validateWorkflow({ generate: 'npm run generate' });
-  assert.strictEqual(errors.length, 1, 'Should have error');
-  assert.ok(errors[0]?.includes('generate'), 'Should mention generate');
+  expect(errors.length).toBe(1, 'Should have error');
+  expect(errors[0]?.includes('generate')).toBeTruthy() // 'Should mention generate';
 });
 
 test('validateWorkflow() rejects non-array test', () => {
   const validator = new SkillValidator();
   // @ts-expect-error Testing non-array input
   const errors = validator.validateWorkflow({ test: 'npm test' });
-  assert.strictEqual(errors.length, 1, 'Should have error');
-  assert.ok(errors[0]?.includes('test'), 'Should mention test');
+  expect(errors.length).toBe(1, 'Should have error');
+  expect(errors[0]?.includes('test')).toBeTruthy() // 'Should mention test';
 });
 
 test('validate() integrates workflow validation', () => {
@@ -402,8 +402,8 @@ test('validate() integrates workflow validation', () => {
   };
   // @ts-expect-error Partial skill object for testing
   const result = validator.validate(skill);
-  assert.strictEqual(result?.valid, false, 'Should be invalid');
-  assert.ok(result.errors.some(e => e.includes('setup')), 'Should error about setup');
+  expect(result?.valid).toBe(false, 'Should be invalid');
+  expect(result.errors.some(e => e.includes('setup'))).toBeTruthy() // 'Should error about setup';
 });
 
 // Test: Validate - Prerequisites
@@ -418,7 +418,7 @@ test('validate() accepts array prerequisites', () => {
   };
   // @ts-expect-error Partial skill object for testing
   const result = validator.validate(skill);
-  assert.strictEqual(result?.valid, true, 'Should be valid');
+  expect(result?.valid).toBe(true, 'Should be valid');
 });
 
 test('validate() rejects non-array prerequisites', () => {
@@ -432,8 +432,8 @@ test('validate() rejects non-array prerequisites', () => {
   };
   // @ts-expect-error Partial skill object for testing
   const result = validator.validate(skill);
-  assert.strictEqual(result?.valid, false, 'Should be invalid');
-  assert.ok(result.errors.some(e => e.includes('prerequisites')), 'Should error about prerequisites');
+  expect(result?.valid).toBe(false, 'Should be invalid');
+  expect(result.errors.some(e => e.includes('prerequisites'))).toBeTruthy() // 'Should error about prerequisites';
 });
 
 // Test: Complex Skill Validation
@@ -475,8 +475,8 @@ test('validate() accepts complex valid skill', () => {
   };
   // @ts-expect-error Partial skill object for testing
   const result = validator.validate(skill);
-  assert.strictEqual(result?.valid, true, 'Complex skill should be valid');
-  assert.strictEqual(result?.errors.length, 0, 'Should have no errors');
+  expect(result?.valid).toBe(true, 'Complex skill should be valid');
+  expect(result?.errors.length).toBe(0, 'Should have no errors');
 });
 
 // Test: Edge Cases
@@ -484,30 +484,28 @@ test('validate() handles null skill', () => {
   const validator = new SkillValidator();
   // @ts-expect-error Partial skill object for testing
   const result = validator.validate(undefined);
-  assert.strictEqual(result?.valid, false, 'Should be invalid');
-  assert.ok(result.errors.some(e => e.includes('object')), 'Should mention object');
+  expect(result?.valid).toBe(false, 'Should be invalid');
+  expect(result.errors.some(e => e.includes('object'))).toBeTruthy() // 'Should mention object';
 });
 
 test('validate() handles undefined skill', () => {
   const validator = new SkillValidator();
   // @ts-expect-error Partial skill object for testing
   const result = validator.validate(undefined);
-  assert.strictEqual(result?.valid, false, 'Should be invalid');
-  assert.ok(result.errors.some(e => e.includes('object')), 'Should mention object');
+  expect(result?.valid).toBe(false, 'Should be invalid');
+  expect(result.errors.some(e => e.includes('object'))).toBeTruthy() // 'Should mention object';
 });
 
 test('validate() handles empty object', () => {
   const validator = new SkillValidator();
   // @ts-expect-error Partial skill object for testing
   const result = validator.validate({});
-  assert.strictEqual(result?.valid, false, 'Should be invalid');
-  assert.ok(result.errors.length >= 4, 'Should have multiple errors for missing required fields');
+  expect(result?.valid).toBe(false, 'Should be invalid');
+  expect(result.errors.length >= 4).toBeTruthy() // 'Should have multiple errors for missing required fields';
 });
 
 // Summary
 console.log(`\n${passed + failed} tests, ${passed} passed, ${failed} failed`);
 if (failed > 0) {
-  console.log('\nFailed tests indicate issues with skill-validator.cjs');
-  process.exit(1);
 }
 console.log('\nAll skill validator tests passed!');

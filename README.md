@@ -117,10 +117,8 @@ This codebase has been refactored to use object-oriented patterns (v6.0.0):
 
 - **Factory Pattern**: Agent creation with runtime extensibility
 - **Strategy Pattern**: Interchangeable compression algorithms
-- **Observer Pattern**: Event-driven architecture for session/phase lifecycle
 - **Adapter Pattern**: Unified interface for multiple model providers
 - **Decorator Pattern**: Cross-cutting concerns (logging, caching, validation)
-- **Facade Pattern**: Simplified interfaces for complex subsystems
 
 ### System Overview
 

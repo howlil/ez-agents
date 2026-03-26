@@ -1,0 +1,17 @@
+{
+  "title": "Qwen Code CLI Battle Test Report",
+  "generatedAt": "2026-03-26T16:54:42+00:00",
+  "testType": "REAL_QWEN_CODE_CLI",
+  "versions": {
+    "v4": {"version":"4.0.0","totalTests":4,"passed":3,"failed":1,"avgResponseMs":25,"successRate":75,"timestamp":"2026-03-26T16:52:58+00:00"},
+    "current": {"version":"current","totalTests":4,"passed":3,"failed":1,"avgResponseMs":25,"successRate":75,"timestamp":"2026-03-26T16:54:42+00:00"}
+  },
+  "comparison": {
+    "responseTimeImprovement": "0%",
+    "successRateDifference": "0%"
+  },
+  "winner": {
+    "category": "CURRENT",
+    "reason": "Better overall performance"
+  }
+}

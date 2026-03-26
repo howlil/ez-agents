@@ -53,9 +53,9 @@ export interface CompressionStats {
  */
 export class ContextCompressor {
   private strategy: CompressionStrategy | null;
-  private strategies: Map<string, CompressionStrategy>;
-  private compressionThreshold: number;
-  private defaultLimit: number;
+  private readonly strategies: Map<string, CompressionStrategy>;
+  private readonly compressionThreshold: number;
+  private readonly defaultLimit: number;
 
   /**
    * Create a ContextCompressor instance

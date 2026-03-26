@@ -1,17 +1,17 @@
-﻿/**
+/**
  * EZ Tools Tests - Validate Health Command
  *
  * Comprehensive tests for validate-health covering all 8 health checks
  * and the repair path.
  */
 
-const { test, describe, beforeEach, afterEach } = require('node:test');
-import assert from 'node:assert';
+
+
 import * as fs from 'fs';
 import * as path from 'path';
-import { runEzTools, createTempProject, cleanup } from '../helpers.js';
+import { runEzTools, createTempProject, cleanup } from '../helpers.ts';
 
-// â”€â”€â”€ Helpers for setting up minimal valid projects â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ─── Helpers for setting up minimal valid projects ────────────────────────────
 
 function writeMinimalRoadmap(tmpDir, phases = ['1']) {
   const lines = phases.map(n => `### Phase ${n}: Phase ${n} Description`).join('\n');
@@ -29,7 +29,7 @@ function writeMinimalProjectMd(tmpDir, sections = ['## What This Is', '## Core V
   );
 }
 
-function writeMinimalStateMd(tmpDir, content) {
+function writeMinimalStateMd(tmpDir: string, content?: string) {
   const defaultContent = content || `# Session State\n\n## Current Position\n\nPhase: 1\n`;
   fs.writeFileSync(
     path.join(tmpDir, '.planning', 'STATE.md'),
@@ -40,13 +40,13 @@ function writeMinimalStateMd(tmpDir, content) {
 function writeValidConfigJson(tmpDir) {
   fs.writeFileSync(
     path.join(tmpDir, '.planning', 'config.json'),
-    JSON.stringify({ model_profile: 'balanced', commit_docs: true }, null, 2)
+    JSON.stringify({ model_profile: 'balanced', commit_docs: true }, undefined, 2)
   );
 }
 
-// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-// validate health command â€” all 8 checks
-// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ─────────────────────────────────────────────────────────────────────────────
+// validate health command — all 8 checks
+// ─────────────────────────────────────────────────────────────────────────────
 
 describe('validate health command', () => {
   let tmpDir;
@@ -59,10 +59,10 @@ describe('validate health command', () => {
     cleanup(tmpDir);
   });
 
-  // â”€â”€â”€ Check 1: .planning/ exists â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  // ─── Check 1: .planning/ exists ───────────────────────────────────────────
 
   test("returns 'broken' when .planning directory is missing", async () => {
-    // createTempProject creates .planning/phases â€” remove it entirely
+    // createTempProject creates .planning/phases — remove it entirely
     const realTmpDir = fs.realpathSync(tmpDir);
     const planningDir = path.join(realTmpDir, '.planning');
     
@@ -72,24 +72,22 @@ describe('validate health command', () => {
     await new Promise(resolve => setTimeout(resolve, 500));
 
     // Use array form with explicit --cwd argument pointing to realTmpDir
-    const result = runEzTools(['validate', 'health', '--cwd', realTmpDir], tmpDir);
+    const result = runEzTools(['validate', 'health', '--cwd', realTmpDir], realTmpDir);
     
     // The command should succeed (return JSON output)
-    assert.ok(result.success, `Command failed: ${result.error}`);
+    expect(result.success).toBeTruthy() // `Command failed: ${result.error}`;
 
     const output = JSON.parse(result.output);
     // Status should be 'broken' because .planning is missing
-    assert.strictEqual(output.status, 'broken', `should be broken, got ${output.status}. Errors: ${JSON.stringify(output.errors)}`);
+    expect(output.status).toBe('broken', `should be broken, got ${output.status}. Errors: ${JSON.stringify(output.errors)}`);
     // Should have E001 error OR E002/E003/E004 (both indicate broken state)
     const hasE001 = output.errors.some(e => e.code === 'E001');
     const hasMissingFilesErrors = output.errors.some(e => ['E002', 'E003', 'E004'].includes(e.code));
-    assert.ok(
-      hasE001 || hasMissingFilesErrors,
-      `Expected E001 or E002/E003/E004 in errors: ${JSON.stringify(output.errors)}`
+    expect(hasE001 || hasMissingFilesErrors).toBeTruthy() // `Expected E001 or E002/E003/E004 in errors: ${JSON.stringify(output.errors}`
     );
   });
 
-  // â”€â”€â”€ Check 2: PROJECT.md exists and has required sections â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  // ─── Check 2: PROJECT.md exists and has required sections ─────────────────
 
   test('warns when PROJECT.md is missing', () => {
     // No PROJECT.md in .planning
@@ -100,12 +98,10 @@ describe('validate health command', () => {
     fs.mkdirSync(path.join(tmpDir, '.planning', 'phases', '01-a'), { recursive: true });
 
     const result = runEzTools('validate health', tmpDir);
-    assert.ok(result.success, `Command failed: ${result.error}`);
+    expect(result.success).toBeTruthy() // `Command failed: ${result.error}`;
 
     const output = JSON.parse(result.output);
-    assert.ok(
-      output.errors.some(e => e.code === 'E002'),
-      `Expected E002 in errors: ${JSON.stringify(output.errors)}`
+    expect(output.errors.some(e => e.code === 'E002')).toBeTruthy() // `Expected E002 in errors: ${JSON.stringify(output.errors}`
     );
   });
 
@@ -121,14 +117,12 @@ describe('validate health command', () => {
     fs.mkdirSync(path.join(tmpDir, '.planning', 'phases', '01-a'), { recursive: true });
 
     const result = runEzTools('validate health', tmpDir);
-    assert.ok(result.success, `Command failed: ${result.error}`);
+    expect(result.success).toBeTruthy() // `Command failed: ${result.error}`;
 
     const output = JSON.parse(result.output);
     const w001s = output.warnings.filter(w => w.code === 'W001');
-    assert.ok(w001s.length > 0, `Expected W001 warnings: ${JSON.stringify(output.warnings)}`);
-    assert.ok(
-      w001s.some(w => w.message.includes('## Core Value')),
-      `Expected W001 mentioning "## Core Value": ${JSON.stringify(w001s)}`
+    expect(w001s.length > 0).toBeTruthy() // `Expected W001 warnings: ${JSON.stringify(output.warnings}`);
+    expect(w001s.some(w => w.message.includes('## Core Value'))).toBeTruthy() // `Expected W001 mentioning "## Core Value": ${JSON.stringify(w001s}`
     );
   });
 
@@ -140,20 +134,16 @@ describe('validate health command', () => {
     fs.mkdirSync(path.join(tmpDir, '.planning', 'phases', '01-a'), { recursive: true });
 
     const result = runEzTools('validate health', tmpDir);
-    assert.ok(result.success, `Command failed: ${result.error}`);
+    expect(result.success).toBeTruthy() // `Command failed: ${result.error}`;
 
     const output = JSON.parse(result.output);
-    assert.ok(
-      !output.errors.some(e => e.code === 'E002'),
-      `Should not have E002: ${JSON.stringify(output.errors)}`
+    expect(!output.errors.some(e => e.code === 'E002')).toBeTruthy() // `Should not have E002: ${JSON.stringify(output.errors}`
     );
-    assert.ok(
-      !output.warnings.some(w => w.code === 'W001'),
-      `Should not have W001: ${JSON.stringify(output.warnings)}`
+    expect(!output.warnings.some(w => w.code === 'W001')).toBeTruthy() // `Should not have W001: ${JSON.stringify(output.warnings}`
     );
   });
 
-  // â”€â”€â”€ Check 3: ROADMAP.md exists â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  // ─── Check 3: ROADMAP.md exists ───────────────────────────────────────────
 
   test('errors when ROADMAP.md is missing', () => {
     writeMinimalProjectMd(tmpDir);
@@ -162,16 +152,14 @@ describe('validate health command', () => {
     // No ROADMAP.md
 
     const result = runEzTools('validate health', tmpDir);
-    assert.ok(result.success, `Command failed: ${result.error}`);
+    expect(result.success).toBeTruthy() // `Command failed: ${result.error}`;
 
     const output = JSON.parse(result.output);
-    assert.ok(
-      output.errors.some(e => e.code === 'E003'),
-      `Expected E003 in errors: ${JSON.stringify(output.errors)}`
+    expect(output.errors.some(e => e.code === 'E003')).toBeTruthy() // `Expected E003 in errors: ${JSON.stringify(output.errors}`
     );
   });
 
-  // â”€â”€â”€ Check 4: STATE.md exists and references valid phases â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  // ─── Check 4: STATE.md exists and references valid phases ─────────────────
 
   test('errors when STATE.md is missing with repairable true', () => {
     writeMinimalProjectMd(tmpDir);
@@ -181,12 +169,12 @@ describe('validate health command', () => {
     // No STATE.md
 
     const result = runEzTools('validate health', tmpDir);
-    assert.ok(result.success, `Command failed: ${result.error}`);
+    expect(result.success).toBeTruthy() // `Command failed: ${result.error}`;
 
     const output = JSON.parse(result.output);
     const e004 = output.errors.find(e => e.code === 'E004');
-    assert.ok(e004, `Expected E004 in errors: ${JSON.stringify(output.errors)}`);
-    assert.strictEqual(e004.repairable, true, 'E004 should be repairable');
+    expect(e004).toBeTruthy() // `Expected E004 in errors: ${JSON.stringify(output.errors}`);
+    expect(e004.repairable).toBe(true, 'E004 should be repairable');
   });
 
   test('warns when STATE.md references nonexistent phase', () => {
@@ -201,16 +189,14 @@ describe('validate health command', () => {
     fs.mkdirSync(path.join(tmpDir, '.planning', 'phases', '01-a'), { recursive: true });
 
     const result = runEzTools('validate health', tmpDir);
-    assert.ok(result.success, `Command failed: ${result.error}`);
+    expect(result.success).toBeTruthy() // `Command failed: ${result.error}`;
 
     const output = JSON.parse(result.output);
-    assert.ok(
-      output.warnings.some(w => w.code === 'W002'),
-      `Expected W002 in warnings: ${JSON.stringify(output.warnings)}`
+    expect(output.warnings.some(w => w.code === 'W002')).toBeTruthy() // `Expected W002 in warnings: ${JSON.stringify(output.warnings}`
     );
   });
 
-  // â”€â”€â”€ Check 5: config.json valid JSON + valid schema â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  // ─── Check 5: config.json valid JSON + valid schema ───────────────────────
 
   test('warns when config.json is missing with repairable true', () => {
     writeMinimalProjectMd(tmpDir);
@@ -220,12 +206,12 @@ describe('validate health command', () => {
     // No config.json
 
     const result = runEzTools('validate health', tmpDir);
-    assert.ok(result.success, `Command failed: ${result.error}`);
+    expect(result.success).toBeTruthy() // `Command failed: ${result.error}`;
 
     const output = JSON.parse(result.output);
     const w003 = output.warnings.find(w => w.code === 'W003');
-    assert.ok(w003, `Expected W003 in warnings: ${JSON.stringify(output.warnings)}`);
-    assert.strictEqual(w003.repairable, true, 'W003 should be repairable');
+    expect(w003).toBeTruthy() // `Expected W003 in warnings: ${JSON.stringify(output.warnings}`);
+    expect(w003.repairable).toBe(true, 'W003 should be repairable');
   });
 
   test('errors when config.json has invalid JSON', () => {
@@ -239,12 +225,10 @@ describe('validate health command', () => {
     fs.mkdirSync(path.join(tmpDir, '.planning', 'phases', '01-a'), { recursive: true });
 
     const result = runEzTools('validate health', tmpDir);
-    assert.ok(result.success, `Command failed: ${result.error}`);
+    expect(result.success).toBeTruthy() // `Command failed: ${result.error}`;
 
     const output = JSON.parse(result.output);
-    assert.ok(
-      output.errors.some(e => e.code === 'E005'),
-      `Expected E005 in errors: ${JSON.stringify(output.errors)}`
+    expect(output.errors.some(e => e.code === 'E005')).toBeTruthy() // `Expected E005 in errors: ${JSON.stringify(output.errors}`
     );
   });
 
@@ -259,16 +243,14 @@ describe('validate health command', () => {
     fs.mkdirSync(path.join(tmpDir, '.planning', 'phases', '01-a'), { recursive: true });
 
     const result = runEzTools('validate health', tmpDir);
-    assert.ok(result.success, `Command failed: ${result.error}`);
+    expect(result.success).toBeTruthy() // `Command failed: ${result.error}`;
 
     const output = JSON.parse(result.output);
-    assert.ok(
-      output.warnings.some(w => w.code === 'W004'),
-      `Expected W004 in warnings: ${JSON.stringify(output.warnings)}`
+    expect(output.warnings.some(w => w.code === 'W004')).toBeTruthy() // `Expected W004 in warnings: ${JSON.stringify(output.warnings}`
     );
   });
 
-  // â”€â”€â”€ Check 6: Phase directory naming (NN-name format) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  // ─── Check 6: Phase directory naming (NN-name format) ─────────────────────
 
   test('warns about incorrectly named phase directories', () => {
     writeMinimalProjectMd(tmpDir);
@@ -283,16 +265,14 @@ describe('validate health command', () => {
     fs.mkdirSync(path.join(tmpDir, '.planning', 'phases', 'bad_name'), { recursive: true });
 
     const result = runEzTools('validate health', tmpDir);
-    assert.ok(result.success, `Command failed: ${result.error}`);
+    expect(result.success).toBeTruthy() // `Command failed: ${result.error}`;
 
     const output = JSON.parse(result.output);
-    assert.ok(
-      output.warnings.some(w => w.code === 'W005'),
-      `Expected W005 in warnings: ${JSON.stringify(output.warnings)}`
+    expect(output.warnings.some(w => w.code === 'W005')).toBeTruthy() // `Expected W005 in warnings: ${JSON.stringify(output.warnings}`
     );
   });
 
-  // â”€â”€â”€ Check 7: Orphaned plans (PLAN without SUMMARY) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  // ─── Check 7: Orphaned plans (PLAN without SUMMARY) ───────────────────────
 
   test('reports orphaned plans (PLAN without SUMMARY) as info', () => {
     writeMinimalProjectMd(tmpDir);
@@ -306,16 +286,14 @@ describe('validate health command', () => {
     // No 01-01-SUMMARY.md
 
     const result = runEzTools('validate health', tmpDir);
-    assert.ok(result.success, `Command failed: ${result.error}`);
+    expect(result.success).toBeTruthy() // `Command failed: ${result.error}`;
 
     const output = JSON.parse(result.output);
-    assert.ok(
-      output.info.some(i => i.code === 'I001'),
-      `Expected I001 in info: ${JSON.stringify(output.info)}`
+    expect(output.info.some(i => i.code === 'I001')).toBeTruthy() // `Expected I001 in info: ${JSON.stringify(output.info}`
     );
   });
 
-  // â”€â”€â”€ Check 8: Consistency (roadmap/disk sync) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  // ─── Check 8: Consistency (roadmap/disk sync) ─────────────────────────────
 
   test('warns about phase in ROADMAP but not on disk', () => {
     writeMinimalProjectMd(tmpDir);
@@ -329,12 +307,10 @@ describe('validate health command', () => {
     // No phase dirs
 
     const result = runEzTools('validate health', tmpDir);
-    assert.ok(result.success, `Command failed: ${result.error}`);
+    expect(result.success).toBeTruthy() // `Command failed: ${result.error}`;
 
     const output = JSON.parse(result.output);
-    assert.ok(
-      output.warnings.some(w => w.code === 'W006'),
-      `Expected W006 in warnings: ${JSON.stringify(output.warnings)}`
+    expect(output.warnings.some(w => w.code === 'W006')).toBeTruthy() // `Expected W006 in warnings: ${JSON.stringify(output.warnings}`
     );
   });
 
@@ -351,16 +327,14 @@ describe('validate health command', () => {
     fs.mkdirSync(path.join(tmpDir, '.planning', 'phases', '99-orphan'), { recursive: true });
 
     const result = runEzTools('validate health', tmpDir);
-    assert.ok(result.success, `Command failed: ${result.error}`);
+    expect(result.success).toBeTruthy() // `Command failed: ${result.error}`;
 
     const output = JSON.parse(result.output);
-    assert.ok(
-      output.warnings.some(w => w.code === 'W007'),
-      `Expected W007 in warnings: ${JSON.stringify(output.warnings)}`
+    expect(output.warnings.some(w => w.code === 'W007')).toBeTruthy() // `Expected W007 in warnings: ${JSON.stringify(output.warnings}`
     );
   });
 
-  // â”€â”€â”€ Check 5b: Nyquist validation key presence (W008) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  // ─── Check 5b: Nyquist validation key presence (W008) ─────────────────────
 
   test('detects W008 when workflow.nyquist_validation absent from config', () => {
     writeMinimalProjectMd(tmpDir);
@@ -369,17 +343,15 @@ describe('validate health command', () => {
     // Config with workflow section but WITHOUT nyquist_validation key
     fs.writeFileSync(
       path.join(tmpDir, '.planning', 'config.json'),
-      JSON.stringify({ model_profile: 'balanced', workflow: { research: true } }, null, 2)
+      JSON.stringify({ model_profile: 'balanced', workflow: { research: true } }, undefined, 2)
     );
     fs.mkdirSync(path.join(tmpDir, '.planning', 'phases', '01-a'), { recursive: true });
 
     const result = runEzTools('validate health', tmpDir);
-    assert.ok(result.success, `Command failed: ${result.error}`);
+    expect(result.success).toBeTruthy() // `Command failed: ${result.error}`;
 
     const output = JSON.parse(result.output);
-    assert.ok(
-      output.warnings.some(w => w.code === 'W008'),
-      `Expected W008 in warnings: ${JSON.stringify(output.warnings)}`
+    expect(output.warnings.some(w => w.code === 'W008')).toBeTruthy() // `Expected W008 in warnings: ${JSON.stringify(output.warnings}`
     );
   });
 
@@ -390,21 +362,19 @@ describe('validate health command', () => {
     // Config with workflow.nyquist_validation explicitly set
     fs.writeFileSync(
       path.join(tmpDir, '.planning', 'config.json'),
-      JSON.stringify({ model_profile: 'balanced', workflow: { research: true, nyquist_validation: true } }, null, 2)
+      JSON.stringify({ model_profile: 'balanced', workflow: { research: true, nyquist_validation: true } }, undefined, 2)
     );
     fs.mkdirSync(path.join(tmpDir, '.planning', 'phases', '01-a'), { recursive: true });
 
     const result = runEzTools('validate health', tmpDir);
-    assert.ok(result.success, `Command failed: ${result.error}`);
+    expect(result.success).toBeTruthy() // `Command failed: ${result.error}`;
 
     const output = JSON.parse(result.output);
-    assert.ok(
-      !output.warnings.some(w => w.code === 'W008'),
-      `Should not have W008: ${JSON.stringify(output.warnings)}`
+    expect(!output.warnings.some(w => w.code === 'W008')).toBeTruthy() // `Should not have W008: ${JSON.stringify(output.warnings}`
     );
   });
 
-  // â”€â”€â”€ Check 7b: Nyquist VALIDATION.md consistency (W009) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  // ─── Check 7b: Nyquist VALIDATION.md consistency (W009) ──────────────────
 
   test('detects W009 when RESEARCH.md has Validation Architecture but no VALIDATION.md', () => {
     writeMinimalProjectMd(tmpDir);
@@ -421,12 +391,10 @@ describe('validate health command', () => {
     // No VALIDATION.md
 
     const result = runEzTools('validate health', tmpDir);
-    assert.ok(result.success, `Command failed: ${result.error}`);
+    expect(result.success).toBeTruthy() // `Command failed: ${result.error}`;
 
     const output = JSON.parse(result.output);
-    assert.ok(
-      output.warnings.some(w => w.code === 'W009'),
-      `Expected W009 in warnings: ${JSON.stringify(output.warnings)}`
+    expect(output.warnings.some(w => w.code === 'W009')).toBeTruthy() // `Expected W009 in warnings: ${JSON.stringify(output.warnings}`
     );
   });
 
@@ -448,16 +416,14 @@ describe('validate health command', () => {
     );
 
     const result = runEzTools('validate health', tmpDir);
-    assert.ok(result.success, `Command failed: ${result.error}`);
+    expect(result.success).toBeTruthy() // `Command failed: ${result.error}`;
 
     const output = JSON.parse(result.output);
-    assert.ok(
-      !output.warnings.some(w => w.code === 'W009'),
-      `Should not have W009: ${JSON.stringify(output.warnings)}`
+    expect(!output.warnings.some(w => w.code === 'W009')).toBeTruthy() // `Should not have W009: ${JSON.stringify(output.warnings}`
     );
   });
 
-  // â”€â”€â”€ Overall status â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  // ─── Overall status ────────────────────────────────────────────────────────
 
   test("returns 'healthy' when all checks pass", () => {
     writeMinimalProjectMd(tmpDir);
@@ -472,10 +438,10 @@ describe('validate health command', () => {
     fs.writeFileSync(path.join(phaseDir, '01-01-SUMMARY.md'), '# Summary\n');
 
     const result = runEzTools('validate health', tmpDir);
-    assert.ok(result.success, `Command failed: ${result.error}`);
+    expect(result.success).toBeTruthy() // `Command failed: ${result.error}`;
 
     const output = JSON.parse(result.output);
-    assert.strictEqual(output.status, 'healthy', `Expected healthy, got ${output.status}. Errors: ${JSON.stringify(output.errors)}, Warnings: ${JSON.stringify(output.warnings)}`);
+    expect(output.status).toBe('healthy', `Expected healthy, got ${output.status}. Errors: ${JSON.stringify(output.errors)}, Warnings: ${JSON.stringify(output.warnings)}`);
     assert.deepStrictEqual(output.errors, [], 'should have no errors');
     assert.deepStrictEqual(output.warnings, [], 'should have no warnings');
   });
@@ -484,22 +450,22 @@ describe('validate health command', () => {
     writeMinimalProjectMd(tmpDir);
     writeMinimalRoadmap(tmpDir, ['1']);
     writeMinimalStateMd(tmpDir);
-    // No config.json â†’ W003 (warning, not error)
+    // No config.json → W003 (warning, not error)
     fs.mkdirSync(path.join(tmpDir, '.planning', 'phases', '01-a'), { recursive: true });
 
     const result = runEzTools('validate health', tmpDir);
-    assert.ok(result.success, `Command failed: ${result.error}`);
+    expect(result.success).toBeTruthy() // `Command failed: ${result.error}`;
 
     const output = JSON.parse(result.output);
-    assert.strictEqual(output.status, 'degraded', `Expected degraded, got ${output.status}`);
-    assert.strictEqual(output.errors.length, 0, 'should have no errors');
-    assert.ok(output.warnings.length > 0, 'should have warnings');
+    expect(output.status).toBe('degraded', `Expected degraded, got ${output.status}`);
+    expect(output.errors.length).toBe(0, 'should have no errors');
+    expect(output.warnings.length > 0).toBeTruthy() // 'should have warnings';
   });
 });
 
-// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ─────────────────────────────────────────────────────────────────────────────
 // validate health --repair command
-// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ─────────────────────────────────────────────────────────────────────────────
 
 describe('validate health --repair command', () => {
   let tmpDir;
@@ -525,21 +491,19 @@ describe('validate health --repair command', () => {
     if (fs.existsSync(configPath)) fs.unlinkSync(configPath);
 
     const result = runEzTools('validate health --repair', tmpDir);
-    assert.ok(result.success, `Command failed: ${result.error}`);
+    expect(result.success).toBeTruthy() // `Command failed: ${result.error}`;
 
     const output = JSON.parse(result.output);
-    assert.ok(
-      Array.isArray(output.repairs_performed),
-      `Expected repairs_performed array: ${JSON.stringify(output)}`
+    expect(Array.isArray(output.repairs_performed)).toBeTruthy() // `Expected repairs_performed array: ${JSON.stringify(output}`
     );
     const createAction = output.repairs_performed.find(r => r.action === 'createConfig');
-    assert.ok(createAction, `Expected createConfig action: ${JSON.stringify(output.repairs_performed)}`);
-    assert.strictEqual(createAction.success, true, 'createConfig should succeed');
+    expect(createAction).toBeTruthy() // `Expected createConfig action: ${JSON.stringify(output.repairs_performed}`);
+    expect(createAction.success).toBe(true, 'createConfig should succeed');
 
     // Verify config.json now exists on disk with valid JSON and balanced profile
-    assert.ok(fs.existsSync(configPath), 'config.json should now exist on disk');
+    expect(fs.existsSync(configPath)).toBeTruthy() // 'config.json should now exist on disk';
     const diskConfig = JSON.parse(fs.readFileSync(configPath, 'utf-8'));
-    assert.strictEqual(diskConfig.model_profile, 'balanced', 'default model_profile should be balanced');
+    expect(diskConfig.model_profile).toBe('balanced', 'default model_profile should be balanced');
   });
 
   test('resets config.json when JSON is invalid', () => {
@@ -548,19 +512,17 @@ describe('validate health --repair command', () => {
     fs.writeFileSync(configPath, '{broken json');
 
     const result = runEzTools('validate health --repair', tmpDir);
-    assert.ok(result.success, `Command failed: ${result.error}`);
+    expect(result.success).toBeTruthy() // `Command failed: ${result.error}`;
 
     const output = JSON.parse(result.output);
-    assert.ok(
-      Array.isArray(output.repairs_performed),
-      `Expected repairs_performed: ${JSON.stringify(output)}`
+    expect(Array.isArray(output.repairs_performed)).toBeTruthy() // `Expected repairs_performed: ${JSON.stringify(output}`
     );
     const resetAction = output.repairs_performed.find(r => r.action === 'resetConfig');
-    assert.ok(resetAction, `Expected resetConfig action: ${JSON.stringify(output.repairs_performed)}`);
+    expect(resetAction).toBeTruthy() // `Expected resetConfig action: ${JSON.stringify(output.repairs_performed}`);
 
     // Verify config.json is now valid JSON
     const diskConfig = JSON.parse(fs.readFileSync(configPath, 'utf-8'));
-    assert.ok(typeof diskConfig === 'object', 'config.json should be valid JSON after repair');
+    expect(typeof diskConfig === 'object').toBeTruthy() // 'config.json should be valid JSON after repair';
   });
 
   test('regenerates STATE.md when missing', () => {
@@ -570,21 +532,19 @@ describe('validate health --repair command', () => {
     if (fs.existsSync(statePath)) fs.unlinkSync(statePath);
 
     const result = runEzTools('validate health --repair', tmpDir);
-    assert.ok(result.success, `Command failed: ${result.error}`);
+    expect(result.success).toBeTruthy() // `Command failed: ${result.error}`;
 
     const output = JSON.parse(result.output);
-    assert.ok(
-      Array.isArray(output.repairs_performed),
-      `Expected repairs_performed: ${JSON.stringify(output)}`
+    expect(Array.isArray(output.repairs_performed)).toBeTruthy() // `Expected repairs_performed: ${JSON.stringify(output}`
     );
     const regenerateAction = output.repairs_performed.find(r => r.action === 'regenerateState');
-    assert.ok(regenerateAction, `Expected regenerateState action: ${JSON.stringify(output.repairs_performed)}`);
-    assert.strictEqual(regenerateAction.success, true, 'regenerateState should succeed');
+    expect(regenerateAction).toBeTruthy() // `Expected regenerateState action: ${JSON.stringify(output.repairs_performed}`);
+    expect(regenerateAction.success).toBe(true, 'regenerateState should succeed');
 
     // Verify STATE.md now exists and contains "# Session State"
-    assert.ok(fs.existsSync(statePath), 'STATE.md should now exist on disk');
+    expect(fs.existsSync(statePath)).toBeTruthy() // 'STATE.md should now exist on disk';
     const stateContent = fs.readFileSync(statePath, 'utf-8');
-    assert.ok(stateContent.includes('# Session State'), 'regenerated STATE.md should contain "# Session State"');
+    expect(stateContent.includes('# Session State')).toBeTruthy() // 'regenerated STATE.md should contain "# Session State"';
   });
 
   test('backs up existing STATE.md before regenerating', () => {
@@ -600,23 +560,21 @@ describe('validate health --repair command', () => {
     );
 
     const result = runEzTools('validate health --repair', tmpDir);
-    assert.ok(result.success, `Command failed: ${result.error}`);
+    expect(result.success).toBeTruthy() // `Command failed: ${result.error}`;
 
     const output = JSON.parse(result.output);
-    assert.ok(
-      Array.isArray(output.repairs_performed),
-      `Expected repairs_performed: ${JSON.stringify(output)}`
+    expect(Array.isArray(output.repairs_performed)).toBeTruthy() // `Expected repairs_performed: ${JSON.stringify(output}`
     );
 
     // Verify a .bak- file exists alongside STATE.md
     const planningDir = path.join(tmpDir, '.planning');
     const planningFiles = fs.readdirSync(planningDir);
     const backupFile = planningFiles.find(f => f.startsWith('STATE.md.bak-'));
-    assert.ok(backupFile, `Expected a STATE.md.bak- file. Found files: ${planningFiles.join(', ')}`);
+    expect(backupFile).toBeTruthy() // `Expected a STATE.md.bak- file. Found files: ${planningFiles.join(', '}`);
 
     // Verify backup contains the original content
     const backupContent = fs.readFileSync(path.join(planningDir, backupFile), 'utf-8');
-    assert.ok(backupContent.includes('Phase 99'), 'backup should contain the original STATE.md content');
+    expect(backupContent.includes('Phase 99')).toBeTruthy() // 'backup should contain the original STATE.md content';
   });
 
   test('adds nyquist_validation key to config.json via addNyquistKey repair', () => {
@@ -625,24 +583,22 @@ describe('validate health --repair command', () => {
     const configPath = path.join(tmpDir, '.planning', 'config.json');
     fs.writeFileSync(
       configPath,
-      JSON.stringify({ model_profile: 'balanced', workflow: { research: true } }, null, 2)
+      JSON.stringify({ model_profile: 'balanced', workflow: { research: true } }, undefined, 2)
     );
 
     const result = runEzTools('validate health --repair', tmpDir);
-    assert.ok(result.success, `Command failed: ${result.error}`);
+    expect(result.success).toBeTruthy() // `Command failed: ${result.error}`;
 
     const output = JSON.parse(result.output);
-    assert.ok(
-      Array.isArray(output.repairs_performed),
-      `Expected repairs_performed array: ${JSON.stringify(output)}`
+    expect(Array.isArray(output.repairs_performed)).toBeTruthy() // `Expected repairs_performed array: ${JSON.stringify(output}`
     );
     const addKeyAction = output.repairs_performed.find(r => r.action === 'addNyquistKey');
-    assert.ok(addKeyAction, `Expected addNyquistKey action: ${JSON.stringify(output.repairs_performed)}`);
-    assert.strictEqual(addKeyAction.success, true, 'addNyquistKey should succeed');
+    expect(addKeyAction).toBeTruthy() // `Expected addNyquistKey action: ${JSON.stringify(output.repairs_performed}`);
+    expect(addKeyAction.success).toBe(true, 'addNyquistKey should succeed');
 
     // Read config.json and verify workflow.nyquist_validation is true
     const diskConfig = JSON.parse(fs.readFileSync(configPath, 'utf-8'));
-    assert.strictEqual(diskConfig.workflow.nyquist_validation, true, 'nyquist_validation should be true');
+    expect(diskConfig.workflow.nyquist_validation).toBe(true, 'nyquist_validation should be true');
   });
 
   test('reports repairable_count correctly', () => {
@@ -654,12 +610,10 @@ describe('validate health --repair command', () => {
 
     // Run WITHOUT --repair to just check repairable_count
     const result = runEzTools('validate health', tmpDir);
-    assert.ok(result.success, `Command failed: ${result.error}`);
+    expect(result.success).toBeTruthy() // `Command failed: ${result.error}`;
 
     const output = JSON.parse(result.output);
-    assert.ok(
-      output.repairable_count >= 2,
-      `Expected repairable_count >= 2, got ${output.repairable_count}. Full output: ${JSON.stringify(output)}`
+    expect(output.repairable_count >= 2).toBeTruthy() // `Expected repairable_count >= 2, got ${output.repairable_count}. Full output: ${JSON.stringify(output}`
     );
   });
 });

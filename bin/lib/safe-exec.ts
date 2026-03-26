@@ -80,7 +80,7 @@ export interface SafeExecOptions {
  * @throws Error if command not allowed
  */
 function validateCommand(cmd: string): void {
-  const baseCmd = cmd.split(' ')[0].toLowerCase();
+  const baseCmd = cmd.split(' ')[0]?.toLowerCase() ?? '';
   if (!ALLOWED_COMMANDS.has(baseCmd)) {
     throw new Error(`Command not allowed: ${cmd}. Allowed: ${Array.from(ALLOWED_COMMANDS).join(', ')}`);
   }

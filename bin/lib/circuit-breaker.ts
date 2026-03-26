@@ -62,17 +62,17 @@ export interface CircuitBreakerStats {
 // ─── CircuitBreaker Class ────────────────────────────────────────────────────
 
 export class CircuitBreaker {
-  private failureThreshold: number;
-  private resetTimeout: number;
-  private persistState: boolean;
-  private cwd: string;
-  private agentType: string;
+  private readonly failureThreshold: number;
+  private readonly resetTimeout: number;
+  private readonly persistState: boolean;
+  private readonly cwd: string;
+  private readonly agentType: string;
   private state: CircuitState;
   private failures: number;
   private lastFailureTime: number | null;
   private successes: number;
   private lastStateChange: string;
-  private logger: Logger;
+  private readonly logger: Logger;
 
   /**
    * Create circuit breaker

@@ -46,7 +46,7 @@ describe('Context Budget Guard', () => {
       const result = checkContextBudget(400, 1000);
       expect(result.percent).toBe(40);
       expect(result.level).toBe('none');
-      expect(result.message).toBe(null);
+      expect(result.message).toBe(undefined);
       expect(result.shouldStop).toBe(false);
     });
 

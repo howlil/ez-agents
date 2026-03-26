@@ -100,9 +100,9 @@ export class ApiMonitor {
     if (sorted.length === 0) return { p50: 0, p95: 0, p99: 0 };
 
     return {
-      p50: sorted[Math.floor(sorted.length * 0.50)],
-      p95: sorted[Math.floor(sorted.length * 0.95)],
-      p99: sorted[Math.floor(sorted.length * 0.99)]
+      p50: sorted[Math.floor(sorted.length * 0.50)] ?? 0,
+      p95: sorted[Math.floor(sorted.length * 0.95)] ?? 0,
+      p99: sorted[Math.floor(sorted.length * 0.99)] ?? 0
     };
   }
 }

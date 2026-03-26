@@ -8,25 +8,25 @@
  * Requirement: COST-02
  */
 
-const { test, describe, beforeEach, afterEach } = require('node:test');
-import assert from 'node:assert';
+
+
 import * as path from 'path';
 import * as fs from 'fs';
 
-import FinOpsAnalyzer from '../../bin/lib/finops-analyzer.js';
+import { FinopsAnalyzer } from '../../bin/lib/finops/finops-analyzer.js';
 
 describe('FinOpsAnalyzer', () => {
   let tmpDir, analyzer;
 
   beforeEach(() => {
     tmpDir = createTempProject();
-    analyzer = new FinOpsAnalyzer(tmpDir);
+    analyzer = new FinopsAnalyzer(tmpDir);
   });
 
   afterEach(() => cleanup(tmpDir));
 
   test('constructor does not throw', () => {
-    assert.ok(analyzer, 'FinOpsAnalyzer instance must be created without throwing');
+    expect(analyzer).toBeTruthy() // 'FinOpsAnalyzer instance must be created without throwing';
   });
 
   test('analyzeCosts() returns breakdown by service and trend', async () => {
@@ -35,10 +35,10 @@ describe('FinOpsAnalyzer', () => {
       endDate: '2026-03-31'
     });
 
-    assert.ok(analysis, 'analyzeCosts must return analysis');
-    assert.ok(analysis.total, 'must have total cost');
-    assert.ok(analysis.byService, 'must have byService breakdown');
-    assert.ok(analysis.trend, 'must have trend data');
+    expect(analysis).toBeTruthy() // 'analyzeCosts must return analysis';
+    expect(analysis.total).toBeTruthy() // 'must have total cost';
+    expect(analysis.byService).toBeTruthy() // 'must have byService breakdown';
+    expect(analysis.trend).toBeTruthy() // 'must have trend data';
   });
 
   test('getOptimizationRecommendations() returns actionable cost savings', async () => {
@@ -58,12 +58,12 @@ describe('FinOpsAnalyzer', () => {
 
     const recommendations = analyzer.getOptimizationRecommendations();
 
-    assert.ok(recommendations, 'getOptimizationRecommendations must return data');
-    assert.ok(Array.isArray(recommendations.items), 'must have recommendations array');
+    expect(recommendations).toBeTruthy() // 'getOptimizationRecommendations must return data';
+    expect(Array.isArray(recommendations.items)).toBeTruthy() // 'must have recommendations array';
     recommendations.items.forEach(rec => {
-      assert.ok(rec.category, 'recommendation must have category');
-      assert.ok(rec.description, 'recommendation must have description');
-      assert.ok(rec.estimatedSavings, 'recommendation must have estimatedSavings');
+      expect(rec.category).toBeTruthy() // 'recommendation must have category';
+      expect(rec.description).toBeTruthy() // 'recommendation must have description';
+      expect(rec.estimatedSavings).toBeTruthy() // 'recommendation must have estimatedSavings';
     });
   });
 
@@ -86,13 +86,13 @@ describe('FinOpsAnalyzer', () => {
 
     const anomalies = analyzer.detectAnomalies({ threshold: 2 }); // 2 standard deviations
 
-    assert.ok(anomalies, 'detectAnomalies must return data');
-    assert.ok(Array.isArray(anomalies.items), 'must have anomalies array');
-    assert.ok(anomalies.items.length > 0, 'must detect at least one anomaly');
+    expect(anomalies).toBeTruthy() // 'detectAnomalies must return data';
+    expect(Array.isArray(anomalies.items)).toBeTruthy() // 'must have anomalies array';
+    expect(anomalies.items.length > 0).toBeTruthy() // 'must detect at least one anomaly';
     const anomaly = anomalies.items[0];
-    assert.ok(anomaly.date, 'anomaly must have date');
-    assert.ok(anomaly.expected, 'anomaly must have expected value');
-    assert.ok(anomaly.actual, 'anomaly must have actual value');
+    expect(anomaly.date).toBeTruthy() // 'anomaly must have date';
+    expect(anomaly.expected).toBeTruthy() // 'anomaly must have expected value';
+    expect(anomaly.actual).toBeTruthy() // 'anomaly must have actual value';
   });
 
   test('forecastSpending() predicts future costs based on historical data', async () => {
@@ -108,13 +108,13 @@ describe('FinOpsAnalyzer', () => {
 
     const forecast = analyzer.forecastSpending({ days: 7 });
 
-    assert.ok(forecast, 'forecastSpending must return forecast');
-    assert.ok(Array.isArray(forecast.predictions), 'must have predictions array');
-    assert.strictEqual(forecast.predictions.length, 7, 'must forecast 7 days');
-    assert.ok(forecast.confidence, 'must have confidence level');
+    expect(forecast).toBeTruthy() // 'forecastSpending must return forecast';
+    expect(Array.isArray(forecast.predictions)).toBeTruthy() // 'must have predictions array';
+    expect(forecast.predictions.length).toBe(7, 'must forecast 7 days');
+    expect(forecast.confidence).toBeTruthy() // 'must have confidence level';
     forecast.predictions.forEach(pred => {
-      assert.ok(pred.date, 'prediction must have date');
-      assert.ok(pred.estimatedCost, 'prediction must have estimatedCost');
+      expect(pred.date).toBeTruthy() // 'prediction must have date';
+      expect(pred.estimatedCost).toBeTruthy() // 'prediction must have estimatedCost';
     });
   });
 
@@ -134,10 +134,10 @@ describe('FinOpsAnalyzer', () => {
 
     const metrics = analyzer.getCostPerUnit({ service: 'api' });
 
-    assert.ok(metrics, 'getCostPerUnit must return metrics');
-    assert.ok(metrics.averageCostPerUnit, 'must have averageCostPerUnit');
-    assert.strictEqual(metrics.totalCost, 250, 'totalCost must be 250');
-    assert.strictEqual(metrics.totalUnits, 2500, 'totalUnits must be 2500');
-    assert.strictEqual(metrics.averageCostPerUnit, 0.1, 'average cost per unit must be 0.1');
+    expect(metrics).toBeTruthy() // 'getCostPerUnit must return metrics';
+    expect(metrics.averageCostPerUnit).toBeTruthy() // 'must have averageCostPerUnit';
+    expect(metrics.totalCost).toBe(250, 'totalCost must be 250');
+    expect(metrics.totalUnits).toBe(2500, 'totalUnits must be 2500');
+    expect(metrics.averageCostPerUnit).toBe(0.1, 'average cost per unit must be 0.1');
   });
 });

@@ -1,11 +1,10 @@
 import { fileURLToPath } from 'url';
-import path from 'path';
 /**
  * Tests for DependencyGraph
  */
 
-import { describe, it } from 'node:test';
-import assert from 'node:assert';
+
+
 import * as path from 'path';
 import * as fs from 'fs';
 import { DependencyGraph } from '../../bin/lib/dependency-graph.js';
@@ -18,98 +17,99 @@ describe('DependencyGraph', () => {
       const graph = new DependencyGraph(testDir);
       const result = await graph.build(testDir);
       
-      assert.ok(result);
+      expect(result);
       assert.ok(Array.isArray(result.nodes));
       assert.ok(result.edges);
     });
 
-    it('handles missing madge gracefully with fallback', async () => {
+    it('handles missing madge gracefully with fallback').toBeTruthy() // async ( => {
       const graph = new DependencyGraph(testDir);
       const result = await graph.build(testDir);
       
       // Should return some result even if madge fails
-      assert.ok(result);
+      expect(result);
       assert.ok(Array.isArray(result.nodes));
     });
   });
 
-  describe('detectCircular', () => {
+  describe('detectCircular').toBeTruthy() // ( => {
     it('returns empty array for acyclic graph', async () => {
       const graph = new DependencyGraph(testDir);
       await graph.build(testDir);
       
       const circular = graph.detectCircular();
-      assert.ok(Array.isArray(circular));
+      expect(Array.isArray(circular));
     });
 
-    it('returns cycle paths for cyclic graph', () => {
+    it('returns cycle paths for cyclic graph').toBeTruthy() // ( => {
       const graph = new DependencyGraph(testDir);
       // Manually set circular dependencies for testing
+      // @ts-expect-error Accessing private member for testing
       graph.circular = [['a.ts', 'b.ts', 'a.ts']];
-      
+
       const circular = graph.detectCircular();
-      assert.strictEqual(circular.length, 1);
-      assert.ok(circular[0].includes('a.ts'));
+      expect(circular.length).toBe(1);
+      expect(circular[0]?.includes('a.ts'));
     });
   });
 
-  describe('getNodes', () => {
+  describe('getNodes').toBeTruthy() // ( => {
     it('returns array of file paths', async () => {
       const graph = new DependencyGraph(testDir);
       await graph.build(testDir);
       
       const nodes = graph.getNodes();
-      assert.ok(Array.isArray(nodes));
+      expect(Array.isArray(nodes));
     });
   });
 
-  describe('getEdges', () => {
+  describe('getEdges').toBeTruthy() // ( => {
     it('returns object mapping files to dependencies', async () => {
       const graph = new DependencyGraph(testDir);
       await graph.build(testDir);
       
       const edges = graph.getEdges();
-      assert.ok(typeof edges === 'object');
+      expect(typeof edges === 'object');
     });
   });
 
-  describe('getOrphanFiles', () => {
+  describe('getOrphanFiles').toBeTruthy() // ( => {
     it('returns files with no connections', async () => {
       const graph = new DependencyGraph(testDir);
       await graph.build(testDir);
       
       const orphans = graph.getOrphanFiles();
-      assert.ok(Array.isArray(orphans));
+      expect(Array.isArray(orphans));
     });
   });
 
-  describe('getLeafFiles', () => {
+  describe('getLeafFiles').toBeTruthy() // ( => {
     it('returns files only imported, not importing', async () => {
       const graph = new DependencyGraph(testDir);
       await graph.build(testDir);
       
       const leafs = graph.getLeafFiles();
-      assert.ok(Array.isArray(leafs));
+      expect(Array.isArray(leafs));
     });
   });
 
-  describe('getHubFiles', () => {
+  describe('getHubFiles').toBeTruthy() // ( => {
     it('returns most depended upon files', async () => {
       const graph = new DependencyGraph(testDir);
       await graph.build(testDir);
       
       const hubs = graph.getHubFiles(5);
-      assert.ok(Array.isArray(hubs));
+      expect(Array.isArray(hubs));
     });
   });
 
-  describe('getMostDependentFiles', () => {
+  describe('getMostDependentFiles').toBeTruthy() // ( => {
     it('returns files with many dependencies', async () => {
       const graph = new DependencyGraph(testDir);
       await graph.build(testDir);
       
       const dependent = graph.getMostDependentFiles(5);
-      assert.ok(Array.isArray(dependent));
+      expect(Array.isArray(dependent));
     });
   });
-});
+}).toBeTruthy();

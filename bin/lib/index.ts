@@ -58,11 +58,11 @@ export { LogExecution, CacheResult, ValidateInput, clearCache, clearAllCache, ge
 export type { LogExecutionOptions, CacheResultOptions, ValidateInputOptions, CacheEntry } from './decorators/index.js';
 
 // ─── Context Management ──────────────────────────────────────────────────────
-export { ContextManager, type ContextSource, type ScoringStats, type CompressionStats, type DedupStats, type ContextMetadataOutput, type ContextOptions, type ContextResult } from './context-manager.js';
-export { ContextCache, type CacheEntry, type CacheEntryInput, type CacheStats } from './context-cache.js';
-export { ContextCompressor, type CompressionResult, type CompressionOptions } from './context-compressor.js';
+export { ContextManager, type ContextOptions, type ContextResult as ContextManagerResult } from './context-manager.js';
+export { ContextCache, type CacheEntry as ContextCacheEntry, type CacheEntryInput, type CacheStats } from './context-cache.js';
+export { ContextCompressor, type CompressionResult as ContextCompressionResult, type CompressionOptions as ContextCompressionOptions } from './context-compressor.js';
 export { ContextDeduplicator } from './context-deduplicator.js';
-export { ContextMetadataTracker, type ContextMetadata, type MetadataStats } from './context-metadata-tracker.js';
+export { ContextMetadataTracker, type ContextMetadata as ContextMetadataType, type MetadataStats } from './context-metadata-tracker.js';
 export { ContextRelevanceScorer, type ScoringWeights, type ScoringOptions, type ScoredFile, type ScoreResult, type ContextItem } from './context-relevance-scorer.js';
 // Context errors (excluding SecurityScanError to avoid conflict with security-errors)
 export { ContextAccessError, URLFetchError, FileAccessError, type SeverityLevel as ContextSeverityLevel, type ContextErrorType, type SecurityFinding, type BaseContextError, type ContextAccessErrorData, type URLFetchErrorData, type FileAccessErrorData, type SecurityScanErrorData, type ContextError } from './context-errors.js';
@@ -93,10 +93,19 @@ export { SecurityOpsError, SecurityProviderError, SecurityComplianceError, Secur
 
 // ─── Error Handling & Recovery ───────────────────────────────────────────────
 export { ErrorCache } from './error-cache.js';
-export { getErrorCode, getAllCodes, getSeverity, getAllSeverities, lookupByCode, isValidCode, type ErrorCodeDefinition, type ErrorCodeLookupResult, type ErrorCategory, ERROR_CODES, SEVERITY } from './error-registry.js';
+export { getErrorCode as getErrorCodeFromRegistry, getAllCodes, getSeverity, getAllSeverities, lookupByCode, isValidCode, type ErrorCodeDefinition, type ErrorCodeLookupResult, type ErrorCategory, ERROR_CODES, SEVERITY } from './error-registry.js';
 export { CrashRecovery, type LockData, type LockStatus, type ActiveLock } from './crash-recovery.js';
 export { RecoveryManager, type BackupOptions, type BackupMetadata, type VerificationResult } from './recovery-manager.js';
 export { BackupService, type BackupResult, type FileInfo, type ManifestFileEntry, type BackupManifest, type BackupInfo, type RetentionSettings } from './backup-service.js';
+
+// ─── Error Type Guards ───────────────────────────────────────────────────────
+export { isError, isErrorWithCode, isErrnoException, getErrorMessage, getErrorCode } from './error-utils.js';
+
+// ─── Type Utilities ──────────────────────────────────────────────────────────
+export { isDefined, isNonNull, isDefinedAndNonNull, assertDefined, assertNotNull } from './type-utils.js';
+
+// ─── Process Execution ───────────────────────────────────────────────────────
+export { spawnProcess, executeProcess, type ProcessResult } from './process-executor.js';
 
 // ─── Reliability & Concurrency ───────────────────────────────────────────────
 export { retry, type RetryOptions, type RetryableError } from './retry.js';
@@ -143,9 +152,6 @@ export type {
 export { LockState as LockStateClass } from './lock-state.js';
 export { LockfileValidator } from './lockfile-validator.js';
 
-// ─── FP (Functional Programming) ─────────────────────────────────────────────
-export * from './fp/index.js';
-
 // ─── Design Patterns ─────────────────────────────────────────────────────────
 
 // Service Layer (encapsulates business logic)
@@ -156,14 +162,6 @@ export {
   ModelService,
   GitService,
 } from './services/index.js';
-
-// Repository Pattern (data access layer)
-export {
-  Repository,
-  BaseFileRepository,
-  ConfigRepository,
-  type ConfigEntity,
-} from './repositories/index.js';
 
 // Command Pattern (CLI commands)
 export {
@@ -184,48 +182,12 @@ export {
   type TodoEntry,
 } from './commands/index.js';
 
-// Observer Pattern (event system)
-export {
-  Event,
-  Observer,
-  EventHandler,
-  EventBus,
-  SkillTriggerObserver,
-  SessionObserver,
-  PhaseObserver,
-  type SkillTriggerEvent,
-  type EventMap,
-  type SessionStartEvent,
-  type SessionStopEvent,
-  type SessionActivityEvent,
-  type PhaseStartEvent,
-  type PhaseCompleteEvent,
-  type PhaseSkipEvent,
-  type SkillMatchEvent,
-  type SkillExecuteEvent,
-  type ContextGatherEvent,
-  type ContextCompressEvent,
-  type ContextScoreEvent,
-} from './observer/index.js';
-
-// Builder Pattern (complex object construction)
-export {
-  ContextResultBuilder,
-  ContextDirector,
-  type ContextSource,
-  type ScoringStats,
-  type CompressionStats,
-  type DedupStats,
-  type ContextMetadata,
-  type ContextResult,
-} from './builder/index.js';
-
 // Strategy Pattern (model resolution)
 export {
   ModelStrategy,
   ProfileModelStrategy,
   OverrideModelStrategy,
-  type ModelProfile,
+  type ModelProfile as StrategyModelProfile,
 } from './services/model.service.js';
 
 // Strategy Pattern (context compression)
@@ -241,8 +203,8 @@ export {
   isStrategyAvailable,
 } from './strategies/index.js';
 export type {
-  CompressionOptions,
-  CompressionResult,
+  CompressionOptions as StrategyCompressionOptions,
+  CompressionResult as StrategyCompressionResult,
   HybridStrategyOptions,
   StrategyConfig,
   StrategyType,
@@ -268,17 +230,3 @@ export {
   getRegisteredAgents,
   isAgentRegistered,
 } from './factories/index.js';
-
-// Facade Pattern (unified interfaces for complex subsystems)
-export type {
-  ContextManagerFacadeOptions,
-  FacadeCompressionStats,
-  FacadeScoringStats,
-  SkillResolverFacadeOptions,
-  SkillResolutionResult,
-  SkillExecutionWrapper,
-} from './facades/index.js';
-export {
-  ContextManagerFacade,
-  SkillResolverFacade,
-} from './facades/index.js';

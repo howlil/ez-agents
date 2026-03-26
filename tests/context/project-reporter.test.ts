@@ -1,5 +1,4 @@
 import { fileURLToPath } from 'url';
-import path from 'path';
 /**
  * Project Reporter Tests
  * Tests for ProjectReporter class
@@ -47,13 +46,13 @@ describe('ProjectReporter', () => {
 
     const report = reporter.generate(structure, stack, techDebt);
 
-    assert.ok(report, 'Should return report');
-    assert.ok(report.includes('# Project Analysis Report'), 'Should have header');
-    assert.ok(report.includes('## File Structure'), 'Should have file structure section');
-    assert.ok(report.includes('## Technology Stack'), 'Should have tech stack section');
-    assert.ok(report.includes('## Architecture Overview'), 'Should have architecture section');
-    assert.ok(report.includes('## Pain Points'), 'Should have pain points section');
-    assert.ok(report.includes('## Recommendations'), 'Should have recommendations section');
+    expect(report).toBeTruthy() // 'Should return report';
+    expect(report.includes('# Project Analysis Report')).toBeTruthy() // 'Should have header';
+    expect(report.includes('## File Structure')).toBeTruthy() // 'Should have file structure section';
+    expect(report.includes('## Technology Stack')).toBeTruthy() // 'Should have tech stack section';
+    expect(report.includes('## Architecture Overview')).toBeTruthy() // 'Should have architecture section';
+    expect(report.includes('## Pain Points')).toBeTruthy() // 'Should have pain points section';
+    expect(report.includes('## Recommendations')).toBeTruthy() // 'Should have recommendations section';
   });
 
   it('buildArchitectureOverview includes pattern summary', () => {
@@ -70,8 +69,8 @@ describe('ProjectReporter', () => {
 
     const overview = reporter.buildArchitectureOverview(structure, stack);
 
-    assert.ok(overview.includes('Pattern'), 'Should include pattern section');
-    assert.ok(overview.includes('Next.js') || overview.includes('Component'), 'Should detect pattern');
+    expect(overview.includes('Pattern')).toBeTruthy() // 'Should include pattern section';
+    expect(overview.includes('Next.js') || overview.includes('Component')).toBeTruthy() // 'Should detect pattern';
   });
 
   it('buildArchitectureOverview includes layer descriptions', () => {
@@ -89,7 +88,7 @@ describe('ProjectReporter', () => {
 
     const overview = reporter.buildArchitectureOverview(structure, stack);
 
-    assert.ok(overview.includes('Layers'), 'Should include layers section');
+    expect(overview.includes('Layers')).toBeTruthy() // 'Should include layers section';
   });
 
   it('buildPainPoints sorts issues by severity', () => {
@@ -104,12 +103,12 @@ describe('ProjectReporter', () => {
 
     const painPoints = reporter.buildPainPoints(techDebt);
 
-    assert.ok(painPoints.includes('Pain Points'), 'Should have pain points header');
+    expect(painPoints.includes('Pain Points')).toBeTruthy() // 'Should have pain points header';
     // Critical should appear before High in the output
     const criticalIndex = painPoints.indexOf('Critical');
     const highIndex = painPoints.indexOf('High');
     if (criticalIndex >= 0 && highIndex >= 0) {
-      assert.ok(criticalIndex < highIndex, 'Critical should appear before High');
+      expect(criticalIndex < highIndex).toBeTruthy() // 'Critical should appear before High';
     }
   });
 
@@ -124,8 +123,8 @@ describe('ProjectReporter', () => {
 
     const recommendations = reporter.buildRecommendations(techDebt, stack);
 
-    assert.ok(recommendations.includes('Recommendations'), 'Should have recommendations header');
-    assert.ok(recommendations.includes('Effort:'), 'Should include effort estimates');
+    expect(recommendations.includes('Recommendations')).toBeTruthy() // 'Should have recommendations header';
+    expect(recommendations.includes('Effort:')).toBeTruthy() // 'Should include effort estimates';
   });
 
   it('buildFileStructureSummary creates directory tree', () => {
@@ -143,8 +142,8 @@ describe('ProjectReporter', () => {
 
     const summary = reporter.buildFileStructureSummary(structure);
 
-    assert.ok(summary.includes('File Structure'), 'Should have file structure header');
-    assert.ok(summary.includes('Directory Layout'), 'Should have directory layout');
+    expect(summary.includes('File Structure')).toBeTruthy() // 'Should have file structure header';
+    expect(summary.includes('Directory Layout')).toBeTruthy() // 'Should have directory layout';
   });
 
   it('buildTechStackSummary lists languages, frameworks, databases', () => {
@@ -159,10 +158,10 @@ describe('ProjectReporter', () => {
 
     const summary = reporter.buildTechStackSummary(stack);
 
-    assert.ok(summary.includes('Technology Stack'), 'Should have tech stack header');
-    assert.ok(summary.includes('typescript'), 'Should list language');
-    assert.ok(summary.includes('React'), 'Should list frameworks');
-    assert.ok(summary.includes('PostgreSQL'), 'Should list databases');
+    expect(summary.includes('Technology Stack')).toBeTruthy() // 'Should have tech stack header';
+    expect(summary.includes('typescript')).toBeTruthy() // 'Should list language';
+    expect(summary.includes('React')).toBeTruthy() // 'Should list frameworks';
+    expect(summary.includes('PostgreSQL')).toBeTruthy() // 'Should list databases';
   });
 
   it('generate handles empty data gracefully', () => {
@@ -172,8 +171,8 @@ describe('ProjectReporter', () => {
 
     const report = reporter.generate(structure, stack, techDebt);
 
-    assert.ok(report, 'Should return report even for empty data');
-    assert.ok(report.length > 0, 'Report should not be empty');
+    expect(report).toBeTruthy() // 'Should return report even for empty data';
+    expect(report.length > 0).toBeTruthy() // 'Report should not be empty';
   });
 
   it('buildPainPoints handles empty findings', () => {
@@ -181,7 +180,7 @@ describe('ProjectReporter', () => {
 
     const painPoints = reporter.buildPainPoints(techDebt);
 
-    assert.ok(painPoints.includes('Pain Points'), 'Should have pain points header');
+    expect(painPoints.includes('Pain Points')).toBeTruthy() // 'Should have pain points header';
   });
 
   it('buildRecommendations handles empty findings', () => {
@@ -190,6 +189,6 @@ describe('ProjectReporter', () => {
 
     const recommendations = reporter.buildRecommendations(techDebt, stack);
 
-    assert.ok(recommendations.includes('Recommendations'), 'Should have recommendations header');
+    expect(recommendations.includes('Recommendations')).toBeTruthy() // 'Should have recommendations header';
   });
 });

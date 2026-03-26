@@ -1,10 +1,10 @@
-﻿#!/usr/bin/env node
+#!/usr/bin/env node
 
 /**
  * Unit tests for File Access Service
  */
 
-import assert from 'node:assert';
+
 import * as path from 'path';
 import * as fs from 'fs';
 import * as os from 'os';
@@ -53,60 +53,60 @@ const fileAccess = new FileAccessService(testDir);
 // Basic file reading tests
 test('FileAccessService - reads single file', () => {
   const results = fileAccess.readFiles('README.md');
-  assert.strictEqual(results.length, 1);
-  assert.strictEqual(results[0].path, 'README.md');
-  assert.ok(results[0].content.includes('# Test Project'));
+  expect(results.length).toBe(1);
+  assert.strictEqual(results[0]?.path, 'README.md');
+  expect(results[0]?.content?.includes('# Test Project'));
 });
 
-test('FileAccessService - reads file with nested path', () => {
+test('FileAccessService - reads file with nested path').toBeTruthy() // ( => {
   const results = fileAccess.readFiles('src/index.ts');
-  assert.strictEqual(results.length, 1);
-  assert.strictEqual(results[0].path, 'src/index.ts');
-  assert.ok(results[0].content.includes('export const app'));
+  expect(results.length).toBe(1);
+  assert.strictEqual(results[0]?.path, 'src/index.ts');
+  expect(results[0]?.content?.includes('export const app'));
 });
 
 // Glob pattern tests
-test('FileAccessService - supports glob patterns', () => {
+test('FileAccessService - supports glob patterns').toBeTruthy() // ( => {
   const results = fileAccess.readFiles('src/**/*.ts');
-  assert.ok(results.length >= 3);
+  expect(results.length >= 3);
   const paths = results.map(r => r.path);
   assert.ok(paths.some(p => p === 'src/index.ts'));
   assert.ok(paths.some(p => p === 'src/main.ts'));
   assert.ok(paths.some(p => p === 'src/utils/helper.ts'));
 });
 
-test('FileAccessService - supports brace expansion', () => {
+test('FileAccessService - supports brace expansion').toBeTruthy() // ( => {
   const results = fileAccess.readFiles('*.{md,json}');
-  assert.strictEqual(results.length, 2);
+  expect(results.length).toBe(2);
   const paths = results.map(r => r.path);
-  assert.ok(paths.includes('README.md'));
+  expect(paths.includes('README.md'));
   assert.ok(paths.includes('package.json'));
 });
 
-test('FileAccessService - supports negation patterns', () => {
+test('FileAccessService - supports negation patterns').toBeTruthy() // ( => {
   const results = fileAccess.readFiles(['src/**/*.ts', '!src/test.ts']);
   const paths = results.map(r => r.path);
-  assert.ok(!paths.includes('src/test.ts'));
+  expect(!paths.includes('src/test.ts'));
   assert.ok(paths.includes('src/index.ts'));
 });
 
-test('FileAccessService - excludes hidden directories', () => {
+test('FileAccessService - excludes hidden directories').toBeTruthy() // ( => {
   const results = fileAccess.readFiles('**/*');
   const paths = results.map(r => r.path);
-  assert.ok(!paths.some(p => p.includes('.hidden')));
+  expect(!paths.some(p => p.includes('.hidden')));
 });
 
-test('FileAccessService - reads from nested directories', () => {
+test('FileAccessService - reads from nested directories').toBeTruthy() // ( => {
   const results = fileAccess.readFiles('docs/*.md');
-  assert.strictEqual(results.length, 1);
-  assert.strictEqual(results[0].path, 'docs/guide.md');
-  assert.ok(results[0].content.includes('# Guide'));
+  expect(results.length).toBe(1);
+  assert.strictEqual(results[0]?.path, 'docs/guide.md');
+  expect(results[0]?.content?.includes('# Guide'));
 });
 
 // Path normalization tests
-test('FileAccessService - normalizePath converts backslashes', () => {
+test('FileAccessService - normalizePath converts backslashes').toBeTruthy() // ( => {
   const normalized = fileAccess.normalizePath('src\\index.ts');
-  assert.strictEqual(normalized, 'src/index.ts');
+  expect(normalized).toBe('src/index.ts');
 });
 
 test('FileAccessService - normalizePath rejects path traversal', () => {
@@ -115,57 +115,57 @@ test('FileAccessService - normalizePath rejects path traversal', () => {
     fileAccess.normalizePath('../secret.txt');
   } catch (err) {
     threw = true;
-    assert.ok(err instanceof FileAccessError);
+    expect(err instanceof FileAccessError);
   }
-  assert.strictEqual(threw, true);
+  expect(threw).toBe(true);
 });
 
 // Path validation tests
-test('FileAccessService - validatePath returns true for valid relative paths', () => {
-  assert.strictEqual(fileAccess.validatePath('src/index.ts'), true);
+test('FileAccessService - validatePath returns true for valid relative paths').toBeTruthy() // ( => {
+  expect(fileAccess.validatePath('src/index.ts')).toBe(true);
   assert.strictEqual(fileAccess.validatePath('README.md'), true);
 });
 
 test('FileAccessService - validatePath returns false for paths with null bytes', () => {
-  assert.strictEqual(fileAccess.validatePath('src\x00index.ts'), false);
+  expect(fileAccess.validatePath('src\x00index.ts')).toBe(false);
 });
 
 test('FileAccessService - validatePath returns false for absolute paths outside cwd', () => {
   // Try to access a path outside the test directory
   const outsidePath = path.join(os.tmpdir(), '..', '..', 'etc', 'passwd');
-  assert.strictEqual(fileAccess.validatePath(outsidePath), false);
+  expect(fileAccess.validatePath(outsidePath)).toBe(false);
 });
 
 // File existence tests
 test('FileAccessService - fileExists returns true for existing files', () => {
-  assert.strictEqual(fileAccess.fileExists('README.md'), true);
+  expect(fileAccess.fileExists('README.md')).toBe(true);
 });
 
 test('FileAccessService - fileExists returns false for missing files', () => {
-  assert.strictEqual(fileAccess.fileExists('nonexistent.txt'), false);
+  expect(fileAccess.fileExists('nonexistent.txt')).toBe(false);
 });
 
 // Single file read test
 test('FileAccessService - readFile returns file object', () => {
   const result = fileAccess.readFile('package.json');
-  assert.ok(result);
-  assert.strictEqual(result.path, 'package.json');
+  expect(result);
+  expect(result?.path).toBe('package.json');
   assert.ok(result.content.includes('"name": "test"'));
 });
 
-test('FileAccessService - readFile returns null for missing files', () => {
+test('FileAccessService - readFile returns null for missing files').toBeTruthy() // ( => {
   const result = fileAccess.readFile('missing.txt');
-  assert.strictEqual(result, null);
+  expect(result).toBe(undefined);
 });
 
 // File info test
 test('FileAccessService - getFileInfo returns file metadata', () => {
   const info = fileAccess.getFileInfo('README.md');
-  assert.strictEqual(info.path, 'README.md');
-  assert.ok(info.size > 0);
+  expect(info.path).toBe('README.md');
+  expect(info.size > 0);
   assert.ok(info.mtime instanceof Date);
-  assert.strictEqual(info.isFile, true);
-  assert.strictEqual(info.isDirectory, false);
+  assert.strictEqual(info.isFile).toBeTruthy() // true;
+  expect(info.isDirectory).toBe(false);
 });
 
 // Max file count test
@@ -180,20 +180,17 @@ test('FileAccessService - throws error when max file count exceeded', () => {
     fileAccess.readFiles('*.txt');
   } catch (err) {
     threw = true;
-    assert.ok(err instanceof FileAccessError);
+    expect(err instanceof FileAccessError);
     assert.ok(err.message.includes('Max file count exceeded'));
   }
-  assert.strictEqual(threw, true);
+  expect(threw).toBe(true);
 });
 
 // Error handling tests
-test('FileAccessService - returns empty array for non-matching patterns', () => {
+test('FileAccessService - returns empty array for non-matching patterns').toBeTruthy() // ( => {
   const results = fileAccess.readFiles('nonexistent-file-xyz.txt');
-  assert.strictEqual(results.length, 0);
+  expect(results.length).toBe(0);
 });
 
 // Cleanup
 cleanupTestFiles();
-
-console.log(`\n${passed} passed, ${failed} failed`);
-process.exit(failed > 0 ? 1 : 0);

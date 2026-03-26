@@ -3,7 +3,8 @@
  * Spawns platform CLI (vercel, flyctl, heroku, railway)
  */
 
-import { spawn, execSync } from 'child_process';
+import { execSync } from 'child_process';
+import { executeProcess } from '../process-executor.js';
 
 /**
  * Deploy options
@@ -39,11 +40,12 @@ export class DeployRunner {
    * @returns Deploy result
    */
   async run(platform: string, options: DeployOptions = {}): Promise<DeployResult> {
+    const envValue = options.env;
     const commands: Record<string, string[]> = {
-      vercel: ['vercel', '--prod', ...(options.env ? ['--env', options.env] : [])],
-      'fly.io': ['fly', 'deploy', ...(options.env ? ['--env', options.env] : [])],
+      vercel: ['vercel', '--prod', ...(envValue ? ['--env', envValue] : [])],
+      'fly.io': ['fly', 'deploy', ...(envValue ? ['--env', envValue] : [])],
       heroku: ['git', 'push', 'heroku', 'main'],
-      railway: ['railway', 'up', ...(options.env ? ['--environment', options.env] : [])]
+      railway: ['railway', 'up', ...(envValue ? ['--environment', envValue] : [])]
     };
 
     const cmdArgs = commands[platform];
@@ -51,35 +53,24 @@ export class DeployRunner {
       throw new Error(`Unknown platform: ${platform}`);
     }
 
-    const [cmd, ...args] = cmdArgs;
+    const [cmd, ...args] = cmdArgs as [string, ...string[]];
 
-    return new Promise((resolve, reject) => {
-      const proc = spawn(cmd, args, {
-        stdio: ['ignore', 'pipe', 'pipe'],
+    try {
+      const result = await executeProcess(cmd, args, {
         cwd: this.cwd,
         timeout: 300000 // 5 minute timeout
       });
 
-      let output = '';
-      proc.stdout.on('data', (data) => {
-        output += data.toString();
-        if (options.onOutput) options.onOutput(data.toString());
-      });
-      proc.stderr.on('data', (data) => {
-        output += data.toString();
-        if (options.onOutput) options.onOutput(data.toString());
-      });
-
-      proc.on('close', (code) => {
-        if (code === 0) {
-          resolve({ success: true, output });
-        } else {
-          reject(new Error(`Deploy failed with code ${code}`));
-        }
-      });
-
-      proc.on('error', reject);
-    });
+      if (result.success) {
+        if (options.onOutput) options.onOutput(result.output);
+        return { success: true, output: result.output };
+      } else {
+        throw new Error(`Deploy failed with code ${result.code}`);
+      }
+    } catch (err) {
+      const error = err instanceof Error ? err : new Error(String(err));
+      throw new Error(`Deploy failed: ${error.message}`);
+    }
   }
 
   /**
@@ -96,7 +87,9 @@ export class DeployRunner {
     };
 
     try {
-      execSync(`${commands[platform]} --version`, { stdio: 'ignore' });
+      const cmd = commands[platform];
+      if (!cmd) return false;
+      execSync(`${cmd} --version`, { stdio: 'ignore' });
       return true;
     } catch {
       return false;

@@ -137,7 +137,8 @@ export class AssertionHelper {
     } else if (expectedError) {
       assert.throws(fn, expectedError, message);
     } else {
-      assert.throws(fn, undefined, message);
+      // When no expected error, just check that it throws
+      assert.throws(fn, message);
     }
   }
 

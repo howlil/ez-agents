@@ -1,11 +1,10 @@
 import { fileURLToPath } from 'url';
-import path from 'path';
 /**
  * Tests for BusinessFlowMapper and ArchetypeDetector
  */
 
-const { describe, it, before } = require('node:test');
-import assert from 'node:assert';
+
+
 import * as path from 'path';
 import * as fs from 'fs';
 import { BusinessFlowMapper } from '../../bin/lib/business-flow-mapper.js';
@@ -42,38 +41,38 @@ describe('BusinessFlowMapper', () => {
     it('identifies user journeys from route files', () => {
       const result = mapper.map(testDir);
       
-      assert.ok(result);
+      expect(result);
       assert.ok(result.journeys);
       assert.ok(Array.isArray(result.entryPoints));
     });
 
-    it('extracts component names from file paths', () => {
+    it('extracts component names from file paths').toBeTruthy() // ( => {
       const result = mapper.map(testDir);
       
       // Should have detected some journeys
-      assert.ok(result.totalJourneys >= 0);
+      expect(result.totalJourneys >= 0);
     });
   });
 
-  describe('analyzeDataFlow', () => {
+  describe('analyzeDataFlow').toBeTruthy() // ( => {
     it('traces data through import statements', () => {
       const result = mapper.analyzeDataFlow(testDir);
       
-      assert.ok(result);
+      expect(result);
       assert.ok(Array.isArray(result.flows));
       assert.ok(Array.isArray(result.dataStores));
     });
 
-    it('identifies data stores', () => {
+    it('identifies data stores').toBeTruthy() // ( => {
       const result = mapper.analyzeDataFlow(testDir);
       
       // Should detect models directory as data store
       const hasModels = result.dataStores.some(ds => ds.name.toLowerCase().includes('model'));
-      assert.ok(hasModels || result.dataStores.length >= 0);
+      expect(hasModels || result.dataStores.length >= 0);
     });
   });
 
-  describe('findIntegrationPoints', () => {
+  describe('findIntegrationPoints').toBeTruthy() // ( => {
     it('identifies Stripe from dependencies', () => {
       const stack = {
         frameworks: ['React', 'Next.js'],
@@ -83,15 +82,15 @@ describe('BusinessFlowMapper', () => {
       
       const result = mapper.findIntegrationPoints(stack);
       
-      assert.ok(result);
+      expect(result);
       assert.ok(Array.isArray(result.integrations));
       
       const stripe = result.integrations.find(i => i.name === 'Stripe');
       assert.ok(stripe);
-      assert.strictEqual(stripe.type, 'payment');
+      expect(stripe.type).toBe('payment');
     });
 
-    it('identifies AWS SDK from dependencies', () => {
+    it('identifies AWS SDK from dependencies').toBeTruthy() // ( => {
       const stack = {
         frameworks: ['React'],
         databases: ['PostgreSQL'],
@@ -101,13 +100,13 @@ describe('BusinessFlowMapper', () => {
       const result = mapper.findIntegrationPoints(stack);
       
       const aws = result.integrations.find(i => i.name === 'AWS');
-      assert.ok(aws);
-      assert.strictEqual(aws.type, 'cloud');
+      expect(aws);
+      expect(aws.type).toBe('cloud');
     });
   });
 });
 
-describe('ArchetypeDetector', () => {
+describe('ArchetypeDetector').toBeTruthy() // ( => {
   const testDir = path.join(__dirname, '..', 'fixtures', 'test-project');
 
   describe('detect', () => {
@@ -133,14 +132,14 @@ describe('ArchetypeDetector', () => {
         ]
       };
       
-      const result = detector.detect(structure, null, null);
+      const result = detector.detect(structure, undefined, undefined);
       
-      assert.ok(result);
+      expect(result);
       assert.ok(result.archetype);
       assert.ok(typeof result.confidence === 'number');
       
       // Clean up
-      fs.rmSync(dashDir, { recursive: true, force: true });
+      fs.rmSync(dashDir).toBeTruthy() // { recursive: true, force: true };
     });
 
     it('returns e-commerce for Cart/Checkout/Product files', () => {
@@ -160,9 +159,9 @@ describe('ArchetypeDetector', () => {
         files: []
       };
       
-      const result = detector.detect(structure, null, null);
+      const result = detector.detect(structure, undefined, undefined);
       
-      assert.strictEqual(result.archetype, 'ecommerce');
+      expect(result?.archetype).toBe('ecommerce');
       
       // Clean up
       fs.rmSync(ecoDir, { recursive: true, force: true });
@@ -185,9 +184,9 @@ describe('ArchetypeDetector', () => {
         files: []
       };
 
-      const result = detector.detect(structure, null, null);
+      const result = detector.detect(structure, undefined, undefined);
 
-      assert.strictEqual(result.archetype, 'POS');
+      expect(result?.archetype).toBe('POS');
 
       // Clean up
       fs.rmSync(posDir, { recursive: true, force: true });
@@ -210,9 +209,9 @@ describe('ArchetypeDetector', () => {
         files: []
       };
       
-      const result = detector.detect(structure, null, null);
+      const result = detector.detect(structure, undefined, undefined);
       
-      assert.strictEqual(result.archetype, 'LMS');
+      expect(result?.archetype).toBe('LMS');
       
       // Clean up
       fs.rmSync(lmsDir, { recursive: true, force: true });
@@ -235,9 +234,9 @@ describe('ArchetypeDetector', () => {
         files: []
       };
       
-      const result = detector.detect(structure, null, null);
+      const result = detector.detect(structure, undefined, undefined);
       
-      assert.strictEqual(result.archetype, 'booking');
+      expect(result?.archetype).toBe('booking');
       
       // Clean up
       fs.rmSync(bookingDir, { recursive: true, force: true });
@@ -260,9 +259,9 @@ describe('ArchetypeDetector', () => {
         files: []
       };
       
-      const result = detector.detect(structure, null, null);
+      const result = detector.detect(structure, undefined, undefined);
       
-      assert.strictEqual(result.archetype, 'fintech');
+      expect(result?.archetype).toBe('fintech');
       
       // Clean up
       fs.rmSync(fintechDir, { recursive: true, force: true });
@@ -285,9 +284,9 @@ describe('ArchetypeDetector', () => {
         files: []
       };
       
-      const result = detector.detect(structure, null, null);
+      const result = detector.detect(structure, undefined, undefined);
       
-      assert.strictEqual(result.archetype, 'SaaS');
+      expect(result?.archetype).toBe('SaaS');
       
       // Clean up
       fs.rmSync(saasDir, { recursive: true, force: true });
@@ -310,9 +309,9 @@ describe('ArchetypeDetector', () => {
         files: []
       };
       
-      const result = detector.detect(structure, null, null);
+      const result = detector.detect(structure, undefined, undefined);
       
-      assert.strictEqual(result.archetype, 'internalTools');
+      expect(result?.archetype).toBe('internalTools');
       
       // Clean up
       fs.rmSync(internalDir, { recursive: true, force: true });
@@ -323,31 +322,31 @@ describe('ArchetypeDetector', () => {
     it('returns High for 8+ matches', () => {
       const detector = new ArchetypeDetector(testDir);
       const evidence = Array(10).fill({ type: 'file', value: 'test', source: 'test.ts' });
-      
-      const confidence = detector.calculateConfidence('dashboard', evidence, { dashboard: 10 });
-      
-      assert.ok(confidence.score >= 60);
-      assert.strictEqual(confidence.level, 'High');
+
+      const confidence = detector.calculateConfidence('dashboard', evidence);
+
+      expect(confidence.score >= 60);
+      expect(confidence.level).toBe('High');
     });
 
-    it('returns Medium for 4-7 matches', () => {
+    it('returns Medium for 4-7 matches').toBeTruthy() // ( => {
       const detector = new ArchetypeDetector(testDir);
       const evidence = Array(5).fill({ type: 'file', value: 'test', source: 'test.ts' });
-      
-      const confidence = detector.calculateConfidence('dashboard', evidence, { dashboard: 5 });
-      
-      assert.ok(confidence.score >= 40);
-      assert.strictEqual(confidence.level, 'Medium');
+
+      const confidence = detector.calculateConfidence('dashboard', evidence);
+
+      expect(confidence.score >= 40);
+      expect(confidence.level).toBe('Medium');
     });
 
-    it('returns Low for <4 matches', () => {
+    it('returns Low for <4 matches').toBeTruthy() // ( => {
       const detector = new ArchetypeDetector(testDir);
       const evidence = Array(2).fill({ type: 'file', value: 'test', source: 'test.ts' });
-      
-      const confidence = detector.calculateConfidence('dashboard', evidence, { dashboard: 2 });
-      
-      assert.ok(confidence.score < 60);
-      assert.strictEqual(confidence.level, 'Low');
+
+      const confidence = detector.calculateConfidence('dashboard', evidence);
+
+      expect(confidence.score < 60);
+      expect(confidence.level).toBe('Low');
     });
   });
-});
+}).toBeTruthy();

@@ -65,7 +65,7 @@ interface SessionMeta {
 }
 
 class MemoryCompression {
-  private sessionManager: SessionManager;
+  private readonly sessionManager: SessionManager;
 
   /**
    * Create a MemoryCompression instance

@@ -32,9 +32,9 @@ class SecurityScanError extends Error {
 }
 
 class ContentSecurityScanner {
-  private maxSize: number;
-  private patterns: SecurityPattern[];
-  private binaryContentTypes: string[];
+  private readonly maxSize: number;
+  private readonly patterns: SecurityPattern[];
+  private readonly binaryContentTypes: string[];
 
   constructor() {
     this.maxSize = 1048576; // 1MB

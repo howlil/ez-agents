@@ -68,8 +68,9 @@ export function cmdTemplateSelect(cwd: string, planPath: string, raw?: boolean):
     const filePattern = /`([^`]+\.[a-zA-Z]+)`/g;
     let m: RegExpExecArray | null;
     while ((m = filePattern.exec(content)) !== null) {
-      if (m[1].includes('/') && !m[1].startsWith('http')) {
-        fileMentions.add(m[1]);
+      const filePath = m[1];
+      if (filePath && filePath.includes('/') && !filePath.startsWith('http')) {
+        fileMentions.add(filePath);
       }
     }
     const fileCount = fileMentions.size;

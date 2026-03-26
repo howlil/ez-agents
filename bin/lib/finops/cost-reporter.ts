@@ -66,8 +66,8 @@ export class CostReporter {
       total: data.total,
       byPhase: data.by_phase || {},
       byProvider: data.by_provider || {},
-      trend: this.calculateTrend(data),
-      recommendations: this.generateRecommendations(data)
+      trend: this.calculateTrend(data as unknown as Record<string, unknown>),
+      recommendations: this.generateRecommendations(data as unknown as Record<string, unknown>)
     };
 
     return report;

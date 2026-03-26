@@ -105,10 +105,10 @@ const DEFAULT_RETENTION: RetentionSettings = {
 // ─── BackupService Class ─────────────────────────────────────────────────────
 
 export class BackupService {
-  private cwd: string;
-  private scope: string[];
-  private retention: RetentionSettings;
-  private backupsDir: string;
+  private readonly cwd: string;
+  private readonly scope: string[];
+  private readonly retention: RetentionSettings;
+  private readonly backupsDir: string;
 
   /**
    * Create a BackupService instance

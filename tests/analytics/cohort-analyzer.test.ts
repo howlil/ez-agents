@@ -8,12 +8,12 @@
  * Requirement: ANALYTICS-04
  */
 
-const { test, describe, beforeEach, afterEach } = require('node:test');
-import assert from 'node:assert';
+
+
 import * as path from 'path';
 import * as fs from 'fs';
 
-import CohortAnalyzer from '../../bin/lib/cohort-analyzer.js';
+import { CohortAnalyzer } from '../../bin/lib/analytics/cohort-analyzer.js';
 
 describe('CohortAnalyzer', () => {
   let tmpDir, analyzer;
@@ -26,7 +26,7 @@ describe('CohortAnalyzer', () => {
   afterEach(() => cleanup(tmpDir));
 
   test('constructor does not throw', () => {
-    assert.ok(analyzer, 'CohortAnalyzer instance must be created without throwing');
+    expect(analyzer).toBeTruthy() // 'CohortAnalyzer instance must be created without throwing';
   });
 
   test('defineCohort() creates cohort by signup period', async () => {
@@ -42,13 +42,13 @@ describe('CohortAnalyzer', () => {
     const dataPath = path.join(tmpDir, '.planning', 'cohorts.json');
     const data = JSON.parse(fs.readFileSync(dataPath, 'utf8'));
 
-    assert.ok(Array.isArray(data.cohorts), 'cohorts.json must have cohorts array');
-    assert.strictEqual(data.cohorts.length, 1, 'must have 1 cohort');
+    expect(Array.isArray(data.cohorts)).toBeTruthy() // 'cohorts.json must have cohorts array';
+    expect(data.cohorts.length).toBe(1, 'must have 1 cohort');
 
     const saved = data.cohorts[0];
-    assert.strictEqual(saved.name, 'january_2026', 'cohort name must match');
-    assert.strictEqual(saved.startDate, '2026-01-01', 'startDate must match');
-    assert.strictEqual(saved.endDate, '2026-01-31', 'endDate must match');
+    expect(saved.name).toBe('january_2026', 'cohort name must match');
+    expect(saved.startDate).toBe('2026-01-01', 'startDate must match');
+    expect(saved.endDate).toBe('2026-01-31', 'endDate must match');
   });
 
   test('addUserToCohort() assigns user based on signup date', async () => {
@@ -65,12 +65,12 @@ describe('CohortAnalyzer', () => {
     const dataPath = path.join(tmpDir, '.planning', 'cohorts.json');
     const data = JSON.parse(fs.readFileSync(dataPath, 'utf8'));
 
-    assert.ok(data.memberships, 'must have memberships data');
+    expect(data.memberships).toBeTruthy() // 'must have memberships data';
     const week1Members = data.memberships['week1_march'];
-    assert.ok(week1Members, 'must have week1_march members');
-    assert.strictEqual(week1Members.length, 2, 'must have 2 members');
-    assert.ok(week1Members.includes('user-1'), 'must include user-1');
-    assert.ok(week1Members.includes('user-2'), 'must include user-2');
+    expect(week1Members).toBeTruthy() // 'must have week1_march members';
+    expect(week1Members.length).toBe(2, 'must have 2 members');
+    expect(week1Members.includes('user-1')).toBeTruthy() // 'must include user-1';
+    expect(week1Members.includes('user-2')).toBeTruthy() // 'must include user-2';
   });
 
   test('calculateRetention() returns retention rate per period', async () => {
@@ -102,12 +102,12 @@ describe('CohortAnalyzer', () => {
 
     const retention = analyzer.calculateRetention('test_cohort', { period: 'week' });
 
-    assert.ok(retention, 'calculateRetention must return data');
-    assert.ok(Array.isArray(retention.periods), 'must have periods array');
-    assert.strictEqual(retention.periods[0].rate, 100, 'week 0 must be 100%');
-    assert.strictEqual(retention.periods[1].rate, 70, 'week 1 must be 70%');
-    assert.strictEqual(retention.periods[2].rate, 50, 'week 2 must be 50%');
-    assert.strictEqual(retention.periods[3].rate, 30, 'week 3 must be 30%');
+    expect(retention).toBeTruthy() // 'calculateRetention must return data';
+    expect(Array.isArray(retention.periods)).toBeTruthy() // 'must have periods array';
+    expect(retention.periods[0].rate).toBe(100, 'week 0 must be 100%');
+    expect(retention.periods[1].rate).toBe(70, 'week 1 must be 70%');
+    expect(retention.periods[2].rate).toBe(50, 'week 2 must be 50%');
+    expect(retention.periods[3].rate).toBe(30, 'week 3 must be 30%');
   });
 
   test('compareCohorts() returns comparative retention metrics', async () => {
@@ -143,10 +143,10 @@ describe('CohortAnalyzer', () => {
 
     const comparison = analyzer.compareCohorts(['cohort_a', 'cohort_b'], { period: 'week' });
 
-    assert.ok(comparison, 'compareCohorts must return data');
-    assert.ok(Array.isArray(comparison.cohorts), 'must have cohorts array');
-    assert.strictEqual(comparison.cohorts.length, 2, 'must compare 2 cohorts');
-    assert.ok(comparison.summary, 'must have summary data');
+    expect(comparison).toBeTruthy() // 'compareCohorts must return data';
+    expect(Array.isArray(comparison.cohorts)).toBeTruthy() // 'must have cohorts array';
+    expect(comparison.cohorts.length).toBe(2, 'must compare 2 cohorts');
+    expect(comparison.summary).toBeTruthy() // 'must have summary data';
   });
 
   test('getCohortMetrics() returns size, activity, and lifetime value', async () => {
@@ -165,9 +165,9 @@ describe('CohortAnalyzer', () => {
 
     const metrics = analyzer.getCohortMetrics('premium_cohort');
 
-    assert.ok(metrics, 'getCohortMetrics must return data');
-    assert.strictEqual(metrics.size, 5, 'cohort size must be 5');
-    assert.strictEqual(metrics.totalValue, 500, 'total value must be 500');
-    assert.strictEqual(metrics.avgValuePerUser, 100, 'avg value per user must be 100');
+    expect(metrics).toBeTruthy() // 'getCohortMetrics must return data';
+    expect(metrics.size).toBe(5, 'cohort size must be 5');
+    expect(metrics.totalValue).toBe(500, 'total value must be 500');
+    expect(metrics.avgValuePerUser).toBe(100, 'avg value per user must be 100');
   });
 });

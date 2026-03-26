@@ -83,11 +83,11 @@ export function convertImports(content: string): string {
  */
 export function convertExports(content: string): string {
   // Convert module.exports = { ... } to export { ... }
-  const exportMatch = content.match(/module\.exports\s*=\s*\{([^}]+)\};/s);
-  if (exportMatch) {
+  const exportMatch = content.match(/module\.exports\s*=\s*\{([\s\S]+?)\};/);
+  if (exportMatch && exportMatch[1] !== undefined) {
     const exports = exportMatch[1].trim();
     content = content.replace(
-      /module\.exports\s*=\s*\{[^}]+\};/s,
+      /module\.exports\s*=\s*\{[\s\S]+?\};/,
       `export { ${exports} };`
     );
   }

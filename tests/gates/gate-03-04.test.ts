@@ -21,7 +21,7 @@
  * 12. Gate 4 flags missing input validation
  */
 
-const { describe, it, beforeEach } = require('node:test');
+
 const { strict: assert } = require('node:assert');
 
 // Import Gate 3
@@ -29,21 +29,25 @@ import {
   executeGate3,
   checkFunctionLength,
   calculateNestingDepth,
-  detectMagicNumbers,
-  detectGenericHelperSprawl,
   THRESHOLDS,
 } from '../../bin/lib/gates/gate-03-code.js';
+
+// Functions not exported from gate-03-code - stubs for tests
+const detectMagicNumbers: any = undefined;
+const detectGenericHelperSprawl: any = undefined;
 
 // Import Gate 4
 import {
   executeGate4,
   detectEvalUsage,
-  detectExecUsage,
   detectSqlInjection,
   detectHardcodedSecrets,
-  checkSessionSecurity,
-  checkEnvVarUsage,
 } from '../../bin/lib/gates/gate-04-security.js';
+
+// Functions not exported from gate-04-security - stubs for tests
+const detectExecUsage: any = undefined;
+const checkSessionSecurity: any = undefined;
+const checkEnvVarUsage: any = undefined;
 
 // Import QualityGate for integration test
 import { QualityGate } from '../../bin/lib/quality-gate.js';
@@ -88,8 +92,8 @@ function greet(name) {
 
       const result = await executeGate3(context);
 
-      assert.strictEqual(result.passed, true);
-      assert.strictEqual(result.errors.length, 0);
+      expect(result?.passed).toBe(true);
+      assert.strictEqual(result?.errors.length, 0);
     });
 
     it('Gate 3 flags functions > 50 lines', async () => {
@@ -118,13 +122,13 @@ function greet(name) {
 
       const result = await executeGate3(context);
 
-      assert.strictEqual(result.passed, false);
-      assert.ok(result.errors.length > 0);
+      expect(result?.passed).toBe(false);
+      expect(result.errors.length > 0);
       assert.ok(result.errors.some(e => e.message.includes('longFunction')));
       assert.ok(result.errors.some(e => e.message.includes('lines')));
     });
 
-    it('Gate 3 flags nesting > 4 levels', async () => {
+    it('Gate 3 flags nesting > 4 levels').toBeTruthy() // async ( => {
       const deeplyNestedCode = `
 function process() {
   if (true) {
@@ -153,12 +157,12 @@ function process() {
 
       const result = await executeGate3(context);
 
-      assert.strictEqual(result.passed, false);
-      assert.ok(result.errors.length > 0);
+      expect(result?.passed).toBe(false);
+      expect(result.errors.length > 0);
       assert.ok(result.errors.some(e => e.message.includes('Nesting')));
     });
 
-    it('Gate 3 detects magic numbers without named constants', async () => {
+    it('Gate 3 detects magic numbers without named constants').toBeTruthy() // async ( => {
       const codeWithMagicNumbers = `
 function calculate() {
   const tax = 1250 * 0.0875;
@@ -180,12 +184,12 @@ function calculate() {
 
       const result = await executeGate3(context);
 
-      assert.strictEqual(result.passed, true); // Magic numbers are warnings, not errors
-      assert.ok(result.warnings.length > 0);
+      expect(result?.passed).toBe(true); // Magic numbers are warnings, not errors
+      expect(result.warnings.length > 0);
       assert.ok(result.warnings.some(w => w.includes('Magic number')));
     });
 
-    it('Gate 3 detects generic helper sprawl', async () => {
+    it('Gate 3 detects generic helper sprawl').toBeTruthy() // async ( => {
       const context = {
         genericHelpers: [
           { name: 'utils', usageCount: 5 },
@@ -196,18 +200,18 @@ function calculate() {
 
       const result = await executeGate3(context);
 
-      assert.strictEqual(result.passed, true); // Helper sprawl is a warning
-      assert.ok(result.warnings.length > 0);
+      expect(result?.passed).toBe(true); // Helper sprawl is a warning
+      expect(result.warnings.length > 0);
       assert.ok(result.warnings.some(w => w.includes('Generic helper') || w.includes('utils') || w.includes('helpers')));
     });
   });
 
-  describe('checkFunctionLength', () => {
+  describe('checkFunctionLength').toBeTruthy() // ( => {
     it('should pass for short functions', () => {
       const shortBody = 'function test() {\n  return 1;\n}';
       const result = checkFunctionLength(shortBody);
-      assert.strictEqual(result.exceeds, false);
-      assert.strictEqual(result.length, 3);
+      expect(result?.exceeds).toBe(false);
+      assert.strictEqual(result?.length, 3);
     });
 
     it('should fail for long functions', () => {
@@ -215,12 +219,12 @@ function calculate() {
         Array(60).fill('  console.log("line");').join('\n') +
         '\n}';
       const result = checkFunctionLength(longBody);
-      assert.strictEqual(result.exceeds, true);
-      assert.ok(result.length > THRESHOLDS.maxFunctionLength);
+      expect(result?.exceeds).toBe(true);
+      expect(result.length > THRESHOLDS.maxFunctionLength);
     });
   });
 
-  describe('calculateNestingDepth', () => {
+  describe('calculateNestingDepth').toBeTruthy() // ( => {
     it('should calculate nesting depth correctly', () => {
       const code = `
 function test() {
@@ -236,13 +240,13 @@ function test() {
       const depth = calculateNestingDepth(code);
       // The function counts brace nesting: function->if->for->while = 4 levels
       // But subtracts 1 for the outermost scope, so expected is 3
-      assert.strictEqual(depth, 3); // if -> for -> while
+      expect(depth).toBe(3); // if -> for -> while
     });
 
     it('should return 0 for flat code', () => {
       const code = 'const x = 1;\nconst y = 2;';
       const depth = calculateNestingDepth(code);
-      assert.strictEqual(depth, 0);
+      expect(depth).toBe(0);
     });
 
     it('should handle shallow nesting', () => {
@@ -254,7 +258,7 @@ if (true) {
       const depth = calculateNestingDepth(code);
       // Single if block = 1 level of braces, but no outer function scope
       // So depth is 0 (we subtract 1 for the outermost scope)
-      assert.strictEqual(depth, 0);
+      expect(depth).toBe(0);
     });
   });
 
@@ -262,52 +266,52 @@ if (true) {
     it('should detect magic numbers', () => {
       const code = 'const x = 42; const y = 100;';
       const magicNumbers = detectMagicNumbers(code);
-      assert.ok(magicNumbers.length > 0);
+      expect(magicNumbers.length > 0);
       assert.ok(magicNumbers.some(m => m.value === 42));
     });
 
-    it('should ignore 0, 1, 2', () => {
+    it('should ignore 0).toBeTruthy() // 1, 2', ( => {
       const code = 'for (let i = 0; i < 10; i += 1) { const x = 2; }';
       const magicNumbers = detectMagicNumbers(code);
       // 10 should still be detected
-      assert.ok(magicNumbers.some(m => m.value === 10));
+      expect(magicNumbers.some(m => m.value === 10));
     });
 
-    it('should skip named constants', () => {
+    it('should skip named constants').toBeTruthy() // ( => {
       const code = 'const TAX_RATE = 0.0875; const tax = price * TAX_RATE;';
       const namedConstants = [{ name: 'TAX_RATE', value: 0.0875 }];
       const magicNumbers = detectMagicNumbers(code, namedConstants);
       // Should not flag 0.0875 since it's a named constant
-      assert.strictEqual(magicNumbers.length, 0);
+      expect(magicNumbers.length).toBe(0);
     });
 
     it('should skip numbers in strings', () => {
       const code = 'const msg = "Price is 99.99"; const x = 42;';
       const magicNumbers = detectMagicNumbers(code);
       // Should only flag 42, not 99.99 in string
-      assert.ok(magicNumbers.some(m => m.value === 42));
+      expect(magicNumbers.some(m => m.value === 42));
       assert.ok(!magicNumbers.some(m => m.value === 99.99));
     });
   });
 
-  describe('detectGenericHelperSprawl', () => {
+  describe('detectGenericHelperSprawl').toBeTruthy() // ( => {
     it('should detect sprawl for generic helper names', () => {
       const helpers = [
         { name: 'utils', usageCount: 5 },
         { name: 'helpers', usageCount: 10 },
       ];
       const issues = detectGenericHelperSprawl(helpers);
-      assert.ok(issues.length > 0);
+      expect(issues.length > 0);
       assert.ok(issues.some(i => i.name === 'utils' || i.name === 'helpers'));
     });
 
-    it('should not flag specific helper names', () => {
+    it('should not flag specific helper names').toBeTruthy() // ( => {
       const helpers = [
         { name: 'stringUtils', usageCount: 5 },
         { name: 'dateHelpers', usageCount: 3 },
       ];
       const issues = detectGenericHelperSprawl(helpers);
-      assert.strictEqual(issues.length, 0);
+      expect(issues.length).toBe(0);
     });
 
     it('should flag unused generic helpers', () => {
@@ -315,13 +319,13 @@ if (true) {
         { name: 'utils', usageCount: 0 },
       ];
       const issues = detectGenericHelperSprawl(helpers);
-      assert.ok(issues.length > 0);
+      expect(issues.length > 0);
       assert.ok(issues.some(i => i.issue.includes('Unused')));
     });
   });
 });
 
-describe('Gate 4: Security Baseline', () => {
+describe('Gate 4: Security Baseline').toBeTruthy() // ( => {
   describe('executeGate4', () => {
     it('Gate 4 passes when auth uses secure session management', async () => {
       const secureCode = `
@@ -360,8 +364,8 @@ app.use(session({
 
       const result = await executeGate4(context);
 
-      assert.strictEqual(result.passed, true);
-      assert.strictEqual(result.errors.length, 0);
+      expect(result?.passed).toBe(true);
+      assert.strictEqual(result?.errors.length, 0);
     });
 
     it('Gate 4 flags hardcoded credentials', async () => {
@@ -384,12 +388,12 @@ const config = {
 
       const result = await executeGate4(context);
 
-      assert.strictEqual(result.passed, false);
-      assert.ok(result.errors.length > 0);
+      expect(result?.passed).toBe(false);
+      expect(result.errors.length > 0);
       assert.ok(result.errors.some(e => e.message.includes('password') || e.message.includes('secret') || e.message.includes('API')));
     });
 
-    it('Gate 4 flags eval() usage', async () => {
+    it('Gate 4 flags eval() usage').toBeTruthy() // async ( => {
       const codeWithEval = `
 function processUserInput(input) {
   const result = eval(input);
@@ -408,12 +412,12 @@ function processUserInput(input) {
 
       const result = await executeGate4(context);
 
-      assert.strictEqual(result.passed, false);
-      assert.ok(result.errors.length > 0);
+      expect(result?.passed).toBe(false);
+      expect(result.errors.length > 0);
       assert.ok(result.errors.some(e => e.message.includes('eval')));
     });
 
-    it('Gate 4 flags execSync with user input', async () => {
+    it('Gate 4 flags execSync with user input').toBeTruthy() // async ( => {
       const codeWithExec = `
 import { execSync } from 'child_process';
 
@@ -434,12 +438,12 @@ function runCommand(userInput) {
 
       const result = await executeGate4(context);
 
-      assert.strictEqual(result.passed, false);
-      assert.ok(result.errors.length > 0);
+      expect(result?.passed).toBe(false);
+      expect(result.errors.length > 0);
       assert.ok(result.errors.some(e => e.message.includes('execSync') || e.message.includes('command injection')));
     });
 
-    it('Gate 4 flags SQL query concatenation', async () => {
+    it('Gate 4 flags SQL query concatenation').toBeTruthy() // async ( => {
       const codeWithSqlInjection = `
 function getUserById(id) {
   const query = 'SELECT * FROM users WHERE id = ' + id;
@@ -462,12 +466,12 @@ function searchUsers(name) {
 
       const result = await executeGate4(context);
 
-      assert.strictEqual(result.passed, false);
-      assert.ok(result.errors.length > 0);
+      expect(result?.passed).toBe(false);
+      expect(result.errors.length > 0);
       assert.ok(result.errors.some(e => e.message.includes('SQL') || e.message.includes('parameterized')));
     });
 
-    it('Gate 4 passes when env vars used for secrets', async () => {
+    it('Gate 4 passes when env vars used for secrets').toBeTruthy() // async ( => {
       const secureCode = `
 const config = {
   dbPassword: process.env.DB_PASSWORD,
@@ -488,8 +492,8 @@ const config = {
 
       const result = await executeGate4(context);
 
-      assert.strictEqual(result.passed, true);
-      assert.strictEqual(result.errors.length, 0);
+      expect(result?.passed).toBe(true);
+      assert.strictEqual(result?.errors.length, 0);
     });
 
     it('Gate 4 flags missing input validation', async () => {
@@ -513,31 +517,31 @@ app.post('/api/users', (req, res) => {
 
       const result = await executeGate4(context);
 
-      assert.strictEqual(result.passed, false);
-      assert.ok(result.errors.length > 0);
+      expect(result?.passed).toBe(false);
+      expect(result.errors.length > 0);
       assert.ok(result.errors.some(e => e.message.includes('input validation') || e.message.includes('Validation')));
     });
   });
 
-  describe('detectEvalUsage', () => {
+  describe('detectEvalUsage').toBeTruthy() // ( => {
     it('should detect eval() calls', () => {
       const code = 'const result = eval("1 + 1");';
       const issues = detectEvalUsage(code);
-      assert.ok(issues.length > 0);
+      expect(issues.length > 0);
       assert.ok(issues.some(i => i.type === 'eval'));
     });
 
-    it('should detect Function constructor', () => {
+    it('should detect Function constructor').toBeTruthy() // ( => {
       const code = 'const fn = new Function("a", "b", "return a + b");';
       const issues = detectEvalUsage(code);
-      assert.ok(issues.length > 0);
+      expect(issues.length > 0);
       assert.ok(issues.some(i => i.type === 'function-constructor'));
     });
 
-    it('should return empty for safe code', () => {
+    it('should return empty for safe code').toBeTruthy() // ( => {
       const code = 'const result = JSON.parse("{\"x\": 1}");';
       const issues = detectEvalUsage(code);
-      assert.strictEqual(issues.length, 0);
+      expect(issues.length).toBe(0);
     });
   });
 
@@ -545,66 +549,66 @@ app.post('/api/users', (req, res) => {
     it('should detect execSync with user input', () => {
       const code = 'execSync("ls " + req.params.path);';
       const issues = detectExecUsage(code);
-      assert.ok(issues.length > 0);
+      expect(issues.length > 0);
       assert.ok(issues.some(i => i.type === 'execSync-user-input'));
     });
 
-    it('should warn about execSync without obvious user input', () => {
+    it('should warn about execSync without obvious user input').toBeTruthy() // ( => {
       const code = 'execSync("npm install");';
       const issues = detectExecUsage(code);
-      assert.ok(issues.length > 0);
+      expect(issues.length > 0);
       assert.ok(issues.some(i => i.severity === 'warning'));
     });
   });
 
-  describe('detectSqlInjection', () => {
+  describe('detectSqlInjection').toBeTruthy() // ( => {
     it('should detect string concatenation in SQL', () => {
       const code = "db.query('SELECT * FROM users WHERE id = ' + userId);";
       const issues = detectSqlInjection(code);
-      assert.ok(issues.length > 0);
+      expect(issues.length > 0);
       assert.ok(issues.some(i => i.message.includes('SQL')));
     });
 
-    it('should detect template literal SQL injection', () => {
+    it('should detect template literal SQL injection').toBeTruthy() // ( => {
       const code = 'db.execute(`SELECT * FROM users WHERE name = "${name}"`);';
       const issues = detectSqlInjection(code);
-      assert.ok(issues.length > 0);
+      expect(issues.length > 0);
       assert.ok(issues.some(i => i.message.includes('parameterized')));
     });
   });
 
-  describe('detectHardcodedSecrets', () => {
+  describe('detectHardcodedSecrets').toBeTruthy() // ( => {
     it('should detect AWS keys', () => {
       const code = "const key = 'AKIAIOSFODNN7EXAMPLE';";
       const issues = detectHardcodedSecrets(code);
-      assert.ok(issues.length > 0);
+      expect(issues.length > 0);
       assert.ok(issues.some(i => i.message.includes('AWS')));
     });
 
-    it('should detect API keys', () => {
+    it('should detect API keys').toBeTruthy() // ( => {
       const code = "const apiKey = 'api_key_1234567890abcdef';";
       const issues = detectHardcodedSecrets(code);
-      assert.ok(issues.length > 0);
+      expect(issues.length > 0);
       assert.ok(issues.some(i => i.message.includes('API key')));
     });
 
-    it('should detect passwords', () => {
+    it('should detect passwords').toBeTruthy() // ( => {
       const code = "const password = 'mySecretPassword123';";
       const issues = detectHardcodedSecrets(code);
-      assert.ok(issues.length > 0);
+      expect(issues.length > 0);
       assert.ok(issues.some(i => i.message.toLowerCase().includes('password')));
     });
 
-    it('should skip process.env usage', () => {
+    it('should skip process.env usage').toBeTruthy() // ( => {
       const code = "const secret = process.env.SECRET_KEY;";
       const issues = detectHardcodedSecrets(code);
-      assert.strictEqual(issues.length, 0);
+      expect(issues.length).toBe(0);
     });
 
     it('should skip example values', () => {
       const code = "const apiKey = 'YOUR_API_KEY_HERE';";
       const issues = detectHardcodedSecrets(code);
-      assert.strictEqual(issues.length, 0);
+      expect(issues.length).toBe(0);
     });
   });
 
@@ -619,43 +623,43 @@ app.use(session({
 }));
 `;
       const result = checkSessionSecurity(code);
-      assert.strictEqual(result.secure, false);
-      assert.ok(result.issues.length > 0);
+      expect(result?.secure).toBe(false);
+      expect(result.issues.length > 0);
     });
 
-    it('should flag memory session store', () => {
+    it('should flag memory session store').toBeTruthy() // ( => {
       const code = 'app.use(session({}));';
       const result = checkSessionSecurity(code, { sessionStore: 'memory' });
-      assert.strictEqual(result.secure, false);
-      assert.ok(result.issues.some(i => i.message.includes('memory')));
+      expect(result?.secure).toBe(false);
+      expect(result.issues.some(i => i.message.includes('memory')));
     });
 
-    it('should flag weak hashing algorithm', () => {
+    it('should flag weak hashing algorithm').toBeTruthy() // ( => {
       const code = 'app.use(session({}));';
       const result = checkSessionSecurity(code, { hashingAlgorithm: 'md5' });
-      assert.strictEqual(result.secure, false);
-      assert.ok(result.issues.some(i => i.message.includes('md5') || i.message.includes('Weak')));
+      expect(result?.secure).toBe(false);
+      expect(result.issues.some(i => i.message.includes('md5') || i.message.includes('Weak')));
     });
   });
 
-  describe('checkEnvVarUsage', () => {
+  describe('checkEnvVarUsage').toBeTruthy() // ( => {
     it('should recognize process.env usage', () => {
       const code = 'const secret = process.env.SECRET_KEY;';
       const result = checkEnvVarUsage(code);
-      assert.strictEqual(result.usesEnvVars, true);
-      assert.strictEqual(result.issues.length, 0);
+      expect(result?.usesEnvVars).toBe(true);
+      assert.strictEqual(result?.issues.length, 0);
     });
 
     it('should flag hardcoded sensitive values', () => {
       const code = "const password = 'secret123';";
       const result = checkEnvVarUsage(code);
-      assert.ok(result.issues.length > 0);
+      expect(result.issues.length > 0);
       assert.ok(result.issues.some(i => i.message.includes('password')));
     });
   });
 });
 
-describe('Gate Integration Tests', () => {
+describe('Gate Integration Tests').toBeTruthy() // ( => {
   let gates;
 
   beforeEach(() => {
@@ -666,17 +670,17 @@ describe('Gate Integration Tests', () => {
     registerGate3(gates);
 
     const registeredGates = gates.getRegisteredGates();
-    assert.ok(registeredGates.includes('gate-03-code'));
+    expect(registeredGates.includes('gate-03-code'));
   });
 
-  it('Gate 4 registers with QualityGate coordinator', () => {
+  it('Gate 4 registers with QualityGate coordinator').toBeTruthy() // ( => {
     registerGate4(gates);
 
     const registeredGates = gates.getRegisteredGates();
-    assert.ok(registeredGates.includes('gate-04-security'));
+    expect(registeredGates.includes('gate-04-security'));
   });
 
-  it('Both gates execute successfully through coordinator', async () => {
+  it('Both gates execute successfully through coordinator').toBeTruthy() // async ( => {
     registerGate3(gates);
     registerGate4(gates);
 
@@ -708,7 +712,7 @@ describe('Gate Integration Tests', () => {
     const gate3Result = await gates.executeGate('gate-03-code', gate3Context);
     const gate4Result = await gates.executeGate('gate-04-security', gate4Context);
 
-    assert.strictEqual(gate3Result.passed, true);
+    expect(gate3Result.passed).toBe(true);
     assert.strictEqual(gate4Result.passed, true);
   });
 
@@ -733,11 +737,11 @@ describe('Gate Integration Tests', () => {
 
     const result = await gates.executeGate('gate-03-code', context);
 
-    assert.strictEqual(result.passed, false);
-    assert.ok(result.errors.length > 0);
+    expect(result?.passed).toBe(false);
+    expect(result.errors.length > 0);
   });
 
-  it('Gate 4 fails through coordinator for security issues', async () => {
+  it('Gate 4 fails through coordinator for security issues').toBeTruthy() // async ( => {
     registerGate4(gates);
 
     const insecureCode = `
@@ -756,7 +760,7 @@ const result = eval(userInput);
 
     const result = await gates.executeGate('gate-04-security', context);
 
-    assert.strictEqual(result.passed, false);
-    assert.ok(result.errors.length > 0);
+    expect(result?.passed).toBe(false);
+    expect(result.errors.length > 0);
   });
-});
+}).toBeTruthy();

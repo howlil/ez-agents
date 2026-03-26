@@ -27,7 +27,8 @@ function extractFrontmatter(content: string): Frontmatter {
   const match = content.match(/^---\n([\s\S]+?)\n---/);
   if (!match) return frontmatter;
 
-  const yaml = match[1];
+  const yaml = match[1] ?? '';
+  if (yaml === '') return frontmatter;
   const lines = yaml.split('\n');
 
   // Stack to track nested objects: [{obj, key, indent}]
@@ -47,10 +48,11 @@ function extractFrontmatter(content: string): Frontmatter {
     }
 
     const current = stack[stack.length - 1];
+    if (current === undefined) continue;
 
     // Check for key: value pattern
     const keyMatch = line.match(/^(\s*)([a-zA-Z0-9_-]+):\s*(.*)/);
-    if (keyMatch) {
+    if (keyMatch && keyMatch[2] !== undefined && keyMatch[3] !== undefined) {
       const key = keyMatch[2];
       const value = keyMatch[3].trim();
 
@@ -103,7 +105,7 @@ function extractFrontmatter(content: string): Frontmatter {
 function parseFrontmatter(content: string): ParsedFrontmatterResult {
   const fm = extractFrontmatter(content);
   const match = content.match(/^---\n[\s\S]+?\n---(.*)/s);
-  const body = match ? match[1].trim() : content;
+  const body = match && match[1] !== undefined ? match[1].trim() : content;
   return { frontmatter: fm, body };
 }
 
@@ -229,22 +231,22 @@ function parseMustHavesBlock(content: string, blockName: string): MustHaveItem[]
       current = {};
       const simpleMatch = line.match(/^\s{6}-\s+"?([^"]+)"?\s*$/);
       if (simpleMatch && !line.includes(':')) {
-        current = simpleMatch[1];
+        current = simpleMatch[1] ?? '';
       } else {
         const kvMatch = line.match(/^\s{6}-\s+(\w+):\s*"?([^"]*)"?\s*$/);
-        if (kvMatch) {
+        if (kvMatch && kvMatch[1] && kvMatch[2] !== undefined) {
           current = {};
           current[kvMatch[1]] = kvMatch[2];
         }
       }
     } else if (current && typeof current === 'object' && !Array.isArray(current)) {
       const kvMatch = line.match(/^\s{8,}(\w+):\s*"?([^"]*)"?\s*$/);
-      if (kvMatch) {
+      if (kvMatch && kvMatch[1] && kvMatch[2] !== undefined) {
         const val = kvMatch[2];
         current[kvMatch[1]] = /^\d+$/.test(val) ? parseInt(val, 10) : val;
       }
       const arrMatch = line.match(/^\s{10,}-\s+"?([^"]+)"?\s*$/);
-      if (arrMatch) {
+      if (arrMatch && arrMatch[1]) {
         const keys = Object.keys(current);
         const lastKey = keys[keys.length - 1];
         if (lastKey && !Array.isArray(current[lastKey])) {

@@ -1,17 +1,16 @@
 #!/usr/bin/env node
-
 /**
  * Check Metrics CI Script
  *
  * Runs all code quality metric checks and generates a summary report.
  * Exits with error code if any thresholds are not met.
  *
- * Usage: node scripts/check-metrics.cjs
+ * Usage: npx tsx scripts/check-metrics.ts
  */
 
-const { execSync } = require('child_process');
-const fs = require('fs');
-const path = require('path');
+import { execSync } from 'node:child_process';
+import fs from 'node:fs';
+import path from 'node:path';
 
 const REPORTS_DIR = path.join(__dirname, '..', '.planning', 'reports');
 const SUMMARY_FILE = path.join(REPORTS_DIR, 'phase14-metrics-summary.md');
@@ -32,11 +31,22 @@ const colors = {
   blue: '\x1b[34m',
 };
 
-function log(message, color = 'reset') {
+interface CheckResult {
+  success: boolean;
+  output: string;
+}
+
+interface AllResults {
+  lint: CheckResult;
+  duplicates: CheckResult;
+  coupling: CheckResult;
+}
+
+function log(message: string, color: keyof typeof colors = 'reset'): void {
   console.log(`${colors[color]}${message}${colors.reset}`);
 }
 
-function runCommand(command, name) {
+function runCommand(command: string, name: string): CheckResult {
   log(`\nRunning: ${name}...`, 'blue');
   try {
     const output = execSync(command, { encoding: 'utf-8', stdio: 'pipe' });
@@ -44,12 +54,13 @@ function runCommand(command, name) {
     return { success: true, output };
   } catch (error) {
     log(`✗ ${name} failed`, 'red');
-    console.error(error.stdout || error.message);
-    return { success: false, output: error.stdout || error.message };
+    const err = error as { stdout?: string; message?: string };
+    console.error(err.stdout || err.message);
+    return { success: false, output: err.stdout || err.message };
   }
 }
 
-function generateSummary(results) {
+function generateSummary(results: AllResults): void {
   const timestamp = new Date().toISOString();
 
   const summary = `# Phase 14: Metrics Summary Report
@@ -117,7 +128,7 @@ log('═════════════════════════
 log('  Code Quality Metrics Check', 'blue');
 log('═══════════════════════════════════════════\n', 'blue');
 
-const results = {
+const results: AllResults = {
   lint: runCommand('npm run lint', 'ESLint'),
   duplicates: runCommand('npm run check:duplicates', 'Duplicate Detection'),
   coupling: runCommand('npm run check:coupling', 'Coupling Analysis'),

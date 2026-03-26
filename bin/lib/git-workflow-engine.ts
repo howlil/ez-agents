@@ -604,7 +604,7 @@ export class GitWorkflowEngine {
         timestamp: new Date().toISOString()
       };
 
-      this.logger.info('Validation completed', result);
+      this.logger.info('Validation completed', result as unknown as Record<string, unknown>);
 
       if (!passed) {
         throw new ValidationFailedError('pre_merge', checks.filter(c => !c.passed).map(c => c.message));
@@ -860,7 +860,7 @@ export class GitWorkflowEngine {
         timestamp: new Date().toISOString()
       };
 
-      this.logger.info('Release validation completed', result);
+      this.logger.info('Release validation completed', result as unknown as Record<string, unknown>);
 
       if (criticalFailures > 0) {
         throw new ValidationFailedError('release_stability', [
@@ -939,10 +939,10 @@ export class GitWorkflowEngine {
 
     // Merge back to develop with version bump
     await this.git.checkout('develop');
-    await this.git.mergeWithStrategy(releaseBranch, 'develop', 'merge');
+    await this.git.mergeWithStrategy(releaseBranch!, 'develop', 'merge');
 
     // Bump version in package.json
-    await this._bumpVersion(version);
+    await this._bumpVersion(version!);
 
     this.logger.info('Release merged to develop', {
       branch: 'develop',
@@ -951,8 +951,8 @@ export class GitWorkflowEngine {
 
     return {
       success: true,
-      releaseBranch,
-      mainTag: tagName,
+      releaseBranch: releaseBranch!,
+      mainTag: tagName!,
       version: version ?? ''
     };
   }
@@ -1048,7 +1048,7 @@ export class GitWorkflowEngine {
       throw new BranchNotFoundError(`phase/${phaseNumber}-*`);
     }
 
-    const phaseBranch = branches[0];
+    const phaseBranch = branches[0]!;
     this.logger.info('Rolling back phase', { phaseNumber, phaseBranch });
 
     // Create rollback branch for safety
@@ -1065,30 +1065,30 @@ export class GitWorkflowEngine {
       ], { cwd: process.cwd() });
 
       if (stdout) {
-        const mergeCommit = stdout.split(' ')[0];
+        const mergeCommit = stdout.split(' ')[0]!;
 
         // Revert the merge commit
         await this.git.revertCommit(mergeCommit);
 
         this.logger.info('Phase rollback completed', {
           phaseNumber,
-          revertedCommit: mergeCommit ?? '',
-          rollbackBranch: rollbackBranch ?? ''
+          revertedCommit: mergeCommit,
+          rollbackBranch: rollbackBranch!
         });
 
         return {
           success: true,
           phaseNumber,
-          revertedCommit: mergeCommit ?? '',
-          rollbackBranch: rollbackBranch ?? ''
+          revertedCommit: mergeCommit,
+          rollbackBranch: rollbackBranch!
         };
       } else {
         // Phase not merged yet, just delete the branch
-        await this.git.deleteBranch(phaseBranch, true);
+        await this.git.deleteBranch(phaseBranch!, true);
 
         this.logger.info('Phase branch deleted (not merged)', {
           phaseNumber,
-          phaseBranch
+          phaseBranch: phaseBranch!
         });
 
         return {

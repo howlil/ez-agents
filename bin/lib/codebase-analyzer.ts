@@ -54,8 +54,8 @@ export interface ModuleBoundary {
 // ─── CodebaseAnalyzer Class ──────────────────────────────────────────────────
 
 export class CodebaseAnalyzer {
-  private rootPath: string;
-  private ignorePatterns: string[];
+  private readonly rootPath: string;
+  private readonly ignorePatterns: string[];
 
   /**
    * Create a CodebaseAnalyzer instance

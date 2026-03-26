@@ -75,7 +75,7 @@ export interface ConstraintsResult {
 // ─── ConstraintExtractor Class ───────────────────────────────────────────────
 
 export class ConstraintExtractor {
-  private rootPath: string;
+  private readonly rootPath: string;
 
   /**
    * Create a ConstraintExtractor instance

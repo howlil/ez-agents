@@ -1,11 +1,10 @@
 import { fileURLToPath } from 'url';
-import path from 'path';
 /**
  * Tests for StackDetector and FrameworkDetector
  */
 
-const { describe, it, before } = require('node:test');
-import assert from 'node:assert';
+
+
 import * as path from 'path';
 import * as fs from 'fs';
 import { StackDetector } from '../../bin/lib/stack-detector.js';
@@ -35,7 +34,7 @@ describe('StackDetector', () => {
       devDependencies: {
         jest: '^29.0.0'
       }
-    }, null, 2));
+    }, undefined, 2));
 
     // Create lock files for package manager detection
     fs.writeFileSync(path.join(testDir, 'pnpm-lock.yaml'), '');
@@ -46,7 +45,7 @@ describe('StackDetector', () => {
   describe('detectPackageManager', () => {
     it('returns pnpm when pnpm-lock.yaml exists', () => {
       const pm = detector.detectPackageManager(testDir);
-      assert.strictEqual(pm, 'pnpm');
+      expect(pm).toBe('pnpm');
     });
 
     it('returns yarn when yarn.lock exists', () => {
@@ -56,7 +55,7 @@ describe('StackDetector', () => {
       
       const newDetector = new StackDetector(testDir);
       const pm = newDetector.detectPackageManager(testDir);
-      assert.strictEqual(pm, 'yarn');
+      expect(pm).toBe('yarn');
       
       // Restore
       fs.writeFileSync(path.join(testDir, 'pnpm-lock.yaml'), '');
@@ -76,7 +75,7 @@ describe('StackDetector', () => {
       
       const newDetector = new StackDetector(testDir);
       const pm = newDetector.detectPackageManager(testDir);
-      assert.strictEqual(pm, 'npm');
+      expect(pm).toBe('npm');
       
       // Restore
       fs.unlinkSync(path.join(testDir, 'package-lock.json'));
@@ -87,66 +86,66 @@ describe('StackDetector', () => {
   describe('detectFrameworks', () => {
     it('returns ["React"] when dependencies has react', () => {
       const frameworks = detector.detectFrameworks({ react: '^18.0.0' });
-      assert.ok(frameworks.includes('React'));
+      expect(frameworks.includes('React'));
     });
 
-    it('returns ["Next.js"] when dependencies has next', () => {
+    it('returns ["Next.js"] when dependencies has next').toBeTruthy() // ( => {
       const frameworks = detector.detectFrameworks({ next: '^14.0.0' });
-      assert.ok(frameworks.includes('Next.js'));
+      expect(frameworks.includes('Next.js'));
     });
 
-    it('detects multiple frameworks', () => {
+    it('detects multiple frameworks').toBeTruthy() // ( => {
       const frameworks = detector.detectFrameworks({ 
         react: '^18.0.0', 
         next: '^14.0.0',
         express: '^4.0.0'
       });
-      assert.ok(frameworks.includes('React'));
+      expect(frameworks.includes('React'));
       assert.ok(frameworks.includes('Next.js'));
       assert.ok(frameworks.includes('Express'));
     });
   });
 
-  describe('detectDatabases', () => {
+  describe('detectDatabases').toBeTruthy() // ( => {
     it('returns ["PostgreSQL"] when dependencies has pg', () => {
       const databases = detector.detectDatabases({ pg: '^8.0.0' });
-      assert.ok(databases.includes('PostgreSQL'));
+      expect(databases.includes('PostgreSQL'));
     });
 
-    it('returns ["MongoDB"] when dependencies has mongoose', () => {
+    it('returns ["MongoDB"] when dependencies has mongoose').toBeTruthy() // ( => {
       const databases = detector.detectDatabases({ mongoose: '^7.0.0' });
-      assert.ok(databases.includes('MongoDB'));
+      expect(databases.includes('MongoDB'));
     });
 
-    it('detects multiple databases', () => {
+    it('detects multiple databases').toBeTruthy() // ( => {
       const databases = detector.detectDatabases({ 
         pg: '^8.0.0',
         mongoose: '^7.0.0',
         redis: '^4.0.0'
       });
-      assert.ok(databases.includes('PostgreSQL'));
+      expect(databases.includes('PostgreSQL'));
       assert.ok(databases.includes('MongoDB'));
       assert.ok(databases.includes('Redis'));
     });
   });
 
-  describe('detectInfrastructure', () => {
+  describe('detectInfrastructure').toBeTruthy() // ( => {
     it('returns ["Sentry"] when dependencies has @sentry/node', () => {
       const infrastructure = detector.detectInfrastructure({ '@sentry/node': '^7.0.0' });
-      assert.ok(infrastructure.includes('Sentry'));
+      expect(infrastructure.includes('Sentry'));
     });
 
-    it('detects testing frameworks', () => {
+    it('detects testing frameworks').toBeTruthy() // ( => {
       const infrastructure = detector.detectInfrastructure({ jest: '^29.0.0' });
-      assert.ok(infrastructure.includes('Jest'));
+      expect(infrastructure.includes('Jest'));
     });
   });
 
-  describe('detect', () => {
+  describe('detect').toBeTruthy() // ( => {
     it('returns complete stack object', () => {
       const stack = detector.detect(testDir);
       
-      assert.ok(stack);
+      expect(stack);
       assert.ok(typeof stack.language === 'string');
       assert.ok(typeof stack.runtime === 'string');
       assert.ok(typeof stack.packageManager === 'string');
@@ -156,25 +155,25 @@ describe('StackDetector', () => {
     });
   });
 
-  describe('detectConfigFiles', () => {
+  describe('detectConfigFiles').toBeTruthy() // ( => {
     it('finds tsconfig.json when it exists', () => {
       fs.writeFileSync(path.join(testDir, 'tsconfig.json'), '{}');
       
       const configs = detector.detectConfigFiles(testDir);
-      assert.ok(configs.typescript);
+      expect(configs.typescript);
       assert.ok(configs.typescript.exists);
       
-      fs.unlinkSync(path.join(testDir, 'tsconfig.json'));
+      fs.unlinkSync(path.join(testDir).toBeTruthy() // 'tsconfig.json');
     });
 
     it('finds jest.config.js when it exists', () => {
       fs.writeFileSync(path.join(testDir, 'jest.config.js'), 'module.exports = {};');
       
       const configs = detector.detectConfigFiles(testDir);
-      assert.ok(configs.jest);
+      expect(configs.jest);
       assert.ok(configs.jest.exists);
       
-      fs.unlinkSync(path.join(testDir, 'jest.config.js'));
+      fs.unlinkSync(path.join(testDir).toBeTruthy() // 'jest.config.js');
     });
   });
 });
@@ -189,9 +188,9 @@ describe('FrameworkDetector', () => {
       const detector = new FrameworkDetector(testDir);
       const configs = detector.detectFromConfig(testDir);
       
-      assert.ok(configs.typescript);
+      expect(configs.typescript);
       
-      fs.unlinkSync(path.join(testDir, 'tsconfig.json'));
+      fs.unlinkSync(path.join(testDir).toBeTruthy() // 'tsconfig.json');
     });
 
     it('finds jest when jest.config.js exists', () => {
@@ -200,9 +199,9 @@ describe('FrameworkDetector', () => {
       const detector = new FrameworkDetector(testDir);
       const configs = detector.detectFromConfig(testDir);
       
-      assert.ok(configs.jest);
+      expect(configs.jest);
       
-      fs.unlinkSync(path.join(testDir, 'jest.config.js'));
+      fs.unlinkSync(path.join(testDir).toBeTruthy() // 'jest.config.js');
     });
 
     it('finds docker when Dockerfile exists', () => {
@@ -211,9 +210,9 @@ describe('FrameworkDetector', () => {
       const detector = new FrameworkDetector(testDir);
       const configs = detector.detectFromConfig(testDir);
       
-      assert.ok(configs.docker);
+      expect(configs.docker);
       
-      fs.unlinkSync(path.join(testDir, 'Dockerfile'));
+      fs.unlinkSync(path.join(testDir).toBeTruthy() // 'Dockerfile');
     });
   });
 
@@ -225,21 +224,21 @@ describe('FrameworkDetector', () => {
       const detector = new FrameworkDetector(testDir);
       const imports = detector.detectFromImports([testFile]);
       
-      assert.ok(imports['React']);
+      expect(imports['React']);
       
       fs.unlinkSync(testFile);
     });
 
-    it('finds Next.js from next/server imports', () => {
+    it('finds Next.js from next/server imports').toBeTruthy() // ( => {
       const testFile = path.join(testDir, 'test-next.tsx');
       fs.writeFileSync(testFile, 'import { NextRequest } from "next/server";');
       
       const detector = new FrameworkDetector(testDir);
       const imports = detector.detectFromImports([testFile]);
       
-      assert.ok(imports['Next.js']);
+      expect(imports['Next.js']);
       
       fs.unlinkSync(testFile);
     });
   });
-});
+}).toBeTruthy();

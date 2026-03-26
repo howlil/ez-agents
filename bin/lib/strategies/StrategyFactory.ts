@@ -94,9 +94,9 @@ export function createStrategy(name: string, config: StrategyConfig = {}): Compr
 
     case 'hybrid': {
       const hybridOptions: HybridStrategyOptions = {
-        scorer: config.scorer ?? new ContextRelevanceScorer(),
+        scorer: config.scorer ?? new ContextRelevanceScorer(''),
         modelName: config.modelName ?? 'claude-sonnet',
-        maxTokens: config.maxTokens,
+        ...(config.maxTokens !== undefined && { maxTokens: config.maxTokens }),
         enableRanking: config.enableRanking ?? true,
         enableSummarization: config.enableSummarization ?? true,
         enableTruncation: config.enableTruncation ?? true

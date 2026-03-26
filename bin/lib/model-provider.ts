@@ -40,9 +40,9 @@ interface HttpRequestOptions {
 }
 
 class ModelProvider {
-  private provider: string;
-  private model: string;
-  private apiKey: string;
+  private readonly provider: string;
+  private readonly model: string;
+  private readonly apiKey: string;
 
   /**
    * Create model provider

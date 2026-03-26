@@ -28,8 +28,8 @@ export interface ErrorEntry {
 // ─── ErrorCache Class ────────────────────────────────────────────────────────
 
 export class ErrorCache {
-  private cache: Map<string, ErrorEntry>;
-  private maxSize: number;
+  private readonly cache: Map<string, ErrorEntry>;
+  private readonly maxSize: number;
 
   /**
    * Create an ErrorCache instance

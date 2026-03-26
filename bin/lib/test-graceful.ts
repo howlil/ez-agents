@@ -5,7 +5,7 @@
  * Run: node --loader ts-node/esm bin/lib/test-graceful.ts
  */
 
-import { HealthCheck } from './health-check.js';
+import HealthCheck from './health-check.js';
 import { execWithTimeout } from './timeout-exec.js';
 import fs from 'fs';
 import path from 'path';

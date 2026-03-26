@@ -1,11 +1,11 @@
-﻿/**
+/**
  * Unit Tests for Skill Resolver
  *
  * Tests conflict detection, classification, priority rule application,
  * and decision logging for the SkillResolver class.
  */
 
-import assert from 'node:assert';
+
 import { test } from './test-utils.js';
 import { SkillResolver, PRIORITY_RULES, CONFLICT_TYPES } from '../../bin/lib/skill-resolver.js';
 
@@ -16,26 +16,26 @@ let failed = 0;
 
 // Test: PRIORITY_RULES exports with expected keys
 test('PRIORITY_RULES contains security > speed rule', () => {
-  assert.ok(PRIORITY_RULES['security > speed'], 'Missing security > speed rule');
-  assert.strictEqual(PRIORITY_RULES['security > speed'].absolute, true);
+  expect(PRIORITY_RULES['security > speed']).toBeTruthy() // 'Missing security > speed rule';
+  expect(PRIORITY_RULES['security > speed'].absolute).toBe(true);
   assert.strictEqual(PRIORITY_RULES['security > speed'].higher, 'security');
 });
 
 test('PRIORITY_RULES contains maintainability > novelty rule', () => {
-  assert.ok(PRIORITY_RULES['maintainability > novelty'], 'Missing maintainability > novelty rule');
-  assert.strictEqual(PRIORITY_RULES['maintainability > novelty'].absolute, true);
+  expect(PRIORITY_RULES['maintainability > novelty']).toBeTruthy() // 'Missing maintainability > novelty rule';
+  expect(PRIORITY_RULES['maintainability > novelty'].absolute).toBe(true);
 });
 
 test('PRIORITY_RULES contains data integrity > performance rule', () => {
-  assert.ok(PRIORITY_RULES['data integrity > performance'], 'Missing data integrity rule');
+  expect(PRIORITY_RULES['data integrity > performance']).toBeTruthy() // 'Missing data integrity rule';
 });
 
 // Test: SkillResolver constructor
 test('SkillResolver instantiates with default options', () => {
   const resolver = new SkillResolver();
-  assert.ok(resolver, 'Resolver should be instantiated');
+  expect(resolver).toBeTruthy() // 'Resolver should be instantiated';
   // @ts-expect-error Accessing private member for testing
-  assert.ok(resolver.priorityRules, 'Should have priority rules');
+  expect(resolver.priorityRules).toBeTruthy() // 'Should have priority rules';
   // @ts-expect-error Accessing private member for testing
   assert.deepStrictEqual(resolver.context, {});
   // @ts-expect-error Accessing private member for testing
@@ -45,7 +45,7 @@ test('SkillResolver instantiates with default options', () => {
 test('SkillResolver accepts custom context', () => {
   const resolver = new SkillResolver({ context: { project_phase: 'MVP' } });
   // @ts-expect-error Accessing private member for testing
-  assert.strictEqual(resolver.context.project_phase, 'MVP');
+  expect(resolver.context.project_phase).toBe('MVP');
 });
 
 // Test: detectConflict with no-conflict scenario
@@ -57,7 +57,7 @@ test('detectConflict returns no conflict when skills agree', () => {
   ];
   // @ts-expect-error Testing with partial skill objects
   const result = resolver.detectConflict(skills);
-  assert.strictEqual(result?.hasConflict, false);
+  expect(result?.hasConflict).toBe(false);
   assert.deepStrictEqual(result.conflicts, []);
 });
 
@@ -70,10 +70,10 @@ test('detectConflict detects conflict on same aspect with different values', () 
   ];
   // @ts-expect-error Testing with partial skill objects
   const result = resolver.detectConflict(skills);
-  assert.strictEqual(result?.hasConflict, true);
+  expect(result?.hasConflict).toBe(true);
   assert.strictEqual(result?.conflicts.length, 1);
   if (!result?.conflicts[0]) throw new Error('Expected conflict');
-  assert.strictEqual(result.conflicts[0].aspect, 'caching');
+  expect(result.conflicts[0].aspect).toBe('caching');
 });
 
 // Test: classifyConflict
@@ -90,7 +90,7 @@ test('classifyConflict identifies Security vs Speed conflict', () => {
   };
   // @ts-expect-error Testing with partial conflict object
   const type = resolver.classifyConflict(conflict);
-  assert.strictEqual(type, 'Security vs Speed');
+  expect(type).toBe('Security vs Speed');
 });
 
 test('classifyConflict returns default type when no known tags match', () => {
@@ -106,7 +106,7 @@ test('classifyConflict returns default type when no known tags match', () => {
   };
   // @ts-expect-error Testing with partial conflict object
   const type = resolver.classifyConflict(conflict);
-  assert.ok(typeof type === 'string', 'Should return a string type');
+  expect(typeof type === 'string').toBeTruthy() // 'Should return a string type';
 });
 
 // Test: resolve
@@ -117,9 +117,9 @@ test('resolve returns no-conflict result when skills are compatible', () => {
   ];
   // @ts-expect-error Testing with partial skill objects
   const result = resolver.resolve(skills, {});
-  assert.ok(result, 'Should return a result');
-  assert.ok('decision' in result, 'Should have decision property');
-  assert.strictEqual(result?.escalated, false);
+  expect(result).toBeTruthy() // 'Should return a result';
+  expect('decision' in result).toBeTruthy() // 'Should have decision property';
+  expect(result?.escalated).toBe(false);
 });
 
 test('resolve logs decisions when conflicts are found', () => {
@@ -131,7 +131,7 @@ test('resolve logs decisions when conflicts are found', () => {
   // @ts-expect-error Testing with partial skill objects
   resolver.resolve(skills, {});
   // @ts-expect-error Accessing private member for testing
-  assert.ok(Array.isArray(resolver.decisionLog), 'decisionLog should be an array');
+  expect(Array.isArray(resolver.decisionLog)).toBeTruthy() // 'decisionLog should be an array';
 });
 
 // Test: logDecision
@@ -140,7 +140,7 @@ test('logDecision appends to decisionLog', () => {
   // @ts-expect-error Accessing private member for testing
   resolver.logDecision({ conflict: undefined, resolution: undefined, context: { type: 'test' }, timestamp: new Date().toISOString() });
   // @ts-expect-error Accessing private member for testing
-  assert.strictEqual(resolver.decisionLog.length, 1);
+  expect(resolver.decisionLog.length).toBe(1);
   // @ts-expect-error Accessing private member for testing
   const entry = resolver.decisionLog[0];
   if (!entry) throw new Error('Expected entry');
@@ -155,8 +155,8 @@ test('logDecision stores the decision entry as-is', () => {
   // @ts-expect-error Accessing private member for testing
   const logEntry = resolver.decisionLog[0];
   if (!logEntry) throw new Error('Expected log entry');
-  assert.ok((logEntry as any).timestamp, 'Should preserve timestamp');
-  assert.strictEqual((logEntry as any).context.type, 'test');
+  expect((logEntry as any).timestamp).toBeTruthy() // 'Should preserve timestamp';
+  expect((logEntry as any).context.type).toBe('test');
 });
 
 // Summary

@@ -47,8 +47,8 @@ export interface ConfidenceResult {
 // ─── ArchetypeDetector Class ─────────────────────────────────────────────────
 
 export class ArchetypeDetector {
-  private rootPath: string;
-  private archetypePatterns: Record<string, ArchetypePattern>;
+  private readonly rootPath: string;
+  private readonly archetypePatterns: Record<string, ArchetypePattern>;
 
   /**
    * Create an ArchetypeDetector instance

@@ -63,8 +63,8 @@ export interface FunnelAnalysisResult {
 }
 
 export class FunnelAnalyzer {
-  private cwd: string;
-  private funnelPath: string;
+  private readonly cwd: string;
+  private readonly funnelPath: string;
 
   constructor(cwd?: string) {
     this.cwd = cwd || process.cwd();

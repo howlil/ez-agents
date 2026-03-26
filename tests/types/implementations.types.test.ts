@@ -228,6 +228,7 @@ describe('Interface Implementations', () => {
     const dict: Dictionary = { a: 1, b: 2, c: 3 };
 
     expectTypeOf(dict).toMatchTypeOf<Dictionary>();
+    // @ts-expect-error Type may be undefined with exactOptionalPropertyTypes
     expectTypeOf(dict['a']).toBeNumber();
   });
 });

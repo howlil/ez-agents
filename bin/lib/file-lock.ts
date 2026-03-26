@@ -147,7 +147,7 @@ export async function withLock<T>(
 
   if (properLockfile) {
     // Use proper-lockfile
-    const release = await properLockfile.lock(filePath, lockOptions);
+    const release = await (properLockfile as any).lock(filePath, lockOptions);
     try {
       return await fn();
     } finally {
@@ -170,9 +170,10 @@ export async function withLock<T>(
  * @returns True if file is locked
  */
 export async function isLocked(filePath: string): Promise<boolean> {
-  if (properLockfile) {
+  if (properLockfile && typeof properLockfile === 'object' && properLockfile !== null && 'check' in properLockfile) {
     try {
-      return await properLockfile.check(filePath);
+      const checkFn = properLockfile.check as (filePath: string) => Promise<boolean>;
+      return await checkFn(filePath);
     } catch {
       return false;
     }

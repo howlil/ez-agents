@@ -92,7 +92,7 @@ export interface FrameworkAnalysisResult {
 // ─── FrameworkDetector Class ─────────────────────────────────────────────────
 
 export class FrameworkDetector {
-  private rootPath: string;
+  private readonly rootPath: string;
 
   /**
    * Create a FrameworkDetector instance

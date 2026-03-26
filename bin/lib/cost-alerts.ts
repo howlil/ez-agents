@@ -44,9 +44,9 @@ interface AlertsData {
 }
 
 class CostAlerts {
-  private cwd: string;
-  private planningDir: string;
-  private alertsFile: string;
+  private readonly cwd: string;
+  private readonly planningDir: string;
+  private readonly alertsFile: string;
 
   constructor(cwd?: string) {
     this.cwd = cwd || process.cwd();

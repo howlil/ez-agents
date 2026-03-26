@@ -6,7 +6,6 @@ import * as fs from 'fs';
 import * as path from 'path';
 import { defaultLogger as logger } from './logger.js';
 import { LogExecution } from './decorators/index.js';
-import { EventBus } from './observer/EventBus.js';
 
 // ─── Type Definitions ────────────────────────────────────────────────────────
 
@@ -34,14 +33,12 @@ export interface SessionHistoryEntry {
 // ─── SessionManager Class ───────────────────────────────────────────────────
 
 export class SessionManager {
-  private statePath: string;
+  private readonly statePath: string;
   private currentState: SessionState | null;
-  private eventBus: EventBus;
 
   constructor(planningDir: string) {
     this.statePath = path.join(planningDir, 'SESSION.json');
     this.currentState = null;
-    this.eventBus = EventBus.getInstance();
   }
 
   /**
@@ -91,13 +88,7 @@ export class SessionManager {
       context: {}
     };
     this.saveState(state);
-    
-    // Emit session start event
-    this.eventBus.emit('session:start', {
-      sessionId,
-      timestamp: now
-    });
-    
+
     return state;
   }
 
@@ -108,13 +99,6 @@ export class SessionManager {
     if (this.currentState) {
       this.currentState.lastActivity = Date.now();
       this.saveState(this.currentState);
-      
-      // Emit session activity event
-      this.eventBus.emit('session:activity', {
-        sessionId: this.currentState.sessionId,
-        activity: 'activity_update',
-        timestamp: Date.now()
-      });
     }
   }
 
@@ -126,13 +110,6 @@ export class SessionManager {
       this.currentState.phase = phase;
       if (plan) this.currentState.plan = plan;
       this.updateActivity();
-      
-      // Emit session activity event for phase change
-      this.eventBus.emit('session:activity', {
-        sessionId: this.currentState.sessionId,
-        activity: `phase_change:${phase}`,
-        timestamp: Date.now()
-      });
     }
   }
 
@@ -169,15 +146,6 @@ export class SessionManager {
         fs.unlinkSync(this.statePath);
       }
       this.currentState = null;
-      
-      // Emit session stop event if we had an active session
-      if (sessionId && startTime) {
-        this.eventBus.emit('session:stop', {
-          sessionId,
-          timestamp: Date.now(),
-          duration: Date.now() - startTime
-        });
-      }
     } catch (err) {
       logger.warn('Failed to clear session', {
         error: err instanceof Error ? err.message : 'Unknown'

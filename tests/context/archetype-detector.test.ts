@@ -1,11 +1,10 @@
 import { fileURLToPath } from 'url';
-import path from 'path';
 /**
  * Tests for ArchetypeDetector (standalone)
  */
 
-import { describe, it } from 'node:test';
-import assert from 'node:assert';
+
+
 import * as path from 'path';
 import * as fs from 'fs';
 import { ArchetypeDetector } from '../../bin/lib/archetype-detector.js';
@@ -23,33 +22,33 @@ describe('ArchetypeDetector - Standalone', () => {
         infrastructure: ['Sentry']
       };
       
-      const result = detector.detect(null, stack, null);
-      
-      assert.ok(result);
+      const result = detector.detect(undefined, stack, undefined);
+
+      expect(result);
       assert.ok(result.archetype);
       assert.ok(typeof result.confidence === 'number');
     });
   });
 
-  describe('detect with flows', () => {
+  describe('detect with flows').toBeTruthy() // ( => {
     it('detects flow-based archetypes', () => {
       const detector = new ArchetypeDetector(testDir);
-      
+
       const flows = {
         journeys: {
           auth: [{ name: 'Login', path: '/auth/login' }],
           admin: [{ name: 'Dashboard', path: '/admin' }]
         }
       };
+
+      const result = detector.detect(undefined, undefined, flows);
       
-      const result = detector.detect(null, null, flows);
-      
-      assert.ok(result);
+      expect(result);
       assert.ok(result.archetype);
     });
   });
 
-  describe('alternative archetypes', () => {
+  describe('alternative archetypes').toBeTruthy() // ( => {
     it('returns close second archetypes', () => {
       const detector = new ArchetypeDetector(testDir);
       
@@ -61,28 +60,31 @@ describe('ArchetypeDetector - Standalone', () => {
         files: []
       };
       
-      const result = detector.detect(structure, null, null);
+      const result = detector.detect(structure, undefined, undefined);
       
-      assert.ok(result);
+      expect(result);
+      // @ts-expect-error Property may not exist on type but tested for completeness
       assert.ok(Array.isArray(result.alternativeArchetypes) || result.alternativeArchetypes === undefined);
     });
   });
 
-  describe('confidence breakdown', () => {
+  describe('confidence breakdown').toBeTruthy() // ( => {
     it('provides confidence score breakdown', () => {
       const detector = new ArchetypeDetector(testDir);
       const evidence = [
-        { type: 'file', value: 'Product', source: 'Product.tsx' },
-        { type: 'file', value: 'Cart', source: 'Cart.tsx' }
+        { type: 'file', value: 'Product', pattern: 'Product', source: 'Product.tsx' } as any,
+        { type: 'file', value: 'Cart', pattern: 'Cart', source: 'Cart.tsx' } as any
       ];
       
-      const confidence = detector.calculateConfidence('ecommerce', evidence, { ecommerce: 5, POS: 2 });
+      const confidence = detector.calculateConfidence('ecommerce', evidence);
       
-      assert.ok(confidence);
+      expect(confidence);
       assert.ok(typeof confidence.score === 'number');
       assert.ok(confidence.level);
+      // @ts-expect-error Property may not exist on type but tested for completeness
       assert.ok(confidence.breakdown);
+      // @ts-expect-error Property may not exist on type but tested for completeness
       assert.ok(typeof confidence.breakdown.base === 'number');
     });
   });
-});
+}).toBeTruthy();

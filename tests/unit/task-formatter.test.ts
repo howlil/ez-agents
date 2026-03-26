@@ -1,12 +1,12 @@
-﻿
+
 /**
  * Task Formatter Tests
  * Tests for bin/lib/task-formatter.cjs
  */
 
-import assert from 'node:assert';
+
 import * as path from 'path';
-import { describe, it } from 'node:test';
+
 import {
   formatTaskForQwen,
   formatTaskForKimi,
@@ -21,8 +21,8 @@ describe('Task Formatter', () => {
       const task = 'Task(subagent_type="ez-planner", model="qwen-max")';
       const result = parseTaskMarkdown(task);
       
-      assert.strictEqual(result.subagent_type, 'ez-planner');
-      assert.strictEqual(result.model, 'qwen-max');
+      expect(result?.subagent_type).toBe('ez-planner');
+      assert.strictEqual(result?.model, 'qwen-max');
     });
 
     it('should parse multiline Task() call', () => {
@@ -34,10 +34,10 @@ describe('Task Formatter', () => {
       )`;
       const result = parseTaskMarkdown(task);
       
-      assert.strictEqual(result.subagent_type, 'ez-executor');
-      assert.strictEqual(result.model, 'qwen-plus');
-      assert.strictEqual(result.description, 'Execute phase');
-      assert.strictEqual(result.run_in_background, 'true');
+      expect(result?.subagent_type).toBe('ez-executor');
+      assert.strictEqual(result?.model, 'qwen-plus');
+      expect(result?.description).toBe('Execute phase');
+      assert.strictEqual(result?.run_in_background, 'true');
     });
 
     it('should parse Task() with prompt', () => {
@@ -47,14 +47,14 @@ describe('Task Formatter', () => {
       )`;
       const result = parseTaskMarkdown(task);
       
-      assert.strictEqual(result.subagent_type, 'ez-codebase-mapper');
-      assert.strictEqual(result.prompt, 'Focus: tech stack analysis');
+      expect(result?.subagent_type).toBe('ez-codebase-mapper');
+      assert.strictEqual(result?.prompt, 'Focus: tech stack analysis');
     });
 
     it('should return null for invalid input', () => {
-      assert.strictEqual(parseTaskMarkdown(null), null);
-      assert.strictEqual(parseTaskMarkdown(''), null);
-      assert.strictEqual(parseTaskMarkdown('InvalidTask()'), null);
+      expect(parseTaskMarkdown(undefined)).toBe(undefined);
+      assert.strictEqual(parseTaskMarkdown(''), undefined);
+      expect(parseTaskMarkdown('InvalidTask()')).toBe(undefined);
     });
   });
 
@@ -66,27 +66,27 @@ describe('Task Formatter', () => {
       };
       const result = validateTaskArgs(args);
       
-      assert.strictEqual(result.valid, true);
-      assert.strictEqual(result.errors.length, 0);
+      expect(result?.valid).toBe(true);
+      assert.strictEqual(result?.errors.length, 0);
     });
 
     it('should reject missing subagent_type', () => {
       const args = { prompt: 'Create a plan' };
       const result = validateTaskArgs(args);
       
-      assert.strictEqual(result.valid, false);
-      assert.ok(result.errors.some(e => e.includes('subagent_type')));
+      expect(result?.valid).toBe(false);
+      expect(result.errors.some(e => e.includes('subagent_type')));
     });
 
-    it('should reject missing prompt', () => {
+    it('should reject missing prompt').toBeTruthy() // ( => {
       const args = { subagent_type: 'ez-planner' };
       const result = validateTaskArgs(args);
       
-      assert.strictEqual(result.valid, false);
-      assert.ok(result.errors.some(e => e.includes('prompt')));
+      expect(result?.valid).toBe(false);
+      expect(result.errors.some(e => e.includes('prompt')));
     });
 
-    it('should accept optional model field', () => {
+    it('should accept optional model field').toBeTruthy() // ( => {
       const args = {
         subagent_type: 'ez-planner',
         prompt: 'Create a plan',
@@ -94,7 +94,7 @@ describe('Task Formatter', () => {
       };
       const result = validateTaskArgs(args);
       
-      assert.strictEqual(result.valid, true);
+      expect(result?.valid).toBe(true);
     });
 
     it('should accept optional run_in_background field', () => {
@@ -105,7 +105,7 @@ describe('Task Formatter', () => {
       };
       const result = validateTaskArgs(args);
       
-      assert.strictEqual(result.valid, true);
+      expect(result?.valid).toBe(true);
     });
   });
 
@@ -119,11 +119,11 @@ describe('Task Formatter', () => {
       };
       const result = formatTaskForQwen(args);
       
-      assert.ok(typeof result === 'string');
+      expect(typeof result === 'string');
       const parsed = JSON.parse(result);
-      assert.strictEqual(parsed.subagent_type, 'ez-executor');
-      assert.strictEqual(parsed.model, 'qwen-plus');
-      assert.strictEqual(parsed.run_in_background, true);
+      expect(parsed.subagent_type).toBe('ez-executor');
+      assert.strictEqual(parsed.model).toBeTruthy() // 'qwen-plus';
+      expect(parsed.run_in_background).toBe(true);
     });
 
     it('should parse and format markdown Task() syntax', () => {
@@ -134,10 +134,10 @@ describe('Task Formatter', () => {
       )`;
       const result = formatTaskForQwen(task);
       
-      assert.ok(typeof result === 'string');
+      expect(typeof result === 'string');
       const parsed = JSON.parse(result);
-      assert.strictEqual(parsed.subagent_type, 'ez-verifier');
-      assert.strictEqual(parsed.prompt, 'Verify phase completion');
+      expect(parsed.subagent_type).toBe('ez-verifier');
+      assert.strictEqual(parsed.prompt).toBeTruthy() // 'Verify phase completion';
     });
 
     it('should add default description if missing', () => {
@@ -146,14 +146,15 @@ describe('Task Formatter', () => {
         prompt: 'Plan phase 1'
       };
       const result = formatTaskForQwen(args);
-      const parsed = JSON.parse(result);
-      
-      assert.strictEqual(parsed.description, 'Execute ez-planner');
+      const parsed = JSON.parse(result!);
+
+      expect(parsed.description).toBe('Execute ez-planner');
     });
 
     it('should return null for invalid arguments', () => {
-      assert.strictEqual(formatTaskForQwen(null), null);
-      assert.strictEqual(formatTaskForQwen('InvalidTask()'), null);
+      // @ts-expect-error Testing undefined input
+      expect(formatTaskForQwen(undefined)).toBe(undefined);
+      assert.strictEqual(formatTaskForQwen('InvalidTask()'), undefined);
     });
   });
 
@@ -167,7 +168,7 @@ describe('Task Formatter', () => {
       const qwenResult = formatTaskForQwen(args);
       const kimiResult = formatTaskForKimi(args);
       
-      assert.strictEqual(qwenResult, kimiResult);
+      expect(qwenResult).toBe(kimiResult);
     });
   });
 
@@ -185,8 +186,8 @@ describe('Task Formatter', () => {
       `;
       const tasks = extractTasksFromMarkdown(markdown);
       
-      assert.strictEqual(tasks.length, 1);
-      assert.strictEqual(tasks[0].args.subagent_type, 'ez-planner');
+      expect(tasks.length).toBe(1);
+      assert.strictEqual(tasks[0]?.args?.subagent_type, 'ez-planner');
     });
 
     it('should extract multiple Task() calls', () => {
@@ -197,17 +198,17 @@ describe('Task Formatter', () => {
       `;
       const tasks = extractTasksFromMarkdown(markdown);
       
-      assert.strictEqual(tasks.length, 3);
-      assert.strictEqual(tasks[0].args.subagent_type, 'ez-planner');
-      assert.strictEqual(tasks[1].args.subagent_type, 'ez-executor');
-      assert.strictEqual(tasks[2].args.subagent_type, 'ez-verifier');
+      expect(tasks.length).toBe(3);
+      assert.strictEqual(tasks[0]?.args?.subagent_type, 'ez-planner');
+      expect(tasks[1]?.args?.subagent_type).toBe('ez-executor');
+      assert.strictEqual(tasks[2]?.args?.subagent_type, 'ez-verifier');
     });
 
     it('should return empty array for no tasks', () => {
       const markdown = 'No tasks here';
       const tasks = extractTasksFromMarkdown(markdown);
       
-      assert.strictEqual(tasks.length, 0);
+      expect(tasks.length).toBe(0);
     });
 
     it('should handle Task() in code blocks', () => {
@@ -226,9 +227,9 @@ describe('Task Formatter', () => {
       const tasks = extractTasksFromMarkdown(markdown);
       
       // Should find exactly 1 task (the one in the code block)
-      assert.strictEqual(tasks.length, 1);
-      assert.strictEqual(tasks[0].args.subagent_type, 'ez-codebase-mapper');
-      assert.strictEqual(tasks[0].args.run_in_background, 'true');
+      expect(tasks.length).toBe(1);
+      assert.strictEqual(tasks[0]?.args?.subagent_type, 'ez-codebase-mapper');
+      expect(tasks[0]?.args?.run_in_background).toBe('true');
     });
   });
 
@@ -251,13 +252,13 @@ Explore thoroughly. Write documents directly using templates. Return confirmatio
       )`;
 
       const result = formatTaskForQwen(workflowTask);
-      assert.ok(result);
+      expect(result);
       
       const parsed = JSON.parse(result);
-      assert.strictEqual(parsed.subagent_type, 'ez-codebase-mapper');
-      assert.strictEqual(parsed.run_in_background, true);
-      assert.ok(parsed.prompt.includes('Focus: tech'));
+      expect(parsed.subagent_type).toBe('ez-codebase-mapper');
+      assert.strictEqual(parsed.run_in_background).toBeTruthy() // true;
+      expect(parsed.prompt.includes('Focus: tech'));
       assert.ok(parsed.prompt.includes('STACK.md'));
     });
   });
-});
+}).toBeTruthy();

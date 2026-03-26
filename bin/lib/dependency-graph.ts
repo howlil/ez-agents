@@ -54,15 +54,17 @@ export class DependencyGraph {
    */
   constructor(rootPath: string, options: DependencyGraphOptions = {}) {
     this.rootPath = rootPath;
-    this.options = {
-      entry: options.entry,
-      detectCircular: options.detectCircular !== false,
-      includeNpm: options.includeNpm || false,
-      tsConfig: options.tsConfig || 'tsconfig.json',
-      fileExtensions: options.fileExtensions || ['.ts', '.tsx', '.js', '.jsx'],
-      extensions: (options.fileExtensions || ['.ts', '.tsx', '.js', '.jsx']).map(ext => ext.replace('.', '')),
-      ...options
+    const opts: Required<Omit<DependencyGraphOptions, 'entry'>> & { entry?: string } = {
+      detectCircular: options.detectCircular ?? true,
+      includeNpm: options.includeNpm ?? false,
+      tsConfig: options.tsConfig ?? 'tsconfig.json',
+      fileExtensions: options.fileExtensions ?? ['.ts', '.tsx', '.js', '.jsx'],
+      extensions: options.extensions ?? (options.fileExtensions ?? ['.ts', '.tsx', '.js', '.jsx']).map(ext => ext.replace('.', '')),
     };
+    if (options.entry !== undefined) {
+      opts.entry = options.entry;
+    }
+    this.options = opts;
     this.nodes = [];
     this.edges = {};
     this.circular = [];
@@ -105,7 +107,8 @@ export class DependencyGraph {
       }
 
       // Build glob pattern
-      const patterns = (this.options.fileExtensions || [])
+      const fileExtensions: string[] = (this.options.fileExtensions as string[]) ?? ['.ts', '.tsx', '.js', '.jsx'];
+      const patterns = fileExtensions
         .flatMap((ext: string) => [
           path.join(searchPath, `**/*${ext}`),
           path.join(rootPath, `bin/**/*${ext}`),

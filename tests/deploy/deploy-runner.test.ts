@@ -15,29 +15,29 @@ vi.mock('child_process', () => ({
 describe('Deploy Runner', () => {
   describe('run()', () => {
     it('spawns vercel CLI with correct args', async () => {
-      const { run } = await import('../../ez-agents/bin/lib/deploy/deploy-runner.cjs');
+      const { run } = await import('../../bin/lib/deploy/deploy-runner.js');
       // Test would verify spawn called with ['vercel', '--prod']
       expect(run).toBeDefined();
     });
 
     it('spawns flyctl CLI with correct args', async () => {
-      const { run } = await import('../../ez-agents/bin/lib/deploy/deploy-runner.cjs');
+      const { run } = await import('../../bin/lib/deploy/deploy-runner.js');
       expect(run).toBeDefined();
     });
 
     it('throws if platform CLI not installed', async () => {
-      const { run } = await import('../../ez-agents/bin/lib/deploy/deploy-runner.cjs');
+      const { run } = await import('../../bin/lib/deploy/deploy-runner.js');
       // Test would verify error handling
       expect(run).toBeDefined();
     });
 
     it('respects timeout (5 minute max)', async () => {
-      const { run } = await import('../../ez-agents/bin/lib/deploy/deploy-runner.cjs');
+      const { run } = await import('../../bin/lib/deploy/deploy-runner.js');
       expect(run).toBeDefined();
     });
 
     it('streams output to callback', async () => {
-      const { run } = await import('../../ez-agents/bin/lib/deploy/deploy-runner.cjs');
+      const { run } = await import('../../bin/lib/deploy/deploy-runner.js');
       // Test would verify output streaming
       expect(run).toBeDefined();
     });

@@ -55,7 +55,7 @@ export function parseTaskMarkdown(taskMarkdown: string | null | undefined): Task
 
   // Match Task( ... ) pattern, handling multiline
   const taskMatch = taskMarkdown.match(/Task\(\s*([\s\S]*?)\s*\)/);
-  if (!taskMatch) {
+  if (!taskMatch || !taskMatch[1]) {
     return null;
   }
 
@@ -70,7 +70,7 @@ export function parseTaskMarkdown(taskMarkdown: string | null | undefined): Task
     const [, key, doubleQuoted, singleQuoted, unquoted] = match;
     // Use whichever quote style matched, or unquoted value
     const value = doubleQuoted ?? singleQuoted ?? unquoted;
-    if (value !== undefined) {
+    if (value !== undefined && key !== undefined) {
       args[key] = value;
     }
   }
@@ -266,7 +266,10 @@ function parseArgsString(argsString: string): TaskArgs {
 
   while ((argMatch = argPattern.exec(argsString)) !== null) {
     const [, key, doubleQuoted, singleQuoted, unquoted] = argMatch;
-    args[key] = doubleQuoted ?? singleQuoted ?? unquoted?.trim();
+    const value = doubleQuoted ?? singleQuoted ?? unquoted?.trim();
+    if (key !== undefined && value !== undefined) {
+      args[key] = value;
+    }
   }
 
   return args;

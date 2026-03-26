@@ -23,8 +23,8 @@ import type { ToolCall } from '../assistant-adapter.js';
  * Implements the ModelProviderAdapter interface for Moonshot Kimi API.
  */
 export class KimiAdapter implements ModelProviderAdapter {
-  private apiKey: string;
-  private modelName: string;
+  private readonly apiKey: string;
+  private readonly modelName: string;
 
   /**
    * Create Kimi adapter

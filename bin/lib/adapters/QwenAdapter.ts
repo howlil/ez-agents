@@ -23,8 +23,8 @@ import type { ToolCall } from '../assistant-adapter.js';
  * Implements the ModelProviderAdapter interface for Alibaba Qwen API.
  */
 export class QwenAdapter implements ModelProviderAdapter {
-  private apiKey: string;
-  private modelName: string;
+  private readonly apiKey: string;
+  private readonly modelName: string;
 
   /**
    * Create Qwen adapter

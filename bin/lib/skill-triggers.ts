@@ -205,11 +205,14 @@ export class SkillTriggerEvaluator {
 
     const confidence = totalChecks > 0 ? (matchCount / totalChecks) * 100 : 0;
 
-    return {
+    const result: TriggerEvaluationResult = {
       triggered: matchCount > 0,
-      matchedTrigger,
       confidence: Math.round(confidence * 100) / 100
     };
+    if (matchedTrigger !== undefined) {
+      result.matchedTrigger = matchedTrigger;
+    }
+    return result;
   }
 }
 

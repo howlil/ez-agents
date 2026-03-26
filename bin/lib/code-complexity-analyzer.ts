@@ -62,8 +62,8 @@ export interface ComplexitySummary {
 // ─── CodeComplexityAnalyzer Class ────────────────────────────────────────────
 
 export class CodeComplexityAnalyzer {
-  private rootPath: string;
-  private defaultThresholds: ComplexityThresholds;
+  private readonly rootPath: string;
+  private readonly defaultThresholds: ComplexityThresholds;
 
   /**
    * Create a CodeComplexityAnalyzer instance

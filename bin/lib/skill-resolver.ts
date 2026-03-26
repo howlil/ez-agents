@@ -19,7 +19,6 @@
 import { defaultLogger as logger } from './logger.js';
 import type { Skill } from './skill-registry.js';
 import { LogExecution, ValidateInput } from './decorators/index.js';
-import { EventBus } from './observer/EventBus.js';
 
 /**
  * Priority rule definition
@@ -90,7 +89,7 @@ export interface ResolveResult {
  * Priority rules for conflict resolution
  * Higher priority value wins in conflicts
  */
-export const PRIORITY_RULES: Record<string, PriorityRule> = {
+export const PRIORITY_RULES: Readonly<Record<string, PriorityRule>> = Object.freeze({
   'security > speed': {
     higher: 'security',
     lower: 'speed',
@@ -157,12 +156,12 @@ export const PRIORITY_RULES: Record<string, PriorityRule> = {
     example: 'Add denormalization for faster page loads',
     absolute: false
   }
-} as const;
+} as const);
 
 /**
  * Conflict types recognized by the resolver
  */
-export const CONFLICT_TYPES = [
+export const CONFLICT_TYPES = Object.freeze([
   'Security vs Speed',
   'Security vs Convenience',
   'Maintainability vs Delivery',
@@ -173,7 +172,7 @@ export const CONFLICT_TYPES = [
   'Feature Completeness vs Deadline',
   'User Experience vs Technical Purity',
   'Unknown'
-] as const;
+] as const);
 
 /**
  * Conflict type union
@@ -184,11 +183,10 @@ export type ConflictType = (typeof CONFLICT_TYPES)[number];
  * Skill Resolver class for conflict resolution
  */
 export class SkillResolver {
-  private priorityRules: Record<string, PriorityRule>;
-  private context: Record<string, unknown>;
-  private logger: typeof logger;
+  private readonly priorityRules: Record<string, PriorityRule>;
+  private readonly context: Record<string, unknown>;
+  private readonly logger: typeof logger;
   private decisionLog: DecisionLogEntry[];
-  private eventBus: EventBus;
 
   /**
    * Create a SkillResolver instance
@@ -204,7 +202,6 @@ export class SkillResolver {
     this.context = options.context || {};
     this.logger = logger;
     this.decisionLog = [];
-    this.eventBus = EventBus.getInstance();
   }
 
   /**
@@ -216,13 +213,6 @@ export class SkillResolver {
   detectConflict(skills: Skill[]): { hasConflict: boolean; conflicts: Conflict[] } {
     const conflicts: Conflict[] = [];
     const recommendations = this._collectRecommendations(skills);
-
-    // Emit skill match event
-    this.eventBus.emit('skill:match', {
-      query: 'conflict_detection',
-      matches: recommendations.length,
-      timestamp: Date.now()
-    });
 
     // Check for conflicting recommendations on same aspect
     const aspectMap = new Map<string, Recommendation[]>();
@@ -357,16 +347,7 @@ export class SkillResolver {
   @LogExecution('SkillResolver.resolve', { logParams: false, logResult: false })
   resolve(skills: Skill[], context: Record<string, unknown> = {}): ResolveResult {
     const ctx = { ...this.context, ...context };
-    
-    // Emit skill trigger event for each skill
-    for (const skill of skills) {
-      this.eventBus.emit('skill:trigger', {
-        skillName: skill.name,
-        trigger: 'resolve',
-        context: JSON.stringify(ctx)
-      });
-    }
-    
+
     const conflictResult = this.detectConflict(skills);
 
     if (!conflictResult.hasConflict) {
@@ -445,10 +426,10 @@ export class SkillResolver {
 
   /**
    * Get decision log
-   * @returns Array of logged decisions
+   * @returns Array of logged decisions (copy to prevent mutation)
    */
   getDecisionLog(): DecisionLogEntry[] {
-    return this.decisionLog;
+    return [...this.decisionLog];
   }
 
   /**

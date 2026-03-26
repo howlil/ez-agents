@@ -1,4 +1,4 @@
-﻿/**
+/**
  * EZ Tools Tests - Gemini agent conversion
  *
  * Verifies Gemini-specific agent frontmatter conversion removes
@@ -7,10 +7,8 @@
 
 process.env.EZ_AGENTS_TEST_MODE = '1';
 
-const { test, describe } = require('node:test');
-import assert from 'node:assert';
-
-import { convertClaudeToGeminiAgent } from '../bin/install.js';
+import { testExports } from '../../bin/install.js';
+const { convertClaudeToGeminiAgent } = testExports;
 
 describe('convertClaudeToGeminiAgent', () => {
   test('drops unsupported skills frontmatter while keeping converted tools', () => {
@@ -30,18 +28,18 @@ Use \${PHASE} in shell examples.
     const result = convertClaudeToGeminiAgent(input);
     const frontmatter = result.split('---')[1] || '';
 
-    assert.ok(frontmatter.includes('name: ez-codebase-mapper'), 'keeps name');
-    assert.ok(frontmatter.includes('description: Explores codebase and writes structured analysis documents.'), 'keeps description');
-    assert.ok(frontmatter.includes('tools:'), 'adds Gemini tools array');
-    assert.ok(frontmatter.includes('  - read_file'), 'maps Read -> read_file');
-    assert.ok(frontmatter.includes('  - run_shell_command'), 'maps Bash -> run_shell_command');
-    assert.ok(frontmatter.includes('  - search_file_content'), 'maps Grep -> search_file_content');
-    assert.ok(frontmatter.includes('  - glob'), 'maps Glob -> glob');
-    assert.ok(frontmatter.includes('  - write_file'), 'maps Write -> write_file');
-    assert.ok(!frontmatter.includes('color:'), 'drops unsupported color field');
-    assert.ok(!frontmatter.includes('skills:'), 'drops unsupported skills field');
-    assert.ok(!frontmatter.includes('ez-mapper-workflow'), 'drops skills list items');
-    assert.ok(result.includes('$PHASE'), 'escapes ${PHASE} shell variable for Gemini');
-    assert.ok(!result.includes('${PHASE}'), 'removes Gemini template-string pattern');
+    expect(frontmatter.includes('name: ez-codebase-mapper')).toBeTruthy() // 'keeps name';
+    expect(frontmatter.includes('description: Explores codebase and writes structured analysis documents.')).toBeTruthy() // 'keeps description';
+    expect(frontmatter.includes('tools:')).toBeTruthy() // 'adds Gemini tools array';
+    expect(frontmatter.includes('  - read_file')).toBeTruthy() // 'maps Read -> read_file';
+    expect(frontmatter.includes('  - run_shell_command')).toBeTruthy() // 'maps Bash -> run_shell_command';
+    expect(frontmatter.includes('  - search_file_content')).toBeTruthy() // 'maps Grep -> search_file_content';
+    expect(frontmatter.includes('  - glob')).toBeTruthy() // 'maps Glob -> glob';
+    expect(frontmatter.includes('  - write_file')).toBeTruthy() // 'maps Write -> write_file';
+    expect(!frontmatter.includes('color:')).toBeTruthy() // 'drops unsupported color field';
+    expect(!frontmatter.includes('skills:')).toBeTruthy() // 'drops unsupported skills field';
+    expect(!frontmatter.includes('ez-mapper-workflow')).toBeTruthy() // 'drops skills list items';
+    expect(result.includes('$PHASE')).toBeTruthy() // 'escapes ${PHASE} shell variable for Gemini';
+    expect(!result.includes('${PHASE}')).toBeTruthy() // 'removes Gemini template-string pattern';
   });
 });

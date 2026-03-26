@@ -63,7 +63,7 @@ async function testIfUnlocked(): Promise<void> {
     console.log('File was unlocked, writing...');
     fs.writeFileSync(testFile, 'Written by ifUnlocked', 'utf-8');
     return 'success';
-  }, 'fallback');
+  });
 
   console.log('Result 1:', result1);
 
@@ -76,13 +76,13 @@ async function testIfUnlocked(): Promise<void> {
 
   const result2 = await ifUnlocked(testFile, async () => {
     return 'should-not-reach';
-  }, 'fallback-value');
+  });
 
   console.log('Result 2 (while locked):', result2);
 
   await lockPromise;
 
-  if (result1 === 'success' && result2 === 'fallback-value') {
+  if (result1 === true && result2 === false) {
     console.log('✓ IfUnlocked test passed');
   } else {
     console.log('✗ IfUnlocked test failed');

@@ -1,16 +1,16 @@
-﻿const { test, afterEach } = require('node:test');
-import assert from 'node:assert';
+
+
 import * as fs from 'fs';
 import * as os from 'os';
 import * as path from 'path';
 
-import { withLock } from '../../ez-agents/bin/lib/file-lock.js';
+import { withLock } from '../../bin/lib/file-lock.js';
 
-const tempDirs = [];
+const tempDirs: string[] = [];
 
 afterEach(() => {
   while (tempDirs.length > 0) {
-    fs.rmSync(tempDirs.pop(), { recursive: true, force: true });
+    fs.rmSync(tempDirs.pop()!, { recursive: true, force: true });
   }
 });
 
@@ -26,14 +26,17 @@ test('LOCK-02: second lock attempt times out with deterministic File locked erro
 
   await new Promise((resolve) => setTimeout(resolve, 20));
 
-  await assert.rejects(
-    () => withLock(lockTarget, async () => 'unreachable', { timeout: 30, retries: { retries: 0 } }),
-    (err) => {
-      assert.match(err.message, /^File locked:/, 'error should normalize to "File locked:" shape');
-      assert.match(err.message, /\(waited \d+ms\)/, 'error should include waited duration');
-      return true;
-    }
-  );
+  // Test that second lock attempt times out
+  let caughtError: Error | null = null;
+  try {
+    await withLock(lockTarget, async () => 'unreachable', { timeout: 30, retries: { retries: 0, factor: 1, minTimeout: 0, maxTimeout: 0, randomize: false } });
+  } catch (err) {
+    caughtError = err as Error;
+  }
+  
+  expect(caughtError).toBeInstanceOf(Error);
+  expect(caughtError!.message).toMatch(/^File locked:/);
+  expect(caughtError!.message).toMatch(/\(waited \d+ms\)/);
 
   await holdLock;
 });

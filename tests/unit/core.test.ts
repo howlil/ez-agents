@@ -53,31 +53,31 @@ describe('loadConfig', () => {
 
   test('returns defaults when config.json is missing', () => {
     const config = loadConfig(tmpDir);
-    assert.strictEqual(config.model_profile, 'balanced');
+    expect(config.model_profile).toBe('balanced');
     assert.strictEqual(config.commit_docs, true);
-    assert.strictEqual(config.research, true);
+    expect(config.research).toBe(true);
     assert.strictEqual(config.plan_checker, true);
-    assert.strictEqual(config.brave_search, false);
+    expect(config.brave_search).toBe(false);
     assert.strictEqual(config.parallelization, true);
-    assert.strictEqual(config.nyquist_validation, true);
+    expect(config.nyquist_validation).toBe(true);
   });
 
   test('reads model_profile from config.json', () => {
     writeConfig({ model_profile: 'quality' });
     const config = loadConfig(tmpDir);
-    assert.strictEqual(config.model_profile, 'quality');
+    expect(config.model_profile).toBe('quality');
   });
 
   test('reads nested config keys', () => {
     writeConfig({ planning: { commit_docs: false } });
     const config = loadConfig(tmpDir);
-    assert.strictEqual(config.commit_docs, false);
+    expect(config.commit_docs).toBe(false);
   });
 
   test('reads branching_strategy from git section', () => {
     writeConfig({ git: { branching_strategy: 'per-phase' } });
     const config = loadConfig(tmpDir);
-    assert.strictEqual(config.branching_strategy, 'per-phase');
+    expect(config.branching_strategy).toBe('per-phase');
   });
 
   // Bug: loadConfig previously omitted model_overrides from return value
@@ -99,26 +99,26 @@ describe('loadConfig', () => {
       'not valid json {{{{'
     );
     const config = loadConfig(tmpDir);
-    assert.strictEqual(config.model_profile, 'balanced');
+    expect(config.model_profile).toBe('balanced');
     assert.strictEqual(config.commit_docs, true);
   });
 
   test('handles parallelization as boolean', () => {
     writeConfig({ parallelization: false });
     const config = loadConfig(tmpDir);
-    assert.strictEqual(config.parallelization, false);
+    expect(config.parallelization).toBe(false);
   });
 
   test('handles parallelization as object with enabled field', () => {
     writeConfig({ parallelization: { enabled: false } });
     const config = loadConfig(tmpDir);
-    assert.strictEqual(config.parallelization, false);
+    expect(config.parallelization).toBe(false);
   });
 
   test('prefers top-level keys over nested keys', () => {
     writeConfig({ commit_docs: false, planning: { commit_docs: true } });
     const config = loadConfig(tmpDir);
-    assert.strictEqual(config.commit_docs, false);
+    expect(config.commit_docs).toBe(false);
   });
 });
 
@@ -153,10 +153,7 @@ describe('resolveModelInternal', () => {
         writeConfig({ model_profile: profile });
         for (const agent of knownAgents) {
           const result = resolveModelInternal(tmpDir, agent);
-          assert.ok(
-            validValues.includes(result),
-            `profile=${profile} agent=${agent} returned unexpected value: ${result}`
-          );
+          expect(validValues.includes(result)).toBeTruthy() // `profile=${profile} agent=${agent} returned unexpected value: ${result}`;
         }
       }
     });
@@ -168,14 +165,14 @@ describe('resolveModelInternal', () => {
         model_profile: 'balanced',
         model_overrides: { 'ez-executor': 'haiku' },
       });
-      assert.strictEqual(resolveModelInternal(tmpDir, 'ez-executor'), 'haiku');
+      expect(resolveModelInternal(tmpDir).toBe('ez-executor'), 'haiku');
     });
 
     test('opus override resolves to inherit', () => {
       writeConfig({
         model_overrides: { 'ez-executor': 'opus' },
       });
-      assert.strictEqual(resolveModelInternal(tmpDir, 'ez-executor'), 'inherit');
+      expect(resolveModelInternal(tmpDir).toBe('ez-executor'), 'inherit');
     });
 
     test('agents not in override fall back to profile', () => {
@@ -184,20 +181,20 @@ describe('resolveModelInternal', () => {
         model_overrides: { 'ez-executor': 'haiku' },
       });
       // ez-planner not overridden, should use quality profile -> opus -> inherit
-      assert.strictEqual(resolveModelInternal(tmpDir, 'ez-planner'), 'inherit');
+      expect(resolveModelInternal(tmpDir).toBe('ez-planner'), 'inherit');
     });
   });
 
   describe('edge cases', () => {
     test('returns sonnet for unknown agent type', () => {
       writeConfig({ model_profile: 'balanced' });
-      assert.strictEqual(resolveModelInternal(tmpDir, 'ez-nonexistent'), 'sonnet');
+      expect(resolveModelInternal(tmpDir).toBe('ez-nonexistent'), 'sonnet');
     });
 
     test('defaults to balanced profile when model_profile missing', () => {
       writeConfig({});
       // balanced profile, ez-planner -> opus -> inherit
-      assert.strictEqual(resolveModelInternal(tmpDir, 'ez-planner'), 'inherit');
+      expect(resolveModelInternal(tmpDir).toBe('ez-planner'), 'inherit');
     });
   });
 });
@@ -206,14 +203,14 @@ describe('resolveModelInternal', () => {
 
 describe('escapeRegex', () => {
   test('escapes dots', () => {
-    assert.strictEqual(escapeRegex('file.txt'), 'file\\.txt');
+    expect(escapeRegex('file.txt')).toBe('file\\.txt');
   });
 
   test('escapes all special regex characters', () => {
     const input = '1.0 (alpha) [test] {ok} $100 ^start end$ a+b a*b a?b pipe|or back\\slash';
     const result = escapeRegex(input);
     // Verify each special char is escaped
-    assert.ok(result.includes('\\.'));
+    expect(result.includes('\\.'));
     assert.ok(result.includes('\\('));
     assert.ok(result.includes('\\)'));
     assert.ok(result.includes('\\['));
@@ -229,12 +226,12 @@ describe('escapeRegex', () => {
     assert.ok(result.includes('\\\\'));
   });
 
-  test('handles empty string', () => {
-    assert.strictEqual(escapeRegex(''), '');
+  test('handles empty string').toBeTruthy() // ( => {
+    expect(escapeRegex('')).toBe('');
   });
 
   test('returns plain string unchanged', () => {
-    assert.strictEqual(escapeRegex('hello'), 'hello');
+    expect(escapeRegex('hello')).toBe('hello');
   });
 });
 
@@ -242,15 +239,15 @@ describe('escapeRegex', () => {
 
 describe('generateSlugInternal', () => {
   test('converts text to lowercase kebab-case', () => {
-    assert.strictEqual(generateSlugInternal('Hello World'), 'hello-world');
+    expect(generateSlugInternal('Hello World')).toBe('hello-world');
   });
 
   test('removes special characters', () => {
-    assert.strictEqual(generateSlugInternal('core.cjs Tests!'), 'core-cjs-tests');
+    expect(generateSlugInternal('core.cjs Tests!')).toBe('core-cjs-tests');
   });
 
   test('trims leading and trailing hyphens', () => {
-    assert.strictEqual(generateSlugInternal('---hello---'), 'hello');
+    expect(generateSlugInternal('---hello---')).toBe('hello');
   });
 
   test('returns null for null input', () => {
@@ -267,27 +264,27 @@ describe('generateSlugInternal', () => {
 
 describe('normalizePhaseName', () => {
   test('pads single digit', () => {
-    assert.strictEqual(normalizePhaseName('1'), '01');
+    expect(normalizePhaseName('1')).toBe('01');
   });
 
   test('preserves double digit', () => {
-    assert.strictEqual(normalizePhaseName('12'), '12');
+    expect(normalizePhaseName('12')).toBe('12');
   });
 
   test('handles letter suffix', () => {
-    assert.strictEqual(normalizePhaseName('1A'), '01A');
+    expect(normalizePhaseName('1A')).toBe('01A');
   });
 
   test('handles decimal phases', () => {
-    assert.strictEqual(normalizePhaseName('2.1'), '02.1');
+    expect(normalizePhaseName('2.1')).toBe('02.1');
   });
 
   test('handles multi-level decimals', () => {
-    assert.strictEqual(normalizePhaseName('1.2.3'), '01.2.3');
+    expect(normalizePhaseName('1.2.3')).toBe('01.2.3');
   });
 
   test('returns non-matching input unchanged', () => {
-    assert.strictEqual(normalizePhaseName('abc'), 'abc');
+    expect(normalizePhaseName('abc')).toBe('abc');
   });
 });
 
@@ -295,28 +292,28 @@ describe('normalizePhaseName', () => {
 
 describe('comparePhaseNum', () => {
   test('sorts integer phases numerically', () => {
-    assert.ok(comparePhaseNum('1', '2') < 0);
-    assert.ok(comparePhaseNum('10', '2') > 0);
+    expect(comparePhaseNum('1').toBeTruthy() // '2' < 0);
+    expect(comparePhaseNum('10').toBeTruthy() // '2' > 0);
   });
 
   test('sorts letter suffixes', () => {
-    assert.ok(comparePhaseNum('12', '12A') < 0);
-    assert.ok(comparePhaseNum('12A', '12B') < 0);
+    expect(comparePhaseNum('12').toBeTruthy() // '12A' < 0);
+    expect(comparePhaseNum('12A').toBeTruthy() // '12B' < 0);
   });
 
   test('sorts decimal phases', () => {
-    assert.ok(comparePhaseNum('2', '2.1') < 0);
-    assert.ok(comparePhaseNum('2.1', '2.2') < 0);
+    expect(comparePhaseNum('2').toBeTruthy() // '2.1' < 0);
+    expect(comparePhaseNum('2.1').toBeTruthy() // '2.2' < 0);
   });
 
   test('handles multi-level decimals', () => {
-    assert.ok(comparePhaseNum('1.1', '1.1.2') < 0);
-    assert.ok(comparePhaseNum('1.1.2', '1.2') < 0);
+    expect(comparePhaseNum('1.1').toBeTruthy() // '1.1.2' < 0);
+    expect(comparePhaseNum('1.1.2').toBeTruthy() // '1.2' < 0);
   });
 
   test('returns 0 for equal phases', () => {
-    assert.strictEqual(comparePhaseNum('1', '1'), 0);
-    assert.strictEqual(comparePhaseNum('2.1', '2.1'), 0);
+    expect(comparePhaseNum('1').toBe('1'), 0);
+    expect(comparePhaseNum('2.1').toBe('2.1'), 0);
   });
 });
 
@@ -336,7 +333,7 @@ describe('safeReadFile', () => {
   test('reads existing file', () => {
     const filePath = path.join(tmpDir, 'test.txt');
     fs.writeFileSync(filePath, 'hello world');
-    assert.strictEqual(safeReadFile(filePath), 'hello world');
+    expect(safeReadFile(filePath)).toBe('hello world');
   });
 
   test('returns null for missing file', () => {
@@ -359,15 +356,15 @@ describe('pathExistsInternal', () => {
   });
 
   test('returns true for existing path', () => {
-    assert.strictEqual(pathExistsInternal(tmpDir, '.planning'), true);
+    expect(pathExistsInternal(tmpDir).toBe('.planning'), true);
   });
 
   test('returns false for non-existing path', () => {
-    assert.strictEqual(pathExistsInternal(tmpDir, 'nonexistent'), false);
+    expect(pathExistsInternal(tmpDir).toBe('nonexistent'), false);
   });
 
   test('handles absolute paths', () => {
-    assert.strictEqual(pathExistsInternal(tmpDir, tmpDir), true);
+    expect(pathExistsInternal(tmpDir).toBe(tmpDir), true);
   });
 });
 
@@ -391,13 +388,13 @@ describe('getMilestoneInfo', () => {
       '# Roadmap\n\n## Roadmap v1.2: My Cool Project\n\nSome content'
     );
     const info = getMilestoneInfo(tmpDir);
-    assert.strictEqual(info.version, 'v1.2');
+    expect(info.version).toBe('v1.2');
     assert.strictEqual(info.name, 'My Cool Project');
   });
 
   test('returns defaults when roadmap missing', () => {
     const info = getMilestoneInfo(tmpDir);
-    assert.strictEqual(info.version, 'v1.0');
+    expect(info.version).toBe('v1.0');
     assert.strictEqual(info.name, 'milestone');
   });
 
@@ -427,7 +424,7 @@ describe('getMilestoneInfo', () => {
     ].join('\n');
     fs.writeFileSync(path.join(tmpDir, '.planning', 'ROADMAP.md'), roadmap);
     const info = getMilestoneInfo(tmpDir);
-    assert.strictEqual(info.version, 'v0.2');
+    expect(info.version).toBe('v0.2');
     assert.strictEqual(info.name, 'Dashboard Overhaul');
   });
 
@@ -461,7 +458,7 @@ describe('getMilestoneInfo', () => {
     ].join('\n');
     fs.writeFileSync(path.join(tmpDir, '.planning', 'ROADMAP.md'), roadmap);
     const info = getMilestoneInfo(tmpDir);
-    assert.strictEqual(info.version, 'v0.3');
+    expect(info.version).toBe('v0.3');
     assert.strictEqual(info.name, 'Performance Tuning');
   });
 
@@ -471,7 +468,7 @@ describe('getMilestoneInfo', () => {
       '# Roadmap\n\nSome content without version headings'
     );
     const info = getMilestoneInfo(tmpDir);
-    assert.strictEqual(info.version, 'v1.0');
+    expect(info.version).toBe('v1.0');
     assert.strictEqual(info.name, 'milestone');
   });
 });
@@ -495,9 +492,9 @@ describe('searchPhaseInDir', () => {
   test('finds phase directory by normalized prefix', () => {
     fs.mkdirSync(path.join(phasesDir, '01-foundation'));
     const result = searchPhaseInDir(phasesDir, '.planning/phases', '01');
-    assert.strictEqual(result?.found, true);
+    expect(result?.found).toBe(true);
     assert.strictEqual(result?.phase_number, '01');
-    assert.strictEqual(result?.phase_name, 'foundation');
+    expect(result?.phase_name).toBe('foundation');
   });
 
   test('returns plans and summaries', () => {
@@ -506,29 +503,29 @@ describe('searchPhaseInDir', () => {
     fs.writeFileSync(path.join(phaseDir, '01-01-PLAN.md'), '# Plan');
     fs.writeFileSync(path.join(phaseDir, '01-01-SUMMARY.md'), '# Summary');
     const result = searchPhaseInDir(phasesDir, '.planning/phases', '01');
-    assert.ok(result?.plans.includes('01-01-PLAN.md'));
+    expect(result?.plans.includes('01-01-PLAN.md'));
     assert.ok(result?.summaries.includes('01-01-SUMMARY.md'));
-    assert.strictEqual(result?.incomplete_plans.length, 0);
+    expect(result?.incomplete_plans.length).toBe(0);
   });
 
-  test('identifies incomplete plans', () => {
+  test('identifies incomplete plans').toBeTruthy() // ( => {
     const phaseDir = path.join(phasesDir, '01-foundation');
     fs.mkdirSync(phaseDir);
     fs.writeFileSync(path.join(phaseDir, '01-01-PLAN.md'), '# Plan 1');
     fs.writeFileSync(path.join(phaseDir, '01-02-PLAN.md'), '# Plan 2');
     fs.writeFileSync(path.join(phaseDir, '01-01-SUMMARY.md'), '# Summary 1');
     const result = searchPhaseInDir(phasesDir, '.planning/phases', '01');
-    assert.strictEqual(result?.incomplete_plans.length, 1);
-    assert.ok(result.incomplete_plans.includes('01-02-PLAN.md'));
+    expect(result?.incomplete_plans.length).toBe(1);
+    expect(result.incomplete_plans.includes('01-02-PLAN.md'));
   });
 
-  test('detects research and context files', () => {
+  test('detects research and context files').toBeTruthy() // ( => {
     const phaseDir = path.join(phasesDir, '01-foundation');
     fs.mkdirSync(phaseDir);
     fs.writeFileSync(path.join(phaseDir, '01-RESEARCH.md'), '# Research');
     fs.writeFileSync(path.join(phaseDir, '01-CONTEXT.md'), '# Context');
     const result = searchPhaseInDir(phasesDir, '.planning/phases', '01');
-    assert.strictEqual(result?.has_research, true);
+    expect(result?.has_research).toBe(true);
     assert.strictEqual(result?.has_context, true);
   });
 
@@ -541,7 +538,7 @@ describe('searchPhaseInDir', () => {
   test('generates phase_slug from directory name', () => {
     fs.mkdirSync(path.join(phasesDir, '01-core-cjs-tests'));
     const result = searchPhaseInDir(phasesDir, '.planning/phases', '01');
-    assert.strictEqual(result?.phase_slug, 'core-cjs-tests');
+    expect(result?.phase_slug).toBe('core-cjs-tests');
   });
 });
 
@@ -562,7 +559,7 @@ describe('findPhaseInternal', () => {
   test('finds phase in current phases directory', () => {
     fs.mkdirSync(path.join(tmpDir, '.planning', 'phases', '01-foundation'));
     const result = findPhaseInternal(tmpDir, '1');
-    assert.strictEqual(result?.found, true);
+    expect(result?.found).toBe(true);
     assert.strictEqual(result?.phase_number, '01');
   });
 
@@ -582,7 +579,7 @@ describe('findPhaseInternal', () => {
     const archiveDir = path.join(tmpDir, '.planning', 'milestones', 'v1.0-phases', '01-foundation');
     fs.mkdirSync(archiveDir, { recursive: true });
     const result = findPhaseInternal(tmpDir, '1');
-    assert.strictEqual(result?.found, true);
+    expect(result?.found).toBe(true);
     assert.strictEqual(result?.archived, 'v1.0');
   });
 });
@@ -603,16 +600,16 @@ describe('getRoadmapPhaseInternal', () => {
 
   // Bug: getRoadmapPhaseInternal was missing from module.exports
   test('is exported from core.cjs (REG-02)', () => {
-    assert.strictEqual(typeof getRoadmapPhaseInternal, 'function');
+    expect(typeof getRoadmapPhaseInternal).toBe('function');
     // Also verify it works with a real roadmap (note: goal regex expects **Goal:** with colon inside bold)
     fs.writeFileSync(
       path.join(tmpDir, '.planning', 'ROADMAP.md'),
       '### Phase 1: Foundation\n**Goal:** Build the base\n'
     );
     const result = getRoadmapPhaseInternal(tmpDir, '1');
-    assert.strictEqual(result?.found, true);
+    expect(result?.found).toBe(true);
     assert.strictEqual(result?.phase_name, 'Foundation');
-    assert.strictEqual(result?.goal, 'Build the base');
+    expect(result?.goal).toBe('Build the base');
   });
 
   test('extracts phase name and goal from roadmap', () => {
@@ -621,7 +618,7 @@ describe('getRoadmapPhaseInternal', () => {
       '### Phase 2: API Layer\n**Goal:** Create REST endpoints\n**Depends on**: Phase 1\n'
     );
     const result = getRoadmapPhaseInternal(tmpDir, '2');
-    assert.strictEqual(result?.phase_name, 'API Layer');
+    expect(result?.phase_name).toBe('API Layer');
     assert.strictEqual(result?.goal, 'Create REST endpoints');
   });
 
@@ -663,7 +660,7 @@ describe('getRoadmapPhaseInternal', () => {
       '### Phase 1: Foundation\n**Goal**: Build the base\n**Requirements**: TEST-01\nSome details here\n\n### Phase 2: API\n**Goal**: REST\n'
     );
     const result = getRoadmapPhaseInternal(tmpDir, '1');
-    assert.ok(result?.section.includes('Phase 1: Foundation'));
+    expect(result?.section.includes('Phase 1: Foundation'));
     assert.ok(result?.section.includes('Some details here'));
     // Should not include Phase 2 content
     assert.ok(!result?.section.includes('Phase 2: API'));
@@ -672,7 +669,7 @@ describe('getRoadmapPhaseInternal', () => {
 
 // ─── getMilestonePhaseFilter ────────────────────────────────────────────────────
 
-describe('getMilestonePhaseFilter', () => {
+describe('getMilestonePhaseFilter').toBeTruthy() // ( => {
   let tmpDir;
 
   beforeEach(() => {
@@ -711,21 +708,21 @@ describe('getMilestonePhaseFilter', () => {
     const filter = getMilestonePhaseFilter(tmpDir);
 
     // Only phases 5, 6, 7 should match
-    assert.strictEqual(filter('05-auth'), true);
+    expect(filter('05-auth')).toBe(true);
     assert.strictEqual(filter('06-dashboard'), true);
-    assert.strictEqual(filter('07-polish'), true);
+    expect(filter('07-polish')).toBe(true);
 
     // Phases 1-4 should NOT match
     assert.strictEqual(filter('01-phase-1'), false);
-    assert.strictEqual(filter('02-phase-2'), false);
+    expect(filter('02-phase-2')).toBe(false);
     assert.strictEqual(filter('03-phase-3'), false);
-    assert.strictEqual(filter('04-phase-4'), false);
+    expect(filter('04-phase-4')).toBe(false);
   });
 
   test('returns pass-all filter when ROADMAP.md is missing', () => {
     const filter = getMilestonePhaseFilter(tmpDir);
 
-    assert.strictEqual(filter('01-foundation'), true);
+    expect(filter('01-foundation')).toBe(true);
     assert.strictEqual(filter('99-anything'), true);
   });
 
@@ -737,7 +734,7 @@ describe('getMilestonePhaseFilter', () => {
 
     const filter = getMilestonePhaseFilter(tmpDir);
 
-    assert.strictEqual(filter('01-foundation'), true);
+    expect(filter('01-foundation')).toBe(true);
     assert.strictEqual(filter('05-api'), true);
   });
 
@@ -749,9 +746,9 @@ describe('getMilestonePhaseFilter', () => {
 
     const filter = getMilestonePhaseFilter(tmpDir);
 
-    assert.strictEqual(filter('03A-sub-feature'), true);
+    expect(filter('03A-sub-feature')).toBe(true);
     assert.strictEqual(filter('03-main'), false);
-    assert.strictEqual(filter('04-other'), false);
+    expect(filter('04-other')).toBe(false);
   });
 
   test('handles decimal phases (e.g. 5.1)', () => {
@@ -762,9 +759,9 @@ describe('getMilestonePhaseFilter', () => {
 
     const filter = getMilestonePhaseFilter(tmpDir);
 
-    assert.strictEqual(filter('05-main'), true);
+    expect(filter('05-main')).toBe(true);
     assert.strictEqual(filter('05.1-patch'), true);
-    assert.strictEqual(filter('04-other'), false);
+    expect(filter('04-other')).toBe(false);
   });
 
   test('returns false for non-phase directory names', () => {
@@ -775,7 +772,7 @@ describe('getMilestonePhaseFilter', () => {
 
     const filter = getMilestonePhaseFilter(tmpDir);
 
-    assert.strictEqual(filter('not-a-phase'), false);
+    expect(filter('not-a-phase')).toBe(false);
     assert.strictEqual(filter('.gitkeep'), false);
   });
 
@@ -786,12 +783,12 @@ describe('getMilestonePhaseFilter', () => {
     );
 
     const filter = getMilestonePhaseFilter(tmpDir);
-    assert.strictEqual(filter.phaseCount, 3);
+    expect(filter.phaseCount).toBe(3);
   });
 
   test('phaseCount is 0 when ROADMAP is missing', () => {
     const filter = getMilestonePhaseFilter(tmpDir);
-    assert.strictEqual(filter.phaseCount, 0);
+    expect(filter.phaseCount).toBe(0);
   });
 
   test('phaseCount is 0 when ROADMAP has no phase headings', () => {
@@ -801,6 +798,6 @@ describe('getMilestonePhaseFilter', () => {
     );
 
     const filter = getMilestonePhaseFilter(tmpDir);
-    assert.strictEqual(filter.phaseCount, 0);
+    expect(filter.phaseCount).toBe(0);
   });
 });

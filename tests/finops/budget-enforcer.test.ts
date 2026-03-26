@@ -8,12 +8,12 @@
  * Requirements: COST-01, COST-03
  */
 
-const { test, describe, beforeEach, afterEach } = require('node:test');
-import assert from 'node:assert';
+
+
 import * as path from 'path';
 import * as fs from 'fs';
 
-import BudgetEnforcer from '../../bin/lib/budget-enforcer.js';
+import { BudgetEnforcer } from '../../bin/lib/finops/budget-enforcer.js';
 
 describe('BudgetEnforcer', () => {
   let tmpDir, enforcer;
@@ -26,7 +26,7 @@ describe('BudgetEnforcer', () => {
   afterEach(() => cleanup(tmpDir));
 
   test('constructor does not throw', () => {
-    assert.ok(enforcer, 'BudgetEnforcer instance must be created without throwing');
+    expect(enforcer).toBeTruthy() // 'BudgetEnforcer instance must be created without throwing';
   });
 
   test('setBudget() configures spending limit with optional warning threshold', async () => {
@@ -36,14 +36,14 @@ describe('BudgetEnforcer', () => {
       period: 'monthly'
     });
 
-    assert.ok(result, 'setBudget must return result');
-    assert.strictEqual(result.ceiling, 100, 'ceiling must be 100');
-    assert.strictEqual(result.warningThreshold, 80, 'warningThreshold must be 80');
+    expect(result).toBeTruthy() // 'setBudget must return result';
+    expect(result?.ceiling).toBe(100, 'ceiling must be 100');
+    expect(result?.warningThreshold).toBe(80, 'warningThreshold must be 80');
 
     const configPath = path.join(tmpDir, '.planning', 'budget.json');
     const config = JSON.parse(fs.readFileSync(configPath, 'utf8'));
-    assert.strictEqual(config.ceiling, 100, 'config ceiling must match');
-    assert.strictEqual(config.warningThreshold, 80, 'config warningThreshold must match');
+    expect(config.ceiling).toBe(100, 'config ceiling must match');
+    expect(config.warningThreshold).toBe(80, 'config warningThreshold must match');
   });
 
   test('checkBudget() returns status based on current spending', async () => {
@@ -52,12 +52,12 @@ describe('BudgetEnforcer', () => {
 
     const status = enforcer.checkBudget();
 
-    assert.ok(status, 'checkBudget must return status');
-    assert.strictEqual(status.current, 50, 'current spending must be 50');
-    assert.strictEqual(status.ceiling, 100, 'ceiling must be 100');
-    assert.strictEqual(status.remaining, 50, 'remaining must be 50');
-    assert.strictEqual(status.percentUsed, 50, 'percentUsed must be 50');
-    assert.strictEqual(status.status, 'ok', 'status must be ok (below warning)');
+    expect(status).toBeTruthy() // 'checkBudget must return status';
+    expect(status.current).toBe(50, 'current spending must be 50');
+    expect(status.ceiling).toBe(100, 'ceiling must be 100');
+    expect(status.remaining).toBe(50, 'remaining must be 50');
+    expect(status.percentUsed).toBe(50, 'percentUsed must be 50');
+    expect(status.status).toBe('ok', 'status must be ok (below warning)');
   });
 
   test('checkBudget() returns warning when spending exceeds threshold', async () => {
@@ -66,8 +66,8 @@ describe('BudgetEnforcer', () => {
 
     const status = enforcer.checkBudget();
 
-    assert.strictEqual(status.status, 'warning', 'status must be warning (above 80%)');
-    assert.strictEqual(status.percentUsed, 85, 'percentUsed must be 85');
+    expect(status.status).toBe('warning', 'status must be warning (above 80%)');
+    expect(status.percentUsed).toBe(85, 'percentUsed must be 85');
   });
 
   test('checkBudget() returns exceeded when spending exceeds ceiling', async () => {
@@ -76,9 +76,9 @@ describe('BudgetEnforcer', () => {
 
     const status = enforcer.checkBudget();
 
-    assert.strictEqual(status.status, 'exceeded', 'status must be exceeded (above ceiling)');
-    assert.strictEqual(status.percentUsed, 120, 'percentUsed must be 120');
-    assert.strictEqual(status.overage, 20, 'overage must be 20');
+    expect(status.status).toBe('exceeded', 'status must be exceeded (above ceiling)');
+    expect(status.percentUsed).toBe(120, 'percentUsed must be 120');
+    expect(status.overage).toBe(20, 'overage must be 20');
   });
 
   test('enforce() blocks operation when budget exceeded', async () => {
@@ -87,9 +87,9 @@ describe('BudgetEnforcer', () => {
 
     const enforcement = enforcer.enforce({ operation: 'api_call', estimatedCost: 5 });
 
-    assert.ok(enforcement, 'enforce must return enforcement result');
-    assert.strictEqual(enforcement.allowed, false, 'operation must not be allowed');
-    assert.strictEqual(enforcement.reason, 'budget_exceeded', 'reason must be budget_exceeded');
+    expect(enforcement).toBeTruthy() // 'enforce must return enforcement result';
+    expect(enforcement.allowed).toBe(false, 'operation must not be allowed');
+    expect(enforcement.reason).toBe('budget_exceeded', 'reason must be budget_exceeded');
   });
 
   test('enforce() allows operation when within budget', async () => {
@@ -98,8 +98,8 @@ describe('BudgetEnforcer', () => {
 
     const enforcement = enforcer.enforce({ operation: 'api_call', estimatedCost: 5 });
 
-    assert.strictEqual(enforcement.allowed, true, 'operation must be allowed');
-    assert.strictEqual(enforcement.estimatedRemaining, 45, 'remaining after operation must be 45');
+    expect(enforcement.allowed).toBe(true, 'operation must be allowed');
+    expect(enforcement.estimatedRemaining).toBe(45, 'remaining after operation must be 45');
   });
 
   test('getSpendingByCategory() returns breakdown of spending', async () => {
@@ -110,9 +110,9 @@ describe('BudgetEnforcer', () => {
 
     const breakdown = enforcer.getSpendingByCategory();
 
-    assert.ok(breakdown, 'getSpendingByCategory must return data');
-    assert.strictEqual(breakdown.api_calls, 40, 'api_calls spending must be 40');
-    assert.strictEqual(breakdown.storage, 20, 'storage spending must be 20');
-    assert.strictEqual(breakdown.total, 60, 'total spending must be 60');
+    expect(breakdown).toBeTruthy() // 'getSpendingByCategory must return data';
+    expect(breakdown.api_calls).toBe(40, 'api_calls spending must be 40');
+    expect(breakdown.storage).toBe(20, 'storage spending must be 20');
+    expect(breakdown.total).toBe(60, 'total spending must be 60');
   });
 });

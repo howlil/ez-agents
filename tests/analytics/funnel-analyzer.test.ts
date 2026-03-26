@@ -8,12 +8,12 @@
  * Requirement: ANALYTICS-03
  */
 
-const { test, describe, beforeEach, afterEach } = require('node:test');
-import assert from 'node:assert';
+
+
 import * as path from 'path';
 import * as fs from 'fs';
 
-import FunnelAnalyzer from '../../bin/lib/funnel-analyzer.js';
+import { FunnelAnalyzer } from '../../bin/lib/analytics/funnel-analyzer.js';
 
 describe('FunnelAnalyzer', () => {
   let tmpDir, analyzer;
@@ -26,7 +26,7 @@ describe('FunnelAnalyzer', () => {
   afterEach(() => cleanup(tmpDir));
 
   test('constructor does not throw', () => {
-    assert.ok(analyzer, 'FunnelAnalyzer instance must be created without throwing');
+    expect(analyzer).toBeTruthy() // 'FunnelAnalyzer instance must be created without throwing';
   });
 
   test('defineFunnel() creates funnel with ordered steps', async () => {
@@ -45,14 +45,14 @@ describe('FunnelAnalyzer', () => {
     const dataPath = path.join(tmpDir, '.planning', 'funnels.json');
     const data = JSON.parse(fs.readFileSync(dataPath, 'utf8'));
 
-    assert.ok(Array.isArray(data.funnels), 'funnels.json must have funnels array');
-    assert.strictEqual(data.funnels.length, 1, 'must have 1 funnel');
+    expect(Array.isArray(data.funnels)).toBeTruthy() // 'funnels.json must have funnels array';
+    expect(data.funnels.length).toBe(1, 'must have 1 funnel');
 
     const saved = data.funnels[0];
-    assert.strictEqual(saved.name, 'user_onboarding', 'funnel name must match');
-    assert.strictEqual(saved.steps.length, 4, 'must have 4 steps');
-    assert.strictEqual(saved.steps[0].name, 'landing_page_view', 'first step must match');
-    assert.strictEqual(saved.steps[3].name, 'onboarding_completed', 'last step must match');
+    expect(saved.name).toBe('user_onboarding', 'funnel name must match');
+    expect(saved.steps.length).toBe(4, 'must have 4 steps');
+    expect(saved.steps[0].name).toBe('landing_page_view', 'first step must match');
+    expect(saved.steps[3].name).toBe('onboarding_completed', 'last step must match');
   });
 
   test('trackConversion() records user progression through funnel', async () => {
@@ -72,10 +72,10 @@ describe('FunnelAnalyzer', () => {
     const dataPath = path.join(tmpDir, '.planning', 'funnels.json');
     const data = JSON.parse(fs.readFileSync(dataPath, 'utf8'));
 
-    assert.ok(data.conversions, 'must have conversions data');
+    expect(data.conversions).toBeTruthy() // 'must have conversions data';
     const checkoutConversions = data.conversions['checkout'];
-    assert.ok(checkoutConversions, 'must have checkout funnel conversions');
-    assert.strictEqual(checkoutConversions.length, 3, 'must have 3 conversion records');
+    expect(checkoutConversions).toBeTruthy() // 'must have checkout funnel conversions';
+    expect(checkoutConversions.length).toBe(3, 'must have 3 conversion records');
   });
 
   test('getConversionRates() returns percentage at each step', async () => {
@@ -101,11 +101,11 @@ describe('FunnelAnalyzer', () => {
 
     const rates = analyzer.getConversionRates('signup');
 
-    assert.ok(rates, 'getConversionRates must return data');
-    assert.ok(rates.steps, 'must have steps data');
-    assert.strictEqual(rates.steps[0].rate, 100, 'first step must be 100%');
-    assert.strictEqual(rates.steps[1].rate, 50, 'second step must be 50% (5/10)');
-    assert.strictEqual(rates.steps[2].rate, 20, 'third step must be 20% (2/10)');
+    expect(rates).toBeTruthy() // 'getConversionRates must return data';
+    expect(rates.steps).toBeTruthy() // 'must have steps data';
+    expect(rates.steps[0].rate).toBe(100, 'first step must be 100%');
+    expect(rates.steps[1].rate).toBe(50, 'second step must be 50% (5/10)');
+    expect(rates.steps[2].rate).toBe(20, 'third step must be 20% (2/10)');
   });
 
   test('getDropOffPoints() identifies biggest conversion losses', async () => {
@@ -135,10 +135,10 @@ describe('FunnelAnalyzer', () => {
 
     const dropOff = analyzer.getDropOffPoints('purchase');
 
-    assert.ok(dropOff, 'getDropOffPoints must return data');
-    assert.ok(Array.isArray(dropOff.points), 'must have points array');
-    assert.strictEqual(dropOff.points[0].fromStep, 'product_view', 'biggest drop must be identified');
-    assert.strictEqual(dropOff.points[0].dropRate, 70, 'drop rate must be 70% (70/100 lost)');
+    expect(dropOff).toBeTruthy() // 'getDropOffPoints must return data';
+    expect(Array.isArray(dropOff.points)).toBeTruthy() // 'must have points array';
+    expect(dropOff.points[0].fromStep).toBe('product_view', 'biggest drop must be identified');
+    expect(dropOff.points[0].dropRate).toBe(70, 'drop rate must be 70% (70/100 lost)');
   });
 
   test('compareFunnels() returns comparative metrics between funnels', async () => {
@@ -175,8 +175,8 @@ describe('FunnelAnalyzer', () => {
 
     const comparison = analyzer.compareFunnels(['mobile_signup', 'desktop_signup']);
 
-    assert.ok(comparison, 'compareFunnels must return data');
-    assert.ok(Array.isArray(comparison.funnels), 'must have funnels array');
-    assert.strictEqual(comparison.funnels.length, 2, 'must compare 2 funnels');
+    expect(comparison).toBeTruthy() // 'compareFunnels must return data';
+    expect(Array.isArray(comparison.funnels)).toBeTruthy() // 'must have funnels array';
+    expect(comparison.funnels.length).toBe(2, 'must compare 2 funnels');
   });
 });

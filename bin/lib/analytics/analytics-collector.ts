@@ -33,8 +33,8 @@ export interface EventData {
 }
 
 export class AnalyticsCollector {
-  private cwd: string;
-  private eventsPath: string;
+  private readonly cwd: string;
+  private readonly eventsPath: string;
 
   constructor(cwd?: string) {
     this.cwd = cwd || process.cwd();

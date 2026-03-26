@@ -42,8 +42,8 @@ export interface CacheStats {
  * ContextCache class for session-only caching
  */
 export class ContextCache {
-  private cacheDir: string;
-  private cache: Map<string, CacheEntry>;
+  private readonly cacheDir: string;
+  private readonly cache: Map<string, CacheEntry>;
 
   constructor() {
     // Cache stored in system temp directory with PID for isolation

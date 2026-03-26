@@ -161,7 +161,7 @@ export class MockFactory {
    * @param implementation - Optional implementation
    * @returns A mock function
    */
-  static createFn<T extends (...args: any[]) => any>(implementation?: T): jest.MockedFunction<T> | T {
+  static createFn<T extends (...args: any[]) => any>(implementation?: T): T {
     if (implementation) {
       return implementation;
     }

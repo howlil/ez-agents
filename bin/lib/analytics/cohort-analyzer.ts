@@ -55,8 +55,8 @@ export interface Period {
 }
 
 export class CohortAnalyzer {
-  private cwd: string;
-  private cohortsPath: string;
+  private readonly cwd: string;
+  private readonly cohortsPath: string;
 
   constructor(cwd?: string) {
     this.cwd = cwd || process.cwd();

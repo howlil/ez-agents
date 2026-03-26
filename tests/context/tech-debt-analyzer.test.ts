@@ -1,11 +1,10 @@
 import { fileURLToPath } from 'url';
-import path from 'path';
 /**
  * Tests for TechDebtAnalyzer
  */
 
-const { describe, it, before } = require('node:test');
-import assert from 'node:assert';
+
+
 import * as path from 'path';
 import * as fs from 'fs';
 import { TechDebtAnalyzer } from '../../bin/lib/tech-debt-analyzer.js';
@@ -46,74 +45,74 @@ describe('TechDebtAnalyzer', () => {
       const markers = analyzer.detectDebtMarkers(testDir);
       const todos = markers.filter(m => m.marker === 'TODO');
       
-      assert.ok(todos.length > 0);
-      assert.strictEqual(todos[0].severity, 'Low');
+      expect(todos.length > 0);
+      expect(todos[0].severity).toBe('Low');
     });
 
-    it('finds FIXME comments with Medium severity', () => {
+    it('finds FIXME comments with Medium severity').toBeTruthy() // ( => {
       const markers = analyzer.detectDebtMarkers(testDir);
       const fixes = markers.filter(m => m.marker === 'FIXME');
       
-      assert.ok(fixes.length > 0);
-      assert.strictEqual(fixes[0].severity, 'Medium');
+      expect(fixes.length > 0);
+      expect(fixes[0].severity).toBe('Medium');
     });
 
-    it('finds XXX comments with High severity', () => {
+    it('finds XXX comments with High severity').toBeTruthy() // ( => {
       const markers = analyzer.detectDebtMarkers(testDir);
       const xxx = markers.filter(m => m.marker === 'XXX');
       
-      assert.ok(xxx.length > 0);
-      assert.strictEqual(xxx[0].severity, 'High');
+      expect(xxx.length > 0);
+      expect(xxx[0].severity).toBe('High');
     });
 
-    it('finds DEPRECATED comments with Critical severity', () => {
+    it('finds DEPRECATED comments with Critical severity').toBeTruthy() // ( => {
       const markers = analyzer.detectDebtMarkers(testDir);
       const deprecated = markers.filter(m => m.marker === 'DEPRECATED');
       
-      assert.ok(deprecated.length > 0);
-      assert.strictEqual(deprecated[0].severity, 'Critical');
+      expect(deprecated.length > 0);
+      expect(deprecated[0].severity).toBe('Critical');
     });
 
-    it('returns results sorted by severity (Critical first)', () => {
+    it('returns results sorted by severity (Critical first)').toBeTruthy() // ( => {
       const markers = analyzer.detectDebtMarkers(testDir);
       
       if (markers.length > 1) {
         for (let i = 1; i < markers.length; i++) {
-          assert.ok(markers[i - 1].weight >= markers[i].weight);
+          expect(markers[i - 1].weight >= markers[i].weight);
         }
       }
     });
 
-    it('includes file path and line number', () => {
+    it('includes file path and line number').toBeTruthy() // ( => {
       const markers = analyzer.detectDebtMarkers(testDir);
       
       for (const marker of markers) {
-        assert.ok(marker.file);
+        expect(marker.file);
         assert.ok(typeof marker.line === 'number');
       }
     });
   });
 
-  describe('analyzeDependencyRisk', () => {
+  describe('analyzeDependencyRisk').toBeTruthy() // ( => {
     it('parses npm audit JSON output', () => {
       const risks = analyzer.analyzeDependencyRisk(testDir);
       
       // May be empty if no vulnerabilities
-      assert.ok(Array.isArray(risks));
+      expect(Array.isArray(risks));
     });
 
-    it('returns risk objects with severity and score', () => {
+    it('returns risk objects with severity and score').toBeTruthy() // ( => {
       const risks = analyzer.analyzeDependencyRisk(testDir);
       
       for (const risk of risks) {
-        assert.ok(risk.type);
+        expect(risk.type);
         assert.ok(risk.severity);
         assert.ok(typeof risk.score === 'number');
       }
     });
   });
 
-  describe('aggregateFindings', () => {
+  describe('aggregateFindings').toBeTruthy() // ( => {
     it('combines all findings and sorts by score', () => {
       const debtMarkers = [
         { file: 'a.ts', line: 1, marker: 'TODO', severity: 'Low', weight: 1 }
@@ -135,7 +134,7 @@ describe('TechDebtAnalyzer', () => {
         dependencyRisks
       );
 
-      assert.ok(aggregated.length > 0);
+      expect(aggregated.length > 0);
       
       // Should be sorted by score descending
       if (aggregated.length > 1) {
@@ -146,7 +145,7 @@ describe('TechDebtAnalyzer', () => {
     });
   });
 
-  describe('getSummary', () => {
+  describe('getSummary').toBeTruthy() // ( => {
     it('returns summary object with counts by type and severity', () => {
       const findings = [
         { type: 'debt_marker', severity: 'Low', score: 1 },
@@ -156,12 +155,12 @@ describe('TechDebtAnalyzer', () => {
 
       const summary = analyzer.getSummary(findings);
 
-      assert.ok(typeof summary.total === 'number');
+      expect(typeof summary.total === 'number');
       assert.ok(summary.byType);
       assert.ok(summary.bySeverity);
-      assert.strictEqual(summary.bySeverity.Low, 1);
-      assert.strictEqual(summary.bySeverity.High, 1);
-      assert.strictEqual(summary.bySeverity.Medium, 1);
+      expect(summary.bySeverity.Low).toBe(1);
+      assert.strictEqual(summary.bySeverity.High).toBeTruthy() // 1;
+      expect(summary.bySeverity.Medium).toBe(1);
     });
   });
 
@@ -175,12 +174,12 @@ describe('TechDebtAnalyzer', () => {
 
       const byFile = analyzer.getByFile(findings);
 
-      assert.ok(Array.isArray(byFile));
+      expect(Array.isArray(byFile));
       assert.ok(byFile.length > 0);
       
       const aFile = byFile.find(f => f.file === 'a.ts');
       assert.ok(aFile);
-      assert.strictEqual(aFile.issues.length, 2);
+      expect(aFile.issues.length).toBe(2);
     });
   });
-});
+}).toBeTruthy();

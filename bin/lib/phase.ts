@@ -8,12 +8,13 @@ import {
   escapeRegex,
   normalizePhaseName,
   comparePhaseNum,
-  findPhase,
   getArchivedPhaseDirs,
+  findPhaseInternal,
   output,
   error
 } from './core.js';
 import { defaultLogger as logger } from './logger.js';
+import { roadmapUpdatePhaseStatus } from './roadmap.js';
 
 // ─── Type Definitions ────────────────────────────────────────────────────────
 
@@ -232,10 +233,10 @@ export function phaseNextDecimal(cwd: string, basePhase: string, raw?: boolean):
  * Find a phase by identifier
  */
 export function findPhaseCmd(cwd: string, phase: string | number, raw?: boolean): void {
-  const result = findPhase(cwd, phase);
-  
+  const result = findPhaseInternal(cwd, String(phase));
+
   if (result) {
-    output(result, raw, result.directory);
+    output(result as unknown as Record<string, unknown>, raw, result.directory);
   } else {
     output({ found: false, phase_number: String(phase) }, raw, '');
   }
@@ -247,4 +248,21 @@ export function findPhaseCmd(cwd: string, phase: string | number, raw?: boolean)
 export function getArchivedPhasesCmd(cwd: string, raw?: boolean): void {
   const archived = getArchivedPhaseDirs(cwd);
   output({ archived, count: archived.length }, raw, archived.map(a => a.name).join('\n'));
+}
+
+/**
+ * Mark a phase as complete
+ */
+export async function phaseComplete(cwd: string, phaseNum: string, raw?: boolean): Promise<void> {
+  if (!phaseNum) {
+    throw new Error('Phase number is required');
+  }
+  
+  // Update phase status in roadmap
+  try {
+    await roadmapUpdatePhaseStatus(cwd, phaseNum, 'complete');
+    output({ success: true, phase: phaseNum, status: 'completed' }, raw);
+  } catch (err) {
+    throw new Error(`Failed to complete phase ${phaseNum}: ${err instanceof Error ? err.message : 'Unknown error'}`);
+  }
 }

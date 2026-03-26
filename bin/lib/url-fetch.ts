@@ -10,9 +10,8 @@
 import { URL } from 'url';
 import { URLFetchError } from './context-errors.js';
 
-// Use undici for fetch (bundled with Node.js 18+)
-// eslint-disable-next-line @typescript-eslint/no-require-imports
-const { fetch: globalFetch } = require('undici') as typeof import('undici');
+// Use global fetch (available in Node.js 18+)
+const globalFetch = globalThis.fetch;
 
 const DEFAULT_TIMEOUT = 30000; // 30 seconds
 const BLOCKED_PROTOCOLS = ['http:', 'file:', 'data:', 'javascript:', 'vbscript:'];
@@ -95,7 +94,7 @@ export class URLValidator {
  * URL Fetch Service - Secure URL fetching
  */
 export class URLFetchService {
-  private timeout: number;
+  private readonly timeout: number;
 
   /**
    * Create a new URLFetchService instance

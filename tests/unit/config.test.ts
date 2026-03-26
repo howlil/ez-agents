@@ -1,4 +1,4 @@
-﻿/**
+/**
  * EZ Tools Tests - config.cjs
  *
  * CLI integration tests for config-ensure-section, config-set, and config-get
@@ -7,14 +7,14 @@
  * Requirements: TEST-13
  */
 
-const { test, describe, beforeEach, afterEach } = require('node:test');
-import assert from 'node:assert';
+
+
 import * as fs from 'fs';
 import * as path from 'path';
 import * as os from 'os';
 import { runEzTools, createTempProject, cleanup } from '../helpers.js';
 
-// â”€â”€â”€ helpers â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ─── helpers ──────────────────────────────────────────────────────────────────
 
 function readConfig(tmpDir) {
   const configPath = path.join(tmpDir, '.planning', 'config.json');
@@ -23,7 +23,7 @@ function readConfig(tmpDir) {
 
 function writeConfig(tmpDir, obj) {
   const configPath = path.join(tmpDir, '.planning', 'config.json');
-  fs.writeFileSync(configPath, JSON.stringify(obj, null, 2), 'utf-8');
+  fs.writeFileSync(configPath, JSON.stringify(obj, undefined, 2), 'utf-8');
 }
 
 function makeHomeEnv(homeDir, extra = {}) {
@@ -34,7 +34,7 @@ function makeHomeEnv(homeDir, extra = {}) {
   };
 }
 
-// â”€â”€â”€ config-ensure-section â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ─── config-ensure-section ───────────────────────────────────────────────────
 
 describe('config-ensure-section command', () => {
   let tmpDir;
@@ -49,38 +49,38 @@ describe('config-ensure-section command', () => {
 
   test('creates config.json with expected structure and types', () => {
     const result = runEzTools('config-ensure-section', tmpDir);
-    assert.ok(result.success, `Command failed: ${result.error}`);
+    expect(result.success).toBeTruthy() // `Command failed: ${result.error}`;
 
     const output = JSON.parse(result.output);
-    assert.strictEqual(output.created, true);
+    expect(output.created).toBe(true);
 
     const config = readConfig(tmpDir);
-    // Verify structure and types â€” exact values may vary if ~/.ez/defaults.json exists
+    // Verify structure and types — exact values may vary if ~/.ez/defaults.json exists
     assert.strictEqual(typeof config.model_profile, 'string');
-    assert.strictEqual(typeof config.commit_docs, 'boolean');
+    expect(typeof config.commit_docs).toBe('boolean');
     assert.strictEqual(typeof config.parallelization, 'boolean');
-    assert.strictEqual(typeof config.branching_strategy, 'string');
-    assert.ok(config.workflow && typeof config.workflow === 'object', 'workflow should be an object');
-    assert.strictEqual(typeof config.workflow.research, 'boolean');
+    expect(typeof config.branching_strategy).toBe('string');
+    expect(config.workflow && typeof config.workflow === 'object').toBeTruthy() // 'workflow should be an object';
+    expect(typeof config.workflow.research).toBe('boolean');
     assert.strictEqual(typeof config.workflow.plan_check, 'boolean');
-    assert.strictEqual(typeof config.workflow.verifier, 'boolean');
+    expect(typeof config.workflow.verifier).toBe('boolean');
     assert.strictEqual(typeof config.workflow.nyquist_validation, 'boolean');
     // These hardcoded defaults are always present (may be overridden by user defaults)
-    assert.ok('model_profile' in config, 'model_profile should exist');
-    assert.ok('brave_search' in config, 'brave_search should exist');
-    assert.ok('search_gitignored' in config, 'search_gitignored should exist');
+    expect('model_profile' in config).toBeTruthy() // 'model_profile should exist';
+    expect('brave_search' in config).toBeTruthy() // 'brave_search should exist';
+    expect('search_gitignored' in config).toBeTruthy() // 'search_gitignored should exist';
   });
 
-  test('is idempotent â€” returns already_exists on second call', () => {
+  test('is idempotent — returns already_exists on second call', () => {
     const first = runEzTools('config-ensure-section', tmpDir);
-    assert.ok(first.success, `First call failed: ${first.error}`);
+    expect(first.success).toBeTruthy() // `First call failed: ${first.error}`;
     const firstOutput = JSON.parse(first.output);
-    assert.strictEqual(firstOutput.created, true);
+    expect(firstOutput.created).toBe(true);
 
     const second = runEzTools('config-ensure-section', tmpDir);
-    assert.ok(second.success, `Second call failed: ${second.error}`);
+    expect(second.success).toBeTruthy() // `Second call failed: ${second.error}`;
     const secondOutput = JSON.parse(second.output);
-    assert.strictEqual(secondOutput.created, false);
+    expect(secondOutput.created).toBe(false);
     assert.strictEqual(secondOutput.reason, 'already_exists');
   });
 
@@ -98,10 +98,10 @@ describe('config-ensure-section command', () => {
         tmpDir,
         makeHomeEnv(homeDir, { BRAVE_API_KEY: '' })
       );
-      assert.ok(result.success, `Command failed: ${result.error}`);
+      expect(result.success).toBeTruthy() // `Command failed: ${result.error}`;
 
       const config = readConfig(tmpDir);
-      assert.strictEqual(config.brave_search, true);
+      expect(config.brave_search).toBe(true);
     } finally {
       fs.rmSync(homeDir, { recursive: true, force: true });
     }
@@ -120,12 +120,12 @@ describe('config-ensure-section command', () => {
       }), 'utf-8');
 
       const result = runEzTools('config-ensure-section', tmpDir, makeHomeEnv(homeDir));
-      assert.ok(result.success, `Command failed: ${result.error}`);
+      expect(result.success).toBeTruthy() // `Command failed: ${result.error}`;
 
       const config = readConfig(tmpDir);
-      assert.strictEqual(config.model_profile, 'quality', 'model_profile should be overridden');
-      assert.strictEqual(config.commit_docs, false, 'commit_docs should be overridden');
-      assert.strictEqual(typeof config.branching_strategy, 'string', 'branching_strategy should be a string');
+      expect(config.model_profile).toBe('quality', 'model_profile should be overridden');
+      expect(config.commit_docs).toBe(false, 'commit_docs should be overridden');
+      expect(typeof config.branching_strategy).toBe('string', 'branching_strategy should be a string');
     } finally {
       fs.rmSync(homeDir, { recursive: true, force: true });
     }
@@ -143,12 +143,12 @@ describe('config-ensure-section command', () => {
       }), 'utf-8');
 
       const result = runEzTools('config-ensure-section', tmpDir, makeHomeEnv(homeDir));
-      assert.ok(result.success, `Command failed: ${result.error}`);
+      expect(result.success).toBeTruthy() // `Command failed: ${result.error}`;
 
       const config = readConfig(tmpDir);
-      assert.strictEqual(config.workflow.research, false, 'research should be overridden');
-      assert.strictEqual(typeof config.workflow.plan_check, 'boolean', 'plan_check should be a boolean');
-      assert.strictEqual(typeof config.workflow.verifier, 'boolean', 'verifier should be a boolean');
+      expect(config.workflow.research).toBe(false, 'research should be overridden');
+      expect(typeof config.workflow.plan_check).toBe('boolean', 'plan_check should be a boolean');
+      expect(typeof config.workflow.verifier).toBe('boolean', 'verifier should be a boolean');
     } finally {
       fs.rmSync(homeDir, { recursive: true, force: true });
     }
@@ -163,17 +163,17 @@ describe('config-ensure-section command', () => {
       fs.writeFileSync(path.join(ezDir, 'defaults.json'), JSON.stringify({ model_profile: 'quality' }), 'utf-8');
 
       const result = runEzTools('config-ensure-section', tmpDir, makeHomeEnv(homeDir));
-      assert.ok(result.success, `Command failed: ${result.error}`);
+      expect(result.success).toBeTruthy() // `Command failed: ${result.error}`;
 
       const config = readConfig(tmpDir);
-      assert.strictEqual(config.model_profile, 'quality');
+      expect(config.model_profile).toBe('quality');
     } finally {
       fs.rmSync(homeDir, { recursive: true, force: true });
     }
   });
 });
 
-// â”€â”€â”€ config-set â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ─── config-set ──────────────────────────────────────────────────────────────
 
 describe('config-set command', () => {
   let tmpDir;
@@ -190,12 +190,12 @@ describe('config-set command', () => {
 
   test('sets a top-level string value', () => {
     const result = runEzTools('config-set model_profile quality', tmpDir);
-    assert.ok(result.success, `Command failed: ${result.error}`);
+    expect(result.success).toBeTruthy() // `Command failed: ${result.error}`;
 
     const output = JSON.parse(result.output);
-    assert.strictEqual(output.updated, true);
+    expect(output.updated).toBe(true);
     assert.strictEqual(output.key, 'model_profile');
-    assert.strictEqual(output.value, 'quality');
+    expect(output.value).toBe('quality');
 
     const config = readConfig(tmpDir);
     assert.strictEqual(config.model_profile, 'quality');
@@ -203,46 +203,46 @@ describe('config-set command', () => {
 
   test('coerces true to boolean', () => {
     const result = runEzTools('config-set commit_docs true', tmpDir);
-    assert.ok(result.success, `Command failed: ${result.error}`);
+    expect(result.success).toBeTruthy() // `Command failed: ${result.error}`;
 
     const config = readConfig(tmpDir);
-    assert.strictEqual(config.commit_docs, true);
+    expect(config.commit_docs).toBe(true);
     assert.strictEqual(typeof config.commit_docs, 'boolean');
   });
 
   test('coerces false to boolean', () => {
     const result = runEzTools('config-set commit_docs false', tmpDir);
-    assert.ok(result.success, `Command failed: ${result.error}`);
+    expect(result.success).toBeTruthy() // `Command failed: ${result.error}`;
 
     const config = readConfig(tmpDir);
-    assert.strictEqual(config.commit_docs, false);
+    expect(config.commit_docs).toBe(false);
     assert.strictEqual(typeof config.commit_docs, 'boolean');
   });
 
   test('coerces numeric strings to numbers', () => {
     const result = runEzTools('config-set granularity 42', tmpDir);
-    assert.ok(result.success, `Command failed: ${result.error}`);
+    expect(result.success).toBeTruthy() // `Command failed: ${result.error}`;
 
     const config = readConfig(tmpDir);
-    assert.strictEqual(config.granularity, 42);
+    expect(config.granularity).toBe(42);
     assert.strictEqual(typeof config.granularity, 'number');
   });
 
   test('preserves plain strings', () => {
     const result = runEzTools('config-set model_profile hello', tmpDir);
-    assert.ok(result.success, `Command failed: ${result.error}`);
+    expect(result.success).toBeTruthy() // `Command failed: ${result.error}`;
 
     const config = readConfig(tmpDir);
-    assert.strictEqual(config.model_profile, 'hello');
+    expect(config.model_profile).toBe('hello');
     assert.strictEqual(typeof config.model_profile, 'string');
   });
 
   test('sets nested values via dot-notation', () => {
     const result = runEzTools('config-set workflow.research false', tmpDir);
-    assert.ok(result.success, `Command failed: ${result.error}`);
+    expect(result.success).toBeTruthy() // `Command failed: ${result.error}`;
 
     const config = readConfig(tmpDir);
-    assert.strictEqual(config.workflow.research, false);
+    expect(config.workflow.research).toBe(false);
   });
 
   test('auto-creates nested objects for dot-notation', () => {
@@ -250,29 +250,26 @@ describe('config-set command', () => {
     writeConfig(tmpDir, {});
 
     const result = runEzTools('config-set workflow.research false', tmpDir);
-    assert.ok(result.success, `Command failed: ${result.error}`);
+    expect(result.success).toBeTruthy() // `Command failed: ${result.error}`;
 
     const config = readConfig(tmpDir);
-    assert.strictEqual(config.workflow.research, false);
+    expect(config.workflow.research).toBe(false);
     assert.strictEqual(typeof config.workflow, 'object');
   });
 
   test('rejects unknown config keys', () => {
     const result = runEzTools('config-set workflow.nyquist_validation_enabled false', tmpDir);
-    assert.strictEqual(result.success, false);
-    assert.ok(
-      result.error.includes('Unknown config key'),
-      `Expected "Unknown config key" in error: ${result.error}`
-    );
+    expect(result?.success).toBe(false);
+    expect(result.error!.includes('Unknown config key')).toBeTruthy() // `Expected "Unknown config key" in error: ${result.error}`;
   });
 
   test('errors when no key path provided', () => {
     const result = runEzTools('config-set', tmpDir);
-    assert.strictEqual(result.success, false);
+    expect(result?.success).toBe(false);
   });
 });
 
-// â”€â”€â”€ config-get â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ─── config-get ──────────────────────────────────────────────────────────────
 
 describe('config-get command', () => {
   let tmpDir;
@@ -289,47 +286,38 @@ describe('config-get command', () => {
 
   test('gets a top-level value', () => {
     const result = runEzTools('config-get model_profile', tmpDir);
-    assert.ok(result.success, `Command failed: ${result.error}`);
+    expect(result.success).toBeTruthy() // `Command failed: ${result.error}`;
 
     const output = JSON.parse(result.output);
-    assert.strictEqual(output, 'balanced');
+    expect(output).toBe('balanced');
   });
 
   test('gets a nested value via dot-notation', () => {
     const result = runEzTools('config-get workflow.research', tmpDir);
-    assert.ok(result.success, `Command failed: ${result.error}`);
+    expect(result.success).toBeTruthy() // `Command failed: ${result.error}`;
 
     const output = JSON.parse(result.output);
-    assert.strictEqual(output, true);
+    expect(output).toBe(true);
   });
 
   test('errors for nonexistent key', () => {
     const result = runEzTools('config-get nonexistent_key', tmpDir);
-    assert.strictEqual(result.success, false);
-    assert.ok(
-      result.error.includes('Key not found'),
-      `Expected "Key not found" in error: ${result.error}`
-    );
+    expect(result?.success).toBe(false);
+    expect(result.error!.includes('Key not found')).toBeTruthy() // `Expected "Key not found" in error: ${result.error}`;
   });
 
   test('errors for deeply nested nonexistent key', () => {
     const result = runEzTools('config-get workflow.nonexistent', tmpDir);
-    assert.strictEqual(result.success, false);
-    assert.ok(
-      result.error.includes('Key not found'),
-      `Expected "Key not found" in error: ${result.error}`
-    );
+    expect(result?.success).toBe(false);
+    expect(result.error!.includes('Key not found')).toBeTruthy() // `Expected "Key not found" in error: ${result.error}`;
   });
 
   test('errors when config.json does not exist', () => {
     const emptyTmpDir = createTempProject();
     try {
       const result = runEzTools('config-get model_profile', emptyTmpDir);
-      assert.strictEqual(result.success, false);
-      assert.ok(
-        result.error.includes('No config.json'),
-        `Expected "No config.json" in error: ${result.error}`
-      );
+      expect(result?.success).toBe(false);
+      expect(result.error!.includes('No config.json')).toBeTruthy() // `Expected "No config.json" in error: ${result.error}`;
     } finally {
       cleanup(emptyTmpDir);
     }
@@ -337,6 +325,6 @@ describe('config-get command', () => {
 
   test('errors when no key path provided', () => {
     const result = runEzTools('config-get', tmpDir);
-    assert.strictEqual(result.success, false);
+    expect(result?.success).toBe(false);
   });
 });

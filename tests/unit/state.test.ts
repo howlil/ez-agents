@@ -1,12 +1,12 @@
-﻿/**
+/**
  * EZ Tools Tests - State
  */
 
-const { test, describe, beforeEach, afterEach } = require('node:test');
-import assert from 'node:assert';
+
+
 import * as fs from 'fs';
 import * as path from 'path';
-import { runEzTools, createTempProject, cleanup } from '../helpers.js';
+import { runEzTools, createTempProject, cleanup } from '../helpers.ts';
 
 describe('state-snapshot command', () => {
   let tmpDir;
@@ -21,10 +21,10 @@ describe('state-snapshot command', () => {
 
   test('missing STATE.md returns error', () => {
     const result = runEzTools('state-snapshot', tmpDir);
-    assert.ok(result.success, `Command should succeed: ${result.error}`);
+    expect(result.success).toBeTruthy() // `Command should succeed: ${result.error}`;
 
     const output = JSON.parse(result.output);
-    assert.strictEqual(output.error, 'STATE.md not found', 'should report missing file');
+    expect(output.error).toBe('STATE.md not found', 'should report missing file');
   });
 
   test('extracts basic fields from STATE.md', () => {
@@ -45,17 +45,17 @@ describe('state-snapshot command', () => {
     );
 
     const result = runEzTools('state-snapshot', tmpDir);
-    assert.ok(result.success, `Command failed: ${result.error}`);
+    expect(result.success).toBeTruthy() // `Command failed: ${result.error}`;
 
     const output = JSON.parse(result.output);
-    assert.strictEqual(output.current_phase, '03', 'current phase extracted');
-    assert.strictEqual(output.current_phase_name, 'API Layer', 'phase name extracted');
-    assert.strictEqual(output.total_phases, 6, 'total phases extracted');
-    assert.strictEqual(output.current_plan, '03-02', 'current plan extracted');
-    assert.strictEqual(output.total_plans_in_phase, 3, 'total plans extracted');
-    assert.strictEqual(output.status, 'In progress', 'status extracted');
-    assert.strictEqual(output.progress_percent, 45, 'progress extracted');
-    assert.strictEqual(output.last_activity, '2024-01-15', 'last activity date extracted');
+    expect(output.current_phase).toBe('03', 'current phase extracted');
+    expect(output.current_phase_name).toBe('API Layer', 'phase name extracted');
+    expect(output.total_phases).toBe(6, 'total phases extracted');
+    expect(output.current_plan).toBe('03-02', 'current plan extracted');
+    expect(output.total_plans_in_phase).toBe(3, 'total plans extracted');
+    expect(output.status).toBe('In progress', 'status extracted');
+    expect(output.progress_percent).toBe(45, 'progress extracted');
+    expect(output.last_activity).toBe('2024-01-15', 'last activity date extracted');
   });
 
   test('extracts decisions table', () => {
@@ -75,13 +75,13 @@ describe('state-snapshot command', () => {
     );
 
     const result = runEzTools('state-snapshot', tmpDir);
-    assert.ok(result.success, `Command failed: ${result.error}`);
+    expect(result.success).toBeTruthy() // `Command failed: ${result.error}`;
 
     const output = JSON.parse(result.output);
-    assert.strictEqual(output.decisions.length, 2, 'should have 2 decisions');
-    assert.strictEqual(output.decisions[0].phase, '01', 'first decision phase');
-    assert.strictEqual(output.decisions[0].summary, 'Use Prisma', 'first decision summary');
-    assert.strictEqual(output.decisions[0].rationale, 'Better DX than raw SQL', 'first decision rationale');
+    expect(output.decisions.length).toBe(2, 'should have 2 decisions');
+    expect(output.decisions[0].phase).toBe('01', 'first decision phase');
+    expect(output.decisions[0].summary).toBe('Use Prisma', 'first decision summary');
+    expect(output.decisions[0].rationale).toBe('Better DX than raw SQL', 'first decision rationale');
   });
 
   test('extracts blockers list', () => {
@@ -99,7 +99,7 @@ describe('state-snapshot command', () => {
     );
 
     const result = runEzTools('state-snapshot', tmpDir);
-    assert.ok(result.success, `Command failed: ${result.error}`);
+    expect(result.success).toBeTruthy() // `Command failed: ${result.error}`;
 
     const output = JSON.parse(result.output);
     assert.deepStrictEqual(output.blockers, [
@@ -124,12 +124,12 @@ describe('state-snapshot command', () => {
     );
 
     const result = runEzTools('state-snapshot', tmpDir);
-    assert.ok(result.success, `Command failed: ${result.error}`);
+    expect(result.success).toBeTruthy() // `Command failed: ${result.error}`;
 
     const output = JSON.parse(result.output);
-    assert.strictEqual(output.session.last_date, '2024-01-15', 'session date extracted');
-    assert.strictEqual(output.session.stopped_at, 'Phase 3, Plan 2, Task 1', 'stopped at extracted');
-    assert.strictEqual(output.session.resume_file, '.planning/phases/03-api/03-02-PLAN.md', 'resume file extracted');
+    expect(output.session.last_date).toBe('2024-01-15', 'session date extracted');
+    expect(output.session.stopped_at).toBe('Phase 3, Plan 2, Task 1', 'stopped at extracted');
+    expect(output.session.resume_file).toBe('.planning/phases/03-api/03-02-PLAN.md', 'resume file extracted');
   });
 
   test('handles paused_at field', () => {
@@ -143,10 +143,10 @@ describe('state-snapshot command', () => {
     );
 
     const result = runEzTools('state-snapshot', tmpDir);
-    assert.ok(result.success, `Command failed: ${result.error}`);
+    expect(result.success).toBeTruthy() // `Command failed: ${result.error}`;
 
     const output = JSON.parse(result.output);
-    assert.strictEqual(output.paused_at, 'Phase 3, Plan 1, Task 2 - mid-implementation', 'paused_at extracted');
+    expect(output.paused_at).toBe('Phase 3, Plan 1, Task 2 - mid-implementation', 'paused_at extracted');
   });
 
   test('supports --cwd override when command runs outside project root', () => {
@@ -162,11 +162,11 @@ describe('state-snapshot command', () => {
 
     try {
       const result = runEzTools(`state-snapshot --cwd "${tmpDir}"`, outsideDir);
-      assert.ok(result.success, `Command failed: ${result.error}`);
+      expect(result.success).toBeTruthy() // `Command failed: ${result.error}`;
 
       const output = JSON.parse(result.output);
-      assert.strictEqual(output.current_phase, '03', 'should read STATE.md from overridden cwd');
-      assert.strictEqual(output.status, 'Ready to plan', 'should parse status from overridden cwd');
+      expect(output.current_phase).toBe('03', 'should read STATE.md from overridden cwd');
+      expect(output.status).toBe('Ready to plan', 'should parse status from overridden cwd');
     } finally {
       cleanup(outsideDir);
     }
@@ -175,8 +175,8 @@ describe('state-snapshot command', () => {
   test('returns error for invalid --cwd path', () => {
     const invalid = path.join(tmpDir, 'does-not-exist');
     const result = runEzTools(`state-snapshot --cwd "${invalid}"`, tmpDir);
-    assert.ok(!result.success, 'should fail for invalid --cwd');
-    assert.ok(result.error.includes('Invalid --cwd'), 'error should mention invalid --cwd');
+    expect(!result.success).toBeTruthy() // 'should fail for invalid --cwd';
+    expect(result.error!.includes('Invalid --cwd')).toBeTruthy() // 'error should mention invalid --cwd';
   });
 });
 
@@ -208,16 +208,12 @@ None
       ['state', 'add-decision', '--phase', '11-01', '--summary', 'Benchmark prices moved from $0.50 to $2.00 to $5.00', '--rationale', 'track cost growth'],
       tmpDir
     );
-    assert.ok(result.success, `Command failed: ${result.error}`);
+    expect(result.success).toBeTruthy() // `Command failed: ${result.error}`;
 
     const state = fs.readFileSync(path.join(tmpDir, '.planning', 'STATE.md'), 'utf-8');
-    assert.match(
-      state,
-      /- \[Phase 11-01\]: Benchmark prices moved from \$0\.50 to \$2\.00 to \$5\.00 â€” track cost growth/,
-      'decision entry should preserve literal dollar values'
-    );
-    assert.strictEqual((state.match(/^## Decisions$/gm) || []).length, 1, 'Decisions heading should not be duplicated');
-    assert.ok(!state.includes('No decisions yet.'), 'placeholder should be removed');
+    expect(state).toMatch(/- \[Phase 11-01\]: Benchmark prices moved from \$0\.50 to \$2\.00 to \$5\.00 — track cost growth/, 'decision entry should preserve literal dollar values');
+    expect((state.match(/^## Decisions$/gm) || []).length).toBe(1, 'Decisions heading should not be duplicated');
+    expect(!state.includes('No decisions yet.')).toBeTruthy() // 'placeholder should be removed';
   });
 
   test('add-blocker preserves dollar strings without corrupting Blockers section', () => {
@@ -234,11 +230,11 @@ None
     );
 
     const result = runEzTools(['state', 'add-blocker', '--text', 'Waiting on vendor quote $1.00 before approval'], tmpDir);
-    assert.ok(result.success, `Command failed: ${result.error}`);
+    expect(result.success).toBeTruthy() // `Command failed: ${result.error}`;
 
     const state = fs.readFileSync(path.join(tmpDir, '.planning', 'STATE.md'), 'utf-8');
-    assert.match(state, /- Waiting on vendor quote \$1\.00 before approval/, 'blocker entry should preserve literal dollar values');
-    assert.strictEqual((state.match(/^## Blockers$/gm) || []).length, 1, 'Blockers heading should not be duplicated');
+    expect(state).toMatch(/- Waiting on vendor quote \$1\.00 before approval/, 'blocker entry should preserve literal dollar values');
+    expect((state.match(/^## Blockers$/gm) || []).length).toBe(1, 'Blockers heading should not be duplicated');
   });
 
   test('add-decision supports file inputs to preserve shell-sensitive dollar text', () => {
@@ -263,14 +259,11 @@ None
       `state add-decision --phase 11-02 --summary-file "${summaryPath}" --rationale-file "${rationalePath}"`,
       tmpDir
     );
-    assert.ok(result.success, `Command failed: ${result.error}`);
+    expect(result.success).toBeTruthy() // `Command failed: ${result.error}`;
 
     const state = fs.readFileSync(path.join(tmpDir, '.planning', 'STATE.md'), 'utf-8');
-    assert.match(
-      state,
-      /- \[Phase 11-02\]: Price tiers: \$0\.50, \$2\.00, else \$5\.00 â€” Keep exact currency literals for budgeting/,
-      'file-based decision input should preserve literal dollar values'
-    );
+    expect(state).toMatch(/- \[Phase 11-02\]: Price tiers: \$0\.50, \$2\.00, else \$5\.00 — Keep exact currency literals for budgeting/,
+      'file-based decision input should preserve literal dollar values');
   });
 
   test('add-blocker supports --text-file for shell-sensitive text', () => {
@@ -290,16 +283,16 @@ None
     fs.writeFileSync(blockerPath, 'Vendor quote updated from $1.00 to $2.00 pending approval\n');
 
     const result = runEzTools(`state add-blocker --text-file "${blockerPath}"`, tmpDir);
-    assert.ok(result.success, `Command failed: ${result.error}`);
+    expect(result.success).toBeTruthy() // `Command failed: ${result.error}`;
 
     const state = fs.readFileSync(path.join(tmpDir, '.planning', 'STATE.md'), 'utf-8');
-    assert.match(state, /- Vendor quote updated from \$1\.00 to \$2\.00 pending approval/);
+    expect(state).toMatch(/- Vendor quote updated from \$1\.00 to \$2\.00 pending approval/);
   });
 });
 
-// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ─────────────────────────────────────────────────────────────────────────────
 // state json command (machine-readable STATE.md frontmatter)
-// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ─────────────────────────────────────────────────────────────────────────────
 
 describe('state json command', () => {
   let tmpDir;
@@ -314,10 +307,10 @@ describe('state json command', () => {
 
   test('missing STATE.md returns error', () => {
     const result = runEzTools('state json', tmpDir);
-    assert.ok(result.success, `Command should succeed: ${result.error}`);
+    expect(result.success).toBeTruthy() // `Command should succeed: ${result.error}`;
 
     const output = JSON.parse(result.output);
-    assert.strictEqual(output.error, 'STATE.md not found', 'should report missing file');
+    expect(output.error).toBe('STATE.md not found', 'should report missing file');
   });
 
   test('builds frontmatter on-the-fly from body when no frontmatter exists', () => {
@@ -337,18 +330,18 @@ describe('state json command', () => {
     );
 
     const result = runEzTools('state json', tmpDir);
-    assert.ok(result.success, `Command failed: ${result.error}`);
+    expect(result.success).toBeTruthy() // `Command failed: ${result.error}`;
 
     const output = JSON.parse(result.output);
-    assert.strictEqual(output.ez_state_version, '1.0', 'should have version 1.0');
-    assert.strictEqual(output.current_phase, '05', 'current phase extracted');
-    assert.strictEqual(output.current_phase_name, 'Deployment', 'phase name extracted');
-    assert.strictEqual(output.current_plan, '05-03', 'current plan extracted');
-    assert.strictEqual(output.status, 'executing', 'status normalized to executing');
-    assert.ok(output.last_updated, 'should have last_updated timestamp');
-    assert.strictEqual(output.last_activity, '2026-01-20', 'last activity extracted');
-    assert.ok(output.progress, 'should have progress object');
-    assert.strictEqual(output.progress.percent, 60, 'progress percent extracted');
+    expect(output.ez_state_version).toBe('1.0', 'should have version 1.0');
+    expect(output.current_phase).toBe('05', 'current phase extracted');
+    expect(output.current_phase_name).toBe('Deployment', 'phase name extracted');
+    expect(output.current_plan).toBe('05-03', 'current plan extracted');
+    expect(output.status).toBe('executing', 'status normalized to executing');
+    expect(output.last_updated).toBeTruthy() // 'should have last_updated timestamp';
+    expect(output.last_activity).toBe('2026-01-20', 'last activity extracted');
+    expect(output.progress).toBeTruthy() // 'should have progress object';
+    expect(output.progress.percent).toBe(60, 'progress percent extracted');
   });
 
   test('reads existing frontmatter when present', () => {
@@ -369,13 +362,13 @@ stopped_at: Plan 2 of Phase 3
     );
 
     const result = runEzTools('state json', tmpDir);
-    assert.ok(result.success, `Command failed: ${result.error}`);
+    expect(result.success).toBeTruthy() // `Command failed: ${result.error}`;
 
     const output = JSON.parse(result.output);
-    assert.strictEqual(output.ez_state_version, '1.0', 'version from frontmatter');
-    assert.strictEqual(output.current_phase, '03', 'phase from frontmatter');
-    assert.strictEqual(output.status, 'paused', 'status from frontmatter');
-    assert.strictEqual(output.stopped_at, 'Plan 2 of Phase 3', 'stopped_at from frontmatter');
+    expect(output.ez_state_version).toBe('1.0', 'version from frontmatter');
+    expect(output.current_phase).toBe('03', 'phase from frontmatter');
+    expect(output.status).toBe('paused', 'status from frontmatter');
+    expect(output.stopped_at).toBe('Plan 2 of Phase 3', 'stopped_at from frontmatter');
   });
 
   test('normalizes various status values', () => {
@@ -384,7 +377,7 @@ stopped_at: Plan 2 of Phase 3
       { input: 'Ready to execute', expected: 'executing' },
       { input: 'Paused at Plan 3', expected: 'paused' },
       { input: 'Ready to plan', expected: 'planning' },
-      { input: 'Phase complete â€” ready for verification', expected: 'verifying' },
+      { input: 'Phase complete — ready for verification', expected: 'verifying' },
       { input: 'Milestone complete', expected: 'completed' },
     ];
 
@@ -395,16 +388,16 @@ stopped_at: Plan 2 of Phase 3
       );
 
       const result = runEzTools('state json', tmpDir);
-      assert.ok(result.success, `Command failed for status "${input}": ${result.error}`);
+      expect(result.success).toBeTruthy() // `Command failed for status "${input}": ${result.error}`;
       const output = JSON.parse(result.output);
-      assert.strictEqual(output.status, expected, `"${input}" should normalize to "${expected}"`);
+      expect(output.status).toBe(expected, `"${input}" should normalize to "${expected}"`);
     }
   });
 });
 
-// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ─────────────────────────────────────────────────────────────────────────────
 // STATE.md frontmatter sync (write operations add frontmatter)
-// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ─────────────────────────────────────────────────────────────────────────────
 
 describe('STATE.md frontmatter sync', () => {
   let tmpDir;
@@ -428,14 +421,14 @@ describe('STATE.md frontmatter sync', () => {
     );
 
     const result = runEzTools('state update Status "Executing Plan 1"', tmpDir);
-    assert.ok(result.success, `Command failed: ${result.error}`);
+    expect(result.success).toBeTruthy() // `Command failed: ${result.error}`;
 
     const content = fs.readFileSync(path.join(tmpDir, '.planning', 'STATE.md'), 'utf-8');
-    assert.ok(content.startsWith('---\n'), 'should start with frontmatter delimiter');
-    assert.ok(content.includes('ez_state_version: 1.0'), 'should have EZ version field');
-    assert.ok(content.includes('current_phase: 02'), 'frontmatter should have current phase');
-    assert.ok(content.includes('**Current Phase:** 02'), 'body field should be preserved');
-    assert.ok(content.includes('**Status:** Executing Plan 1'), 'updated field in body');
+    expect(content.startsWith('---\n')).toBeTruthy() // 'should start with frontmatter delimiter';
+    expect(content.includes('ez_state_version: 1.0')).toBeTruthy() // 'should have EZ version field';
+    expect(content.includes('current_phase: 02')).toBeTruthy() // 'frontmatter should have current phase';
+    expect(content.includes('**Current Phase:** 02')).toBeTruthy() // 'body field should be preserved';
+    expect(content.includes('**Status:** Executing Plan 1')).toBeTruthy() // 'updated field in body';
   });
 
   test('state patch adds frontmatter', () => {
@@ -450,10 +443,10 @@ describe('STATE.md frontmatter sync', () => {
     );
 
     const result = runEzTools('state patch --Status "In progress" --"Current Plan" 04-02', tmpDir);
-    assert.ok(result.success, `Command failed: ${result.error}`);
+    expect(result.success).toBeTruthy() // `Command failed: ${result.error}`;
 
     const content = fs.readFileSync(path.join(tmpDir, '.planning', 'STATE.md'), 'utf-8');
-    assert.ok(content.startsWith('---\n'), 'should have frontmatter after patch');
+    expect(content.startsWith('---\n')).toBeTruthy() // 'should have frontmatter after patch';
   });
 
   test('frontmatter is idempotent on multiple writes', () => {
@@ -471,8 +464,8 @@ describe('STATE.md frontmatter sync', () => {
 
     const content = fs.readFileSync(path.join(tmpDir, '.planning', 'STATE.md'), 'utf-8');
     const delimiterCount = (content.match(/^---$/gm) || []).length;
-    assert.strictEqual(delimiterCount, 2, 'should have exactly one frontmatter block (2 delimiters)');
-    assert.ok(content.includes('status: paused'), 'frontmatter should reflect latest status');
+    expect(delimiterCount).toBe(2, 'should have exactly one frontmatter block (2 delimiters)');
+    expect(content.includes('status: paused')).toBeTruthy() // 'frontmatter should reflect latest status';
   });
 
   test('round-trip: write then read via state json', () => {
@@ -492,21 +485,21 @@ describe('STATE.md frontmatter sync', () => {
     runEzTools('state update Status "Executing Plan 5"', tmpDir);
 
     const result = runEzTools('state json', tmpDir);
-    assert.ok(result.success, `state json failed: ${result.error}`);
+    expect(result.success).toBeTruthy() // `state json failed: ${result.error}`;
 
     const output = JSON.parse(result.output);
-    assert.strictEqual(output.current_phase, '07', 'round-trip: phase preserved');
-    assert.strictEqual(output.current_phase_name, 'Production', 'round-trip: phase name preserved');
-    assert.strictEqual(output.status, 'executing', 'round-trip: status normalized');
-    assert.ok(output.last_updated, 'round-trip: timestamp present');
+    expect(output.current_phase).toBe('07', 'round-trip: phase preserved');
+    expect(output.current_phase_name).toBe('Production', 'round-trip: phase name preserved');
+    expect(output.status).toBe('executing', 'round-trip: status normalized');
+    expect(output.last_updated).toBeTruthy() // 'round-trip: timestamp present';
   });
 });
 
-// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ─────────────────────────────────────────────────────────────────────────────
 // stateExtractField and stateReplaceField helpers
-// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ─────────────────────────────────────────────────────────────────────────────
 
-import { stateExtractField, stateReplaceField } from '../../ez-agents/bin/lib/state.js';
+import { stateExtractField, stateReplaceField } from '../../bin/lib/state.js';
 
 describe('stateExtractField and stateReplaceField helpers', () => {
   // stateExtractField tests
@@ -514,25 +507,25 @@ describe('stateExtractField and stateReplaceField helpers', () => {
   test('extracts simple field value', () => {
     const content = '# State\n\n**Status:** In progress\n';
     const result = stateExtractField(content, 'Status');
-    assert.strictEqual(result, 'In progress', 'should extract simple field value');
+    expect(result).toBe('In progress', 'should extract simple field value');
   });
 
   test('extracts field with colon in value', () => {
-    const content = '# State\n\n**Last Activity:** 2024-01-15 â€” Completed plan\n';
+    const content = '# State\n\n**Last Activity:** 2024-01-15 — Completed plan\n';
     const result = stateExtractField(content, 'Last Activity');
-    assert.strictEqual(result, '2024-01-15 â€” Completed plan', 'should return full value after field pattern');
+    expect(result).toBe('2024-01-15 — Completed plan', 'should return full value after field pattern');
   });
 
   test('returns null for missing field', () => {
     const content = '# State\n\n**Phase:** 03\n';
     const result = stateExtractField(content, 'Status');
-    assert.strictEqual(result, null, 'should return null when field not present');
+    expect(result).toBe(undefined, 'should return null when field not present');
   });
 
   test('is case-insensitive on field name', () => {
     const content = '# State\n\n**status:** Active\n';
     const result = stateExtractField(content, 'Status');
-    assert.strictEqual(result, 'Active', 'should match field name case-insensitively');
+    expect(result).toBe('Active', 'should match field name case-insensitively');
   });
 
   // stateReplaceField tests
@@ -540,15 +533,15 @@ describe('stateExtractField and stateReplaceField helpers', () => {
   test('replaces field value', () => {
     const content = '# State\n\n**Status:** Old\n';
     const result = stateReplaceField(content, 'Status', 'New');
-    assert.ok(result !== null, 'should return updated content, not null');
-    assert.ok(result.includes('**Status:** New'), 'output should contain updated field value');
-    assert.ok(!result.includes('**Status:** Old'), 'output should not contain old field value');
+    expect(result !== null).toBeTruthy() // 'should return updated content, not null';
+    expect(result.includes('**Status:** New')).toBeTruthy() // 'output should contain updated field value';
+    expect(!result.includes('**Status:** Old')).toBeTruthy() // 'output should not contain old field value';
   });
 
   test('returns null when field not found', () => {
     const content = '# State\n\n**Phase:** 03\n';
     const result = stateReplaceField(content, 'Status', 'New');
-    assert.strictEqual(result, null, 'should return null when field not present');
+    expect(result).toBe(undefined, 'should return null when field not present');
   });
 
   test('preserves surrounding content', () => {
@@ -564,30 +557,30 @@ describe('stateExtractField and stateReplaceField helpers', () => {
     ].join('\n');
 
     const result = stateReplaceField(content, 'Status', 'New');
-    assert.ok(result !== null, 'should return updated content');
-    assert.ok(result.includes('**Phase:** 03'), 'Phase line should be unchanged');
-    assert.ok(result.includes('**Status:** New'), 'Status should be updated');
-    assert.ok(result.includes('**Last Activity:** 2024-01-15'), 'Last Activity line should be unchanged');
-    assert.ok(result.includes('## Notes'), 'Notes heading should be unchanged');
-    assert.ok(result.includes('Some notes here.'), 'Notes content should be unchanged');
+    expect(result !== null).toBeTruthy() // 'should return updated content';
+    expect(result.includes('**Phase:** 03')).toBeTruthy() // 'Phase line should be unchanged';
+    expect(result.includes('**Status:** New')).toBeTruthy() // 'Status should be updated';
+    expect(result.includes('**Last Activity:** 2024-01-15')).toBeTruthy() // 'Last Activity line should be unchanged';
+    expect(result.includes('## Notes')).toBeTruthy() // 'Notes heading should be unchanged';
+    expect(result.includes('Some notes here.')).toBeTruthy() // 'Notes content should be unchanged';
   });
 
   test('round-trip: extract then replace then extract', () => {
     const content = '# State\n\n**Phase:** 3\n';
     const extracted = stateExtractField(content, 'Phase');
-    assert.strictEqual(extracted, '3', 'initial extract should return "3"');
+    expect(extracted).toBe('3', 'initial extract should return "3"');
 
     const updated = stateReplaceField(content, 'Phase', '4');
-    assert.ok(updated !== null, 'replace should succeed');
+    expect(updated !== null).toBeTruthy() // 'replace should succeed';
 
     const reExtracted = stateExtractField(updated, 'Phase');
-    assert.strictEqual(reExtracted, '4', 'extract after replace should return "4"');
+    expect(reExtracted).toBe('4', 'extract after replace should return "4"');
   });
 });
 
-// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ─────────────────────────────────────────────────────────────────────────────
 // cmdStateLoad, cmdStateGet, cmdStatePatch, cmdStateUpdate CLI tests
-// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ─────────────────────────────────────────────────────────────────────────────
 
 describe('cmdStateLoad (state load)', () => {
   let tmpDir;
@@ -615,22 +608,22 @@ describe('cmdStateLoad (state load)', () => {
     );
 
     const result = runEzTools('state load', tmpDir);
-    assert.ok(result.success, `Command failed: ${result.error}`);
+    expect(result.success).toBeTruthy() // `Command failed: ${result.error}`;
 
     const output = JSON.parse(result.output);
-    assert.strictEqual(output.state_exists, true, 'state_exists should be true');
-    assert.strictEqual(output.config_exists, true, 'config_exists should be true');
-    assert.strictEqual(output.roadmap_exists, true, 'roadmap_exists should be true');
-    assert.ok(output.state_raw.includes('**Status:** Active'), 'state_raw should contain STATE.md content');
+    expect(output.state_exists).toBe(true, 'state_exists should be true');
+    expect(output.config_exists).toBe(true, 'config_exists should be true');
+    expect(output.roadmap_exists).toBe(true, 'roadmap_exists should be true');
+    expect(output.state_raw.includes('**Status:** Active')).toBeTruthy() // 'state_raw should contain STATE.md content';
   });
 
   test('returns state_exists false when STATE.md missing', () => {
     const result = runEzTools('state load', tmpDir);
-    assert.ok(result.success, `Command failed: ${result.error}`);
+    expect(result.success).toBeTruthy() // `Command failed: ${result.error}`;
 
     const output = JSON.parse(result.output);
-    assert.strictEqual(output.state_exists, false, 'state_exists should be false');
-    assert.strictEqual(output.state_raw, '', 'state_raw should be empty string');
+    expect(output.state_exists).toBe(false, 'state_exists should be false');
+    expect(output.state_raw).toBe('', 'state_raw should be empty string');
   });
 
   test('returns raw key=value format with --raw flag', () => {
@@ -644,10 +637,10 @@ describe('cmdStateLoad (state load)', () => {
     );
 
     const result = runEzTools('state load --raw', tmpDir);
-    assert.ok(result.success, `Command failed: ${result.error}`);
+    expect(result.success).toBeTruthy() // `Command failed: ${result.error}`;
 
-    assert.ok(result.output.includes('state_exists=true'), 'raw output should include state_exists=true');
-    assert.ok(result.output.includes('config_exists=true'), 'raw output should include config_exists=true');
+    expect(result.output.includes('state_exists=true')).toBeTruthy() // 'raw output should include state_exists=true';
+    expect(result.output.includes('config_exists=true')).toBeTruthy() // 'raw output should include config_exists=true';
   });
 });
 
@@ -667,11 +660,11 @@ describe('cmdStateGet (state get)', () => {
     fs.writeFileSync(path.join(tmpDir, '.planning', 'STATE.md'), stateContent);
 
     const result = runEzTools('state get', tmpDir);
-    assert.ok(result.success, `Command failed: ${result.error}`);
+    expect(result.success).toBeTruthy() // `Command failed: ${result.error}`;
 
     const output = JSON.parse(result.output);
-    assert.ok(output.content !== undefined, 'output should have content field');
-    assert.ok(output.content.includes('**Status:** Active'), 'content should include full STATE.md text');
+    expect(output.content !== undefined).toBeTruthy() // 'output should have content field';
+    expect(output.content.includes('**Status:** Active')).toBeTruthy() // 'content should include full STATE.md text';
   });
 
   test('extracts bold field value', () => {
@@ -681,10 +674,10 @@ describe('cmdStateGet (state get)', () => {
     );
 
     const result = runEzTools('state get Status', tmpDir);
-    assert.ok(result.success, `Command failed: ${result.error}`);
+    expect(result.success).toBeTruthy() // `Command failed: ${result.error}`;
 
     const output = JSON.parse(result.output);
-    assert.strictEqual(output['Status'], 'Active', 'should extract Status field value');
+    expect(output['Status']).toBe('Active', 'should extract Status field value');
   });
 
   test('extracts markdown section content', () => {
@@ -694,12 +687,12 @@ describe('cmdStateGet (state get)', () => {
     );
 
     const result = runEzTools('state get Blockers', tmpDir);
-    assert.ok(result.success, `Command failed: ${result.error}`);
+    expect(result.success).toBeTruthy() // `Command failed: ${result.error}`;
 
     const output = JSON.parse(result.output);
-    assert.ok(output['Blockers'] !== undefined, 'should have Blockers key in output');
-    assert.ok(output['Blockers'].includes('item1'), 'section content should include item1');
-    assert.ok(output['Blockers'].includes('item2'), 'section content should include item2');
+    expect(output['Blockers'] !== undefined).toBeTruthy() // 'should have Blockers key in output';
+    expect(output['Blockers'].includes('item1')).toBeTruthy() // 'section content should include item1';
+    expect(output['Blockers'].includes('item2')).toBeTruthy() // 'section content should include item2';
   });
 
   test('returns error for nonexistent field', () => {
@@ -709,20 +702,17 @@ describe('cmdStateGet (state get)', () => {
     );
 
     const result = runEzTools('state get Missing', tmpDir);
-    assert.ok(result.success, `Command should exit 0 even for missing field: ${result.error}`);
+    expect(result.success).toBeTruthy() // `Command should exit 0 even for missing field: ${result.error}`;
 
     const output = JSON.parse(result.output);
-    assert.ok(output.error !== undefined, 'output should have error field');
-    assert.ok(output.error.toLowerCase().includes('not found'), 'error should mention "not found"');
+    expect(output.error !== undefined).toBeTruthy() // 'output should have error field';
+    expect(output.error.toLowerCase().includes('not found')).toBeTruthy() // 'error should mention "not found"';
   });
 
   test('returns error when STATE.md missing', () => {
     const result = runEzTools('state get Status', tmpDir);
-    assert.ok(!result.success, 'command should fail when STATE.md is missing');
-    assert.ok(
-      result.error.includes('STATE.md') || result.output.includes('STATE.md'),
-      'error message should mention STATE.md'
-    );
+    expect(!result.success).toBeTruthy() // 'command should fail when STATE.md is missing';
+    expect(result.error!.includes('STATE.md') || result.output.includes('STATE.md')).toBeTruthy() // 'error message should mention STATE.md';
   });
 });
 
@@ -748,68 +738,65 @@ describe('cmdStatePatch and cmdStateUpdate (state patch, state update)', () => {
     fs.writeFileSync(path.join(tmpDir, '.planning', 'STATE.md'), stateMd);
 
     const result = runEzTools('state patch --Status Complete --"Current Phase" 04', tmpDir);
-    assert.ok(result.success, `Command failed: ${result.error}`);
+    expect(result.success).toBeTruthy() // `Command failed: ${result.error}`;
 
     const updated = fs.readFileSync(path.join(tmpDir, '.planning', 'STATE.md'), 'utf-8');
-    assert.ok(updated.includes('**Status:** Complete'), 'Status should be updated to Complete');
-    assert.ok(updated.includes('**Last Activity:** 2024-01-15'), 'Last Activity should be unchanged');
+    expect(updated.includes('**Status:** Complete')).toBeTruthy() // 'Status should be updated to Complete';
+    expect(updated.includes('**Last Activity:** 2024-01-15')).toBeTruthy() // 'Last Activity should be unchanged';
   });
 
   test('state patch reports failed fields that do not exist', () => {
     fs.writeFileSync(path.join(tmpDir, '.planning', 'STATE.md'), stateMd);
 
     const result = runEzTools('state patch --Status Done --Missing value', tmpDir);
-    assert.ok(result.success, `Command failed: ${result.error}`);
+    expect(result.success).toBeTruthy() // `Command failed: ${result.error}`;
 
     const output = JSON.parse(result.output);
-    assert.ok(Array.isArray(output.updated), 'updated should be an array');
-    assert.ok(output.updated.includes('Status'), 'Status should be in updated list');
-    assert.ok(Array.isArray(output.failed), 'failed should be an array');
-    assert.ok(output.failed.includes('Missing'), 'Missing should be in failed list');
+    expect(Array.isArray(output.updated)).toBeTruthy() // 'updated should be an array';
+    expect(output.updated.includes('Status')).toBeTruthy() // 'Status should be in updated list';
+    expect(Array.isArray(output.failed)).toBeTruthy() // 'failed should be an array';
+    expect(output.failed.includes('Missing')).toBeTruthy() // 'Missing should be in failed list';
   });
 
   test('state update changes a single field', () => {
     fs.writeFileSync(path.join(tmpDir, '.planning', 'STATE.md'), stateMd);
 
     const result = runEzTools('state update Status "Phase complete"', tmpDir);
-    assert.ok(result.success, `Command failed: ${result.error}`);
+    expect(result.success).toBeTruthy() // `Command failed: ${result.error}`;
 
     const output = JSON.parse(result.output);
-    assert.strictEqual(output.updated, true, 'updated should be true');
+    expect(output.updated).toBe(true, 'updated should be true');
 
     const updated = fs.readFileSync(path.join(tmpDir, '.planning', 'STATE.md'), 'utf-8');
-    assert.ok(updated.includes('**Status:** Phase complete'), 'Status should be updated');
-    assert.ok(updated.includes('**Current Phase:** 03'), 'Current Phase should be unchanged');
-    assert.ok(updated.includes('**Last Activity:** 2024-01-15'), 'Last Activity should be unchanged');
+    expect(updated.includes('**Status:** Phase complete')).toBeTruthy() // 'Status should be updated';
+    expect(updated.includes('**Current Phase:** 03')).toBeTruthy() // 'Current Phase should be unchanged';
+    expect(updated.includes('**Last Activity:** 2024-01-15')).toBeTruthy() // 'Last Activity should be unchanged';
   });
 
   test('state update reports field not found', () => {
     fs.writeFileSync(path.join(tmpDir, '.planning', 'STATE.md'), stateMd);
 
     const result = runEzTools('state update Missing value', tmpDir);
-    assert.ok(result.success, `Command should exit 0 for not-found field: ${result.error}`);
+    expect(result.success).toBeTruthy() // `Command should exit 0 for not-found field: ${result.error}`;
 
     const output = JSON.parse(result.output);
-    assert.strictEqual(output.updated, false, 'updated should be false');
-    assert.ok(output.reason !== undefined, 'should include a reason');
+    expect(output.updated).toBe(false, 'updated should be false');
+    expect(output.reason !== undefined).toBeTruthy() // 'should include a reason';
   });
 
   test('state update returns error when STATE.md missing', () => {
     const result = runEzTools('state update Status value', tmpDir);
-    assert.ok(result.success, `Command should exit 0: ${result.error}`);
+    expect(result.success).toBeTruthy() // `Command should exit 0: ${result.error}`;
 
     const output = JSON.parse(result.output);
-    assert.strictEqual(output.updated, false, 'updated should be false');
-    assert.ok(
-      output.reason.includes('STATE.md'),
-      'reason should mention STATE.md'
-    );
+    expect(output.updated).toBe(false, 'updated should be false');
+    expect(output.reason.includes('STATE.md')).toBeTruthy() // 'reason should mention STATE.md';
   });
 });
 
-// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ─────────────────────────────────────────────────────────────────────────────
 // cmdStateAdvancePlan, cmdStateRecordMetric, cmdStateUpdateProgress
-// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ─────────────────────────────────────────────────────────────────────────────
 
 describe('cmdStateAdvancePlan (state advance-plan)', () => {
   let tmpDir;
@@ -836,21 +823,19 @@ describe('cmdStateAdvancePlan (state advance-plan)', () => {
 
     const before = new Date().toISOString().split('T')[0];
     const result = runEzTools('state advance-plan', tmpDir);
-    assert.ok(result.success, `Command failed: ${result.error}`);
+    expect(result.success).toBeTruthy() // `Command failed: ${result.error}`;
 
     const output = JSON.parse(result.output);
-    assert.strictEqual(output.advanced, true, 'advanced should be true');
-    assert.strictEqual(output.previous_plan, 1, 'previous_plan should be 1');
-    assert.strictEqual(output.current_plan, 2, 'current_plan should be 2');
-    assert.strictEqual(output.total_plans, 3, 'total_plans should be 3');
+    expect(output.advanced).toBe(true, 'advanced should be true');
+    expect(output.previous_plan).toBe(1, 'previous_plan should be 1');
+    expect(output.current_plan).toBe(2, 'current_plan should be 2');
+    expect(output.total_plans).toBe(3, 'total_plans should be 3');
 
     const updated = fs.readFileSync(path.join(tmpDir, '.planning', 'STATE.md'), 'utf-8');
-    assert.ok(updated.includes('**Current Plan:** 2'), 'Current Plan should be updated to 2');
-    assert.ok(updated.includes('**Status:** Ready to execute'), 'Status should be Ready to execute');
+    expect(updated.includes('**Current Plan:** 2')).toBeTruthy() // 'Current Plan should be updated to 2';
+    expect(updated.includes('**Status:** Ready to execute')).toBeTruthy() // 'Status should be Ready to execute';
     const after = new Date().toISOString().split('T')[0];
-    assert.ok(
-      updated.includes(`**Last Activity:** ${before}`) || updated.includes(`**Last Activity:** ${after}`),
-      `Last Activity should be today (${before}) or next day if midnight boundary (${after})`
+    expect(updated.includes(`**Last Activity:** ${before}`) || updated.includes(`**Last Activity:** ${after}`)).toBeTruthy() // `Last Activity should be today (${before} or next day if midnight boundary (${after})`
     );
   });
 
@@ -859,24 +844,24 @@ describe('cmdStateAdvancePlan (state advance-plan)', () => {
     fs.writeFileSync(path.join(tmpDir, '.planning', 'STATE.md'), lastPlanFixture);
 
     const result = runEzTools('state advance-plan', tmpDir);
-    assert.ok(result.success, `Command failed: ${result.error}`);
+    expect(result.success).toBeTruthy() // `Command failed: ${result.error}`;
 
     const output = JSON.parse(result.output);
-    assert.strictEqual(output.advanced, false, 'advanced should be false');
-    assert.strictEqual(output.reason, 'last_plan', 'reason should be last_plan');
-    assert.strictEqual(output.status, 'ready_for_verification', 'status should be ready_for_verification');
+    expect(output.advanced).toBe(false, 'advanced should be false');
+    expect(output.reason).toBe('last_plan', 'reason should be last_plan');
+    expect(output.status).toBe('ready_for_verification', 'status should be ready_for_verification');
 
     const updated = fs.readFileSync(path.join(tmpDir, '.planning', 'STATE.md'), 'utf-8');
-    assert.ok(updated.includes('Phase complete'), 'Status should contain Phase complete');
+    expect(updated.includes('Phase complete')).toBeTruthy() // 'Status should contain Phase complete';
   });
 
   test('returns error when STATE.md missing', () => {
     const result = runEzTools('state advance-plan', tmpDir);
-    assert.ok(result.success, `Command should exit 0: ${result.error}`);
+    expect(result.success).toBeTruthy() // `Command should exit 0: ${result.error}`;
 
     const output = JSON.parse(result.output);
-    assert.ok(output.error !== undefined, 'output should have error field');
-    assert.ok(output.error.includes('STATE.md'), 'error should mention STATE.md');
+    expect(output.error !== undefined).toBeTruthy() // 'output should have error field';
+    expect(output.error.includes('STATE.md')).toBeTruthy() // 'error should mention STATE.md';
   });
 
   test('returns error when plan fields not parseable', () => {
@@ -886,11 +871,11 @@ describe('cmdStateAdvancePlan (state advance-plan)', () => {
     );
 
     const result = runEzTools('state advance-plan', tmpDir);
-    assert.ok(result.success, `Command should exit 0: ${result.error}`);
+    expect(result.success).toBeTruthy() // `Command should exit 0: ${result.error}`;
 
     const output = JSON.parse(result.output);
-    assert.ok(output.error !== undefined, 'output should have error field');
-    assert.ok(output.error.toLowerCase().includes('cannot parse'), 'error should mention Cannot parse');
+    expect(output.error !== undefined).toBeTruthy() // 'output should have error field';
+    expect(output.error.toLowerCase().includes('cannot parse')).toBeTruthy() // 'error should mention Cannot parse';
   });
 });
 
@@ -921,14 +906,14 @@ describe('cmdStateRecordMetric (state record-metric)', () => {
     fs.writeFileSync(path.join(tmpDir, '.planning', 'STATE.md'), metricsFixture);
 
     const result = runEzTools('state record-metric --phase 2 --plan 1 --duration 5min --tasks 3 --files 4', tmpDir);
-    assert.ok(result.success, `Command failed: ${result.error}`);
+    expect(result.success).toBeTruthy() // `Command failed: ${result.error}`;
 
     const output = JSON.parse(result.output);
-    assert.strictEqual(output.recorded, true, 'recorded should be true');
+    expect(output.recorded).toBe(true, 'recorded should be true');
 
     const updated = fs.readFileSync(path.join(tmpDir, '.planning', 'STATE.md'), 'utf-8');
-    assert.ok(updated.includes('| Phase 2 P1 | 5min | 3 tasks | 4 files |'), 'new row should be present');
-    assert.ok(updated.includes('| Phase 1 P1 | 3min | 2 tasks | 3 files |'), 'existing row should still be present');
+    expect(updated.includes('| Phase 2 P1 | 5min | 3 tasks | 4 files |')).toBeTruthy() // 'new row should be present';
+    expect(updated.includes('| Phase 1 P1 | 3min | 2 tasks | 3 files |')).toBeTruthy() // 'existing row should still be present';
   });
 
   test('replaces None yet placeholder with first metric', () => {
@@ -946,34 +931,31 @@ describe('cmdStateRecordMetric (state record-metric)', () => {
     fs.writeFileSync(path.join(tmpDir, '.planning', 'STATE.md'), noneYetFixture);
 
     const result = runEzTools('state record-metric --phase 1 --plan 1 --duration 2min --tasks 1 --files 2', tmpDir);
-    assert.ok(result.success, `Command failed: ${result.error}`);
+    expect(result.success).toBeTruthy() // `Command failed: ${result.error}`;
 
     const updated = fs.readFileSync(path.join(tmpDir, '.planning', 'STATE.md'), 'utf-8');
-    assert.ok(!updated.includes('None yet'), 'None yet placeholder should be removed');
-    assert.ok(updated.includes('| Phase 1 P1 | 2min | 1 tasks | 2 files |'), 'new row should be present');
+    expect(!updated.includes('None yet')).toBeTruthy() // 'None yet placeholder should be removed';
+    expect(updated.includes('| Phase 1 P1 | 2min | 1 tasks | 2 files |')).toBeTruthy() // 'new row should be present';
   });
 
   test('returns error when required fields missing', () => {
     fs.writeFileSync(path.join(tmpDir, '.planning', 'STATE.md'), metricsFixture);
 
     const result = runEzTools('state record-metric --phase 1', tmpDir);
-    assert.ok(result.success, `Command should exit 0: ${result.error}`);
+    expect(result.success).toBeTruthy() // `Command should exit 0: ${result.error}`;
 
     const output = JSON.parse(result.output);
-    assert.ok(output.error !== undefined, 'output should have error field');
-    assert.ok(
-      output.error.includes('phase') || output.error.includes('plan') || output.error.includes('duration'),
-      'error should mention missing required fields'
-    );
+    expect(output.error !== undefined).toBeTruthy() // 'output should have error field';
+    expect(output.error.includes('phase') || output.error.includes('plan') || output.error.includes('duration')).toBeTruthy() // 'error should mention missing required fields';
   });
 
   test('returns error when STATE.md missing', () => {
     const result = runEzTools('state record-metric --phase 1 --plan 1 --duration 2min', tmpDir);
-    assert.ok(result.success, `Command should exit 0: ${result.error}`);
+    expect(result.success).toBeTruthy() // `Command should exit 0: ${result.error}`;
 
     const output = JSON.parse(result.output);
-    assert.ok(output.error !== undefined, 'output should have error field');
-    assert.ok(output.error.includes('STATE.md'), 'error should mention STATE.md');
+    expect(output.error !== undefined).toBeTruthy() // 'output should have error field';
+    expect(output.error.includes('STATE.md')).toBeTruthy() // 'error should mention STATE.md';
   });
 });
 
@@ -991,7 +973,7 @@ describe('cmdStateUpdateProgress (state update-progress)', () => {
   test('calculates progress from plan/summary counts', () => {
     fs.writeFileSync(
       path.join(tmpDir, '.planning', 'STATE.md'),
-      '# Project State\n\n**Progress:** [â–‘â–‘â–‘â–‘â–‘â–‘â–‘â–‘â–‘â–‘] 0%\n'
+      '# Project State\n\n**Progress:** [░░░░░░░░░░] 0%\n'
     );
 
     // Phase 01: 1 PLAN + 1 SUMMARY = completed
@@ -1006,29 +988,29 @@ describe('cmdStateUpdateProgress (state update-progress)', () => {
     fs.writeFileSync(path.join(phase02Dir, '02-01-PLAN.md'), '# Plan\n');
 
     const result = runEzTools('state update-progress', tmpDir);
-    assert.ok(result.success, `Command failed: ${result.error}`);
+    expect(result.success).toBeTruthy() // `Command failed: ${result.error}`;
 
     const output = JSON.parse(result.output);
-    assert.strictEqual(output.updated, true, 'updated should be true');
-    assert.strictEqual(output.percent, 50, 'percent should be 50');
-    assert.strictEqual(output.completed, 1, 'completed should be 1');
-    assert.strictEqual(output.total, 2, 'total should be 2');
+    expect(output.updated).toBe(true, 'updated should be true');
+    expect(output.percent).toBe(50, 'percent should be 50');
+    expect(output.completed).toBe(1, 'completed should be 1');
+    expect(output.total).toBe(2, 'total should be 2');
 
     const updated = fs.readFileSync(path.join(tmpDir, '.planning', 'STATE.md'), 'utf-8');
-    assert.ok(updated.includes('50%'), 'STATE.md Progress should contain 50%');
+    expect(updated.includes('50%')).toBeTruthy() // 'STATE.md Progress should contain 50%';
   });
 
   test('handles zero plans gracefully', () => {
     fs.writeFileSync(
       path.join(tmpDir, '.planning', 'STATE.md'),
-      '# Project State\n\n**Progress:** [â–‘â–‘â–‘â–‘â–‘â–‘â–‘â–‘â–‘â–‘] 0%\n'
+      '# Project State\n\n**Progress:** [░░░░░░░░░░] 0%\n'
     );
 
     const result = runEzTools('state update-progress', tmpDir);
-    assert.ok(result.success, `Command failed: ${result.error}`);
+    expect(result.success).toBeTruthy() // `Command failed: ${result.error}`;
 
     const output = JSON.parse(result.output);
-    assert.strictEqual(output.percent, 0, 'percent should be 0 when no plans found');
+    expect(output.percent).toBe(0, 'percent should be 0 when no plans found');
   });
 
   test('returns error when Progress field missing', () => {
@@ -1038,26 +1020,26 @@ describe('cmdStateUpdateProgress (state update-progress)', () => {
     );
 
     const result = runEzTools('state update-progress', tmpDir);
-    assert.ok(result.success, `Command should exit 0: ${result.error}`);
+    expect(result.success).toBeTruthy() // `Command should exit 0: ${result.error}`;
 
     const output = JSON.parse(result.output);
-    assert.strictEqual(output.updated, false, 'updated should be false');
-    assert.ok(output.reason !== undefined, 'should have a reason');
+    expect(output.updated).toBe(false, 'updated should be false');
+    expect(output.reason !== undefined).toBeTruthy() // 'should have a reason';
   });
 
   test('returns error when STATE.md missing', () => {
     const result = runEzTools('state update-progress', tmpDir);
-    assert.ok(result.success, `Command should exit 0: ${result.error}`);
+    expect(result.success).toBeTruthy() // `Command should exit 0: ${result.error}`;
 
     const output = JSON.parse(result.output);
-    assert.ok(output.error !== undefined, 'output should have error field');
-    assert.ok(output.error.includes('STATE.md'), 'error should mention STATE.md');
+    expect(output.error !== undefined).toBeTruthy() // 'output should have error field';
+    expect(output.error.includes('STATE.md')).toBeTruthy() // 'error should mention STATE.md';
   });
 });
 
-// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ─────────────────────────────────────────────────────────────────────────────
 // cmdStateResolveBlocker, cmdStateRecordSession
-// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ─────────────────────────────────────────────────────────────────────────────
 
 describe('cmdStateResolveBlocker (state resolve-blocker)', () => {
   let tmpDir;
@@ -1086,15 +1068,15 @@ describe('cmdStateResolveBlocker (state resolve-blocker)', () => {
     fs.writeFileSync(path.join(tmpDir, '.planning', 'STATE.md'), blockerFixture);
 
     const result = runEzTools('state resolve-blocker --text "api credentials"', tmpDir);
-    assert.ok(result.success, `Command failed: ${result.error}`);
+    expect(result.success).toBeTruthy() // `Command failed: ${result.error}`;
 
     const output = JSON.parse(result.output);
-    assert.strictEqual(output.resolved, true, 'resolved should be true');
+    expect(output.resolved).toBe(true, 'resolved should be true');
 
     const updated = fs.readFileSync(path.join(tmpDir, '.planning', 'STATE.md'), 'utf-8');
-    assert.ok(!updated.includes('Waiting for API credentials'), 'matched blocker should be removed');
-    assert.ok(updated.includes('Need design review for dashboard'), 'other blocker should still be present');
-    assert.ok(updated.includes('Pending vendor approval'), 'other blocker should still be present');
+    expect(!updated.includes('Waiting for API credentials')).toBeTruthy() // 'matched blocker should be removed';
+    expect(updated.includes('Need design review for dashboard')).toBeTruthy() // 'other blocker should still be present';
+    expect(updated.includes('Pending vendor approval')).toBeTruthy() // 'other blocker should still be present';
   });
 
   test('adds None placeholder when last blocker resolved', () => {
@@ -1110,48 +1092,45 @@ describe('cmdStateResolveBlocker (state resolve-blocker)', () => {
     fs.writeFileSync(path.join(tmpDir, '.planning', 'STATE.md'), singleBlockerFixture);
 
     const result = runEzTools('state resolve-blocker --text "single blocker"', tmpDir);
-    assert.ok(result.success, `Command failed: ${result.error}`);
+    expect(result.success).toBeTruthy() // `Command failed: ${result.error}`;
 
     const updated = fs.readFileSync(path.join(tmpDir, '.planning', 'STATE.md'), 'utf-8');
-    assert.ok(!updated.includes('- Single blocker'), 'resolved blocker should be removed');
+    expect(!updated.includes('- Single blocker')).toBeTruthy() // 'resolved blocker should be removed';
 
     // Section should contain "None" placeholder, not be empty
     const sectionMatch = updated.match(/## Blockers\n([\s\S]*?)(?=\n##|$)/i);
-    assert.ok(sectionMatch, 'Blockers section should still exist');
-    assert.ok(sectionMatch[1].includes('None'), 'Blockers section should contain None placeholder');
+    expect(sectionMatch).toBeTruthy() // 'Blockers section should still exist';
+    expect(sectionMatch[1]?.includes('None')).toBeTruthy() // 'Blockers section should contain None placeholder';
   });
 
   test('returns error when text not provided', () => {
     fs.writeFileSync(path.join(tmpDir, '.planning', 'STATE.md'), blockerFixture);
 
     const result = runEzTools('state resolve-blocker', tmpDir);
-    assert.ok(result.success, `Command should exit 0: ${result.error}`);
+    expect(result.success).toBeTruthy() // `Command should exit 0: ${result.error}`;
 
     const output = JSON.parse(result.output);
-    assert.ok(output.error !== undefined, 'output should have error field');
-    assert.ok(
-      output.error.toLowerCase().includes('text'),
-      'error should mention text required'
-    );
+    expect(output.error !== undefined).toBeTruthy() // 'output should have error field';
+    expect(output.error.toLowerCase().includes('text')).toBeTruthy() // 'error should mention text required';
   });
 
   test('returns error when STATE.md missing', () => {
     const result = runEzTools('state resolve-blocker --text "anything"', tmpDir);
-    assert.ok(result.success, `Command should exit 0: ${result.error}`);
+    expect(result.success).toBeTruthy() // `Command should exit 0: ${result.error}`;
 
     const output = JSON.parse(result.output);
-    assert.ok(output.error !== undefined, 'output should have error field');
-    assert.ok(output.error.includes('STATE.md'), 'error should mention STATE.md');
+    expect(output.error !== undefined).toBeTruthy() // 'output should have error field';
+    expect(output.error.includes('STATE.md')).toBeTruthy() // 'error should mention STATE.md';
   });
 
   test('returns resolved true even if no line matches', () => {
     fs.writeFileSync(path.join(tmpDir, '.planning', 'STATE.md'), blockerFixture);
 
     const result = runEzTools('state resolve-blocker --text "nonexistent blocker text"', tmpDir);
-    assert.ok(result.success, `Command failed: ${result.error}`);
+    expect(result.success).toBeTruthy() // `Command failed: ${result.error}`;
 
     const output = JSON.parse(result.output);
-    assert.strictEqual(output.resolved, true, 'resolved should be true even when no line matches');
+    expect(output.resolved).toBe(true, 'resolved should be true even when no line matches');
   });
 });
 
@@ -1183,55 +1162,55 @@ describe('cmdStateRecordSession (state record-session)', () => {
       'state record-session --stopped-at "Phase 3, Plan 2" --resume-file ".planning/phases/03/03-02-PLAN.md"',
       tmpDir
     );
-    assert.ok(result.success, `Command failed: ${result.error}`);
+    expect(result.success).toBeTruthy() // `Command failed: ${result.error}`;
 
     const output = JSON.parse(result.output);
-    assert.strictEqual(output.recorded, true, 'recorded should be true');
-    assert.ok(Array.isArray(output.updated), 'updated should be an array');
+    expect(output.recorded).toBe(true, 'recorded should be true');
+    expect(Array.isArray(output.updated)).toBeTruthy() // 'updated should be an array';
 
     const updated = fs.readFileSync(path.join(tmpDir, '.planning', 'STATE.md'), 'utf-8');
-    assert.ok(updated.includes('Phase 3, Plan 2'), 'Stopped at should be updated');
-    assert.ok(updated.includes('.planning/phases/03/03-02-PLAN.md'), 'Resume file should be updated');
+    expect(updated.includes('Phase 3).toBeTruthy() // Plan 2', 'Stopped at should be updated');
+    expect(updated.includes('.planning/phases/03/03-02-PLAN.md')).toBeTruthy() // 'Resume file should be updated';
 
     const today = new Date().toISOString().split('T')[0];
-    assert.ok(updated.includes(today), 'Last session should be updated to today');
+    expect(updated.includes(today!)).toBeTruthy() // 'Last session should be updated to today';
   });
 
   test('updates Last session timestamp even with no other options', () => {
     fs.writeFileSync(path.join(tmpDir, '.planning', 'STATE.md'), sessionFixture);
 
     const result = runEzTools('state record-session', tmpDir);
-    assert.ok(result.success, `Command failed: ${result.error}`);
+    expect(result.success).toBeTruthy() // `Command failed: ${result.error}`;
 
     const output = JSON.parse(result.output);
-    assert.strictEqual(output.recorded, true, 'recorded should be true');
+    expect(output.recorded).toBe(true, 'recorded should be true');
 
     const updated = fs.readFileSync(path.join(tmpDir, '.planning', 'STATE.md'), 'utf-8');
     const today = new Date().toISOString().split('T')[0];
-    assert.ok(updated.includes(today), 'Last session should contain today\'s date');
+    expect(updated.includes(today!)).toBeTruthy() // 'Last session should contain today\'s date';
   });
 
   test('sets Resume file to None when not specified', () => {
     fs.writeFileSync(path.join(tmpDir, '.planning', 'STATE.md'), sessionFixture);
 
     const result = runEzTools('state record-session --stopped-at "Phase 1 complete"', tmpDir);
-    assert.ok(result.success, `Command failed: ${result.error}`);
+    expect(result.success).toBeTruthy() // `Command failed: ${result.error}`;
 
     const updated = fs.readFileSync(path.join(tmpDir, '.planning', 'STATE.md'), 'utf-8');
-    assert.ok(updated.includes('Phase 1 complete'), 'Stopped at should be updated');
+    expect(updated.includes('Phase 1 complete')).toBeTruthy() // 'Stopped at should be updated';
     // Resume file should be set to None (default)
     const resumeMatch = updated.match(/\*\*Resume file:\*\*\s*(.*)/i);
-    assert.ok(resumeMatch, 'Resume file field should exist');
-    assert.ok(resumeMatch[1].trim() === 'None', 'Resume file should be None when not specified');
+    expect(resumeMatch).toBeTruthy() // 'Resume file field should exist';
+    expect(resumeMatch[1]?.trim() === 'None').toBeTruthy() // 'Resume file should be None when not specified';
   });
 
   test('returns error when STATE.md missing', () => {
     const result = runEzTools('state record-session', tmpDir);
-    assert.ok(result.success, `Command should exit 0: ${result.error}`);
+    expect(result.success).toBeTruthy() // `Command should exit 0: ${result.error}`;
 
     const output = JSON.parse(result.output);
-    assert.ok(output.error !== undefined, 'output should have error field');
-    assert.ok(output.error.includes('STATE.md'), 'error should mention STATE.md');
+    expect(output.error !== undefined).toBeTruthy() // 'output should have error field';
+    expect(output.error.includes('STATE.md')).toBeTruthy() // 'error should mention STATE.md';
   });
 
   test('returns recorded false when no session fields found', () => {
@@ -1241,17 +1220,17 @@ describe('cmdStateRecordSession (state record-session)', () => {
     );
 
     const result = runEzTools('state record-session', tmpDir);
-    assert.ok(result.success, `Command should exit 0: ${result.error}`);
+    expect(result.success).toBeTruthy() // `Command should exit 0: ${result.error}`;
 
     const output = JSON.parse(result.output);
-    assert.strictEqual(output.recorded, false, 'recorded should be false when no session fields found');
-    assert.ok(output.reason !== undefined, 'should have a reason');
+    expect(output.recorded).toBe(false, 'recorded should be false when no session fields found');
+    expect(output.reason !== undefined).toBeTruthy() // 'should have a reason';
   });
 });
 
-// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ─────────────────────────────────────────────────────────────────────────────
 // Milestone-scoped phase counting in frontmatter
-// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ─────────────────────────────────────────────────────────────────────────────
 
 describe('milestone-scoped phase counting in frontmatter', () => {
   let tmpDir;
@@ -1296,15 +1275,15 @@ describe('milestone-scoped phase counting in frontmatter', () => {
     );
 
     const result = runEzTools('state update Status "Executing"', tmpDir);
-    assert.ok(result.success, `Command failed: ${result.error}`);
+    expect(result.success).toBeTruthy() // `Command failed: ${result.error}`;
 
     // Read the state json to check frontmatter
     const jsonResult = runEzTools('state json', tmpDir);
-    assert.ok(jsonResult.success, `state json failed: ${jsonResult.error}`);
+    expect(jsonResult.success).toBeTruthy() // `state json failed: ${jsonResult.error}`;
 
     const output = JSON.parse(jsonResult.output);
-    assert.strictEqual(Number(output.progress.total_phases), 2, 'should count only milestone phases (5 and 6), not all 6');
-    assert.strictEqual(Number(output.progress.completed_phases), 2, 'both milestone phases have summaries');
+    expect(Number(output.progress.total_phases)).toBe(2, 'should count only milestone phases (5 and 6), not all 6');
+    expect(Number(output.progress.completed_phases)).toBe(2, 'both milestone phases have summaries');
   });
 
   test('total_phases includes ROADMAP phases without directories', () => {
@@ -1338,18 +1317,18 @@ describe('milestone-scoped phase counting in frontmatter', () => {
     );
 
     const result = runEzTools('state update Status "Executing"', tmpDir);
-    assert.ok(result.success, `Command failed: ${result.error}`);
+    expect(result.success).toBeTruthy() // `Command failed: ${result.error}`;
 
     const jsonResult = runEzTools('state json', tmpDir);
-    assert.ok(jsonResult.success, `state json failed: ${jsonResult.error}`);
+    expect(jsonResult.success).toBeTruthy() // `state json failed: ${jsonResult.error}`;
 
     const output = JSON.parse(jsonResult.output);
-    assert.strictEqual(Number(output.progress.total_phases), 6, 'should count all 6 ROADMAP phases, not just 4 with directories');
-    assert.strictEqual(Number(output.progress.completed_phases), 4, 'only 4 phases have summaries');
+    expect(Number(output.progress.total_phases)).toBe(6, 'should count all 6 ROADMAP phases, not just 4 with directories');
+    expect(Number(output.progress.completed_phases)).toBe(4, 'only 4 phases have summaries');
   });
 
   test('without ROADMAP counts all phases (pass-all filter)', () => {
-    // No ROADMAP.md â€” all phases should be counted
+    // No ROADMAP.md — all phases should be counted
     for (let i = 1; i <= 4; i++) {
       const padded = String(i).padStart(2, '0');
       const phaseDir = path.join(tmpDir, '.planning', 'phases', `${padded}-phase-${i}`);
@@ -1363,16 +1342,16 @@ describe('milestone-scoped phase counting in frontmatter', () => {
     );
 
     const result = runEzTools('state update Status "In progress"', tmpDir);
-    assert.ok(result.success, `Command failed: ${result.error}`);
+    expect(result.success).toBeTruthy() // `Command failed: ${result.error}`;
 
     const jsonResult = runEzTools('state json', tmpDir);
-    assert.ok(jsonResult.success, `state json failed: ${jsonResult.error}`);
+    expect(jsonResult.success).toBeTruthy() // `state json failed: ${jsonResult.error}`;
 
     const output = JSON.parse(jsonResult.output);
-    assert.strictEqual(Number(output.progress.total_phases), 4, 'without ROADMAP should count all 4 phases');
+    expect(Number(output.progress.total_phases)).toBe(4, 'without ROADMAP should count all 4 phases');
   });
 });
 
-// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ─────────────────────────────────────────────────────────────────────────────
 // summary-extract command
-// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ─────────────────────────────────────────────────────────────────────────────

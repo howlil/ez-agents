@@ -7,7 +7,7 @@
   "excludeProtected": true,
   "excludeInternal": true,
   "validation": {
-    "missingExports": true,
+    "notDocumented": true,
     "notExported": true
   },
   "tsconfig": "./tsconfig.json",

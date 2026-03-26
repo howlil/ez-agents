@@ -51,8 +51,8 @@ export interface LanguageCounts {
 // ─── StackDetector Class ─────────────────────────────────────────────────────
 
 export class StackDetector {
-  private rootPath: string;
-  private pmDetector: PackageManagerDetector;
+  private readonly rootPath: string;
+  private readonly pmDetector: PackageManagerDetector;
 
   /**
    * Create a StackDetector instance

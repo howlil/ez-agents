@@ -1,6 +1,6 @@
-﻿const { test, describe, beforeEach, afterEach } = require('node:test');
-import assert from 'node:assert';
-import { createTempProject, cleanup, runEzTools } from '../helpers.js';
+
+
+import { createTempProject, cleanup, runEzTools } from '../helpers.ts';
 
 describe('health route', () => {
   let tmpDir;
@@ -15,13 +15,13 @@ describe('health route', () => {
 
   test('exposes health payload with status, checks, and timestamp', () => {
     const result = runEzTools('health', tmpDir);
-    assert.ok(result.success, `health command failed: ${result.error}`);
+    expect(result.success).toBeTruthy() // `health command failed: ${result.error}`;
 
     const payload = JSON.parse(result.output);
-    assert.strictEqual(typeof payload.status, 'string');
+    expect(typeof payload.status).toBe('string');
     assert.strictEqual(typeof payload.checks, 'object');
-    assert.ok(payload.checks, 'checks payload must be present');
-    assert.strictEqual(typeof payload.timestamp, 'string');
-    assert.ok(!Number.isNaN(Date.parse(payload.timestamp)), 'timestamp must be ISO parseable');
+    expect(payload.checks).toBeTruthy() // 'checks payload must be present';
+    expect(typeof payload.timestamp).toBe('string');
+    expect(!Number.isNaN(Date.parse(payload.timestamp))).toBeTruthy() // 'timestamp must be ISO parseable';
   });
 });

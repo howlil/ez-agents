@@ -207,7 +207,7 @@ export async function executeGate2(context: z.infer<typeof gateContextSchema>): 
   // Count abstraction layers
   let abstractionLayers = context.architecture?.abstractionLayers;
   if (abstractionLayers === undefined && context.files) {
-    abstractionLayers = countAbstractionLayers(context.files);
+    abstractionLayers = countAbstractionLayers(context.files as Array<{ path?: string; type?: string; layer?: number }>);
   }
 
   if (abstractionLayers !== undefined) {
@@ -274,5 +274,5 @@ export async function executeGate2(context: z.infer<typeof gateContextSchema>): 
  * @param gateCoordinator - QualityGate coordinator instance
  */
 export function registerGate2(gateCoordinator: { registerGate: (name: string, schema: z.ZodSchema, executor: (ctx: unknown) => Promise<GateResult>) => void }): void {
-  gateCoordinator.registerGate('gate-02-architecture', gateContextSchema, executeGate2);
+  gateCoordinator.registerGate('gate-02-architecture', gateContextSchema, (ctx: unknown) => executeGate2(ctx as z.infer<typeof gateContextSchema>));
 }

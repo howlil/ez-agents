@@ -1,4 +1,5 @@
 import { defineConfig } from 'vitest/config';
+import { resolve } from 'path';
 
 export default defineConfig({
   test: {
@@ -18,7 +19,8 @@ export default defineConfig({
     ],
     exclude: [
       'tests/fixtures/**',
-      'node_modules/**'
+      'node_modules/**',
+      'dist/**'
     ],
     testTimeout: 30000,
     pool: 'forks',
@@ -33,10 +35,11 @@ export default defineConfig({
       include: ['bin/lib/**/*.ts'],
       exclude: ['tests/**', 'node_modules/**']
     },
-    // Allow importing .ts files without .js extension in tests
+    // Resolve bin/lib imports to source files directly
     alias: {
-      '^../../bin/lib/(.*)$': '../../bin/lib/$1.js',
-      '^../bin/lib/(.*)$': '../bin/lib/$1.js',
+      '^../../bin/lib/(.*)$': resolve(__dirname, 'bin/lib/$1'),
+      '^../bin/lib/(.*)$': resolve(__dirname, 'bin/lib/$1'),
+      '^../../../bin/lib/(.*)$': resolve(__dirname, 'bin/lib/$1'),
     }
   },
 });

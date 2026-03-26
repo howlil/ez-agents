@@ -142,12 +142,16 @@ export class TestRunner {
 
     const duration = Date.now() - start;
 
-    return {
+    const result: TestResult = {
       name,
       passed,
-      duration,
-      error
+      duration
     };
+    if (error) {
+      result.error = error;
+    }
+
+    return result;
   }
 
   /**

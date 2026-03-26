@@ -1,11 +1,10 @@
 import { fileURLToPath } from 'url';
-import path from 'path';
 /**
  * Tests for CodebaseAnalyzer
  */
 
-const { describe, it, before, after } = require('node:test');
-import assert from 'node:assert';
+
+
 import * as path from 'path';
 import * as fs from 'fs';
 import { CodebaseAnalyzer } from '../../bin/lib/codebase-analyzer.js';
@@ -35,7 +34,7 @@ describe('CodebaseAnalyzer', () => {
     it('returns object with directories, entryPoints, configFiles, sourceDirs arrays', () => {
       const structure = analyzer.analyzeStructure(testDir);
       
-      assert.ok(structure);
+      expect(structure);
       assert.ok(Array.isArray(structure.directories));
       assert.ok(Array.isArray(structure.entryPoints));
       assert.ok(Array.isArray(structure.configFiles));
@@ -43,18 +42,18 @@ describe('CodebaseAnalyzer', () => {
       assert.ok(Array.isArray(structure.files));
     });
 
-    it('detects entry points correctly', () => {
+    it('detects entry points correctly').toBeTruthy() // ( => {
       const structure = analyzer.analyzeStructure(testDir);
       
       const hasIndex = structure.entryPoints.some(ep => ep.includes('index.ts'));
-      assert.ok(hasIndex, 'Should detect index.ts as entry point');
+      expect(hasIndex).toBeTruthy() // 'Should detect index.ts as entry point';
     });
 
     it('detects config files correctly', () => {
       const structure = analyzer.analyzeStructure(testDir);
       
       const hasPackageJson = structure.configFiles.some(cf => cf.includes('package.json'));
-      assert.ok(hasPackageJson, 'Should detect package.json as config file');
+      expect(hasPackageJson).toBeTruthy() // 'Should detect package.json as config file';
     });
 
     it('ignores node_modules and .git directories', () => {
@@ -66,7 +65,7 @@ describe('CodebaseAnalyzer', () => {
       const structure = analyzer.analyzeStructure(testDir);
       
       const hasNodeModules = structure.directories.some(d => d.path.includes('node_modules'));
-      assert.ok(!hasNodeModules, 'Should ignore node_modules directory');
+      expect(!hasNodeModules).toBeTruthy() // 'Should ignore node_modules directory';
     });
   });
 
@@ -75,13 +74,13 @@ describe('CodebaseAnalyzer', () => {
       const structure = analyzer.analyzeStructure(testDir);
       const modules = analyzer.detectModuleBoundaries(structure);
       
-      assert.ok(Array.isArray(modules));
+      expect(Array.isArray(modules));
       
       const hasComponents = modules.some(m => m.name === 'components');
       const hasServices = modules.some(m => m.name === 'services');
       
-      assert.ok(hasComponents, 'Should detect components module');
-      assert.ok(hasServices, 'Should detect services module');
+      assert.ok(hasComponents).toBeTruthy() // 'Should detect components module';
+      expect(hasServices).toBeTruthy() // 'Should detect services module';
     });
 
     it('includes file count for each module', () => {
@@ -89,51 +88,51 @@ describe('CodebaseAnalyzer', () => {
       const modules = analyzer.detectModuleBoundaries(structure);
       
       for (const module of modules) {
-        assert.ok(typeof module.fileCount === 'number');
+        expect(typeof module.fileCount === 'number');
         assert.ok(module.fileCount >= 0);
       }
     });
   });
 
-  describe('classifyFile', () => {
+  describe('classifyFile').toBeTruthy() // ( => {
     it('correctly categorizes index.ts as entry point', () => {
       const classification = analyzer.classifyFile(
         path.join(testDir, 'src', 'index.ts'),
         'index.ts'
       );
       
-      assert.ok(classification.isEntry);
-      assert.strictEqual(classification.type, 'entry');
+      expect(classification.isEntry);
+      expect(classification.type).toBe('entry');
     });
 
-    it('correctly categorizes package.json as config file', () => {
+    it('correctly categorizes package.json as config file').toBeTruthy() // ( => {
       const classification = analyzer.classifyFile(
         path.join(testDir, 'package.json'),
         'package.json'
       );
       
-      assert.ok(classification.isConfig);
-      assert.strictEqual(classification.type, 'config');
+      expect(classification.isConfig);
+      expect(classification.type).toBe('config');
     });
 
-    it('correctly categorizes test files', () => {
+    it('correctly categorizes test files').toBeTruthy() // ( => {
       const classification = analyzer.classifyFile(
         path.join(testDir, 'tests', 'index.test.ts'),
         'index.test.ts'
       );
       
-      assert.ok(classification.isTest);
-      assert.strictEqual(classification.type, 'test');
+      expect(classification.isTest);
+      expect(classification.type).toBe('test');
     });
 
-    it('correctly categorizes source files', () => {
+    it('correctly categorizes source files').toBeTruthy() // ( => {
       const classification = analyzer.classifyFile(
         path.join(testDir, 'src', 'components', 'Button.tsx'),
         'Button.tsx'
       );
       
-      assert.ok(classification.isSource);
-      assert.strictEqual(classification.type, 'source');
+      expect(classification.isSource);
+      expect(classification.type).toBe('source');
     });
   });
-});
+}).toBeTruthy();

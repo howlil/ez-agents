@@ -71,7 +71,7 @@ interface Recommendation {
 }
 
 class ProjectReporter {
-  private rootPath: string;
+  private readonly rootPath: string;
 
   constructor(rootPath: string) {
     this.rootPath = rootPath;

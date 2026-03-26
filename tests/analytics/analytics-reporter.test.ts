@@ -8,12 +8,12 @@
  * Requirement: ANALYTICS-05
  */
 
-const { test, describe, beforeEach, afterEach } = require('node:test');
-import assert from 'node:assert';
+
+
 import * as path from 'path';
 import * as fs from 'fs';
 
-import AnalyticsReporter from '../../bin/lib/analytics-reporter.js';
+import { AnalyticsReporter } from '../../bin/lib/analytics/analytics-reporter.js';
 
 describe('AnalyticsReporter', () => {
   let tmpDir, reporter;
@@ -26,7 +26,7 @@ describe('AnalyticsReporter', () => {
   afterEach(() => cleanup(tmpDir));
 
   test('constructor does not throw', () => {
-    assert.ok(reporter, 'AnalyticsReporter instance must be created without throwing');
+    expect(reporter).toBeTruthy() // 'AnalyticsReporter instance must be created without throwing';
   });
 
   test('generateReport() creates summary with key metrics', async () => {
@@ -36,12 +36,12 @@ describe('AnalyticsReporter', () => {
       endDate: '2026-03-07'
     });
 
-    assert.ok(report, 'generateReport must return report');
-    assert.ok(report.generatedAt, 'report must have generatedAt timestamp');
-    assert.ok(report.period, 'report must have period data');
-    assert.strictEqual(report.period.startDate, '2026-03-01', 'startDate must match');
-    assert.strictEqual(report.period.endDate, '2026-03-07', 'endDate must match');
-    assert.ok(report.metrics, 'report must have metrics section');
+    expect(report).toBeTruthy() // 'generateReport must return report';
+    expect(report.generatedAt).toBeTruthy() // 'report must have generatedAt timestamp';
+    expect(report.period).toBeTruthy() // 'report must have period data';
+    expect(report.period.startDate).toBe('2026-03-01', 'startDate must match');
+    expect(report.period.endDate).toBe('2026-03-07', 'endDate must match');
+    expect(report.metrics).toBeTruthy() // 'report must have metrics section';
   });
 
   test('aggregateMetrics() combines data from multiple sources', async () => {
@@ -51,10 +51,10 @@ describe('AnalyticsReporter', () => {
       endDate: '2026-03-31'
     });
 
-    assert.ok(aggregated, 'aggregateMetrics must return data');
-    assert.ok(aggregated.summary, 'must have summary section');
-    assert.ok(Array.isArray(aggregated.bySource), 'must have bySource array');
-    assert.strictEqual(aggregated.bySource.length, 3, 'must aggregate 3 sources');
+    expect(aggregated).toBeTruthy() // 'aggregateMetrics must return data';
+    expect(aggregated.summary).toBeTruthy() // 'must have summary section';
+    expect(Array.isArray(aggregated.bySource)).toBeTruthy() // 'must have bySource array';
+    expect(aggregated.bySource.length).toBe(3, 'must aggregate 3 sources');
   });
 
   test('exportReport() writes report to file in specified format', async () => {
@@ -69,8 +69,8 @@ describe('AnalyticsReporter', () => {
       filename: 'weekly-report'
     });
 
-    assert.ok(outputPath, 'exportReport must return file path');
-    assert.ok(fs.existsSync(outputPath), 'report file must exist');
+    expect(outputPath).toBeTruthy() // 'exportReport must return file path';
+    expect(fs.existsSync(outputPath)).toBeTruthy() // 'report file must exist';
 
     const content = JSON.parse(fs.readFileSync(outputPath, 'utf8'));
     assert.deepStrictEqual(content, report, 'file content must match report');
@@ -85,15 +85,15 @@ describe('AnalyticsReporter', () => {
       cron: '0 0 1 * *' // First day of month
     });
 
-    assert.ok(schedule, 'scheduleReport must return schedule config');
-    assert.strictEqual(schedule.name, 'monthly_summary', 'name must match');
-    assert.strictEqual(schedule.type, 'monthly', 'type must match');
-    assert.ok(schedule.id, 'must have schedule ID');
-    assert.ok(schedule.enabled, 'schedule must be enabled by default');
+    expect(schedule).toBeTruthy() // 'scheduleReport must return schedule config';
+    expect(schedule.name).toBe('monthly_summary', 'name must match');
+    expect(schedule.type).toBe('monthly', 'type must match');
+    expect(schedule.id).toBeTruthy() // 'must have schedule ID';
+    expect(schedule.enabled).toBeTruthy() // 'schedule must be enabled by default';
 
     const dataPath = path.join(tmpDir, '.planning', 'report-schedules.json');
     const data = JSON.parse(fs.readFileSync(dataPath, 'utf8'));
-    assert.ok(Array.isArray(data.schedules), 'must have schedules array');
-    assert.strictEqual(data.schedules.length, 1, 'must have 1 scheduled report');
+    expect(Array.isArray(data.schedules)).toBeTruthy() // 'must have schedules array';
+    expect(data.schedules.length).toBe(1, 'must have 1 scheduled report');
   });
 });

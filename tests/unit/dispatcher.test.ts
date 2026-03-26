@@ -1,4 +1,4 @@
-﻿/**
+/**
  * EZ Tools Tests - Dispatcher
  *
  * Tests for ez-tools.cjs dispatch routing and error paths.
@@ -8,13 +8,13 @@
  * Requirements: DISP-01, DISP-02
  */
 
-const { test, describe, beforeEach, afterEach } = require('node:test');
-import assert from 'node:assert';
+
+
 import * as fs from 'fs';
 import * as path from 'path';
-import { runEzTools, createTempProject, cleanup } from '../helpers.js';
+import { runEzTools, createTempProject, cleanup } from '../helpers.ts';
 
-// â”€â”€â”€ Dispatcher Error Paths â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ─── Dispatcher Error Paths ──────────────────────────────────────────────────
 
 describe('dispatcher error paths', () => {
   let tmpDir;
@@ -30,15 +30,15 @@ describe('dispatcher error paths', () => {
   // No command
   test('no-command invocation prints usage and exits non-zero', () => {
     const result = runEzTools('', tmpDir);
-    assert.strictEqual(result.success, false, 'Should exit non-zero');
-    assert.ok(result.error.includes('Usage:'), `Expected "Usage:" in stderr, got: ${result.error}`);
+    expect(result?.success).toBe(false, 'Should exit non-zero');
+    expect(result.error!.includes('Usage:')).toBeTruthy() // `Expected "Usage:" in stderr, got: ${result.error}`;
   });
 
   // Unknown command
   test('unknown command produces clear error and exits non-zero', () => {
     const result = runEzTools('nonexistent-cmd', tmpDir);
-    assert.strictEqual(result.success, false, 'Should exit non-zero');
-    assert.ok(result.error.includes('Unknown command'), `Expected "Unknown command" in stderr, got: ${result.error}`);
+    expect(result?.success).toBe(false, 'Should exit non-zero');
+    expect(result.error!.includes('Unknown command')).toBeTruthy() // `Expected "Unknown command" in stderr, got: ${result.error}`;
   });
 
   // --cwd= form with valid directory
@@ -49,102 +49,102 @@ describe('dispatcher error paths', () => {
       '# Project State\n\n## Current Position\n\nPhase: 1 of 1 (Test)\n'
     );
     const result = runEzTools(`--cwd=${tmpDir} state load`, process.cwd());
-    assert.strictEqual(result.success, true, `Should succeed with --cwd=, got: ${result.error}`);
+    expect(result?.success).toBe(true, `Should succeed with --cwd=, got: ${result.error}`);
   });
 
   // --cwd= with empty value
   test('--cwd= with empty value produces error', () => {
     const result = runEzTools('--cwd= state load', tmpDir);
-    assert.strictEqual(result.success, false, 'Should exit non-zero');
-    assert.ok(result.error.includes('Missing value for --cwd'), `Expected "Missing value for --cwd" in stderr, got: ${result.error}`);
+    expect(result?.success).toBe(false, 'Should exit non-zero');
+    expect(result.error!.includes('Missing value for --cwd')).toBeTruthy() // `Expected "Missing value for --cwd" in stderr, got: ${result.error}`;
   });
 
   // --cwd with nonexistent path
   test('--cwd with invalid path produces error', () => {
     const result = runEzTools('--cwd /nonexistent/path/xyz state load', tmpDir);
-    assert.strictEqual(result.success, false, 'Should exit non-zero');
-    assert.ok(result.error.includes('Invalid --cwd'), `Expected "Invalid --cwd" in stderr, got: ${result.error}`);
+    expect(result?.success).toBe(false, 'Should exit non-zero');
+    expect(result.error!.includes('Invalid --cwd')).toBeTruthy() // `Expected "Invalid --cwd" in stderr, got: ${result.error}`;
   });
 
   // Unknown subcommand: template
   test('template unknown subcommand errors', () => {
     const result = runEzTools('template bogus', tmpDir);
-    assert.strictEqual(result.success, false, 'Should exit non-zero');
-    assert.ok(result.error.includes('Unknown template subcommand'), `Expected "Unknown template subcommand" in stderr, got: ${result.error}`);
+    expect(result?.success).toBe(false, 'Should exit non-zero');
+    expect(result.error!.includes('Unknown template subcommand')).toBeTruthy() // `Expected "Unknown template subcommand" in stderr, got: ${result.error}`;
   });
 
   // Unknown subcommand: frontmatter
   test('frontmatter unknown subcommand errors', () => {
     const result = runEzTools('frontmatter bogus file.md', tmpDir);
-    assert.strictEqual(result.success, false, 'Should exit non-zero');
-    assert.ok(result.error.includes('Unknown frontmatter subcommand'), `Expected "Unknown frontmatter subcommand" in stderr, got: ${result.error}`);
+    expect(result?.success).toBe(false, 'Should exit non-zero');
+    expect(result.error!.includes('Unknown frontmatter subcommand')).toBeTruthy() // `Expected "Unknown frontmatter subcommand" in stderr, got: ${result.error}`;
   });
 
   // Unknown subcommand: verify
   test('verify unknown subcommand errors', () => {
     const result = runEzTools('verify bogus', tmpDir);
-    assert.strictEqual(result.success, false, 'Should exit non-zero');
-    assert.ok(result.error.includes('Unknown verify subcommand'), `Expected "Unknown verify subcommand" in stderr, got: ${result.error}`);
+    expect(result?.success).toBe(false, 'Should exit non-zero');
+    expect(result.error!.includes('Unknown verify subcommand')).toBeTruthy() // `Expected "Unknown verify subcommand" in stderr, got: ${result.error}`;
   });
 
   // Unknown subcommand: phases
   test('phases unknown subcommand errors', () => {
     const result = runEzTools('phases bogus', tmpDir);
-    assert.strictEqual(result.success, false, 'Should exit non-zero');
-    assert.ok(result.error.includes('Unknown phases subcommand'), `Expected "Unknown phases subcommand" in stderr, got: ${result.error}`);
+    expect(result?.success).toBe(false, 'Should exit non-zero');
+    expect(result.error!.includes('Unknown phases subcommand')).toBeTruthy() // `Expected "Unknown phases subcommand" in stderr, got: ${result.error}`;
   });
 
   // Unknown subcommand: roadmap
   test('roadmap unknown subcommand errors', () => {
     const result = runEzTools('roadmap bogus', tmpDir);
-    assert.strictEqual(result.success, false, 'Should exit non-zero');
-    assert.ok(result.error.includes('Unknown roadmap subcommand'), `Expected "Unknown roadmap subcommand" in stderr, got: ${result.error}`);
+    expect(result?.success).toBe(false, 'Should exit non-zero');
+    expect(result.error!.includes('Unknown roadmap subcommand')).toBeTruthy() // `Expected "Unknown roadmap subcommand" in stderr, got: ${result.error}`;
   });
 
   // Unknown subcommand: requirements
   test('requirements unknown subcommand errors', () => {
     const result = runEzTools('requirements bogus', tmpDir);
-    assert.strictEqual(result.success, false, 'Should exit non-zero');
-    assert.ok(result.error.includes('Unknown requirements subcommand'), `Expected "Unknown requirements subcommand" in stderr, got: ${result.error}`);
+    expect(result?.success).toBe(false, 'Should exit non-zero');
+    expect(result.error!.includes('Unknown requirements subcommand')).toBeTruthy() // `Expected "Unknown requirements subcommand" in stderr, got: ${result.error}`;
   });
 
   // Unknown subcommand: phase
   test('phase unknown subcommand errors', () => {
     const result = runEzTools('phase bogus', tmpDir);
-    assert.strictEqual(result.success, false, 'Should exit non-zero');
-    assert.ok(result.error.includes('Unknown phase subcommand'), `Expected "Unknown phase subcommand" in stderr, got: ${result.error}`);
+    expect(result?.success).toBe(false, 'Should exit non-zero');
+    expect(result.error!.includes('Unknown phase subcommand')).toBeTruthy() // `Expected "Unknown phase subcommand" in stderr, got: ${result.error}`;
   });
 
   // Unknown subcommand: milestone
   test('milestone unknown subcommand errors', () => {
     const result = runEzTools('milestone bogus', tmpDir);
-    assert.strictEqual(result.success, false, 'Should exit non-zero');
-    assert.ok(result.error.includes('Unknown milestone subcommand'), `Expected "Unknown milestone subcommand" in stderr, got: ${result.error}`);
+    expect(result?.success).toBe(false, 'Should exit non-zero');
+    expect(result.error!.includes('Unknown milestone subcommand')).toBeTruthy() // `Expected "Unknown milestone subcommand" in stderr, got: ${result.error}`;
   });
 
   // Unknown subcommand: validate
   test('validate unknown subcommand errors', () => {
     const result = runEzTools('validate bogus', tmpDir);
-    assert.strictEqual(result.success, false, 'Should exit non-zero');
-    assert.ok(result.error.includes('Unknown validate subcommand'), `Expected "Unknown validate subcommand" in stderr, got: ${result.error}`);
+    expect(result?.success).toBe(false, 'Should exit non-zero');
+    expect(result.error!.includes('Unknown validate subcommand')).toBeTruthy() // `Expected "Unknown validate subcommand" in stderr, got: ${result.error}`;
   });
 
   // Unknown subcommand: todo
   test('todo unknown subcommand errors', () => {
     const result = runEzTools('todo bogus', tmpDir);
-    assert.strictEqual(result.success, false, 'Should exit non-zero');
-    assert.ok(result.error.includes('Unknown todo subcommand'), `Expected "Unknown todo subcommand" in stderr, got: ${result.error}`);
+    expect(result?.success).toBe(false, 'Should exit non-zero');
+    expect(result.error!.includes('Unknown todo subcommand')).toBeTruthy() // `Expected "Unknown todo subcommand" in stderr, got: ${result.error}`;
   });
 
   // Unknown subcommand: init
   test('init unknown workflow errors', () => {
     const result = runEzTools('init bogus', tmpDir);
-    assert.strictEqual(result.success, false, 'Should exit non-zero');
-    assert.ok(result.error.includes('Unknown init workflow'), `Expected "Unknown init workflow" in stderr, got: ${result.error}`);
+    expect(result?.success).toBe(false, 'Should exit non-zero');
+    expect(result.error!.includes('Unknown init workflow')).toBeTruthy() // `Expected "Unknown init workflow" in stderr, got: ${result.error}`;
   });
 });
 
-// â”€â”€â”€ Dispatcher Routing Branches â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ─── Dispatcher Routing Branches ─────────────────────────────────────────────
 
 describe('dispatcher routing branches', () => {
   let tmpDir;
@@ -163,8 +163,8 @@ describe('dispatcher routing branches', () => {
     fs.mkdirSync(phaseDir, { recursive: true });
 
     const result = runEzTools('find-phase 01', tmpDir);
-    assert.strictEqual(result.success, true, `find-phase failed: ${result.error}`);
-    assert.ok(result.output.includes('01-test-phase'), `Expected output to contain "01-test-phase", got: ${result.output}`);
+    expect(result?.success).toBe(true, `find-phase failed: ${result.error}`);
+    expect(result.output.includes('01-test-phase')).toBeTruthy() // `Expected output to contain "01-test-phase", got: ${result.output}`;
   });
 
   // init resume
@@ -175,9 +175,9 @@ describe('dispatcher routing branches', () => {
     );
 
     const result = runEzTools('init resume', tmpDir);
-    assert.strictEqual(result.success, true, `init resume failed: ${result.error}`);
+    expect(result?.success).toBe(true, `init resume failed: ${result.error}`);
     const parsed = JSON.parse(result.output);
-    assert.ok(typeof parsed === 'object', 'Output should be valid JSON object');
+    expect(typeof parsed === 'object').toBeTruthy() // 'Output should be valid JSON object';
   });
 
   // init verify-work
@@ -199,9 +199,9 @@ describe('dispatcher routing branches', () => {
     fs.mkdirSync(phaseDir, { recursive: true });
 
     const result = runEzTools('init verify-work 01', tmpDir);
-    assert.strictEqual(result.success, true, `init verify-work failed: ${result.error}`);
+    expect(result?.success).toBe(true, `init verify-work failed: ${result.error}`);
     const parsed = JSON.parse(result.output);
-    assert.ok(typeof parsed === 'object', 'Output should be valid JSON object');
+    expect(typeof parsed === 'object').toBeTruthy() // 'Output should be valid JSON object';
   });
 
   // roadmap update-plan-progress
@@ -225,10 +225,10 @@ describe('dispatcher routing branches', () => {
     );
 
     const result = runEzTools('roadmap update-plan-progress 1', tmpDir);
-    assert.strictEqual(result.success, true, `roadmap update-plan-progress failed: ${result.error}`);
+    expect(result?.success).toBe(true, `roadmap update-plan-progress failed: ${result.error}`);
   });
 
-  // state (no subcommand) â€” default load
+  // state (no subcommand) — default load
   test('state with no subcommand calls cmdStateLoad', () => {
     fs.writeFileSync(
       path.join(tmpDir, '.planning', 'STATE.md'),
@@ -236,9 +236,9 @@ describe('dispatcher routing branches', () => {
     );
 
     const result = runEzTools('state', tmpDir);
-    assert.strictEqual(result.success, true, `state load failed: ${result.error}`);
+    expect(result?.success).toBe(true, `state load failed: ${result.error}`);
     const parsed = JSON.parse(result.output);
-    assert.ok(typeof parsed === 'object', 'Output should be valid JSON object');
+    expect(typeof parsed === 'object').toBeTruthy() // 'Output should be valid JSON object';
   });
 
   // summary-extract
@@ -268,10 +268,10 @@ requirements-completed: [TEST-01]
 
     // Use relative path from tmpDir
     const result = runEzTools(`summary-extract .planning/phases/01-test/01-01-SUMMARY.md`, tmpDir);
-    assert.strictEqual(result.success, true, `summary-extract failed: ${result.error}`);
+    expect(result?.success).toBe(true, `summary-extract failed: ${result.error}`);
     const parsed = JSON.parse(result.output);
-    assert.ok(typeof parsed === 'object', 'Output should be valid JSON object');
-    assert.strictEqual(parsed.path, '.planning/phases/01-test/01-01-SUMMARY.md', 'Path should match input');
+    expect(typeof parsed === 'object').toBeTruthy() // 'Output should be valid JSON object';
+    expect(parsed.path).toBe('.planning/phases/01-test/01-01-SUMMARY.md', 'Path should match input');
     assert.deepStrictEqual(parsed.requirements_completed, ['TEST-01'], 'requirements_completed should contain TEST-01');
   });
 });

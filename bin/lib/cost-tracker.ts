@@ -106,8 +106,8 @@ function readCostConfig(cwd: string): CostConfig {
 }
 
 class CostTracker {
-  private cwd: string;
-  private metricsPath: string;
+  private readonly cwd: string;
+  private readonly metricsPath: string;
 
   constructor(cwd?: string) {
     this.cwd = cwd || process.cwd();

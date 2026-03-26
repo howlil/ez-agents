@@ -54,8 +54,8 @@ export interface NpsTrendEntry {
 }
 
 export class NpsTracker {
-  private cwd: string;
-  private scoresPath: string;
+  private readonly cwd: string;
+  private readonly scoresPath: string;
 
   constructor(cwd?: string) {
     this.cwd = cwd || process.cwd();

@@ -1,12 +1,14 @@
-﻿/**
+/**
  * EZ Tools Tests - Commands
  */
 
-const { test, describe, beforeEach, afterEach } = require('node:test');
-import assert from 'node:assert';
+
+
 import * as fs from 'fs';
 import * as path from 'path';
-import { runEzTools, createTempProject, cleanup } from '../helpers.js';
+import { execSync } from 'child_process';
+import { runEzTools, createTempProject, createTempGitProject, cleanup } from '../helpers.js';
+import { cmdWebsearch } from '../../bin/lib/commands.js';
 
 describe('history-digest command', () => {
   let tmpDir;
@@ -21,7 +23,7 @@ describe('history-digest command', () => {
 
   test('empty phases directory returns valid schema', () => {
     const result = runEzTools('history-digest', tmpDir);
-    assert.ok(result.success, `Command failed: ${result.error}`);
+    expect(result.success).toBeTruthy() // `Command failed: ${result.error}`;
 
     const digest = JSON.parse(result.output);
 
@@ -62,12 +64,12 @@ key-decisions:
     fs.writeFileSync(path.join(phaseDir, '01-01-SUMMARY.md'), summaryContent);
 
     const result = runEzTools('history-digest', tmpDir);
-    assert.ok(result.success, `Command failed: ${result.error}`);
+    expect(result.success).toBeTruthy() // `Command failed: ${result.error}`;
 
     const digest = JSON.parse(result.output);
 
     // Check nested dependency-graph.provides
-    assert.ok(digest.phases['01'], 'Phase 01 should exist');
+    expect(digest.phases['01']).toBeTruthy() // 'Phase 01 should exist';
     assert.deepStrictEqual(
       digest.phases['01'].provides.sort(),
       ['Auth system', 'Database schema'],
@@ -96,11 +98,8 @@ key-decisions:
     );
 
     // Check key-decisions
-    assert.strictEqual(digest.decisions.length, 2, 'Should have 2 decisions');
-    assert.ok(
-      digest.decisions.some(d => d.decision === 'Use Prisma over Drizzle'),
-      'Should contain first decision'
-    );
+    expect(digest.decisions.length).toBe(2, 'Should have 2 decisions');
+    expect(digest.decisions.some(d => d.decision === 'Use Prisma over Drizzle')).toBeTruthy() // 'Should contain first decision';
   });
 
   test('multiple phases merged into single digest', () => {
@@ -144,16 +143,16 @@ tech-stack:
     );
 
     const result = runEzTools('history-digest', tmpDir);
-    assert.ok(result.success, `Command failed: ${result.error}`);
+    expect(result.success).toBeTruthy() // `Command failed: ${result.error}`;
 
     const digest = JSON.parse(result.output);
 
     // Both phases present
-    assert.ok(digest.phases['01'], 'Phase 01 should exist');
-    assert.ok(digest.phases['02'], 'Phase 02 should exist');
+    expect(digest.phases['01']).toBeTruthy() // 'Phase 01 should exist';
+    expect(digest.phases['02']).toBeTruthy() // 'Phase 02 should exist';
 
     // Decisions merged
-    assert.strictEqual(digest.decisions.length, 2, 'Should have 2 decisions total');
+    expect(digest.decisions.length).toBe(2, 'Should have 2 decisions total');
 
     // Tech stack merged
     assert.deepStrictEqual(digest.tech_stack, ['zod'], 'tech_stack should have zod');
@@ -192,14 +191,11 @@ broken: [unclosed
     );
 
     const result = runEzTools('history-digest', tmpDir);
-    assert.ok(result.success, `Command should succeed despite malformed files: ${result.error}`);
+    expect(result.success).toBeTruthy() // `Command should succeed despite malformed files: ${result.error}`;
 
     const digest = JSON.parse(result.output);
-    assert.ok(digest.phases['01'], 'Phase 01 should exist');
-    assert.ok(
-      digest.phases['01'].provides.includes('Valid feature'),
-      'Valid feature should be extracted'
-    );
+    expect(digest.phases['01']).toBeTruthy() // 'Phase 01 should exist';
+    expect(digest.phases['01'].provides.includes('Valid feature')).toBeTruthy() // 'Valid feature should be extracted';
   });
 
   test('flat provides field still works (backward compatibility)', () => {
@@ -217,7 +213,7 @@ provides:
     );
 
     const result = runEzTools('history-digest', tmpDir);
-    assert.ok(result.success, `Command failed: ${result.error}`);
+    expect(result.success).toBeTruthy() // `Command failed: ${result.error}`;
 
     const digest = JSON.parse(result.output);
     assert.deepStrictEqual(
@@ -242,7 +238,7 @@ patterns-established: ["Pattern X", "Pattern Y"]
     );
 
     const result = runEzTools('history-digest', tmpDir);
-    assert.ok(result.success, `Command failed: ${result.error}`);
+    expect(result.success).toBeTruthy() // `Command failed: ${result.error}`;
 
     const digest = JSON.parse(result.output);
     assert.deepStrictEqual(
@@ -258,9 +254,9 @@ patterns-established: ["Pattern X", "Pattern Y"]
   });
 });
 
-// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ─────────────────────────────────────────────────────────────────────────────
 // phases list command
-// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ─────────────────────────────────────────────────────────────────────────────
 
 
 describe('summary-extract command', () => {
@@ -276,10 +272,10 @@ describe('summary-extract command', () => {
 
   test('missing file returns error', () => {
     const result = runEzTools('summary-extract .planning/phases/01-test/01-01-SUMMARY.md', tmpDir);
-    assert.ok(result.success, `Command should succeed: ${result.error}`);
+    expect(result.success).toBeTruthy() // `Command should succeed: ${result.error}`;
 
     const output = JSON.parse(result.output);
-    assert.strictEqual(output.error, 'File not found', 'should report missing file');
+    expect(output.error).toBe('File not found', 'should report missing file');
   });
 
   test('extracts all fields from SUMMARY.md', () => {
@@ -315,15 +311,15 @@ Full summary content here.
     );
 
     const result = runEzTools('summary-extract .planning/phases/01-foundation/01-01-SUMMARY.md', tmpDir);
-    assert.ok(result.success, `Command failed: ${result.error}`);
+    expect(result.success).toBeTruthy() // `Command failed: ${result.error}`;
 
     const output = JSON.parse(result.output);
-    assert.strictEqual(output.path, '.planning/phases/01-foundation/01-01-SUMMARY.md', 'path correct');
-    assert.strictEqual(output.one_liner, 'Set up Prisma with User and Project models', 'one-liner extracted');
+    expect(output.path).toBe('.planning/phases/01-foundation/01-01-SUMMARY.md', 'path correct');
+    expect(output.one_liner).toBe('Set up Prisma with User and Project models', 'one-liner extracted');
     assert.deepStrictEqual(output.key_files, ['prisma/schema.prisma', 'src/lib/db.ts'], 'key files extracted');
     assert.deepStrictEqual(output.tech_added, ['prisma', 'zod'], 'tech added extracted');
     assert.deepStrictEqual(output.patterns, ['Repository pattern', 'Dependency injection'], 'patterns extracted');
-    assert.strictEqual(output.decisions.length, 2, 'decisions extracted');
+    expect(output.decisions.length).toBe(2, 'decisions extracted');
     assert.deepStrictEqual(output.requirements_completed, ['AUTH-01', 'AUTH-02'], 'requirements completed extracted');
   });
 
@@ -351,15 +347,15 @@ requirements-completed:
     );
 
     const result = runEzTools('summary-extract .planning/phases/01-foundation/01-01-SUMMARY.md --fields one_liner,key_files,requirements_completed', tmpDir);
-    assert.ok(result.success, `Command failed: ${result.error}`);
+    expect(result.success).toBeTruthy() // `Command failed: ${result.error}`;
 
     const output = JSON.parse(result.output);
-    assert.strictEqual(output.one_liner, 'Set up database', 'one_liner included');
+    expect(output.one_liner).toBe('Set up database', 'one_liner included');
     assert.deepStrictEqual(output.key_files, ['prisma/schema.prisma'], 'key_files included');
     assert.deepStrictEqual(output.requirements_completed, ['AUTH-01'], 'requirements_completed included');
-    assert.strictEqual(output.tech_added, undefined, 'tech_added excluded');
-    assert.strictEqual(output.patterns, undefined, 'patterns excluded');
-    assert.strictEqual(output.decisions, undefined, 'decisions excluded');
+    expect(output.tech_added).toBe(undefined, 'tech_added excluded');
+    expect(output.patterns).toBe(undefined, 'patterns excluded');
+    expect(output.decisions).toBe(undefined, 'decisions excluded');
   });
 
   test('handles missing frontmatter fields gracefully', () => {
@@ -377,10 +373,10 @@ one-liner: Minimal summary
     );
 
     const result = runEzTools('summary-extract .planning/phases/01-foundation/01-01-SUMMARY.md', tmpDir);
-    assert.ok(result.success, `Command failed: ${result.error}`);
+    expect(result.success).toBeTruthy() // `Command failed: ${result.error}`;
 
     const output = JSON.parse(result.output);
-    assert.strictEqual(output.one_liner, 'Minimal summary', 'one-liner extracted');
+    expect(output.one_liner).toBe('Minimal summary', 'one-liner extracted');
     assert.deepStrictEqual(output.key_files, [], 'key_files defaults to empty');
     assert.deepStrictEqual(output.tech_added, [], 'tech_added defaults to empty');
     assert.deepStrictEqual(output.patterns, [], 'patterns defaults to empty');
@@ -403,19 +399,19 @@ key-decisions:
     );
 
     const result = runEzTools('summary-extract .planning/phases/01-foundation/01-01-SUMMARY.md', tmpDir);
-    assert.ok(result.success, `Command failed: ${result.error}`);
+    expect(result.success).toBeTruthy() // `Command failed: ${result.error}`;
 
     const output = JSON.parse(result.output);
-    assert.strictEqual(output.decisions[0].summary, 'Use Prisma', 'decision summary parsed');
-    assert.strictEqual(output.decisions[0].rationale, 'Better DX than alternatives', 'decision rationale parsed');
-    assert.strictEqual(output.decisions[1].summary, 'JWT tokens', 'second decision summary');
-    assert.strictEqual(output.decisions[1].rationale, 'Stateless auth for scalability', 'second decision rationale');
+    expect(output.decisions[0].summary).toBe('Use Prisma', 'decision summary parsed');
+    expect(output.decisions[0].rationale).toBe('Better DX than alternatives', 'decision rationale parsed');
+    expect(output.decisions[1].summary).toBe('JWT tokens', 'second decision summary');
+    expect(output.decisions[1].rationale).toBe('Stateless auth for scalability', 'second decision rationale');
   });
 });
 
-// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ─────────────────────────────────────────────────────────────────────────────
 // init commands tests
-// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ─────────────────────────────────────────────────────────────────────────────
 
 
 describe('progress command', () => {
@@ -441,14 +437,14 @@ describe('progress command', () => {
     fs.writeFileSync(path.join(p1, '01-02-PLAN.md'), '# Plan 2');
 
     const result = runEzTools('progress json', tmpDir);
-    assert.ok(result.success, `Command failed: ${result.error}`);
+    expect(result.success).toBeTruthy() // `Command failed: ${result.error}`;
 
     const output = JSON.parse(result.output);
-    assert.strictEqual(output.total_plans, 2, '2 total plans');
-    assert.strictEqual(output.total_summaries, 1, '1 summary');
-    assert.strictEqual(output.percent, 50, '50%');
-    assert.strictEqual(output.phases.length, 1, '1 phase');
-    assert.strictEqual(output.phases[0].status, 'In Progress', 'phase in progress');
+    expect(output.total_plans).toBe(2, '2 total plans');
+    expect(output.total_summaries).toBe(1, '1 summary');
+    expect(output.percent).toBe(50, '50%');
+    expect(output.phases.length).toBe(1, '1 phase');
+    expect(output.phases[0].status).toBe('In Progress', 'phase in progress');
   });
 
   test('renders bar format', () => {
@@ -462,9 +458,9 @@ describe('progress command', () => {
     fs.writeFileSync(path.join(p1, '01-01-SUMMARY.md'), '# Done');
 
     const result = runEzTools('progress bar --raw', tmpDir);
-    assert.ok(result.success, `Command failed: ${result.error}`);
-    assert.ok(result.output.includes('1/1'), 'should include count');
-    assert.ok(result.output.includes('100%'), 'should include 100%');
+    expect(result.success).toBeTruthy() // `Command failed: ${result.error}`;
+    expect(result.output.includes('1/1')).toBeTruthy() // 'should include count';
+    expect(result.output.includes('100%')).toBeTruthy() // 'should include 100%';
   });
 
   test('renders table format', () => {
@@ -477,9 +473,9 @@ describe('progress command', () => {
     fs.writeFileSync(path.join(p1, '01-01-PLAN.md'), '# Plan');
 
     const result = runEzTools('progress table --raw', tmpDir);
-    assert.ok(result.success, `Command failed: ${result.error}`);
-    assert.ok(result.output.includes('Phase'), 'should have table header');
-    assert.ok(result.output.includes('foundation'), 'should include phase name');
+    expect(result.success).toBeTruthy() // `Command failed: ${result.error}`;
+    expect(result.output.includes('Phase')).toBeTruthy() // 'should have table header';
+    expect(result.output.includes('foundation')).toBeTruthy() // 'should include phase name';
   });
 
   test('does not crash when summaries exceed plans (orphaned SUMMARY.md)', () => {
@@ -496,24 +492,24 @@ describe('progress command', () => {
 
     // bar format - should not crash with RangeError
     const barResult = runEzTools('progress bar --raw', tmpDir);
-    assert.ok(barResult.success, `Bar format crashed: ${barResult.error}`);
-    assert.ok(barResult.output.includes('100%'), 'percent should be clamped to 100%');
+    expect(barResult.success).toBeTruthy() // `Bar format crashed: ${barResult.error}`;
+    expect(barResult.output.includes('100%')).toBeTruthy() // 'percent should be clamped to 100%';
 
     // table format - should not crash with RangeError
     const tableResult = runEzTools('progress table --raw', tmpDir);
-    assert.ok(tableResult.success, `Table format crashed: ${tableResult.error}`);
+    expect(tableResult.success).toBeTruthy() // `Table format crashed: ${tableResult.error}`;
 
     // json format - percent should be clamped
     const jsonResult = runEzTools('progress json', tmpDir);
-    assert.ok(jsonResult.success, `JSON format crashed: ${jsonResult.error}`);
+    expect(jsonResult.success).toBeTruthy() // `JSON format crashed: ${jsonResult.error}`;
     const output = JSON.parse(jsonResult.output);
-    assert.ok(output.percent <= 100, `percent should be <= 100 but got ${output.percent}`);
+    expect(output.percent <= 100).toBeTruthy() // `percent should be <= 100 but got ${output.percent}`;
   });
 });
 
-// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ─────────────────────────────────────────────────────────────────────────────
 // todo complete command
-// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ─────────────────────────────────────────────────────────────────────────────
 
 
 describe('todo complete command', () => {
@@ -536,18 +532,16 @@ describe('todo complete command', () => {
     );
 
     const result = runEzTools('todo complete add-dark-mode.md', tmpDir);
-    assert.ok(result.success, `Command failed: ${result.error}`);
+    expect(result.success).toBeTruthy() // `Command failed: ${result.error}`;
 
     const output = JSON.parse(result.output);
-    assert.strictEqual(output.completed, true);
+    expect(output.completed).toBe(true);
 
     // Verify moved
-    assert.ok(
-      !fs.existsSync(path.join(tmpDir, '.planning', 'todos', 'pending', 'add-dark-mode.md')),
+    expect(!fs.existsSync(path.join(tmpDir).toBeTruthy() // '.planning', 'todos', 'pending', 'add-dark-mode.md'),
       'should be removed from pending'
     );
-    assert.ok(
-      fs.existsSync(path.join(tmpDir, '.planning', 'todos', 'completed', 'add-dark-mode.md')),
+    expect(fs.existsSync(path.join(tmpDir).toBeTruthy() // '.planning', 'todos', 'completed', 'add-dark-mode.md'),
       'should be in completed'
     );
 
@@ -556,19 +550,19 @@ describe('todo complete command', () => {
       path.join(tmpDir, '.planning', 'todos', 'completed', 'add-dark-mode.md'),
       'utf-8'
     );
-    assert.ok(content.startsWith('completed:'), 'should have completed timestamp');
+    expect(content.startsWith('completed:')).toBeTruthy() // 'should have completed timestamp';
   });
 
   test('fails for nonexistent todo', () => {
     const result = runEzTools('todo complete nonexistent.md', tmpDir);
-    assert.ok(!result.success, 'should fail');
-    assert.ok(result.error.includes('not found'), 'error mentions not found');
+    expect(!result.success).toBeTruthy() // 'should fail';
+    expect(result.error!.includes('not found')).toBeTruthy() // 'error mentions not found';
   });
 });
 
-// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ─────────────────────────────────────────────────────────────────────────────
 // scaffold command
-// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ─────────────────────────────────────────────────────────────────────────────
 
 
 describe('scaffold command', () => {
@@ -586,62 +580,61 @@ describe('scaffold command', () => {
     fs.mkdirSync(path.join(tmpDir, '.planning', 'phases', '03-api'), { recursive: true });
 
     const result = runEzTools('scaffold context --phase 3', tmpDir);
-    assert.ok(result.success, `Command failed: ${result.error}`);
+    expect(result.success).toBeTruthy() // `Command failed: ${result.error}`;
 
     const output = JSON.parse(result.output);
-    assert.strictEqual(output.created, true);
+    expect(output.created).toBe(true);
 
     // Verify file content
     const content = fs.readFileSync(
       path.join(tmpDir, '.planning', 'phases', '03-api', '03-CONTEXT.md'),
       'utf-8'
     );
-    assert.ok(content.includes('Phase 3'), 'should reference phase number');
-    assert.ok(content.includes('Decisions'), 'should have decisions section');
-    assert.ok(content.includes('Discretion Areas'), 'should have discretion section');
+    expect(content.includes('Phase 3')).toBeTruthy() // 'should reference phase number';
+    expect(content.includes('Decisions')).toBeTruthy() // 'should have decisions section';
+    expect(content.includes('Discretion Areas')).toBeTruthy() // 'should have discretion section';
   });
 
   test('scaffolds UAT file', () => {
     fs.mkdirSync(path.join(tmpDir, '.planning', 'phases', '03-api'), { recursive: true });
 
     const result = runEzTools('scaffold uat --phase 3', tmpDir);
-    assert.ok(result.success, `Command failed: ${result.error}`);
+    expect(result.success).toBeTruthy() // `Command failed: ${result.error}`;
 
     const output = JSON.parse(result.output);
-    assert.strictEqual(output.created, true);
+    expect(output.created).toBe(true);
 
     const content = fs.readFileSync(
       path.join(tmpDir, '.planning', 'phases', '03-api', '03-UAT.md'),
       'utf-8'
     );
-    assert.ok(content.includes('User Acceptance Testing'), 'should have UAT heading');
-    assert.ok(content.includes('Test Results'), 'should have test results section');
+    expect(content.includes('User Acceptance Testing')).toBeTruthy() // 'should have UAT heading';
+    expect(content.includes('Test Results')).toBeTruthy() // 'should have test results section';
   });
 
   test('scaffolds verification file', () => {
     fs.mkdirSync(path.join(tmpDir, '.planning', 'phases', '03-api'), { recursive: true });
 
     const result = runEzTools('scaffold verification --phase 3', tmpDir);
-    assert.ok(result.success, `Command failed: ${result.error}`);
+    expect(result.success).toBeTruthy() // `Command failed: ${result.error}`;
 
     const output = JSON.parse(result.output);
-    assert.strictEqual(output.created, true);
+    expect(output.created).toBe(true);
 
     const content = fs.readFileSync(
       path.join(tmpDir, '.planning', 'phases', '03-api', '03-VERIFICATION.md'),
       'utf-8'
     );
-    assert.ok(content.includes('Goal-Backward Verification'), 'should have verification heading');
+    expect(content.includes('Goal-Backward Verification')).toBeTruthy() // 'should have verification heading';
   });
 
   test('scaffolds phase directory', () => {
     const result = runEzTools('scaffold phase-dir --phase 5 --name User Dashboard', tmpDir);
-    assert.ok(result.success, `Command failed: ${result.error}`);
+    expect(result.success).toBeTruthy() // `Command failed: ${result.error}`;
 
     const output = JSON.parse(result.output);
-    assert.strictEqual(output.created, true);
-    assert.ok(
-      fs.existsSync(path.join(tmpDir, '.planning', 'phases', '05-user-dashboard')),
+    expect(output.created).toBe(true);
+    expect(fs.existsSync(path.join(tmpDir).toBeTruthy() // '.planning', 'phases', '05-user-dashboard'),
       'directory should be created'
     );
   });
@@ -652,17 +645,17 @@ describe('scaffold command', () => {
     fs.writeFileSync(path.join(phaseDir, '03-CONTEXT.md'), '# Existing content');
 
     const result = runEzTools('scaffold context --phase 3', tmpDir);
-    assert.ok(result.success, `Command failed: ${result.error}`);
+    expect(result.success).toBeTruthy() // `Command failed: ${result.error}`;
 
     const output = JSON.parse(result.output);
-    assert.strictEqual(output.created, false, 'should not overwrite');
-    assert.strictEqual(output.reason, 'already_exists');
+    expect(output.created).toBe(false, 'should not overwrite');
+    expect(output.reason).toBe('already_exists');
   });
 });
 
-// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ─────────────────────────────────────────────────────────────────────────────
 // cmdGenerateSlug tests (CMD-01)
-// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ─────────────────────────────────────────────────────────────────────────────
 
 describe('generate-slug command', () => {
   let tmpDir;
@@ -677,46 +670,46 @@ describe('generate-slug command', () => {
 
   test('converts normal text to slug', () => {
     const result = runEzTools('generate-slug "Hello World"', tmpDir);
-    assert.ok(result.success, `Command failed: ${result.error}`);
+    expect(result.success).toBeTruthy() // `Command failed: ${result.error}`;
 
     const output = JSON.parse(result.output);
-    assert.strictEqual(output.slug, 'hello-world');
+    expect(output.slug).toBe('hello-world');
   });
 
   test('strips special characters', () => {
     const result = runEzTools('generate-slug "Test@#$%^Special!!!"', tmpDir);
-    assert.ok(result.success, `Command failed: ${result.error}`);
+    expect(result.success).toBeTruthy() // `Command failed: ${result.error}`;
 
     const output = JSON.parse(result.output);
-    assert.strictEqual(output.slug, 'test-special');
+    expect(output.slug).toBe('test-special');
   });
 
   test('preserves numbers', () => {
     const result = runEzTools('generate-slug "Phase 3 Plan"', tmpDir);
-    assert.ok(result.success, `Command failed: ${result.error}`);
+    expect(result.success).toBeTruthy() // `Command failed: ${result.error}`;
 
     const output = JSON.parse(result.output);
-    assert.strictEqual(output.slug, 'phase-3-plan');
+    expect(output.slug).toBe('phase-3-plan');
   });
 
   test('strips leading and trailing hyphens', () => {
     const result = runEzTools('generate-slug "---leading-trailing---"', tmpDir);
-    assert.ok(result.success, `Command failed: ${result.error}`);
+    expect(result.success).toBeTruthy() // `Command failed: ${result.error}`;
 
     const output = JSON.parse(result.output);
-    assert.strictEqual(output.slug, 'leading-trailing');
+    expect(output.slug).toBe('leading-trailing');
   });
 
   test('fails when no text provided', () => {
     const result = runEzTools('generate-slug', tmpDir);
-    assert.ok(!result.success, 'should fail without text');
-    assert.ok(result.error.includes('text required'), 'error should mention text required');
+    expect(!result.success).toBeTruthy() // 'should fail without text';
+    expect(result.error!.includes('text required')).toBeTruthy() // 'error should mention text required';
   });
 });
 
-// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ─────────────────────────────────────────────────────────────────────────────
 // cmdCurrentTimestamp tests (CMD-01)
-// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ─────────────────────────────────────────────────────────────────────────────
 
 describe('current-timestamp command', () => {
   let tmpDir;
@@ -731,40 +724,40 @@ describe('current-timestamp command', () => {
 
   test('date format returns YYYY-MM-DD', () => {
     const result = runEzTools('current-timestamp date', tmpDir);
-    assert.ok(result.success, `Command failed: ${result.error}`);
+    expect(result.success).toBeTruthy() // `Command failed: ${result.error}`;
 
     const output = JSON.parse(result.output);
-    assert.match(output.timestamp, /^\d{4}-\d{2}-\d{2}$/, 'should be YYYY-MM-DD format');
+    expect(output.timestamp).toMatch(/^\d{4}-\d{2}-\d{2}$/, 'should be YYYY-MM-DD format');
   });
 
   test('filename format returns ISO without colons or fractional seconds', () => {
     const result = runEzTools('current-timestamp filename', tmpDir);
-    assert.ok(result.success, `Command failed: ${result.error}`);
+    expect(result.success).toBeTruthy() // `Command failed: ${result.error}`;
 
     const output = JSON.parse(result.output);
-    assert.match(output.timestamp, /^\d{4}-\d{2}-\d{2}T\d{2}-\d{2}-\d{2}$/, 'should replace colons with hyphens and strip fractional seconds');
+    expect(output.timestamp).toMatch(/^\d{4}-\d{2}-\d{2}T\d{2}-\d{2}-\d{2}$/, 'should replace colons with hyphens and strip fractional seconds');
   });
 
   test('full format returns full ISO string', () => {
     const result = runEzTools('current-timestamp full', tmpDir);
-    assert.ok(result.success, `Command failed: ${result.error}`);
+    expect(result.success).toBeTruthy() // `Command failed: ${result.error}`;
 
     const output = JSON.parse(result.output);
-    assert.match(output.timestamp, /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z$/, 'should be full ISO format');
+    expect(output.timestamp).toMatch(/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z$/, 'should be full ISO format');
   });
 
   test('default (no format) returns full ISO string', () => {
     const result = runEzTools('current-timestamp', tmpDir);
-    assert.ok(result.success, `Command failed: ${result.error}`);
+    expect(result.success).toBeTruthy() // `Command failed: ${result.error}`;
 
     const output = JSON.parse(result.output);
-    assert.match(output.timestamp, /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z$/, 'default should be full ISO format');
+    expect(output.timestamp).toMatch(/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z$/, 'default should be full ISO format');
   });
 });
 
-// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ─────────────────────────────────────────────────────────────────────────────
 // cmdListTodos tests (CMD-02)
-// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ─────────────────────────────────────────────────────────────────────────────
 
 describe('list-todos command', () => {
   let tmpDir;
@@ -779,10 +772,10 @@ describe('list-todos command', () => {
 
   test('empty directory returns zero count', () => {
     const result = runEzTools('list-todos', tmpDir);
-    assert.ok(result.success, `Command failed: ${result.error}`);
+    expect(result.success).toBeTruthy() // `Command failed: ${result.error}`;
 
     const output = JSON.parse(result.output);
-    assert.strictEqual(output.count, 0, 'count should be 0');
+    expect(output.count).toBe(0, 'count should be 0');
     assert.deepStrictEqual(output.todos, [], 'todos should be empty');
   });
 
@@ -794,17 +787,17 @@ describe('list-todos command', () => {
     fs.writeFileSync(path.join(pendingDir, 'fix-bug.md'), 'title: Fix login bug\narea: auth\ncreated: 2026-01-20\n');
 
     const result = runEzTools('list-todos', tmpDir);
-    assert.ok(result.success, `Command failed: ${result.error}`);
+    expect(result.success).toBeTruthy() // `Command failed: ${result.error}`;
 
     const output = JSON.parse(result.output);
-    assert.strictEqual(output.count, 2, 'should have 2 todos');
-    assert.strictEqual(output.todos.length, 2, 'todos array should have 2 entries');
+    expect(output.count).toBe(2, 'should have 2 todos');
+    expect(output.todos.length).toBe(2, 'todos array should have 2 entries');
 
     const testTodo = output.todos.find(t => t.file === 'add-tests.md');
-    assert.ok(testTodo, 'add-tests.md should be in results');
-    assert.strictEqual(testTodo.title, 'Add unit tests');
+    expect(testTodo).toBeTruthy() // 'add-tests.md should be in results';
+    expect(testTodo.title).toBe('Add unit tests');
     assert.strictEqual(testTodo.area, 'testing');
-    assert.strictEqual(testTodo.created, '2026-01-15');
+    expect(testTodo.created).toBe('2026-01-15');
   });
 
   test('area filter returns only matching todos', () => {
@@ -815,11 +808,11 @@ describe('list-todos command', () => {
     fs.writeFileSync(path.join(pendingDir, 'api-task.md'), 'title: API task\narea: api\ncreated: 2026-01-01\n');
 
     const result = runEzTools('list-todos ui', tmpDir);
-    assert.ok(result.success, `Command failed: ${result.error}`);
+    expect(result.success).toBeTruthy() // `Command failed: ${result.error}`;
 
     const output = JSON.parse(result.output);
-    assert.strictEqual(output.count, 1, 'should have 1 matching todo');
-    assert.strictEqual(output.todos[0].area, 'ui', 'should only return ui area');
+    expect(output.count).toBe(1, 'should have 1 matching todo');
+    expect(output.todos[0].area).toBe('ui', 'should only return ui area');
   });
 
   test('area filter miss returns zero count', () => {
@@ -829,10 +822,10 @@ describe('list-todos command', () => {
     fs.writeFileSync(path.join(pendingDir, 'task.md'), 'title: Some task\narea: backend\ncreated: 2026-01-01\n');
 
     const result = runEzTools('list-todos nonexistent-area', tmpDir);
-    assert.ok(result.success, `Command failed: ${result.error}`);
+    expect(result.success).toBeTruthy() // `Command failed: ${result.error}`;
 
     const output = JSON.parse(result.output);
-    assert.strictEqual(output.count, 0, 'should have 0 matching todos');
+    expect(output.count).toBe(0, 'should have 0 matching todos');
   });
 
   test('malformed files use defaults', () => {
@@ -843,19 +836,19 @@ describe('list-todos command', () => {
     fs.writeFileSync(path.join(pendingDir, 'malformed.md'), 'some random content\nno fields here\n');
 
     const result = runEzTools('list-todos', tmpDir);
-    assert.ok(result.success, `Command failed: ${result.error}`);
+    expect(result.success).toBeTruthy() // `Command failed: ${result.error}`;
 
     const output = JSON.parse(result.output);
-    assert.strictEqual(output.count, 1, 'malformed file should still be counted');
-    assert.strictEqual(output.todos[0].title, 'Untitled', 'missing title defaults to Untitled');
-    assert.strictEqual(output.todos[0].area, 'general', 'missing area defaults to general');
-    assert.strictEqual(output.todos[0].created, 'unknown', 'missing created defaults to unknown');
+    expect(output.count).toBe(1, 'malformed file should still be counted');
+    expect(output.todos[0].title).toBe('Untitled', 'missing title defaults to Untitled');
+    expect(output.todos[0].area).toBe('general', 'missing area defaults to general');
+    expect(output.todos[0].created).toBe('unknown', 'missing created defaults to unknown');
   });
 });
 
-// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ─────────────────────────────────────────────────────────────────────────────
 // cmdVerifyPathExists tests (CMD-02)
-// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ─────────────────────────────────────────────────────────────────────────────
 
 describe('verify-path-exists command', () => {
   let tmpDir;
@@ -872,10 +865,10 @@ describe('verify-path-exists command', () => {
     fs.writeFileSync(path.join(tmpDir, 'test-file.txt'), 'hello');
 
     const result = runEzTools('verify-path-exists test-file.txt', tmpDir);
-    assert.ok(result.success, `Command failed: ${result.error}`);
+    expect(result.success).toBeTruthy() // `Command failed: ${result.error}`;
 
     const output = JSON.parse(result.output);
-    assert.strictEqual(output.exists, true);
+    expect(output.exists).toBe(true);
     assert.strictEqual(output.type, 'file');
   });
 
@@ -883,20 +876,20 @@ describe('verify-path-exists command', () => {
     fs.mkdirSync(path.join(tmpDir, 'test-dir'), { recursive: true });
 
     const result = runEzTools('verify-path-exists test-dir', tmpDir);
-    assert.ok(result.success, `Command failed: ${result.error}`);
+    expect(result.success).toBeTruthy() // `Command failed: ${result.error}`;
 
     const output = JSON.parse(result.output);
-    assert.strictEqual(output.exists, true);
+    expect(output.exists).toBe(true);
     assert.strictEqual(output.type, 'directory');
   });
 
   test('missing path returns exists=false', () => {
     const result = runEzTools('verify-path-exists nonexistent/path', tmpDir);
-    assert.ok(result.success, `Command failed: ${result.error}`);
+    expect(result.success).toBeTruthy() // `Command failed: ${result.error}`;
 
     const output = JSON.parse(result.output);
-    assert.strictEqual(output.exists, false);
-    assert.strictEqual(output.type, null);
+    expect(output.exists).toBe(false);
+    assert.strictEqual(output.type, undefined);
   });
 
   test('absolute path resolves correctly', () => {
@@ -904,23 +897,23 @@ describe('verify-path-exists command', () => {
     fs.writeFileSync(absFile, 'content');
 
     const result = runEzTools(`verify-path-exists ${absFile}`, tmpDir);
-    assert.ok(result.success, `Command failed: ${result.error}`);
+    expect(result.success).toBeTruthy() // `Command failed: ${result.error}`;
 
     const output = JSON.parse(result.output);
-    assert.strictEqual(output.exists, true);
+    expect(output.exists).toBe(true);
     assert.strictEqual(output.type, 'file');
   });
 
   test('fails when no path provided', () => {
     const result = runEzTools('verify-path-exists', tmpDir);
-    assert.ok(!result.success, 'should fail without path');
-    assert.ok(result.error.includes('path required'), 'error should mention path required');
+    expect(!result.success).toBeTruthy() // 'should fail without path';
+    expect(result.error!.includes('path required')).toBeTruthy() // 'error should mention path required';
   });
 });
 
-// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ─────────────────────────────────────────────────────────────────────────────
 // cmdResolveModel tests (CMD-03)
-// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ─────────────────────────────────────────────────────────────────────────────
 
 describe('resolve-model command', () => {
   let tmpDir;
@@ -935,46 +928,44 @@ describe('resolve-model command', () => {
 
   test('known agent returns model and profile without unknown_agent', () => {
     const result = runEzTools('resolve-model ez-planner', tmpDir);
-    assert.ok(result.success, `Command failed: ${result.error}`);
+    expect(result.success).toBeTruthy() // `Command failed: ${result.error}`;
 
     const output = JSON.parse(result.output);
-    assert.ok(output.model, 'should have model field');
-    assert.ok(output.profile, 'should have profile field');
-    assert.strictEqual(output.unknown_agent, undefined, 'should not have unknown_agent for known agent');
+    expect(output.model).toBeTruthy() // 'should have model field';
+    expect(output.profile).toBeTruthy() // 'should have profile field';
+    expect(output.unknown_agent).toBe(undefined, 'should not have unknown_agent for known agent');
   });
 
   test('unknown agent returns unknown_agent=true', () => {
     const result = runEzTools('resolve-model fake-nonexistent-agent', tmpDir);
-    assert.ok(result.success, `Command failed: ${result.error}`);
+    expect(result.success).toBeTruthy() // `Command failed: ${result.error}`;
 
     const output = JSON.parse(result.output);
-    assert.strictEqual(output.unknown_agent, true, 'should flag unknown agent');
+    expect(output.unknown_agent).toBe(true, 'should flag unknown agent');
   });
 
   test('default profile fallback when no config exists', () => {
     // tmpDir has no config.json, so defaults to balanced profile
     const result = runEzTools('resolve-model ez-executor', tmpDir);
-    assert.ok(result.success, `Command failed: ${result.error}`);
+    expect(result.success).toBeTruthy() // `Command failed: ${result.error}`;
 
     const output = JSON.parse(result.output);
-    assert.strictEqual(output.profile, 'balanced', 'should default to balanced profile');
-    assert.ok(output.model, 'should resolve a model');
+    expect(output.profile).toBe('balanced', 'should default to balanced profile');
+    expect(output.model).toBeTruthy() // 'should resolve a model';
   });
 
   test('fails when no agent-type provided', () => {
     const result = runEzTools('resolve-model', tmpDir);
-    assert.ok(!result.success, 'should fail without agent-type');
-    assert.ok(result.error.includes('agent-type required'), 'error should mention agent-type required');
+    expect(!result.success).toBeTruthy() // 'should fail without agent-type';
+    expect(result.error!.includes('agent-type required')).toBeTruthy() // 'error should mention agent-type required';
   });
 });
 
-// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ─────────────────────────────────────────────────────────────────────────────
 // cmdCommit tests (CMD-04)
-// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ─────────────────────────────────────────────────────────────────────────────
 
 describe('commit command', () => {
-  import { createTempGitProject } from '../helpers.js';
-  import { execSync } from 'child_process';
   let tmpDir;
 
   beforeEach(() => {
@@ -993,10 +984,10 @@ describe('commit command', () => {
     );
 
     const result = runEzTools('commit "test message"', tmpDir);
-    assert.ok(result.success, `Command failed: ${result.error}`);
+    expect(result.success).toBeTruthy() // `Command failed: ${result.error}`;
 
     const output = JSON.parse(result.output);
-    assert.strictEqual(output.committed, false);
+    expect(output.committed).toBe(false);
     assert.strictEqual(output.reason, 'skipped_commit_docs_false');
   });
 
@@ -1007,20 +998,20 @@ describe('commit command', () => {
     execSync('git commit -m "add gitignore"', { cwd: tmpDir, stdio: 'pipe' });
 
     const result = runEzTools('commit "test message"', tmpDir);
-    assert.ok(result.success, `Command failed: ${result.error}`);
+    expect(result.success).toBeTruthy() // `Command failed: ${result.error}`;
 
     const output = JSON.parse(result.output);
-    assert.strictEqual(output.committed, false);
+    expect(output.committed).toBe(false);
     assert.strictEqual(output.reason, 'skipped_gitignored');
   });
 
   test('handles nothing to commit', () => {
     // Don't modify any files after initial commit
     const result = runEzTools('commit "test message"', tmpDir);
-    assert.ok(result.success, `Command failed: ${result.error}`);
+    expect(result.success).toBeTruthy() // `Command failed: ${result.error}`;
 
     const output = JSON.parse(result.output);
-    assert.strictEqual(output.committed, false);
+    expect(output.committed).toBe(false);
     assert.strictEqual(output.reason, 'nothing_to_commit');
   });
 
@@ -1029,17 +1020,17 @@ describe('commit command', () => {
     fs.writeFileSync(path.join(tmpDir, '.planning', 'test-file.md'), '# Test\n');
 
     const result = runEzTools('commit "test: add test file" --files .planning/test-file.md', tmpDir);
-    assert.ok(result.success, `Command failed: ${result.error}`);
+    expect(result.success).toBeTruthy() // `Command failed: ${result.error}`;
 
     const output = JSON.parse(result.output);
-    assert.strictEqual(output.committed, true, 'should have committed');
-    assert.ok(output.hash, 'should have a commit hash');
-    assert.strictEqual(output.reason, 'committed');
+    expect(output.committed).toBe(true, 'should have committed');
+    expect(output.hash).toBeTruthy() // 'should have a commit hash';
+    expect(output.reason).toBe('committed');
 
     // Verify via git log
     const gitLog = execSync('git log --oneline -1', { cwd: tmpDir, encoding: 'utf-8' }).trim();
-    assert.ok(gitLog.includes('test: add test file'), 'git log should contain the commit message');
-    assert.ok(gitLog.includes(output.hash), 'git log should contain the returned hash');
+    expect(gitLog.includes('test: add test file')).toBeTruthy() // 'git log should contain the commit message';
+    expect(gitLog.includes(output.hash)).toBeTruthy() // 'git log should contain the returned hash';
   });
 
   test('amend mode works without crashing', () => {
@@ -1052,23 +1043,22 @@ describe('commit command', () => {
     fs.writeFileSync(path.join(tmpDir, '.planning', 'amend-file.md'), '# Amended\n');
 
     const result = runEzTools('commit "ignored" --files .planning/amend-file.md --amend', tmpDir);
-    assert.ok(result.success, `Command failed: ${result.error}`);
+    expect(result.success).toBeTruthy() // `Command failed: ${result.error}`;
 
     const output = JSON.parse(result.output);
-    assert.strictEqual(output.committed, true, 'amend should succeed');
+    expect(output.committed).toBe(true, 'amend should succeed');
 
     // Verify only 2 commits total (initial setup + amended)
     const logCount = execSync('git log --oneline', { cwd: tmpDir, encoding: 'utf-8' }).trim().split('\n').length;
-    assert.strictEqual(logCount, 2, 'should have 2 commits (initial + amended)');
+    expect(logCount).toBe(2, 'should have 2 commits (initial + amended)');
   });
 });
 
-// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ─────────────────────────────────────────────────────────────────────────────
 // cmdWebsearch tests (CMD-05)
-// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ─────────────────────────────────────────────────────────────────────────────
 
 describe('websearch command', () => {
-  import { cmdWebsearch } from '../../ez-agents/bin/lib/commands.js';
   let origFetch;
   let origApiKey;
   let origStdoutWrite;
@@ -1098,18 +1088,18 @@ describe('websearch command', () => {
     await cmdWebsearch('test query', {}, false);
 
     const output = JSON.parse(captured);
-    assert.strictEqual(output.available, false);
-    assert.ok(output.reason.includes('BRAVE_API_KEY'), 'should mention missing API key');
+    expect(output.available).toBe(false);
+    expect(output.reason.includes('BRAVE_API_KEY')).toBeTruthy() // 'should mention missing API key';
   });
 
   test('returns error when no query provided', async () => {
     process.env.BRAVE_API_KEY = 'test-key';
 
-    await cmdWebsearch(null, {}, false);
+    await cmdWebsearch(undefined, {}, false);
 
     const output = JSON.parse(captured);
-    assert.strictEqual(output.available, false);
-    assert.ok(output.error.includes('Query required'), 'should mention query required');
+    expect(output.available).toBe(false);
+    expect(output.error.includes('Query required')).toBeTruthy() // 'should mention query required';
   });
 
   test('returns results for successful API response', async () => {
@@ -1129,11 +1119,11 @@ describe('websearch command', () => {
     await cmdWebsearch('test query', { limit: 5, freshness: 'pd' }, false);
 
     const output = JSON.parse(captured);
-    assert.strictEqual(output.available, true);
+    expect(output.available).toBe(true);
     assert.strictEqual(output.query, 'test query');
-    assert.strictEqual(output.count, 1);
+    expect(output.count).toBe(1);
     assert.strictEqual(output.results[0].title, 'Test Result');
-    assert.strictEqual(output.results[0].url, 'https://example.com');
+    expect(output.results[0].url).toBe('https://example.com');
     assert.strictEqual(output.results[0].age, '1d');
   });
 
@@ -1152,9 +1142,9 @@ describe('websearch command', () => {
     await cmdWebsearch('node.js testing', { limit: 5, freshness: 'pd' }, false);
 
     const parsed = new URL(capturedUrl);
-    assert.strictEqual(parsed.searchParams.get('q'), 'node.js testing', 'query param should decode to original string');
-    assert.strictEqual(parsed.searchParams.get('count'), '5', 'count param should be 5');
-    assert.strictEqual(parsed.searchParams.get('freshness'), 'pd', 'freshness param should be pd');
+    expect(parsed.searchParams.get('q')).toBe('node.js testing', 'query param should decode to original string');
+    expect(parsed.searchParams.get('count')).toBe('5', 'count param should be 5');
+    expect(parsed.searchParams.get('freshness')).toBe('pd', 'freshness param should be pd');
   });
 
   test('handles API error (non-200 status)', async () => {
@@ -1168,8 +1158,8 @@ describe('websearch command', () => {
     await cmdWebsearch('test query', {}, false);
 
     const output = JSON.parse(captured);
-    assert.strictEqual(output.available, false);
-    assert.ok(output.error.includes('429'), 'error should include status code');
+    expect(output.available).toBe(false);
+    expect(output.error.includes('429')).toBeTruthy() // 'error should include status code';
   });
 
   test('handles network failure', async () => {
@@ -1182,7 +1172,7 @@ describe('websearch command', () => {
     await cmdWebsearch('test query', {}, false);
 
     const output = JSON.parse(captured);
-    assert.strictEqual(output.available, false);
+    expect(output.available).toBe(false);
     assert.strictEqual(output.error, 'Network timeout');
   });
 });
@@ -1200,17 +1190,17 @@ describe('stats command', () => {
 
   test('returns valid JSON with empty project', () => {
     const result = runEzTools('stats', tmpDir);
-    assert.ok(result.success, `Command failed: ${result.error}`);
+    expect(result.success).toBeTruthy() // `Command failed: ${result.error}`;
 
     const stats = JSON.parse(result.output);
-    assert.ok(Array.isArray(stats.phases), 'phases should be an array');
-    assert.strictEqual(stats.total_plans, 0);
+    expect(Array.isArray(stats.phases)).toBeTruthy() // 'phases should be an array';
+    expect(stats.total_plans).toBe(0);
     assert.strictEqual(stats.total_summaries, 0);
-    assert.strictEqual(stats.percent, 0);
+    expect(stats.percent).toBe(0);
     assert.strictEqual(stats.phases_completed, 0);
-    assert.strictEqual(stats.phases_total, 0);
+    expect(stats.phases_total).toBe(0);
     assert.strictEqual(stats.requirements_total, 0);
-    assert.strictEqual(stats.requirements_complete, 0);
+    expect(stats.requirements_complete).toBe(0);
   });
 
   test('counts phases, plans, and summaries correctly', () => {
@@ -1229,14 +1219,14 @@ describe('stats command', () => {
     fs.writeFileSync(path.join(p2, '02-01-PLAN.md'), '# Plan');
 
     const result = runEzTools('stats', tmpDir);
-    assert.ok(result.success, `Command failed: ${result.error}`);
+    expect(result.success).toBeTruthy() // `Command failed: ${result.error}`;
 
     const stats = JSON.parse(result.output);
-    assert.strictEqual(stats.phases_total, 2);
+    expect(stats.phases_total).toBe(2);
     assert.strictEqual(stats.phases_completed, 1);
-    assert.strictEqual(stats.total_plans, 3);
+    expect(stats.total_plans).toBe(3);
     assert.strictEqual(stats.total_summaries, 2);
-    assert.strictEqual(stats.percent, 67);
+    expect(stats.percent).toBe(67);
   });
 
   test('counts requirements from REQUIREMENTS.md', () => {
@@ -1254,10 +1244,10 @@ describe('stats command', () => {
     );
 
     const result = runEzTools('stats', tmpDir);
-    assert.ok(result.success, `Command failed: ${result.error}`);
+    expect(result.success).toBeTruthy() // `Command failed: ${result.error}`;
 
     const stats = JSON.parse(result.output);
-    assert.strictEqual(stats.requirements_total, 4);
+    expect(stats.requirements_total).toBe(4);
     assert.strictEqual(stats.requirements_complete, 2);
   });
 
@@ -1268,10 +1258,10 @@ describe('stats command', () => {
     );
 
     const result = runEzTools('stats', tmpDir);
-    assert.ok(result.success, `Command failed: ${result.error}`);
+    expect(result.success).toBeTruthy() // `Command failed: ${result.error}`;
 
     const stats = JSON.parse(result.output);
-    assert.strictEqual(stats.last_activity, '2025-06-15');
+    expect(stats.last_activity).toBe('2025-06-15');
   });
 
   test('table format renders readable output', () => {
@@ -1281,12 +1271,12 @@ describe('stats command', () => {
     fs.writeFileSync(path.join(p1, '01-01-SUMMARY.md'), '# Summary');
 
     const result = runEzTools('stats table', tmpDir);
-    assert.ok(result.success, `Command failed: ${result.error}`);
+    expect(result.success).toBeTruthy() // `Command failed: ${result.error}`;
 
     const parsed = JSON.parse(result.output);
-    assert.ok(parsed.rendered, 'table format should include rendered field');
-    assert.ok(parsed.rendered.includes('Statistics'), 'should include Statistics header');
-    assert.ok(parsed.rendered.includes('| Phase |'), 'should include table header');
-    assert.ok(parsed.rendered.includes('| 1 |'), 'should include phase row');
+    expect(parsed.rendered).toBeTruthy() // 'table format should include rendered field';
+    expect(parsed.rendered.includes('Statistics')).toBeTruthy() // 'should include Statistics header';
+    expect(parsed.rendered.includes('| Phase |')).toBeTruthy() // 'should include table header';
+    expect(parsed.rendered.includes('| 1 |')).toBeTruthy() // 'should include phase row';
   });
 });

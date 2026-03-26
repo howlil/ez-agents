@@ -70,7 +70,7 @@ export interface IntegrationResult {
 // ─── BusinessFlowMapper Class ────────────────────────────────────────────────
 
 export class BusinessFlowMapper {
-  private rootPath: string;
+  private readonly rootPath: string;
 
   /**
    * Create a BusinessFlowMapper instance

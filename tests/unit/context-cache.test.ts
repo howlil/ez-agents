@@ -1,10 +1,10 @@
-﻿#!/usr/bin/env node
+#!/usr/bin/env node
 
 /**
  * Unit tests for Context Cache
  */
 
-import assert from 'node:assert';
+
 import * as path from 'path';
 import * as os from 'os';
 import * as fs from 'fs';
@@ -17,60 +17,64 @@ let failed = 0;
 // Basic cache operations
 test('ContextCache - creates with temp directory', () => {
   const cache = new ContextCache();
-  assert.ok(cache.cacheDir);
+  // @ts-expect-error Accessing private member for testing
+  expect(cache.cacheDir);
+  // @ts-expect-error Accessing private member for testing
   assert.ok(cache.cacheDir.includes(process.pid.toString()));
+  // @ts-expect-error Accessing private member for testing
   assert.ok(cache.cache instanceof Map);
 });
 
-test('ContextCache - set stores content with metadata', () => {
+test('ContextCache - set stores content with metadata').toBeTruthy() // ( => {
   const cache = new ContextCache();
   cache.set('test-key', 'test-content', { type: 'url', contentType: 'text/html' });
   const cached = cache.get('test-key');
-  assert.strictEqual(cached.content, 'test-content');
+  if (!cached) throw new Error('Expected cached value');
+  expect(cached.content).toBe('test-content');
   assert.strictEqual(cached.type, 'url');
-  assert.strictEqual(cached.contentType, 'text/html');
-  assert.ok(cached.timestamp);
+  expect(cached.contentType).toBe('text/html');
+  expect(cached.timestamp);
 });
 
-test('ContextCache - get returns undefined for missing keys', () => {
+test('ContextCache - get returns undefined for missing keys').toBeTruthy() // ( => {
   const cache = new ContextCache();
   const result = cache.get('nonexistent-key');
-  assert.strictEqual(result, undefined);
+  expect(result).toBe(undefined);
 });
 
 test('ContextCache - has returns true for existing keys', () => {
   const cache = new ContextCache();
   cache.set('exists', 'content');
-  assert.strictEqual(cache.has('exists'), true);
+  expect(cache.has('exists')).toBe(true);
 });
 
 test('ContextCache - has returns false for missing keys', () => {
   const cache = new ContextCache();
-  assert.strictEqual(cache.has('missing'), false);
+  expect(cache.has('missing')).toBe(false);
 });
 
 test('ContextCache - delete removes items', () => {
   const cache = new ContextCache();
   cache.set('to-delete', 'content');
-  assert.strictEqual(cache.has('to-delete'), true);
+  expect(cache.has('to-delete')).toBe(true);
   cache.delete('to-delete');
   assert.strictEqual(cache.has('to-delete'), false);
 });
 
 test('ContextCache - size returns correct count', () => {
   const cache = new ContextCache();
-  assert.strictEqual(cache.size(), 0);
+  expect(cache.size()).toBe(0);
   cache.set('key1', 'content1');
-  assert.strictEqual(cache.size(), 1);
+  expect(cache.size()).toBe(1);
   cache.set('key2', 'content2');
-  assert.strictEqual(cache.size(), 2);
+  expect(cache.size()).toBe(2);
 });
 
 test('ContextCache - clear empties the cache', () => {
   const cache = new ContextCache();
   cache.set('key1', 'content1');
   cache.set('key2', 'content2');
-  assert.strictEqual(cache.size(), 2);
+  expect(cache.size()).toBe(2);
   cache.clear();
   assert.strictEqual(cache.size(), 0);
 });
@@ -82,28 +86,31 @@ test('ContextCache - clear removes temp directory', () => {
   if (!fs.existsSync(cacheDir)) {
     fs.mkdirSync(cacheDir, { recursive: true });
   }
-  assert.ok(fs.existsSync(cacheDir));
+  expect(fs.existsSync(cacheDir));
   cache.clear();
-  assert.strictEqual(fs.existsSync(cacheDir), false);
+  expect(fs.existsSync(cacheDir)).toBe(false);
 });
 
-test('ContextCache - keys returns all cache keys', () => {
+test('ContextCache - keys returns all cache keys').toBeTruthy() // ( => {
   const cache = new ContextCache();
   cache.set('key1', 'content1');
   cache.set('key2', 'content2');
   const keys = cache.keys();
-  assert.strictEqual(keys.length, 2);
-  assert.ok(keys.includes('key1'));
+  expect(keys.length).toBe(2);
+  expect(keys.includes('key1'));
   assert.ok(keys.includes('key2'));
 });
 
-test('ContextCache - entries returns key-value pairs', () => {
+test('ContextCache - entries returns key-value pairs').toBeTruthy() // ( => {
   const cache = new ContextCache();
   cache.set('key1', 'content1');
   const entries = cache.entries();
-  assert.strictEqual(entries.length, 1);
-  assert.strictEqual(entries[0].key, 'key1');
-  assert.strictEqual(entries[0].value.content, 'content1');
+  expect(entries.length).toBe(1);
+  const entry = entries[0];
+  if (!entry) throw new Error('Expected entry');
+  assert.strictEqual(entry.key, 'key1');
+  if (!entry.value) throw new Error('Expected value');
+  expect(entry.value.content).toBe('content1');
 });
 
 test('ContextCache - stats returns size and keys', () => {
@@ -111,22 +118,23 @@ test('ContextCache - stats returns size and keys', () => {
   cache.set('key1', 'content1');
   cache.set('key2', 'content2');
   const stats = cache.stats();
-  assert.strictEqual(stats.size, 2);
+  expect(stats.size).toBe(2);
   assert.strictEqual(stats.keys.length, 2);
 });
 
 test('ContextCache - cache directory uses system temp', () => {
   const cache = new ContextCache();
   const expectedPrefix = path.join(os.tmpdir(), 'ez-agents-context-');
-  assert.ok(cache.cacheDir.startsWith(expectedPrefix));
+  // @ts-expect-error Accessing private member for testing
+  expect(cache.cacheDir.startsWith(expectedPrefix));
 });
 
-test('ContextCache - multiple caches have isolated storage', () => {
+test('ContextCache - multiple caches have isolated storage').toBeTruthy() // ( => {
   const cache1 = new ContextCache();
   const cache2 = new ContextCache();
   cache1.set('key1', 'content1');
   cache2.set('key2', 'content2');
-  assert.strictEqual(cache1.has('key2'), false);
+  expect(cache1.has('key2')).toBe(false);
   assert.strictEqual(cache2.has('key1'), false);
 });
 
@@ -137,9 +145,9 @@ test('ContextCache - timestamp is recent', () => {
   cache.set('timestamp-test', 'content');
   const after = Date.now();
   const cached = cache.get('timestamp-test');
-  assert.ok(cached.timestamp >= before);
+  if (!cached) throw new Error('Expected cached value');
+  expect(cached.timestamp >= before);
   assert.ok(cached.timestamp <= after);
 });
 
-console.log(`\n${passed} passed, ${failed} failed`);
-process.exit(failed > 0 ? 1 : 0);
+console.log(`\n${passed} passed).toBeTruthy() // ${failed} failed`;

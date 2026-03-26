@@ -10,8 +10,8 @@
 import { exec } from 'child_process';
 import { promisify } from 'util';
 import { fileURLToPath } from 'url';
-import path from 'path';
-import fs from 'fs';
+import * as path from 'path';
+import * as fs from 'fs';
 
 const execAsync = promisify(exec);
 const __filename = fileURLToPath(import.meta.url);
@@ -69,7 +69,7 @@ async function main() {
 
     // Read the JSON output
     const jsonPath = path.join(rootDir, 'typedoc-output.json');
-    const jsonContent = fs.readFileSync(jsonPathPath, 'utf-8');
+    const jsonContent = fs.readFileSync(jsonPath, 'utf-8');
     const data: TypeDocJSON = JSON.parse(jsonContent);
 
     // Clean up temp file

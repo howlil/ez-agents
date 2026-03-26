@@ -1,10 +1,6 @@
 #!/usr/bin/env node
-
 /**
- * Test File Import Fixer Script
- *
- * Fixes malformed imports in converted test files
- * Usage: node scripts/fix-test-imports.ts [directory]
+ * Fix test imports - convert node:test and node:assert to vitest
  */
 
 import * as fs from 'fs';
@@ -13,116 +9,95 @@ import { fileURLToPath } from 'url';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
+const testsDir = path.join(__dirname, '..', 'tests');
 
-/**
- * Fix malformed imports in a test file
- * @param filePath - Path to the test file
- * @returns True if file was modified
- */
-function fixFile(filePath: string): boolean {
+function getAllTestFiles(dir: string): string[] {
+  let results: string[] = [];
+  const items = fs.readdirSync(dir);
+
+  for (const item of items) {
+    const fullPath = path.join(dir, item);
+    const stat = fs.statSync(fullPath);
+
+    if (stat.isDirectory()) {
+      results = results.concat(getAllTestFiles(fullPath));
+    } else if (item.endsWith('.test.ts')) {
+      results.push(fullPath);
+    }
+  }
+
+  return results;
+}
+
+function fixTestFile(filePath: string): boolean {
+  let content = fs.readFileSync(filePath, 'utf-8');
+  const originalContent = content;
+
+  // Remove node:test imports
+  content = content.replace(/import\s*\{[^}]*\}\s*from\s*['"]node:test['"];?\s*\n/g, '\n');
+  content = content.replace(/import\s*test\s*from\s*['"]node:test['"];?\s*\n/g, '\n');
+  
+  // Remove node:assert imports  
+  content = content.replace(/import\s*assert\s*from\s*['"]node:assert['"];?\s*\n/g, '\n');
+  
+  // Replace assert.strictEqual with expect().toBe()
+  content = content.replace(/assert\.strictEqual\(([^,]+),\s*([^,]+)(,\s*([^)]+))?\)/g, (match, actual, expected, _, msg) => {
+    const message = msg ? `, ${msg.trim()}` : '';
+    return `expect(${actual.trim()}).toBe(${expected.trim()}${message})`;
+  });
+  
+  // Replace assert.ok with expect().toBeTruthy()
+  content = content.replace(/assert\.ok\(([^,]+)(,\s*([^)]+))?\)/g, (match, expr, _, msg) => {
+    if (msg && msg.trim()) {
+      return `expect(${expr.trim()}).toBeTruthy() // ${msg.trim()}`;
+    }
+    return `expect(${expr.trim()}).toBeTruthy()`;
+  });
+  
+  // Replace assert.match with expect().toMatch()
+  content = content.replace(/assert\.match\(([^,]+),\s*([^,]+)(,\s*([^)]+))?\)/g, (match, actual, regex, _, msg) => {
+    const message = msg ? `, ${msg.trim()}` : '';
+    return `expect(${actual.trim()}).toMatch(${regex.trim()}${message})`;
+  });
+  
+  // Replace assert.fail with fail()
+  content = content.replace(/assert\.fail\(([^)]+)\)/g, 'fail($1)');
+  
+  // Replace assert.rejects with expect().rejects.toThrow()
+  content = content.replace(/await\s+assert\.rejects\(\s*async\s*\(\)\s*=>\s*\{([^}]+)\},\s*([^)]+)\)/g, (match, body, matcher) => {
+    return `await expect(async () => {${body}}).rejects.toThrow(${matcher})`;
+  });
+  content = content.replace(/assert\.rejects\(\s*async\s*\(\)\s*=>\s*\{([^}]+)\},\s*\/(.+)\/\)/g, (match, body, regex) => {
+    return `expect(async () => {${body}}).rejects.toMatchObject({ message: expect.stringMatching(/${regex}/) })`;
+  });
+  
+  // Remove process.exit and preceding console.log
+  content = content.replace(/\n\s*console\.log\([^)]*\);\s*\n\s*process\.exit\([^)]*\);?/g, '');
+  content = content.replace(/\n\s*process\.exit\([^)]*\);?/g, '');
+
+  if (content !== originalContent) {
+    fs.writeFileSync(filePath, content, 'utf-8');
+    return true;
+  }
+  
+  return false;
+}
+
+const testFiles = getAllTestFiles(testsDir);
+let fixedCount = 0;
+
+console.log(`Processing ${testFiles.length} test files...\n`);
+
+for (const file of testFiles) {
+  const relativePath = path.relative(process.cwd(), file);
   try {
-    let content = fs.readFileSync(filePath, 'utf-8');
-    let modified = false;
-
-    // Fix malformed default imports: "const X = import x from '...'" -> "import X from '...'"
-    content = content.replace(/const\s+(\w+)\s*=\s*import\s+\S+\s+from\s+['"]([^'"]+)['"];?/g, (match, name, modulePath) => {
-      modified = true;
-      return `import ${name} from '${modulePath}';`;
-    });
-
-    // Fix malformed named imports: "const { X } = import x from '...'" -> "import { X } from '...'"
-    content = content.replace(/const\s+\{([^}]+)\}\s*=\s*import\s+\S+\s+from\s+['"]([^'"]+)['"];?/g, (match, names, modulePath) => {
-      modified = true;
-      return `import {${names}} from '${modulePath}';`;
-    });
-
-    // Fix mixed imports: "const X = import x from '...';\nconst { Y } = import x from '...';" -> "import X, { Y } from '...'"
-    // This is handled by the above patterns separately
-
-    // Fix require statements that weren't converted
-    content = content.replace(/const\s+(\w+)\s*=\s*require\(['"]([^'"]+)['"]\);/g, (match, name, modulePath) => {
-      if (modulePath.startsWith('./') || modulePath.startsWith('../')) {
-        modified = true;
-        // Check if it's a named export or default
-        return `import ${name} from '${modulePath.replace(/\.cjs$/, '.js')}';`;
-      }
-      return match; // Keep node built-ins as require for now
-    });
-
-    // Fix destructured require statements
-    content = content.replace(/const\s+\{([^}]+)\}\s*=\s*require\(['"]([^'"]+)['"]\);/g, (match, names, modulePath) => {
-      if (modulePath.startsWith('./') || modulePath.startsWith('../')) {
-        modified = true;
-        return `import {${names}} from '${modulePath.replace(/\.cjs$/, '.js')}';`;
-      }
-      return match;
-    });
-
-    // Update .cjs extensions to .js for TypeScript module resolution
-    content = content.replace(/from\s+['"]([^'"]*)\.cjs['"]/g, (_match, p1: string) => {
-      modified = true;
-      return `from '${p1}.js'`;
-    });
-
-    if (modified) {
-      fs.writeFileSync(filePath, content, 'utf-8');
-      console.log(`✓ Fixed: ${path.basename(filePath)}`);
-      return true;
-    } else {
-      return false;
+    if (fixTestFile(file)) {
+      console.log(`✓ Fixed: ${relativePath}`);
+      fixedCount++;
     }
   } catch (err) {
-    const error = err as Error;
-    console.error(`✗ Failed: ${path.basename(filePath)} - ${error.message}`);
-    return false;
+    console.error(`✗ Error fixing ${relativePath}:`, err instanceof Error ? err.message : err);
   }
 }
 
-/**
- * Find all test files in directory
- * @param dir - Directory to search
- * @returns Array of test file paths
- */
-function findTestFiles(dir: string): string[] {
-  const files: string[] = [];
-
-  function walk(currentDir: string): void {
-    const entries = fs.readdirSync(currentDir, { withFileTypes: true });
-
-    for (const entry of entries) {
-      const fullPath = path.join(currentDir, entry.name);
-
-      if (entry.isDirectory()) {
-        if (!entry.name.startsWith('.') && entry.name !== 'node_modules') {
-          walk(fullPath);
-        }
-      } else if (entry.isFile() && entry.name.endsWith('.test.ts')) {
-        files.push(fullPath);
-      }
-    }
-  }
-
-  walk(dir);
-  return files;
-}
-
-// Main execution
-const targetDir = process.argv[2] || path.join(__dirname, '..', 'tests');
-
-console.log(`\n=== Test File Import Fixer ===`);
-console.log(`Scanning: ${targetDir}\n`);
-
-const files = findTestFiles(targetDir);
-console.log(`Found ${files.length} test files to fix\n`);
-
-let fixed = 0;
-
-for (const file of files) {
-  if (fixFile(file)) {
-    fixed++;
-  }
-}
-
-console.log(`\n=== Summary ===`);
-console.log(`Fixed: ${fixed}`);
-console.log(`Unchanged: ${files.length - fixed}`);
+console.log(`\nDone! Fixed ${fixedCount}/${testFiles.length} files.`);

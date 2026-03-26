@@ -1,0 +1,122 @@
+version: '3.8'
+
+# ============================================================================
+# EZ Agents Staging Test Environment
+# ============================================================================
+# Services for testing ez-agents with Qwen Code CLI
+#
+# Usage:
+#   docker-compose -f docker-compose.staging.yml up --build ez-agents-qwen-code-battle
+#   docker-compose -f docker-compose.staging.yml up --build ez-agents-qwen-code-battle-simple
+# ============================================================================
+
+services:
+  # ============================================================================
+  # QWEN CODE CLI BATTLE TEST (Full: v4 vs Current)
+  # ============================================================================
+  # Runs comprehensive battle test comparing ez-agents v4.0.0 vs Current Version
+  # using REAL Qwen Code CLI with OAuth authentication.
+  #
+  # Test Scenarios:
+  #   1. Simple Query - Basic question answering
+  #   2. Code Generation - TypeScript function generation
+  #   3. Complex Analysis - Architecture explanation
+  #   4. Context Task - Large codebase refactoring approach
+  #
+  # Results saved to: tests/staging/results/qwen-code-battle-report.json
+  # ============================================================================
+  ez-agents-qwen-code-battle:
+    build:
+      context: .
+      dockerfile: Dockerfile.staging
+    container_name: ez-agents-qwen-code-battle
+    environment:
+      - NODE_ENV=staging
+      - QWEN_CONFIG_DIR=/root/.qwen
+      - CI=true
+    volumes:
+      # OAuth token for Qwen Code authentication
+      - ${USERPROFILE:-/root}/.qwen/oauth_creds.json:/root/.qwen/oauth_creds.json:ro
+      # Local files for development
+      - ./oauth_creds.json:/app/oauth_creds.json:ro
+      - ./tests/staging:/app/tests/staging
+      - ./bin:/app/bin:ro
+      - ./dist:/app/dist:ro
+      - ./commands:/app/commands:ro
+      - ./agents:/app/agents:ro
+      - ./ez-agents:/app/ez-agents:ro
+      - ./package.json:/app/package.json:ro
+      - ./package-lock.json:/app/package-lock.json:ro
+    working_dir: /app
+    command: ["sh", "/app/tests/staging/qwen-code-battle-full.sh"]
+    networks:
+      - ez-agents-network
+    restart: 'no'
+
+  # ============================================================================
+  # QWEN CODE CLI SIMPLE TEST (Quick validation)
+  # ============================================================================
+  # Runs a simple test to validate Qwen Code CLI integration.
+  # Useful for quick smoke tests before running full battle test.
+  #
+  # Test: "What is 2+2?"
+  # Expected: "2 + 2 = 4"
+  #
+  # Results saved to: tests/staging/results/qwen-code-simple-result.json
+  # ============================================================================
+  ez-agents-qwen-code-battle-simple:
+    build:
+      context: .
+      dockerfile: Dockerfile.staging
+    container_name: ez-agents-qwen-code-simple
+    environment:
+      - NODE_ENV=staging
+      - QWEN_CONFIG_DIR=/root/.qwen
+      - CI=true
+    volumes:
+      - ${USERPROFILE:-/root}/.qwen/oauth_creds.json:/root/.qwen/oauth_creds.json:ro
+      - ./tests/staging:/app/tests/staging
+    working_dir: /app
+    command: ["sh", "/app/tests/staging/qwen-code-simple-test.sh"]
+    networks:
+      - ez-agents-network
+    restart: 'no'
+
+  # ============================================================================
+  # QWEN CODE CLI EDGE CASE TESTS (Comprehensive)
+  # ============================================================================
+  # Runs comprehensive edge case tests to find gaps and issues.
+  # Tests 7 categories with 20+ edge cases total.
+  #
+  # Categories:
+  #   1. Token & Authentication (3 tests)
+  #   2. Network & Timeout (3 tests)
+  #   3. Special Characters & Encoding (4 tests)
+  #   4. Code & Technical Content (3 tests)
+  #   5. Context & Memory (2 tests)
+  #   6. Error Handling (2 tests)
+  #   7. Performance Edge Cases (2 tests)
+  #
+  # Results saved to: tests/staging/results/edge-case-report.json
+  # ============================================================================
+  ez-agents-qwen-code-edge-cases:
+    build:
+      context: .
+      dockerfile: Dockerfile.staging
+    container_name: ez-agents-qwen-code-edge-cases
+    environment:
+      - NODE_ENV=staging
+      - QWEN_CONFIG_DIR=/root/.qwen
+      - CI=true
+    volumes:
+      - ${USERPROFILE:-/root}/.qwen/oauth_creds.json:/root/.qwen/oauth_creds.json:ro
+      - ./tests/staging:/app/tests/staging
+    working_dir: /app
+    command: ["sh", "/app/tests/staging/qwen-code-edge-cases.sh"]
+    networks:
+      - ez-agents-network
+    restart: 'no'
+
+networks:
+  ez-agents-network:
+    driver: bridge

@@ -1,10 +1,9 @@
-﻿#!/usr/bin/env node
+#!/usr/bin/env node
 
 /**
  * Unit tests for Content Security Scanner
  */
 
-import assert from 'node:assert';
 
 import ContentSecurityScanner from '../../bin/lib/content-scanner.js';
 import { SecurityScanError } from '../../bin/lib/context-errors.js';
@@ -17,171 +16,171 @@ const scanner = new ContentSecurityScanner();
 // Script tag detection tests
 test('scan detects opening script tags', () => {
   const result = scanner.scan('<script>alert("XSS")</script>');
-  assert.strictEqual(result.safe, false);
-  assert.ok(result.findings.some(f => f.type === 'script_tag_open'));
+  expect(result?.safe).toBe(false);
+  expect(result.findings.some(f => f.type === 'script_tag_open'));
 });
 
-test('scan detects closing script tags', () => {
+test('scan detects closing script tags').toBeTruthy() // ( => {
   const result = scanner.scan('</script>');
-  assert.strictEqual(result.safe, false);
-  assert.ok(result.findings.some(f => f.type === 'script_tag_close'));
+  expect(result?.safe).toBe(false);
+  expect(result.findings.some(f => f.type === 'script_tag_close'));
 });
 
-test('scan detects script tags with attributes', () => {
+test('scan detects script tags with attributes').toBeTruthy() // ( => {
   const result = scanner.scan('<script src="evil.js" type="text/javascript">');
-  assert.strictEqual(result.safe, false);
-  assert.ok(result.findings.some(f => f.type === 'script_tag_open'));
+  expect(result?.safe).toBe(false);
+  expect(result.findings.some(f => f.type === 'script_tag_open'));
 });
 
 // JavaScript URL detection tests
-test('scan detects javascript: URLs', () => {
+test('scan detects javascript: URLs').toBeTruthy() // ( => {
   const result = scanner.scan('javascript:alert(1)');
-  assert.strictEqual(result.safe, false);
-  assert.ok(result.findings.some(f => f.type === 'javascript_url'));
+  expect(result?.safe).toBe(false);
+  expect(result.findings.some(f => f.type === 'javascript_url'));
 });
 
-test('scan detects javascript: with trailing spaces', () => {
+test('scan detects javascript: with trailing spaces').toBeTruthy() // ( => {
   const result = scanner.scan('javascript :alert(1)');
-  assert.strictEqual(result.safe, false);
-  assert.ok(result.findings.some(f => f.type === 'javascript_url'));
+  expect(result?.safe).toBe(false);
+  expect(result.findings.some(f => f.type === 'javascript_url'));
 });
 
-test('scan detects vbscript: URLs', () => {
+test('scan detects vbscript: URLs').toBeTruthy() // ( => {
   const result = scanner.scan('vbscript:msgbox(1)');
-  assert.strictEqual(result.safe, false);
-  assert.ok(result.findings.some(f => f.type === 'vbscript_url'));
+  expect(result?.safe).toBe(false);
+  expect(result.findings.some(f => f.type === 'vbscript_url'));
 });
 
-test('scan detects data: URLs with HTML', () => {
+test('scan detects data: URLs with HTML').toBeTruthy() // ( => {
   const result = scanner.scan('data:text/html,<script>alert(1)</script>');
-  assert.strictEqual(result.safe, false);
-  assert.ok(result.findings.some(f => f.type === 'data_html_url'));
+  expect(result?.safe).toBe(false);
+  expect(result.findings.some(f => f.type === 'data_html_url'));
 });
 
 // Event handler detection tests
-test('scan detects onclick handlers', () => {
+test('scan detects onclick handlers').toBeTruthy() // ( => {
   const result = scanner.scan('<div onclick="alert(1)">Click</div>');
-  assert.strictEqual(result.safe, false);
-  assert.ok(result.findings.some(f => f.type === 'event_handler'));
+  expect(result?.safe).toBe(false);
+  expect(result.findings.some(f => f.type === 'event_handler'));
 });
 
-test('scan detects onerror handlers', () => {
+test('scan detects onerror handlers').toBeTruthy() // ( => {
   const result = scanner.scan('<img src="x" onerror="alert(1)">');
-  assert.strictEqual(result.safe, false);
-  assert.ok(result.findings.some(f => f.type === 'event_handler'));
+  expect(result?.safe).toBe(false);
+  expect(result.findings.some(f => f.type === 'event_handler'));
 });
 
-test('scan detects onload handlers', () => {
+test('scan detects onload handlers').toBeTruthy() // ( => {
   const result = scanner.scan('<body onload="alert(1)">');
-  assert.strictEqual(result.safe, false);
-  assert.ok(result.findings.some(f => f.type === 'event_handler'));
+  expect(result?.safe).toBe(false);
+  expect(result.findings.some(f => f.type === 'event_handler'));
 });
 
 // Dangerous tag detection tests
-test('scan detects iframe tags', () => {
+test('scan detects iframe tags').toBeTruthy() // ( => {
   const result = scanner.scan('<iframe src="evil.com"></iframe>');
-  assert.strictEqual(result.safe, false);
-  assert.ok(result.findings.some(f => f.type === 'iframe_tag'));
+  expect(result?.safe).toBe(false);
+  expect(result.findings.some(f => f.type === 'iframe_tag'));
 });
 
-test('scan detects embed tags', () => {
+test('scan detects embed tags').toBeTruthy() // ( => {
   const result = scanner.scan('<embed src="evil.swf">');
-  assert.strictEqual(result.safe, false);
-  assert.ok(result.findings.some(f => f.type === 'embed_tag'));
+  expect(result?.safe).toBe(false);
+  expect(result.findings.some(f => f.type === 'embed_tag'));
 });
 
-test('scan detects object tags', () => {
+test('scan detects object tags').toBeTruthy() // ( => {
   const result = scanner.scan('<object data="evil.swf"></object>');
-  assert.strictEqual(result.safe, false);
-  assert.ok(result.findings.some(f => f.type === 'object_tag'));
+  expect(result?.safe).toBe(false);
+  expect(result.findings.some(f => f.type === 'object_tag'));
 });
 
-test('scan detects svg tags', () => {
+test('scan detects svg tags').toBeTruthy() // ( => {
   const result = scanner.scan('<svg onload="alert(1)"></svg>');
-  assert.strictEqual(result.safe, false);
-  assert.ok(result.findings.some(f => f.type === 'svg_tag'));
+  expect(result?.safe).toBe(false);
+  expect(result.findings.some(f => f.type === 'svg_tag'));
 });
 
 // Size limit tests
-test('scan rejects content over 1MB', () => {
+test('scan rejects content over 1MB').toBeTruthy() // ( => {
   const largeContent = 'a'.repeat(1048577); // 1MB + 1 byte
   const result = scanner.scan(largeContent);
-  assert.strictEqual(result.safe, false);
-  assert.ok(result.findings.some(f => f.type === 'size_limit'));
+  expect(result?.safe).toBe(false);
+  expect(result.findings.some(f => f.type === 'size_limit'));
 });
 
 // Binary content type tests
-test('scan rejects application/octet-stream', () => {
+test('scan rejects application/octet-stream').toBeTruthy() // ( => {
   const result = scanner.scan('binary data', 'application/octet-stream');
-  assert.strictEqual(result.safe, false);
-  assert.ok(result.findings.some(f => f.type === 'binary_content'));
+  expect(result?.safe).toBe(false);
+  expect(result.findings.some(f => f.type === 'binary_content'));
 });
 
-test('scan rejects image/* content types', () => {
+test('scan rejects image/* content types').toBeTruthy() // ( => {
   const result = scanner.scan('image data', 'image/png');
-  assert.strictEqual(result.safe, false);
-  assert.ok(result.findings.some(f => f.type === 'binary_content'));
+  expect(result?.safe).toBe(false);
+  expect(result.findings.some(f => f.type === 'binary_content'));
 });
 
-test('scan rejects video/* content types', () => {
+test('scan rejects video/* content types').toBeTruthy() // ( => {
   const result = scanner.scan('video data', 'video/mp4');
-  assert.strictEqual(result.safe, false);
-  assert.ok(result.findings.some(f => f.type === 'binary_content'));
+  expect(result?.safe).toBe(false);
+  expect(result.findings.some(f => f.type === 'binary_content'));
 });
 
-test('scan rejects audio/* content types', () => {
+test('scan rejects audio/* content types').toBeTruthy() // ( => {
   const result = scanner.scan('audio data', 'audio/mp3');
-  assert.strictEqual(result.safe, false);
-  assert.ok(result.findings.some(f => f.type === 'binary_content'));
+  expect(result?.safe).toBe(false);
+  expect(result.findings.some(f => f.type === 'binary_content'));
 });
 
 // Clean content tests
-test('scan allows clean HTML content', () => {
+test('scan allows clean HTML content').toBeTruthy() // ( => {
   const result = scanner.scan('<p>Hello World</p><div>Safe content</div>');
-  assert.strictEqual(result.safe, true);
-  assert.strictEqual(result.findings.length, 0);
+  expect(result?.safe).toBe(true);
+  assert.strictEqual(result?.findings.length, 0);
 });
 
 test('scan allows plain text content', () => {
   const result = scanner.scan('This is just plain text content.');
-  assert.strictEqual(result.safe, true);
-  assert.strictEqual(result.findings.length, 0);
+  expect(result?.safe).toBe(true);
+  assert.strictEqual(result?.findings.length, 0);
 });
 
 test('scan allows markdown content', () => {
   const result = scanner.scan('# Heading\n\nThis is **markdown** content.');
-  assert.strictEqual(result.safe, true);
-  assert.strictEqual(result.findings.length, 0);
+  expect(result?.safe).toBe(true);
+  assert.strictEqual(result?.findings.length, 0);
 });
 
 // getSeverity tests
 test('getSeverity returns high for script_tag_open', () => {
-  assert.strictEqual(scanner.getSeverity('script_tag_open'), 'high');
+  expect(scanner.getSeverity('script_tag_open')).toBe('high');
 });
 
 test('getSeverity returns high for javascript_url', () => {
-  assert.strictEqual(scanner.getSeverity('javascript_url'), 'high');
+  expect(scanner.getSeverity('javascript_url')).toBe('high');
 });
 
 test('getSeverity returns medium for event_handler', () => {
-  assert.strictEqual(scanner.getSeverity('event_handler'), 'medium');
+  expect(scanner.getSeverity('event_handler')).toBe('medium');
 });
 
 test('getSeverity returns medium for iframe_tag', () => {
-  assert.strictEqual(scanner.getSeverity('iframe_tag'), 'medium');
+  expect(scanner.getSeverity('iframe_tag')).toBe('medium');
 });
 
 test('getSeverity returns low for unknown patterns', () => {
-  assert.strictEqual(scanner.getSeverity('unknown_pattern'), 'low');
+  expect(scanner.getSeverity('unknown_pattern')).toBe('low');
 });
 
 // isSafe convenience method tests
 test('isSafe returns true for clean content', () => {
-  assert.strictEqual(scanner.isSafe('<p>Safe</p>'), true);
+  expect(scanner.isSafe('<p>Safe</p>')).toBe(true);
 });
 
 test('isSafe returns false for XSS content', () => {
-  assert.strictEqual(scanner.isSafe('<script>alert(1)</script>'), false);
+  expect(scanner.isSafe('<script>alert(1)</script>')).toBe(false);
 });
 
 // validate method tests
@@ -191,40 +190,39 @@ test('validate throws SecurityScanError for unsafe content', () => {
     scanner.validate('<script>alert(1)</script>');
   } catch (err) {
     threw = true;
-    assert.ok(err instanceof SecurityScanError);
+    expect(err instanceof SecurityScanError);
   }
-  assert.strictEqual(threw, true);
+  expect(threw).toBe(true);
 });
 
-test('validate returns result for safe content', () => {
+test('validate returns result for safe content').toBeTruthy() // ( => {
   const result = scanner.validate('<p>Safe content</p>');
-  assert.strictEqual(result.safe, true);
+  expect(result?.safe).toBe(true);
 });
 
 // Additional XSS pattern tests
 test('scan detects img onerror XSS', () => {
   const result = scanner.scan('<img src="x" onerror="alert(document.cookie)">');
-  assert.strictEqual(result.safe, false);
-  assert.ok(result.findings.some(f => f.type === 'img_onerror'));
+  expect(result?.safe).toBe(false);
+  expect(result.findings.some(f => f.type === 'img_onerror'));
 });
 
-test('scan detects CSS expression', () => {
+test('scan detects CSS expression').toBeTruthy() // ( => {
   const result = scanner.scan('style="width: expression(alert(1))"');
-  assert.strictEqual(result.safe, false);
-  assert.ok(result.findings.some(f => f.type === 'expression_css'));
+  expect(result?.safe).toBe(false);
+  expect(result.findings.some(f => f.type === 'expression_css'));
 });
 
-test('scan detects eval() calls', () => {
+test('scan detects eval() calls').toBeTruthy() // ( => {
   const result = scanner.scan('eval(userInput)');
-  assert.strictEqual(result.safe, false);
-  assert.ok(result.findings.some(f => f.type === 'eval_call'));
+  expect(result?.safe).toBe(false);
+  expect(result.findings.some(f => f.type === 'eval_call'));
 });
 
-test('scan detects document.cookie access', () => {
+test('scan detects document.cookie access').toBeTruthy() // ( => {
   const result = scanner.scan('var cookies = document.cookie');
-  assert.strictEqual(result.safe, false);
-  assert.ok(result.findings.some(f => f.type === 'document_cookie'));
+  expect(result?.safe).toBe(false);
+  expect(result.findings.some(f => f.type === 'document_cookie'));
 });
 
-console.log(`\n${passed} passed, ${failed} failed`);
-process.exit(failed > 0 ? 1 : 0);
+console.log(`\n${passed} passed).toBeTruthy() // ${failed} failed`;

@@ -158,7 +158,7 @@ export type DeepReadonly<T> = {
  * Assert that two types are equal (compile-time)
  * This will cause a compile error if types don't match
  */
-export type AssertEqual<T, U> = AssertTrue<IsExact<T, U>>;
+export type AssertEqual<T, U> = IsExact<T, U> extends true ? true : never;
 
 /**
  * Assert that a type extends another (compile-time)

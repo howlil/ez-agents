@@ -104,6 +104,7 @@
     "eslint-plugin-sonarjs": "^4.0.2",
     "eslint-plugin-tsdoc": "^0.5.2",
     "expect-type": "^1.3.0",
+    "glob": "^13.0.6",
     "husky": "^9.1.7",
     "js-yaml": "^4.1.1",
     "jscpd": "^4.0.8",
@@ -131,10 +132,19 @@
     "lint:fix": "eslint . --ext .ts --fix",
     "build:hooks": "node --loader ts-node/esm scripts/build-hooks.ts",
     "prepublishOnly": "npm run build:hooks && npm run build",
-    "test": "node scripts/run-tests.cjs",
-    "test:coverage": "c8 --check-coverage --lines 70 --reporter text --include 'bin/lib/**/*.ts' --exclude 'tests/**' --all node scripts/run-tests.cjs",
+    "test": "tsx scripts/run-tests.ts",
+    "test:coverage": "c8 --check-coverage --lines 70 --reporter text --include 'bin/lib/**/*.ts' --exclude 'tests/**' --all tsx scripts/run-tests.ts",
     "test:a11y": "node tests/accessibility/run-a11y-tests.cjs",
-    "test:load": "k6 run tests/perf/load-test.js",
+    "test:qwen:code": "sh tests/staging/qwen-code-battle-full.sh",
+    "test:qwen:code:simple": "sh tests/staging/qwen-code-simple-test.sh",
+    "test:qwen:code:edge": "sh tests/staging/qwen-code-edge-cases.sh",
+    "test:docker:qwen:code": "docker-compose -f docker-compose.staging.yml up --build ez-agents-qwen-code-battle",
+    "test:docker:qwen:edge": "docker-compose -f docker-compose.staging.yml up --build ez-agents-qwen-code-edge-cases",
+    "test:docker:all": "docker-compose -f docker-compose.staging.yml up --build --abort-on-container-exit",
+    "install:production": "node --loader ts-node/esm scripts/install-production.ts",
+    "install:production:latest": "node --loader ts-node/esm scripts/install-production.ts latest",
+    "install:production:v4": "node --loader ts-node/esm scripts/install-production.ts 4.0.0",
+    "validate:token": "node --loader ts-node/esm scripts/validate-token.ts",
     "security:scan": "npm audit --audit-level=moderate",
     "docs:generate": "jsdoc -c jsdoc.json -r bin/ ez-agents/bin/lib/",
     "docs:api": "typedoc",
@@ -153,7 +163,7 @@
       "node --test"
     ],
     "*.md": [
-      "node scripts/run-tests.cjs"
+      "tsx scripts/run-tests.ts"
     ]
   },
   "dependencies": {

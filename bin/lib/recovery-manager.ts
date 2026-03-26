@@ -84,9 +84,9 @@ export class RecoveryManager {
         }
         return {
           backup_id: d.name,
-          created_at: manifest?.created_at as string | undefined,
-          commit_sha: manifest?.commit_sha as string | undefined,
-          files_count: (manifest?.files as unknown[])?.length || 0,
+          created_at: (manifest?.created_at as string) ?? null,
+          commit_sha: (manifest?.commit_sha as string) ?? null,
+          files_count: Array.isArray(manifest?.files) ? manifest.files.length : 0,
           manifest,
         };
       })

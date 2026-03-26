@@ -6,6 +6,7 @@ import { execSync, spawnSync } from 'child_process';
 import fs from 'fs';
 import path from 'path';
 import os from 'os';
+import { fileURLToPath } from 'url';
 
 // ─── Type Definitions ────────────────────────────────────────────────────────
 
@@ -18,7 +19,9 @@ export interface EzToolsResult {
 
 // ─── Constants ───────────────────────────────────────────────────────────────
 
-const EZ_TOOLS_PATH = path.join(__dirname, '..', 'ez-agents', 'bin', 'ez-tools.cjs');
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+const EZ_TOOLS_PATH = path.join(__dirname, '..', 'dist', 'bin', 'ez-tools.js');
 
 // ─── Functions ───────────────────────────────────────────────────────────────
 
@@ -26,23 +29,24 @@ const EZ_TOOLS_PATH = path.join(__dirname, '..', 'ez-agents', 'bin', 'ez-tools.c
  * Run ez-tools command.
  *
  * @param args - Command string (shell-interpreted) or array of arguments (shell-bypassed, safe for JSON and dollar signs)
- * @param cwd - Working directory
+ * @param cwd - Working directory (defaults to process.cwd())
  * @param envOverrides - Optional env var overrides
  * @returns Result object with success, output, and optional stderr/error
  */
 export function runEzTools(
   args: string | string[],
-  cwd: string = process.cwd(),
-  envOverrides: Record<string, string> = {}
+  cwd?: string | undefined,
+  envOverrides?: Record<string, string> | undefined
 ): EzToolsResult {
+  const actualCwd = cwd ?? process.cwd();
+  const env = { ...process.env, ...(envOverrides ?? {}) };
   try {
-    const env = { ...process.env, ...envOverrides };
     let result: EzToolsResult;
 
     if (Array.isArray(args)) {
       // Use spawnSync for array args to properly capture stdout/stderr
       const spawnResult = spawnSync(process.execPath, [EZ_TOOLS_PATH, ...args], {
-        cwd,
+        cwd: actualCwd,
         env,
         encoding: 'utf-8',
         stdio: ['pipe', 'pipe', 'pipe']
@@ -55,7 +59,7 @@ export function runEzTools(
       };
     } else {
       const output = execSync(`node "${EZ_TOOLS_PATH}" ${args}`, {
-        cwd,
+        cwd: actualCwd,
         env,
         encoding: 'utf-8',
         stdio: ['pipe', 'pipe', 'pipe']

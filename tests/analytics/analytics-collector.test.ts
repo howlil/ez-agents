@@ -8,12 +8,12 @@
  * Requirement: ANALYTICS-01
  */
 
-const { test, describe, beforeEach, afterEach } = require('node:test');
-import assert from 'node:assert';
+
+
 import * as path from 'path';
 import * as fs from 'fs';
 
-import AnalyticsCollector from '../../bin/lib/analytics-collector.js';
+import { AnalyticsCollector } from '../../bin/lib/analytics/analytics-collector.js';
 
 describe('AnalyticsCollector', () => {
   let tmpDir, collector;
@@ -26,7 +26,7 @@ describe('AnalyticsCollector', () => {
   afterEach(() => cleanup(tmpDir));
 
   test('constructor does not throw', () => {
-    assert.ok(collector, 'AnalyticsCollector instance must be created without throwing');
+    expect(collector).toBeTruthy() // 'AnalyticsCollector instance must be created without throwing';
   });
 
   test('track() records event with timestamp and metadata', async () => {
@@ -39,33 +39,33 @@ describe('AnalyticsCollector', () => {
     await collector.track(event);
 
     const dataPath = path.join(tmpDir, '.planning', 'analytics.json');
-    assert.ok(fs.existsSync(dataPath), 'analytics.json must exist after track()');
+    expect(fs.existsSync(dataPath)).toBeTruthy() // 'analytics.json must exist after track(');
 
     const data = JSON.parse(fs.readFileSync(dataPath, 'utf8'));
-    assert.ok(Array.isArray(data.events), 'analytics.json must have events array');
-    assert.ok(data.events.length > 0, 'events must have at least one record');
+    expect(Array.isArray(data.events)).toBeTruthy() // 'analytics.json must have events array';
+    expect(data.events.length > 0).toBeTruthy() // 'events must have at least one record';
 
     const recorded = data.events[0];
-    assert.strictEqual(recorded.name, 'page_view', 'event name must match');
-    assert.strictEqual(recorded.userId, 'user-123', 'userId must match');
-    assert.ok(recorded.timestamp, 'timestamp must be present');
+    expect(recorded.name).toBe('page_view', 'event name must match');
+    expect(recorded.userId).toBe('user-123', 'userId must match');
+    expect(recorded.timestamp).toBeTruthy() // 'timestamp must be present';
     assert.deepStrictEqual(recorded.properties, event.properties, 'properties must match');
   });
 
   test('startSession() creates session with unique ID', async () => {
     const sessionId = await collector.startSession({ userId: 'user-456' });
 
-    assert.ok(sessionId, 'sessionId must be returned');
-    assert.ok(typeof sessionId === 'string', 'sessionId must be a string');
+    expect(sessionId).toBeTruthy() // 'sessionId must be returned';
+    expect(typeof sessionId === 'string').toBeTruthy() // 'sessionId must be a string';
 
     const dataPath = path.join(tmpDir, '.planning', 'analytics.json');
     const data = JSON.parse(fs.readFileSync(dataPath, 'utf8'));
-    assert.ok(Array.isArray(data.sessions), 'analytics.json must have sessions array');
+    expect(Array.isArray(data.sessions)).toBeTruthy() // 'analytics.json must have sessions array';
 
     const session = data.sessions.find(s => s.id === sessionId);
-    assert.ok(session, 'session must be recorded');
-    assert.strictEqual(session.userId, 'user-456', 'session userId must match');
-    assert.ok(session.startTime, 'session startTime must be present');
+    expect(session).toBeTruthy() // 'session must be recorded';
+    expect(session.userId).toBe('user-456', 'session userId must match');
+    expect(session.startTime).toBeTruthy() // 'session startTime must be present';
   });
 
   test('endSession() closes session with duration', async () => {
@@ -80,10 +80,10 @@ describe('AnalyticsCollector', () => {
     const data = JSON.parse(fs.readFileSync(dataPath, 'utf8'));
 
     const session = data.sessions.find(s => s.id === sessionId);
-    assert.ok(session, 'session must exist');
-    assert.ok(session.endTime, 'session endTime must be present');
-    assert.ok(session.duration, 'session duration must be calculated');
-    assert.strictEqual(session.status, 'completed', 'session status must be completed');
+    expect(session).toBeTruthy() // 'session must exist';
+    expect(session.endTime).toBeTruthy() // 'session endTime must be present';
+    expect(session.duration).toBeTruthy() // 'session duration must be calculated';
+    expect(session.status).toBe('completed', 'session status must be completed');
   });
 
   test('getEvents() returns filtered events by name', async () => {
@@ -93,10 +93,10 @@ describe('AnalyticsCollector', () => {
 
     const pageViews = collector.getEvents({ name: 'page_view' });
 
-    assert.ok(Array.isArray(pageViews), 'getEvents must return array');
-    assert.strictEqual(pageViews.length, 2, 'must return only matching events');
+    expect(Array.isArray(pageViews)).toBeTruthy() // 'getEvents must return array';
+    expect(pageViews.length).toBe(2, 'must return only matching events');
     pageViews.forEach(ev => {
-      assert.strictEqual(ev.name, 'page_view', 'all events must match filter');
+      expect(ev.name).toBe('page_view', 'all events must match filter');
     });
   });
 });

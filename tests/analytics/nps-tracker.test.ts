@@ -8,25 +8,25 @@
  * Requirement: ANALYTICS-02
  */
 
-const { test, describe, beforeEach, afterEach } = require('node:test');
-import assert from 'node:assert';
+
+
 import * as path from 'path';
 import * as fs from 'fs';
 
-import NPSTracker from '../../bin/lib/nps-tracker.js';
+import { NpsTracker } from '../../bin/lib/analytics/nps-tracker.js';
 
 describe('NPSTracker', () => {
   let tmpDir, tracker;
 
   beforeEach(() => {
     tmpDir = createTempProject();
-    tracker = new NPSTracker(tmpDir);
+    tracker = new NpsTracker(tmpDir);
   });
 
   afterEach(() => cleanup(tmpDir));
 
   test('constructor does not throw', () => {
-    assert.ok(tracker, 'NPSTracker instance must be created without throwing');
+    expect(tracker).toBeTruthy() // 'NPSTracker instance must be created without throwing';
   });
 
   test('recordResponse() categorizes promoters (9-10), passives (7-8), detractors (0-6)', async () => {
@@ -39,16 +39,16 @@ describe('NPSTracker', () => {
     const dataPath = path.join(tmpDir, '.planning', 'nps.json');
     const data = JSON.parse(fs.readFileSync(dataPath, 'utf8'));
 
-    assert.ok(Array.isArray(data.responses), 'nps.json must have responses array');
-    assert.strictEqual(data.responses.length, 5, 'must have 5 responses');
+    expect(Array.isArray(data.responses)).toBeTruthy() // 'nps.json must have responses array';
+    expect(data.responses.length).toBe(5, 'must have 5 responses');
 
     const promoters = data.responses.filter(r => r.category === 'promoter');
     const passives = data.responses.filter(r => r.category === 'passive');
     const detractors = data.responses.filter(r => r.category === 'detractor');
 
-    assert.strictEqual(promoters.length, 2, 'must have 2 promoters (scores 9-10)');
-    assert.strictEqual(passives.length, 1, 'must have 1 passive (score 7-8)');
-    assert.strictEqual(detractors.length, 2, 'must have 2 detractors (scores 0-6)');
+    expect(promoters.length).toBe(2, 'must have 2 promoters (scores 9-10)');
+    expect(passives.length).toBe(1, 'must have 1 passive (score 7-8)');
+    expect(detractors.length).toBe(2, 'must have 2 detractors (scores 0-6)');
   });
 
   test('calculateScore() returns NPS = %promoters - %detractors', async () => {
@@ -61,12 +61,12 @@ describe('NPSTracker', () => {
 
     const result = tracker.calculateScore();
 
-    assert.ok(result, 'calculateScore must return result');
-    assert.strictEqual(result.nps, 25, 'NPS must be 25 (50% promoters - 25% detractors)');
-    assert.strictEqual(result.totalResponses, 4, 'totalResponses must be 4');
-    assert.strictEqual(result.promoters, 2, 'promoters count must be 2');
-    assert.strictEqual(result.passives, 1, 'passives count must be 1');
-    assert.strictEqual(result.detractors, 1, 'detractors count must be 1');
+    expect(result).toBeTruthy() // 'calculateScore must return result';
+    expect(result?.nps).toBe(25, 'NPS must be 25 (50% promoters - 25% detractors)');
+    expect(result?.totalResponses).toBe(4, 'totalResponses must be 4');
+    expect(result?.promoters).toBe(2, 'promoters count must be 2');
+    expect(result?.passives).toBe(1, 'passives count must be 1');
+    expect(result?.detractors).toBe(1, 'detractors count must be 1');
   });
 
   test('getTrend() returns NPS change over time periods', async () => {
@@ -79,8 +79,8 @@ describe('NPSTracker', () => {
 
     const trend = tracker.getTrend({ periodDays: 7 });
 
-    assert.ok(trend, 'getTrend must return trend data');
-    assert.ok(Array.isArray(trend.periods), 'trend must have periods array');
-    assert.ok(trend.direction, 'trend must have direction (improving/declining/stable)');
+    expect(trend).toBeTruthy() // 'getTrend must return trend data';
+    expect(Array.isArray(trend.periods)).toBeTruthy() // 'trend must have periods array';
+    expect(trend.direction).toBeTruthy() // 'trend must have direction (improving/declining/stable');
   });
 });

@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { detect } from '../../ez-agents/bin/lib/deploy/deploy-detector.js';
+import { detect } from '../../bin/lib/deploy/deploy-detector.js';
 import * as fs from 'fs';
 import * as path from 'path';
 import * as os from 'os';

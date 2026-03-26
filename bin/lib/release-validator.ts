@@ -93,7 +93,7 @@ export function hasHighEntropy(str: string, threshold = 4.5): boolean {
   const len = str.length;
   let entropy = 0;
   for (const c in freq) {
-    const p = freq[c] / len;
+    const p = (freq[c] ?? 0) / len;
     entropy -= p * Math.log2(p);
   }
   return entropy > threshold;
@@ -147,7 +147,8 @@ export function runSecurityGates(cwd = process.cwd()): SecurityGatesResult {
     execSync('npm audit --audit-level=critical 2>/dev/null', { cwd, stdio: 'pipe' });
     gates.push({ name: 'npm_audit', label: 'npm audit — no critical vulnerabilities', passed: true, blocking: true, detail: 'Clean' });
   } catch (err) {
-    const output = err.stdout ? err.stdout.toString() : '';
+    const error = err as Error & { stdout?: Buffer };
+    const output = error.stdout ? error.stdout.toString() : '';
     const criticals = (output.match(/critical/gi) || []).length;
     gates.push({
       name: 'npm_audit',

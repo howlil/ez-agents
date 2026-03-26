@@ -64,4 +64,4 @@ export {
   cleanup,
   EZ_TOOLS_PATH_CONST,
   type EzToolsResult
-} from '../helpers.js';
+} from '../helpers.ts';
