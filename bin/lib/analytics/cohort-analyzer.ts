@@ -10,16 +10,30 @@ import * as path from 'path';
  * Cohort definition
  */
 export interface Cohort {
+  /** Cohort name */
+  name: string;
   /** Cohort start date */
   startDate: string;
   /** Cohort end date */
   endDate: string;
+  /** Cohort criteria */
+  criteria?: { event?: string };
   /** User IDs in cohort */
-  users: string[];
+  users?: string[];
   /** Cohort size */
-  size: number;
+  size?: number;
   /** Creation timestamp */
-  createdAt: string;
+  createdAt?: string;
+}
+
+/**
+ * Cohorts data structure
+ */
+export interface CohortsData {
+  /** Cohorts array */
+  cohorts: Cohort[];
+  /** User memberships */
+  memberships: Record<string, string[]>;
 }
 
 /**
@@ -47,6 +61,20 @@ export interface RetentionResult {
 }
 
 /**
+ * Cohort definition input
+ */
+export interface CohortDefinition {
+  /** Cohort name */
+  name: string;
+  /** Start date */
+  startDate: string;
+  /** End date */
+  endDate: string;
+  /** Cohort criteria */
+  criteria?: { event?: string };
+}
+
+/**
  * Period definition
  */
 export interface Period {
@@ -60,29 +88,56 @@ export class CohortAnalyzer {
 
   constructor(cwd?: string) {
     this.cwd = cwd || process.cwd();
-    this.cohortsPath = path.join(this.cwd, '.planning', 'analytics', 'cohorts.json');
+    this.cohortsPath = path.join(this.cwd, '.planning', 'cohorts.json');
     this.ensureFile();
   }
 
   /**
-   * Define a cohort by date range
-   * @param name - Cohort name
-   * @param startDate - Start date (ISO)
-   * @param endDate - End date (ISO)
-   * @param users - User IDs in cohort
+   * Define a cohort
+   * @param cohort - Cohort definition { name, startDate, endDate, criteria }
    */
-  defineCohort(name: string, startDate: string, endDate: string, users: string[]): void {
-    const cohorts = this.getCohorts();
-
-    cohorts[name] = {
-      startDate,
-      endDate,
-      users,
-      size: users.length,
+  async defineCohort(cohort: CohortDefinition): Promise<void> {
+    const data = this.getCohortsData();
+    
+    const newCohort: Cohort = {
+      name: cohort.name,
+      startDate: cohort.startDate,
+      endDate: cohort.endDate,
+      criteria: cohort.criteria,
+      users: [],
+      size: 0,
       createdAt: new Date().toISOString()
     };
 
-    this.saveCohorts(cohorts);
+    data.cohorts.push(newCohort);
+    this.saveCohortsData(data);
+  }
+
+  /**
+   * Add user to cohort
+   * @param userId - User ID
+   * @param signupDate - User signup date
+   */
+  async addUserToCohort(userId: string, signupDate: string): Promise<void> {
+    const data = this.getCohortsData();
+    const signupTs = new Date(signupDate).getTime();
+
+    // Find matching cohort
+    for (const cohort of data.cohorts) {
+      const startTs = new Date(cohort.startDate).getTime();
+      const endTs = new Date(cohort.endDate).getTime();
+
+      if (signupTs >= startTs && signupTs <= endTs) {
+        if (!data.memberships[cohort.name]) {
+          data.memberships[cohort.name] = [];
+        }
+        if (!data.memberships[cohort.name].includes(userId)) {
+          data.memberships[cohort.name].push(userId);
+        }
+      }
+    }
+
+    this.saveCohortsData(data);
   }
 
   /**
@@ -91,23 +146,25 @@ export class CohortAnalyzer {
    * @param periods - Time periods to analyze
    * @returns Retention data
    */
-  calculateRetention(cohortName: string, periods: Period[] = []): RetentionResult {
-    const cohorts = this.getCohorts();
-    const cohort = cohorts[cohortName];
+  async calculateRetention(cohortName: string, periods: Period[] = []): Promise<RetentionResult> {
+    const data = this.getCohortsData();
+    const cohort = data.cohorts.find(c => c.name === cohortName);
 
     if (!cohort) {
-      return { error: 'Cohort not found' } as unknown as RetentionResult;
+      throw new Error(`Cohort ${cohortName} not found`);
     }
 
+    const members = data.memberships[cohortName] || [];
+    const initialSize = members.length;
     const retention: RetentionPeriod[] = [];
-    const initialSize = cohort.size;
 
     for (const period of periods) {
-      const activeUsers = this.getActiveUsersInPeriod(cohortName, period);
+      // Placeholder - would track actual user activity
+      const activeUsers = members.length; // Return all for now
       retention.push({
         period: period.name,
-        activeUsers: activeUsers.length,
-        retentionRate: initialSize > 0 ? Math.round((activeUsers.length / initialSize) * 100) : 0
+        activeUsers,
+        retentionRate: initialSize > 0 ? Math.round((activeUsers / initialSize) * 100) : 0
       });
     }
 
@@ -115,36 +172,65 @@ export class CohortAnalyzer {
   }
 
   /**
-   * Get active users in a period
-   * @param cohortName - Cohort name
-   * @param period - Period definition
-   * @returns Active user IDs
+   * Compare cohorts
+   * @param cohortNames - Array of cohort names to compare
+   * @returns Comparative metrics
    */
-  private getActiveUsersInPeriod(cohortName: string, period: Period): string[] {
-    // Placeholder - would track actual user activity
-    const cohorts = this.getCohorts();
-    const cohort = cohorts[cohortName];
-    if (!cohort) return [];
+  async compareCohorts(cohortNames: string[]): Promise<Record<string, { size: number; retention?: number }>> {
+    const data = this.getCohortsData();
+    const result: Record<string, { size: number; retention?: number }> = {};
 
-    // Return all users for now (placeholder)
-    return cohort.users;
+    for (const name of cohortNames) {
+      const members = data.memberships[name] || [];
+      result[name] = {
+        size: members.length,
+        retention: members.length > 0 ? 100 : 0
+      };
+    }
+
+    return result;
   }
 
   /**
-   * Get all cohorts
-   * @returns All cohorts
+   * Get cohort metrics
+   * @param cohortName - Cohort name
+   * @returns Cohort metrics
    */
-  getCohorts(): Record<string, Cohort> {
-    if (!fs.existsSync(this.cohortsPath)) return {};
+  async getCohortMetrics(cohortName: string): Promise<{ name: string; size: number; activity?: number; lifetimeValue?: number }> {
+    const data = this.getCohortsData();
+    const cohort = data.cohorts.find(c => c.name === cohortName);
+
+    if (!cohort) {
+      throw new Error(`Cohort ${cohortName} not found`);
+    }
+
+    const members = data.memberships[cohortName] || [];
+
+    return {
+      name: cohortName,
+      size: members.length,
+      activity: members.length > 0 ? 100 : 0,
+      lifetimeValue: members.length * 10 // Placeholder
+    };
+  }
+
+  /**
+   * Get cohorts data
+   * @returns Cohorts data
+   */
+  private getCohortsData(): CohortsData {
+    if (!fs.existsSync(this.cohortsPath)) {
+      return { cohorts: [], memberships: {} };
+    }
     return JSON.parse(fs.readFileSync(this.cohortsPath, 'utf8'));
   }
 
   /**
-   * Save cohorts
-   * @param cohorts - Cohorts to save
+   * Save cohorts data
+   * @param data - Data to save
    */
-  private saveCohorts(cohorts: Record<string, Cohort>): void {
-    fs.writeFileSync(this.cohortsPath, JSON.stringify(cohorts, null, 2), 'utf8');
+  private saveCohortsData(data: CohortsData): void {
+    fs.writeFileSync(this.cohortsPath, JSON.stringify(data, null, 2), 'utf8');
   }
 
   /**
@@ -156,22 +242,30 @@ export class CohortAnalyzer {
       fs.mkdirSync(dir, { recursive: true });
     }
     if (!fs.existsSync(this.cohortsPath)) {
-      fs.writeFileSync(this.cohortsPath, '{}', 'utf8');
+      fs.writeFileSync(this.cohortsPath, JSON.stringify({ cohorts: [], memberships: {} }, null, 2), 'utf8');
     }
   }
 }
 
 /**
  * Define a cohort
- * @param name - Cohort name
- * @param startDate - Start date
- * @param endDate - End date
- * @param users - User IDs
+ * @param cohort - Cohort definition
  * @param cwd - Working directory
  */
-export function defineCohort(name: string, startDate: string, endDate: string, users: string[], cwd?: string): void {
+export async function defineCohort(cohort: CohortDefinition, cwd?: string): Promise<void> {
   const analyzer = new CohortAnalyzer(cwd);
-  return analyzer.defineCohort(name, startDate, endDate, users);
+  return analyzer.defineCohort(cohort);
+}
+
+/**
+ * Add user to cohort
+ * @param userId - User ID
+ * @param signupDate - Signup date
+ * @param cwd - Working directory
+ */
+export async function addUserToCohort(userId: string, signupDate: string, cwd?: string): Promise<void> {
+  const analyzer = new CohortAnalyzer(cwd);
+  return analyzer.addUserToCohort(userId, signupDate);
 }
 
 /**
@@ -181,7 +275,7 @@ export function defineCohort(name: string, startDate: string, endDate: string, u
  * @param cwd - Working directory
  * @returns Retention data
  */
-export function calculateRetention(cohortName: string, periods: Period[], cwd?: string): RetentionResult {
+export async function calculateRetention(cohortName: string, periods: Period[], cwd?: string): Promise<RetentionResult> {
   const analyzer = new CohortAnalyzer(cwd);
   return analyzer.calculateRetention(cohortName, periods);
 }
