@@ -225,7 +225,10 @@ export class ArchetypeDetector {
     for (const [archetype, config] of Object.entries(this.archetypePatterns)) {
       for (const pattern of config.patterns) {
         if (nameWithoutExt.toLowerCase().includes(pattern.toLowerCase())) {
-          scores[archetype] += 1;
+          const currentScore = scores[archetype];
+          if (currentScore !== undefined) {
+            scores[archetype] = currentScore + 1;
+          }
           const archetypeEvidence = evidence[archetype];
           if (archetypeEvidence) {
             archetypeEvidence.push({
@@ -247,7 +250,10 @@ export class ArchetypeDetector {
     for (const [archetype, config] of Object.entries(this.archetypePatterns)) {
       for (const pattern of config.patterns) {
         if (dirName.toLowerCase().includes(pattern.toLowerCase())) {
-          scores[archetype] += 2; // Directories are stronger signals
+          const currentScore = scores[archetype];
+          if (currentScore !== undefined) {
+            scores[archetype] = currentScore + 2; // Directories are stronger signals
+          }
           const archetypeEvidence = evidence[archetype];
           if (archetypeEvidence) {
             archetypeEvidence.push({
@@ -269,7 +275,10 @@ export class ArchetypeDetector {
     for (const [archetype, config] of Object.entries(this.archetypePatterns)) {
       for (const routePattern of config.routes) {
         if (routePath.toLowerCase().includes(routePattern.toLowerCase())) {
-          scores[archetype] += 2;
+          const currentScore = scores[archetype];
+          if (currentScore !== undefined) {
+            scores[archetype] = currentScore + 2;
+          }
           const archetypeEvidence = evidence[archetype];
           if (archetypeEvidence) {
             archetypeEvidence.push({
@@ -292,7 +301,10 @@ export class ArchetypeDetector {
       for (const depPattern of config.dependencies) {
         for (const dep of dependencies) {
           if (dep.toLowerCase().includes(depPattern.toLowerCase())) {
-            scores[archetype] += 3; // Dependencies are strong signals
+            const currentScore = scores[archetype];
+            if (currentScore !== undefined) {
+              scores[archetype] = currentScore + 3; // Dependencies are strong signals
+            }
             const archetypeEvidence = evidence[archetype];
             if (archetypeEvidence) {
               archetypeEvidence.push({

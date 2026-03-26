@@ -55,12 +55,12 @@ export class DependencyGraph {
   constructor(rootPath: string, options: DependencyGraphOptions = {}) {
     this.rootPath = rootPath;
     this.options = {
-      entry: options.entry || null,
+      entry: options.entry,
       detectCircular: options.detectCircular !== false,
       includeNpm: options.includeNpm || false,
       tsConfig: options.tsConfig || 'tsconfig.json',
       fileExtensions: options.fileExtensions || ['.ts', '.tsx', '.js', '.jsx'],
-      extensions: options.fileExtensions?.map(ext => ext.replace('.', '')) || ['ts', 'tsx', 'js', 'jsx'],
+      extensions: (options.fileExtensions || ['.ts', '.tsx', '.js', '.jsx']).map(ext => ext.replace('.', '')),
       ...options
     };
     this.nodes = [];
@@ -77,15 +77,15 @@ export class DependencyGraph {
    * @param entryPoint - Optional entry point file
    * @returns Graph object with nodes, edges, circular, orphan, leafs
    */
-  async build(rootPath: string = this.rootPath, entryPoint: string | null = this.options.entry || null): Promise<DependencyGraphResult> {
+  async build(rootPath: string = this.rootPath, entryPoint: string | null = this.options.entry ?? null): Promise<DependencyGraphResult> {
     try {
       const madge = await import('madge');
 
       const config = {
-        entry: entryPoint || undefined,
+        entry: entryPoint ?? undefined,
         detectCircular: this.options.detectCircular,
         includeNpm: this.options.includeNpm,
-        tsConfig: path.join(rootPath, this.options.tsConfig),
+        tsConfig: path.join(rootPath, this.options.tsConfig as string),
         fileExtensions: this.options.fileExtensions,
         extensions: this.options.extensions
       };
@@ -105,8 +105,8 @@ export class DependencyGraph {
       }
 
       // Build glob pattern
-      const patterns = this.options.fileExtensions!
-        .flatMap(ext => [
+      const patterns = (this.options.fileExtensions || [])
+        .flatMap((ext: string) => [
           path.join(searchPath, `**/*${ext}`),
           path.join(rootPath, `bin/**/*${ext}`),
           path.join(rootPath, 'commands/**/*${ext}')
@@ -124,7 +124,7 @@ export class DependencyGraph {
       };
       const depGraph = await madgeModule.default(patterns.length > 0 ? patterns : searchPath, {
         ...config,
-        tsConfig: fs.existsSync(config.tsConfig!) ? config.tsConfig : undefined
+        tsConfig: config.tsConfig && fs.existsSync(config.tsConfig) ? config.tsConfig : undefined
       });
 
       this.nodes = depGraph.nodes() as string[];
@@ -309,7 +309,7 @@ export class DependencyGraph {
           this.getAllSourceFiles(fullPath, files);
         } else if (entry.isFile()) {
           const ext = path.extname(entry.name);
-          if (this.options.fileExtensions!.includes(ext)) {
+          if ((this.options.fileExtensions as string[] || []).includes(ext)) {
             files.push(fullPath);
           }
         }

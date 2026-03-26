@@ -131,4 +131,29 @@ export class FileOperations {
       fs.mkdirSync(dirPath, { recursive: true });
     }
   }
+
+  /**
+   * Read and parse a JSON file
+   * @param filePath - Path to the JSON file
+   * @returns Parsed JSON object
+   * @throws {Error} If file doesn't exist or contains invalid JSON
+   */
+  static readJsonFile<T = any>(filePath: string): Promise<T> {
+    return import('fs/promises').then(({ readFile }) =>
+      readFile(filePath, 'utf-8').then((content) => JSON.parse(content))
+    );
+  }
+
+  /**
+   * Write an object to a JSON file
+   * @param filePath - Path to the JSON file
+   * @param data - Data to write
+   * @throws {Error} If file cannot be written
+   */
+  static async writeJsonFile<T>(filePath: string, data: T): Promise<void> {
+    const { writeFile, mkdir } = await import('fs/promises');
+    const dir = path.dirname(filePath);
+    await mkdir(dir, { recursive: true });
+    await writeFile(filePath, JSON.stringify(data, null, 2), 'utf-8');
+  }
 }
