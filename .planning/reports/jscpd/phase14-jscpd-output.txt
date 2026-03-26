@@ -1,0 +1,5 @@
+
+> @howlil/ez-agents@4.0.0 check:duplicates
+> jscpd --config .jscpd.json
+
+[3m[90mDetection time:[39m[23m: 0.189ms

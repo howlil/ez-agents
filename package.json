@@ -137,9 +137,12 @@
     "test:load": "k6 run tests/perf/load-test.js",
     "security:scan": "npm audit --audit-level=moderate",
     "docs:generate": "jsdoc -c jsdoc.json -r bin/ ez-agents/bin/lib/",
+    "docs:api": "typedoc",
     "analyze:duplicates": "jscpd --config .jscpd.json",
     "check:duplicates": "jscpd --config .jscpd.json",
-    "analyze:complexity": "eslint --rule 'complexity: error' bin/lib/",
+    "check:coupling": "madge --circular bin/lib/",
+    "check:abstractions": "ts-prune",
+    "check:all-metrics": "npm run lint && npm run check:duplicates && npm run check:coupling",
     "prepare": "husky"
   },
   "lint-staged": {

@@ -1,0 +1,15 @@
+{
+  "$schema": "https://typedoc.org/schema.json",
+  "entryPoints": ["bin/lib/index.ts"],
+  "out": ".planning/reports/api-docs",
+  "plugin": ["typedoc-plugin-missing-exports"],
+  "excludePrivate": true,
+  "excludeProtected": true,
+  "excludeInternal": true,
+  "validation": {
+    "missingExports": true,
+    "notExported": true
+  },
+  "tsconfig": "./tsconfig.json",
+  "readme": "none"
+}

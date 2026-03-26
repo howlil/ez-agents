@@ -1,0 +1,1028 @@
+\bin\install.ts:3236 - testExports (used in module)
+\bin\update.ts:33 - Updater (used in module)
+\bin\update.ts:200 - VersionChecker (used in module)
+\bin\update.ts:265 - UpdateInstaller (used in module)
+\bin\update.ts:332 - ChangelogReader (used in module)
+\scripts\build-hooks.ts:24 - HookDefinition (used in module)
+\scripts\build-hooks.ts:41 - BuildHookManager (used in module)
+\scripts\build-hooks.ts:98 - HookCopier (used in module)
+\scripts\fix-qwen-installation.ts:26 - InstallationStatus (used in module)
+\scripts\fix-qwen-installation.ts:38 - VerificationResult (used in module)
+\scripts\fix-qwen-installation.ts:53 - QwenFixer (used in module)
+\scripts\fix-qwen-installation.ts:156 - DiagnosticService (used in module)
+\scripts\fix-qwen-installation.ts:237 - RepairService (used in module)
+\scripts\fix-qwen-installation.ts:310 - InstallationVerifier
+\scripts\migrate-cjs-to-ts.ts:58 - convertImports (used in module)
+\scripts\migrate-cjs-to-ts.ts:84 - convertExports (used in module)
+\scripts\migrate-cjs-to-ts.ts:109 - addBasicTypes (used in module)
+\scripts\migrate-cjs-to-ts.ts:127 - processFile (used in module)
+\scripts\migrate-cjs-to-ts.ts:142 - migrate (used in module)
+\tests\test-utils.ts:19 - createTempDir
+\tests\test-utils.ts:27 - cleanupTempDir
+\tests\test-utils.ts:39 - test
+\tests\test-utils.ts:60 - getTestStats
+\tests\test-utils.ts:67 - resetTestCounters
+\tests\test-utils.ts:76 - runTests
+\tests\test-utils.ts:108 - runTestsWithCounters
+\bin\guards\autonomy-guard.ts:116 - checkIrreversibleOps (used in module)
+\bin\guards\autonomy-guard.ts:156 - categorizeOperation (used in module)
+\bin\guards\autonomy-guard.ts:183 - requiresHumanApproval
+\bin\guards\autonomy-guard.ts:195 - flagOperation (used in module)
+\bin\guards\autonomy-guard.ts:257 - extractOperations (used in module)
+\bin\guards\autonomy-guard.ts:285 - checkAutonomy
+\bin\guards\context-budget-guard.ts:78 - checkContextBudget (used in module)
+\bin\guards\context-budget-guard.ts:141 - getTokenUsage (used in module)
+\bin\guards\context-budget-guard.ts:175 - shouldStop (used in module)
+\bin\guards\context-budget-guard.ts:188 - getWarningLevel
+\bin\guards\context-budget-guard.ts:205 - getWarningMessage
+\bin\guards\context-budget-guard.ts:53 - THRESHOLDS (used in module)
+\bin\guards\context-budget-guard.ts:62 - WARNING_MESSAGES (used in module)
+\bin\guards\hallucination-guard.ts:99 - checkCitation (used in module)
+\bin\guards\hallucination-guard.ts:146 - searchCodebase (used in module)
+\bin\guards\hallucination-guard.ts:201 - getAllFiles (used in module)
+\bin\guards\hallucination-guard.ts:238 - checkPackageJson (used in module)
+\bin\guards\hallucination-guard.ts:287 - hasUncertainty (used in module)
+\bin\guards\hallucination-guard.ts:298 - verifyClaim (used in module)
+\bin\guards\hallucination-guard.ts:339 - flagUncertainty (used in module)
+\bin\guards\hallucination-guard.ts:58 - UNCERTAINTY_MARKERS (used in module)
+\bin\guards\hidden-state-guard.ts:36 - listStateFiles (used in module)
+\bin\guards\hidden-state-guard.ts:70 - extractStateReferences (used in module)
+\bin\guards\hidden-state-guard.ts:95 - checkHiddenState (used in module)
+\bin\guards\hidden-state-guard.ts:132 - validatePersistence (used in module)
+\bin\guards\team-overhead-guard.ts:86 - extractContext (used in module)
+\bin\guards\team-overhead-guard.ts:103 - detectOrgChanges (used in module)
+\bin\guards\team-overhead-guard.ts:143 - flagTeamRestructure (used in module)
+\bin\guards\team-overhead-guard.ts:165 - estimateOverhead (used in module)
+\bin\guards\team-overhead-guard.ts:208 - checkOverhead
+\bin\guards\team-overhead-guard.ts:233 - checkTeamOverhead (used in module)
+\bin\guards\team-overhead-guard.ts:249 - ORG_CHANGE_KEYWORDS (used in module)
+\bin\guards\team-overhead-guard.ts:249 - TECHNICAL_SUGGESTIONS (used in module)
+\bin\guards\tool-sprawl-guard.ts:67 - getActiveTools (used in module)
+\bin\guards\tool-sprawl-guard.ts:96 - checkToolCount (used in module)
+\bin\guards\tool-sprawl-guard.ts:128 - categorizeTools (used in module)
+\bin\guards\tool-sprawl-guard.ts:171 - recommendTools (used in module)
+\bin\guards\tool-sprawl-guard.ts:207 - enforceSkillLimit (used in module)
+\bin\guards\tool-sprawl-guard.ts:241 - checkToolSprawl (used in module)
+\bin\guards\tool-sprawl-guard.ts:50 - SKILL_CATEGORIES
+\bin\lib\archetype-detector.ts:13 - ArchetypePattern (used in module)
+\bin\lib\archetype-detector.ts:19 - Evidence (used in module)
+\bin\lib\archetype-detector.ts:25 - ArchetypeEvidence (used in module)
+\bin\lib\archetype-detector.ts:29 - ArchetypeScores (used in module)
+\bin\lib\archetype-detector.ts:33 - ArchetypeResult (used in module)
+\bin\lib\archetype-detector.ts:42 - ConfidenceResult (used in module)
+\bin\lib\assistant-adapter.ts:18 - ToolMapping (used in module)
+\bin\lib\assistant-adapter.ts:27 - TOOL_MAPPINGS (used in module)
+\bin\lib\assistant-adapter.ts:137 - default
+\bin\lib\audit-exec.ts:175 - getAuditFilePath (used in module)
+\bin\lib\audit-exec.ts:184 - readAuditLog (used in module)
+\bin\lib\audit-exec.ts:201 - searchAuditLog (used in module)
+\bin\lib\audit-exec.ts:208 - default
+\bin\lib\auth.ts:182 - saveCredential (used in module)
+\bin\lib\auth.ts:183 - loadCredential (used in module)
+\bin\lib\auth.ts:184 - deleteCredential (used in module)
+\bin\lib\auth.ts:185 - listProviders (used in module)
+\bin\lib\auth.ts:186 - isKeychainAvailable (used in module)
+\bin\lib\auth.ts:187 - PROVIDERS (used in module)
+\bin\lib\auth.ts:188 - SERVICE_NAME (used in module)
+\bin\lib\backup-service.ts:44 - BackupOptions (used in module)
+\bin\lib\backup-service.ts:58 - VerificationResult (used in module)
+\bin\lib\backup-service.ts:499 - default
+\bin\lib\bdd-validator.ts:716 - parseFeatureFile (used in module)
+\bin\lib\bdd-validator.ts:717 - validateFeatureFile (used in module)
+\bin\lib\bdd-validator.ts:718 - validateFeatureDirectory (used in module)
+\bin\lib\bdd-validator.ts:719 - validateMosCowTags (used in module)
+\bin\lib\bdd-validator.ts:720 - validateINVEST (used in module)
+\bin\lib\bdd-validator.ts:721 - validateStructure (used in module)
+\bin\lib\bdd-validator.ts:722 - countByMosCow (used in module)
+\bin\lib\bdd-validator.ts:723 - findFeatureFiles (used in module)
+\bin\lib\bdd-validator.ts:724 - formatReport (used in module)
+\bin\lib\bdd-validator.ts:725 - generateScenarioId (used in module)
+\bin\lib\business-flow-mapper.ts:15 - StackData (used in module)
+\bin\lib\business-flow-mapper.ts:22 - Route (used in module)
+\bin\lib\business-flow-mapper.ts:28 - UserJourney (used in module)
+\bin\lib\business-flow-mapper.ts:36 - DataFlow (used in module)
+\bin\lib\business-flow-mapper.ts:43 - DataStore (used in module)
+\bin\lib\business-flow-mapper.ts:49 - Integration (used in module)
+\bin\lib\business-flow-mapper.ts:55 - BusinessFlowResult (used in module)
+\bin\lib\business-flow-mapper.ts:61 - DataFlowResult (used in module)
+\bin\lib\business-flow-mapper.ts:66 - IntegrationResult (used in module)
+\bin\lib\circuit-breaker.ts:27 - CircuitState (used in module)
+\bin\lib\circuit-breaker.ts:29 - CircuitBreakerOptions (used in module)
+\bin\lib\circuit-breaker.ts:37 - AgentState (used in module)
+\bin\lib\circuit-breaker.ts:47 - CircuitBreakerState (used in module)
+\bin\lib\circuit-breaker.ts:51 - CircuitBreakerStats (used in module)
+\bin\lib\code-complexity-analyzer.ts:25 - LargeFileResult (used in module)
+\bin\lib\code-complexity-analyzer.ts:33 - DuplicateChunk (used in module)
+\bin\lib\code-complexity-analyzer.ts:41 - DuplicateCode (used in module)
+\bin\lib\code-complexity-analyzer.ts:50 - ComplexityThresholds (used in module)
+\bin\lib\code-complexity-analyzer.ts:55 - ComplexitySummary (used in module)
+\bin\lib\codebase-analyzer.ts:16 - DirectoryEntry (used in module)
+\bin\lib\codebase-analyzer.ts:24 - FileClassification (used in module)
+\bin\lib\codebase-analyzer.ts:36 - CodebaseStructure (used in module)
+\bin\lib\codebase-analyzer.ts:46 - ModuleBoundary (used in module)
+\bin\lib\commands.ts:800 - cmdGenerateSlug (used in module)
+\bin\lib\commands.ts:801 - cmdCurrentTimestamp (used in module)
+\bin\lib\commands.ts:803 - cmdVerifyPathExists (used in module)
+\bin\lib\commands.ts:804 - cmdHistoryDigest (used in module)
+\bin\lib\commands.ts:805 - cmdResolveModel (used in module)
+\bin\lib\commands.ts:806 - cmdCommit (used in module)
+\bin\lib\commands.ts:807 - cmdSummaryExtract (used in module)
+\bin\lib\commands.ts:808 - cmdWebsearch (used in module)
+\bin\lib\commands.ts:809 - cmdProgressRender (used in module)
+\bin\lib\commands.ts:810 - cmdTodoComplete (used in module)
+\bin\lib\commands.ts:811 - cmdScaffold (used in module)
+\bin\lib\commands.ts:812 - cmdStats (used in module)
+\bin\lib\constraint-extractor.ts:20 - DeadlineConstraint (used in module)
+\bin\lib\constraint-extractor.ts:29 - TeamSizeResult (used in module)
+\bin\lib\constraint-extractor.ts:35 - BudgetTierResult (used in module)
+\bin\lib\constraint-extractor.ts:41 - ComplianceConstraint (used in module)
+\bin\lib\constraint-extractor.ts:50 - LegacyFactor (used in module)
+\bin\lib\constraint-extractor.ts:58 - ScalabilityNeed (used in module)
+\bin\lib\constraint-extractor.ts:66 - ConstraintsResult (used in module)
+\bin\lib\content-scanner.ts:265 - SecurityScanError (used in module)
+\bin\lib\content-scanner.ts:267 - SecurityFinding (used in module)
+\bin\lib\content-scanner.ts:267 - ScanResult (used in module)
+\bin\lib\content-scanner.ts:267 - SecurityPattern (used in module)
+\bin\lib\context-compressor.ts:41 - CompressionStats (used in module)
+\bin\lib\context-compressor.ts:243 - default
+\bin\lib\context-deduplicator.ts:23 - ContextItem
+\bin\lib\context-deduplicator.ts:138 - default
+\bin\lib\context-metadata-tracker.ts:217 - default
+\bin\lib\context-relevance-scorer.ts:247 - default
+\bin\lib\core.ts:695 - ModelProfiles (used in module)
+\bin\lib\core.ts:697 - GitResult (used in module)
+\bin\lib\core.ts:700 - RoadmapPhaseResult (used in module)
+\bin\lib\core.ts:702 - MilestonePhaseFilter (used in module)
+\bin\lib\cost-alerts.ts:196 - THRESHOLDS (used in module)
+\bin\lib\cost-alerts.ts:196 - CostAlerts (used in module)
+\bin\lib\cost-alerts.ts:198 - Alert (used in module)
+\bin\lib\cost-alerts.ts:198 - CheckThresholdsOptions (used in module)
+\bin\lib\cost-alerts.ts:198 - AlertsData (used in module)
+\bin\lib\cost-tracker.ts:322 - CostConfig (used in module)
+\bin\lib\cost-tracker.ts:322 - CostEntry (used in module)
+\bin\lib\cost-tracker.ts:322 - MetricsData (used in module)
+\bin\lib\cost-tracker.ts:322 - AggregateFilter (used in module)
+\bin\lib\cost-tracker.ts:322 - AggregateResult (used in module)
+\bin\lib\cost-tracker.ts:322 - BudgetCheckResult (used in module)
+\bin\lib\cost-tracker.ts:322 - Alert (used in module)
+\bin\lib\dependency-graph.ts:15 - DependencyGraphOptions (used in module)
+\bin\lib\dependency-graph.ts:25 - DependencyGraphNode (used in module)
+\bin\lib\dependency-graph.ts:30 - DependencyGraphResult (used in module)
+\bin\lib\discussion-synthesizer.ts:88 - parseDiscussion (used in module)
+\bin\lib\discussion-synthesizer.ts:273 - synthesize (used in module)
+\bin\lib\discussion-synthesizer.ts:329 - checkParticipation (used in module)
+\bin\lib\discussion-synthesizer.ts:355 - updateConsensus (used in module)
+\bin\lib\discussion-synthesizer.ts:416 - formatSynthesis (used in module)
+\bin\lib\error-cache.ts:14 - ErrorInfo (used in module)
+\bin\lib\error-cache.ts:20 - ErrorEntry (used in module)
+\bin\lib\error-cache.ts:149 - default
+\bin\lib\error-registry.ts:20 - SeverityLevel (used in module)
+\bin\lib\error-registry.ts:198 - default
+\bin\lib\file-access.ts:20 - FileObject (used in module)
+\bin\lib\file-access.ts:28 - FileInfo (used in module)
+\bin\lib\file-access.ts:39 - FileAccessOptions
+\bin\lib\file-lock.ts:217 - default
+\bin\lib\framework-detector.ts:14 - ConfigDetection (used in module)
+\bin\lib\framework-detector.ts:20 - ConfigDetections (used in module)
+\bin\lib\framework-detector.ts:24 - ImportEvidence (used in module)
+\bin\lib\framework-detector.ts:29 - ImportDetection (used in module)
+\bin\lib\framework-detector.ts:35 - ImportDetections (used in module)
+\bin\lib\framework-detector.ts:39 - FrameworkPattern (used in module)
+\bin\lib\framework-detector.ts:43 - FrameworkPatterns (used in module)
+\bin\lib\framework-detector.ts:47 - FileMatches (used in module)
+\bin\lib\framework-detector.ts:51 - FrameworkMatches (used in module)
+\bin\lib\framework-detector.ts:61 - FrameworkResults (used in module)
+\bin\lib\framework-detector.ts:65 - FrameworkInfo (used in module)
+\bin\lib\framework-detector.ts:74 - FrameworksResult (used in module)
+\bin\lib\framework-detector.ts:78 - FrameworkSummary (used in module)
+\bin\lib\framework-detector.ts:87 - FrameworkAnalysisResult (used in module)
+\bin\lib\frontmatter.ts:366 - cmdFrontmatterGet (used in module)
+\bin\lib\frontmatter.ts:367 - cmdFrontmatterSet (used in module)
+\bin\lib\frontmatter.ts:368 - cmdFrontmatterMerge (used in module)
+\bin\lib\frontmatter.ts:369 - cmdFrontmatterValidate (used in module)
+\bin\lib\frontmatter.ts:372 - FrontmatterSchema (used in module)
+\bin\lib\frontmatter.ts:372 - MustHaveItem (used in module)
+\bin\lib\fs-utils.ts:164 - grepContent (used in module)
+\bin\lib\fs-utils.ts:165 - readFirstLines (used in module)
+\bin\lib\fs-utils.ts:166 - readLastLines (used in module)
+\bin\lib\fs-utils.ts:167 - countLines (used in module)
+\bin\lib\fs-utils.ts:168 - ensureDir (used in module)
+\bin\lib\fs-utils.ts:171 - FindFilesOptions (used in module)
+\bin\lib\fs-utils.ts:171 - GrepResult (used in module)
+\bin\lib\gate-executor.ts:301 - QualityGate (used in module)
+\bin\lib\gate-executor.ts:301 - recordBypass (used in module)
+\bin\lib\gate-executor.ts:301 - loadStatus (used in module)
+\bin\lib\gate-executor.ts:301 - saveStatus (used in module)
+\bin\lib\git-errors.ts:129 - default
+\bin\lib\git-utils.ts:170 - default
+\bin\lib\git-workflow-engine.ts:149 - BranchType (used in module)
+\bin\lib\git-workflow-engine.ts:151 - MergeStrategy (used in module)
+\bin\lib\git-workflow-engine.ts:153 - ValidationLevel (used in module)
+\bin\lib\git-workflow-engine.ts:155 - GitWorkflowConfig (used in module)
+\bin\lib\git-workflow-engine.ts:165 - ValidationResult (used in module)
+\bin\lib\git-workflow-engine.ts:173 - CheckResult (used in module)
+\bin\lib\git-workflow-engine.ts:180 - MergeResult (used in module)
+\bin\lib\git-workflow-engine.ts:192 - ReleaseValidationResult (used in module)
+\bin\lib\git-workflow-engine.ts:200 - HotfixResult (used in module)
+\bin\lib\git-workflow-engine.ts:207 - RollbackResult (used in module)
+\bin\lib\git-workflow-engine.ts:215 - ProtectionResult (used in module)
+\bin\lib\git-workflow-engine.ts:1188 - default
+\bin\lib\health-check.ts:250 - default
+\bin\lib\health-check.ts:252 - HealthCheckResults (used in module)
+\bin\lib\health-check.ts:252 - ApiKeyCheckResult (used in module)
+\bin\lib\health-check.ts:252 - DependencyCheckResult (used in module)
+\bin\lib\index.ts:13 - MODEL_PROFILES
+\bin\lib\index.ts:14 - toPosixPath (used in module)
+\bin\lib\index.ts:15 - output
+\bin\lib\index.ts:16 - error
+\bin\lib\index.ts:17 - safeReadFile (used in module)
+\bin\lib\index.ts:18 - loadConfig
+\bin\lib\index.ts:19 - isGitIgnored
+\bin\lib\index.ts:20 - execGit
+\bin\lib\index.ts:21 - escapeRegex
+\bin\lib\index.ts:22 - normalizePhaseName
+\bin\lib\index.ts:23 - comparePhaseNum
+\bin\lib\index.ts:24 - getArchivedPhaseDirs
+\bin\lib\index.ts:25 - getMilestoneInfo
+\bin\lib\index.ts:26 - getMilestonePhaseFilter
+\bin\lib\index.ts:27 - generateSlugInternal
+\bin\lib\index.ts:28 - resolveModelInternal
+\bin\lib\index.ts:29 - ModelProfile (used in module)
+\bin\lib\index.ts:30 - ArchivedPhaseDir
+\bin\lib\index.ts:31 - Config
+\bin\lib\index.ts:32 - MilestoneInfo
+\bin\lib\index.ts:35 - Logger
+\bin\lib\index.ts:35 - defaultLogger
+\bin\lib\index.ts:38 - StateData
+\bin\lib\index.ts:38 - StateMetricOptions
+\bin\lib\index.ts:38 - DecisionOptions
+\bin\lib\index.ts:39 - stateLoad
+\bin\lib\index.ts:39 - stateGet
+\bin\lib\index.ts:39 - statePatch
+\bin\lib\index.ts:39 - stateUpdate
+\bin\lib\index.ts:39 - stateAdvancePlan
+\bin\lib\index.ts:39 - stateRecordMetric
+\bin\lib\index.ts:40 - SessionManager
+\bin\lib\index.ts:40 - SessionManagerState
+\bin\lib\index.ts:40 - SessionManagerExport
+\bin\lib\index.ts:41 - SessionChain
+\bin\lib\index.ts:41 - SessionMetadata
+\bin\lib\index.ts:41 - SessionContext
+\bin\lib\index.ts:41 - SessionChainState
+\bin\lib\index.ts:41 - Session
+\bin\lib\index.ts:41 - SessionManagerLike
+\bin\lib\index.ts:41 - ChainRepairResult
+\bin\lib\index.ts:43 - SessionExport (used in module)
+\bin\lib\index.ts:44 - SessionImport
+\bin\lib\index.ts:45 - LockState (used in module)
+\bin\lib\index.ts:45 - LockInfo
+\bin\lib\index.ts:48 - SkillRegistry
+\bin\lib\index.ts:48 - Skill
+\bin\lib\index.ts:49 - SkillMatcher
+\bin\lib\index.ts:49 - MatchResult
+\bin\lib\index.ts:50 - SkillResolver
+\bin\lib\index.ts:51 - SkillTriggerEvaluator
+\bin\lib\index.ts:51 - checkTriggers
+\bin\lib\index.ts:51 - activateSkillsByTriggers
+\bin\lib\index.ts:51 - TriggerContext
+\bin\lib\index.ts:51 - TriggerEvaluationResult
+\bin\lib\index.ts:52 - SkillValidator
+\bin\lib\index.ts:52 - ValidationResult
+\bin\lib\index.ts:53 - SkillContextResolver
+\bin\lib\index.ts:53 - validateContext
+\bin\lib\index.ts:53 - ContextSchema
+\bin\lib\index.ts:53 - ContextValidationResult
+\bin\lib\index.ts:54 - SkillVersionResolver
+\bin\lib\index.ts:54 - VersionInfo
+\bin\lib\index.ts:54 - UpdateResult
+\bin\lib\index.ts:57 - LogExecution
+\bin\lib\index.ts:57 - CacheResult
+\bin\lib\index.ts:57 - ValidateInput
+\bin\lib\index.ts:57 - clearCache
+\bin\lib\index.ts:57 - clearAllCache
+\bin\lib\index.ts:57 - getCacheStats
+\bin\lib\index.ts:58 - LogExecutionOptions
+\bin\lib\index.ts:58 - CacheResultOptions
+\bin\lib\index.ts:58 - ValidateInputOptions
+\bin\lib\index.ts:58 - CacheEntry (used in module)
+\bin\lib\index.ts:61 - ContextManager
+\bin\lib\index.ts:61 - ContextSource (used in module)
+\bin\lib\index.ts:61 - ScoringStats (used in module)
+\bin\lib\index.ts:61 - CompressionStats (used in module)
+\bin\lib\index.ts:61 - DedupStats (used in module)
+\bin\lib\index.ts:61 - ContextMetadataOutput
+\bin\lib\index.ts:61 - ContextOptions
+\bin\lib\index.ts:61 - ContextResult (used in module)
+\bin\lib\index.ts:62 - ContextCache
+\bin\lib\index.ts:62 - CacheEntryInput
+\bin\lib\index.ts:62 - CacheStats
+\bin\lib\index.ts:63 - ContextCompressor
+\bin\lib\index.ts:63 - CompressionResult (used in module)
+\bin\lib\index.ts:63 - CompressionOptions (used in module)
+\bin\lib\index.ts:64 - ContextDeduplicator
+\bin\lib\index.ts:65 - ContextMetadataTracker
+\bin\lib\index.ts:65 - ContextMetadata (used in module)
+\bin\lib\index.ts:65 - MetadataStats
+\bin\lib\index.ts:66 - ContextRelevanceScorer
+\bin\lib\index.ts:66 - ScoringWeights
+\bin\lib\index.ts:66 - ScoringOptions
+\bin\lib\index.ts:66 - ScoredFile
+\bin\lib\index.ts:66 - ScoreResult
+\bin\lib\index.ts:66 - ContextItem
+\bin\lib\index.ts:68 - ContextAccessError
+\bin\lib\index.ts:68 - URLFetchError
+\bin\lib\index.ts:68 - FileAccessError
+\bin\lib\index.ts:68 - ContextSeverityLevel
+\bin\lib\index.ts:68 - ContextErrorType
+\bin\lib\index.ts:68 - SecurityFinding
+\bin\lib\index.ts:68 - BaseContextError
+\bin\lib\index.ts:68 - ContextAccessErrorData
+\bin\lib\index.ts:68 - URLFetchErrorData
+\bin\lib\index.ts:68 - FileAccessErrorData
+\bin\lib\index.ts:68 - SecurityScanErrorData
+\bin\lib\index.ts:68 - ContextError
+\bin\lib\index.ts:71 - PhaseStatus
+\bin\lib\index.ts:72 - RoadmapPhaseInfo
+\bin\lib\index.ts:72 - RoadmapAnalysis
+\bin\lib\index.ts:73 - roadmapGetPhase
+\bin\lib\index.ts:73 - roadmapAnalyze
+\bin\lib\index.ts:73 - roadmapUpdatePlanProgress
+\bin\lib\index.ts:73 - roadmapUpdatePhaseStatus
+\bin\lib\index.ts:74 - Milestone
+\bin\lib\index.ts:74 - MilestoneCompleteOptions
+\bin\lib\index.ts:74 - RequirementsCompleteResult
+\bin\lib\index.ts:74 - MilestoneCompleteResult
+\bin\lib\index.ts:75 - requirementsMarkComplete
+\bin\lib\index.ts:75 - milestoneComplete
+\bin\lib\index.ts:78 - QualityGate
+\bin\lib\index.ts:78 - GateDefinition
+\bin\lib\index.ts:78 - GateExecutorResult
+\bin\lib\index.ts:78 - GateStatus
+\bin\lib\index.ts:81 - FileAccessService
+\bin\lib\index.ts:82 - withLock
+\bin\lib\index.ts:82 - isLocked
+\bin\lib\index.ts:82 - ifUnlocked
+\bin\lib\index.ts:82 - LockOptions
+\bin\lib\index.ts:82 - LockRelease
+\bin\lib\index.ts:83 - TempResourceType
+\bin\lib\index.ts:83 - TempResource
+\bin\lib\index.ts:83 - TempFileOptions
+\bin\lib\index.ts:83 - TempFileResult
+\bin\lib\index.ts:83 - createTempDir
+\bin\lib\index.ts:83 - createTempFile
+\bin\lib\index.ts:83 - createTempFileWithCleanup
+\bin\lib\index.ts:83 - writeToTemp
+\bin\lib\index.ts:83 - readFromTemp
+\bin\lib\index.ts:83 - cleanupTemp
+\bin\lib\index.ts:83 - cleanupAll
+\bin\lib\index.ts:83 - getTrackedTemps
+\bin\lib\index.ts:83 - generateSecureSuffix
+\bin\lib\index.ts:83 - tempFileIsPathSafe
+\bin\lib\index.ts:84 - normalizePath
+\bin\lib\index.ts:84 - isPathSafe (used in module)
+\bin\lib\index.ts:84 - validatePathExists
+\bin\lib\index.ts:84 - safePathReadFile
+\bin\lib\index.ts:84 - safePathToPosix
+\bin\lib\index.ts:87 - isGitRepo
+\bin\lib\index.ts:87 - getGitStatus
+\bin\lib\index.ts:87 - getGitDiff
+\bin\lib\index.ts:87 - gitAdd
+\bin\lib\index.ts:87 - gitCommit
+\bin\lib\index.ts:87 - getCurrentBranch
+\bin\lib\index.ts:87 - createBranch
+\bin\lib\index.ts:87 - GitStatus
+\bin\lib\index.ts:87 - GitDiffResult
+\bin\lib\index.ts:87 - GitCommitOptions
+\bin\lib\index.ts:88 - GitWorkflowEngine
+\bin\lib\index.ts:90 - GitWorkflowError
+\bin\lib\index.ts:90 - BranchExistsError
+\bin\lib\index.ts:90 - BranchNotFoundError
+\bin\lib\index.ts:90 - MergeConflictError
+\bin\lib\index.ts:90 - ValidationFailedError
+\bin\lib\index.ts:90 - GitErrorOptions
+\bin\lib\index.ts:90 - GitErrorData
+\bin\lib\index.ts:92 - SecurityOpsError
+\bin\lib\index.ts:92 - SecurityProviderError
+\bin\lib\index.ts:92 - SecurityComplianceError
+\bin\lib\index.ts:92 - SecurityAuditError
+\bin\lib\index.ts:92 - SecurityErrorContext
+\bin\lib\index.ts:92 - SecurityErrorData
+\bin\lib\index.ts:95 - ErrorCache
+\bin\lib\index.ts:96 - getErrorCode
+\bin\lib\index.ts:96 - getAllCodes
+\bin\lib\index.ts:96 - getSeverity
+\bin\lib\index.ts:96 - getAllSeverities
+\bin\lib\index.ts:96 - lookupByCode
+\bin\lib\index.ts:96 - isValidCode
+\bin\lib\index.ts:96 - ErrorCodeDefinition
+\bin\lib\index.ts:96 - ErrorCodeLookupResult
+\bin\lib\index.ts:96 - ErrorCategory
+\bin\lib\index.ts:96 - ERROR_CODES
+\bin\lib\index.ts:96 - SEVERITY
+\bin\lib\index.ts:97 - CrashRecovery
+\bin\lib\index.ts:97 - LockData
+\bin\lib\index.ts:97 - LockStatus
+\bin\lib\index.ts:97 - ActiveLock
+\bin\lib\index.ts:98 - RecoveryManager
+\bin\lib\index.ts:98 - BackupOptions
+\bin\lib\index.ts:98 - BackupMetadata
+\bin\lib\index.ts:98 - VerificationResult
+\bin\lib\index.ts:99 - BackupService
+\bin\lib\index.ts:99 - BackupResult
+\bin\lib\index.ts:99 - FileInfo
+\bin\lib\index.ts:99 - ManifestFileEntry
+\bin\lib\index.ts:99 - BackupManifest
+\bin\lib\index.ts:99 - BackupInfo
+\bin\lib\index.ts:99 - RetentionSettings
+\bin\lib\index.ts:102 - retry
+\bin\lib\index.ts:102 - RetryOptions
+\bin\lib\index.ts:102 - RetryableError
+\bin\lib\index.ts:103 - auditExec
+\bin\lib\index.ts:103 - AuditEntry
+\bin\lib\index.ts:103 - AuditExecOptions
+\bin\lib\index.ts:106 - safePlanningWrite
+\bin\lib\index.ts:106 - safePlanningWriteSync
+\bin\lib\index.ts:107 - ensureConfigSection
+\bin\lib\index.ts:107 - configSet
+\bin\lib\index.ts:107 - configGet
+\bin\lib\index.ts:108 - extractFrontmatter
+\bin\lib\index.ts:108 - reconstructFrontmatter
+\bin\lib\index.ts:108 - Frontmatter
+\bin\lib\index.ts:109 - ConfigLoader
+\bin\lib\index.ts:112 - ModelProvider
+\bin\lib\index.ts:112 - createProvider
+\bin\lib\index.ts:112 - ProviderConfig
+\bin\lib\index.ts:112 - ChatOptions
+\bin\lib\index.ts:112 - ChatResponse
+\bin\lib\index.ts:112 - Message (used in module)
+\bin\lib\index.ts:113 - mapToolName
+\bin\lib\index.ts:113 - parseToolCall
+\bin\lib\index.ts:113 - formatToolResult
+\bin\lib\index.ts:113 - isToolSupported
+\bin\lib\index.ts:113 - ToolName
+\bin\lib\index.ts:113 - ToolCall
+\bin\lib\index.ts:118 - ModelProviderAdapter
+\bin\lib\index.ts:119 - AdapterMessage
+\bin\lib\index.ts:120 - ModelOptions
+\bin\lib\index.ts:121 - ModelResponse
+\bin\lib\index.ts:122 - Tool
+\bin\lib\index.ts:123 - TokenUsage
+\bin\lib\index.ts:126 - ClaudeAdapter
+\bin\lib\index.ts:127 - OpenAIAdapter
+\bin\lib\index.ts:128 - KimiAdapter
+\bin\lib\index.ts:129 - QwenAdapter
+\bin\lib\index.ts:130 - createModelAdapter
+\bin\lib\index.ts:131 - getAvailableAdapters
+\bin\lib\index.ts:132 - hasAdapter
+\bin\lib\index.ts:133 - AdapterOptions
+\bin\lib\index.ts:138 - SkillAdapter
+\bin\lib\index.ts:139 - SkillContext
+\bin\lib\index.ts:140 - SkillResult
+\bin\lib\index.ts:144 - LockStateClass
+\bin\lib\index.ts:145 - LockfileValidator
+\bin\lib\index.ts:154 - PhaseService
+\bin\lib\index.ts:155 - RoadmapService
+\bin\lib\index.ts:156 - MilestoneService
+\bin\lib\index.ts:157 - ModelService
+\bin\lib\index.ts:158 - GitService
+\bin\lib\index.ts:163 - Repository
+\bin\lib\index.ts:164 - BaseFileRepository
+\bin\lib\index.ts:165 - ConfigRepository
+\bin\lib\index.ts:166 - ConfigEntity
+\bin\lib\index.ts:171 - Command
+\bin\lib\index.ts:172 - CommandResult
+\bin\lib\index.ts:173 - BaseCommand
+\bin\lib\index.ts:174 - CommandFactory
+\bin\lib\index.ts:175 - GenerateSlugCommand
+\bin\lib\index.ts:176 - CurrentTimestampCommand
+\bin\lib\index.ts:177 - VerifyPathCommand
+\bin\lib\index.ts:178 - ResolveModelCommand
+\bin\lib\index.ts:179 - ListTodosCommand
+\bin\lib\index.ts:180 - GenerateSlugOptions
+\bin\lib\index.ts:181 - TimestampFormat
+\bin\lib\index.ts:182 - CurrentTimestampOptions
+\bin\lib\index.ts:183 - VerifyPathOptions
+\bin\lib\index.ts:184 - ListTodosOptions
+\bin\lib\index.ts:185 - TodoEntry
+\bin\lib\index.ts:190 - Event
+\bin\lib\index.ts:191 - Observer
+\bin\lib\index.ts:192 - EventHandler
+\bin\lib\index.ts:193 - EventBus
+\bin\lib\index.ts:194 - SkillTriggerObserver
+\bin\lib\index.ts:195 - SessionObserver
+\bin\lib\index.ts:196 - PhaseObserver
+\bin\lib\index.ts:197 - SkillTriggerEvent
+\bin\lib\index.ts:198 - EventMap
+\bin\lib\index.ts:199 - SessionStartEvent
+\bin\lib\index.ts:200 - SessionStopEvent
+\bin\lib\index.ts:201 - SessionActivityEvent
+\bin\lib\index.ts:202 - PhaseStartEvent
+\bin\lib\index.ts:203 - PhaseCompleteEvent
+\bin\lib\index.ts:204 - PhaseSkipEvent
+\bin\lib\index.ts:205 - SkillMatchEvent
+\bin\lib\index.ts:206 - SkillExecuteEvent
+\bin\lib\index.ts:207 - ContextGatherEvent
+\bin\lib\index.ts:208 - ContextCompressEvent
+\bin\lib\index.ts:209 - ContextScoreEvent
+\bin\lib\index.ts:214 - ContextResultBuilder
+\bin\lib\index.ts:215 - ContextDirector
+\bin\lib\index.ts:226 - ModelStrategy
+\bin\lib\index.ts:227 - ProfileModelStrategy
+\bin\lib\index.ts:228 - OverrideModelStrategy
+\bin\lib\index.ts:234 - CompressionStrategy
+\bin\lib\index.ts:235 - SummarizeStrategy
+\bin\lib\index.ts:236 - TruncateStrategy
+\bin\lib\index.ts:237 - RankByRelevanceStrategy
+\bin\lib\index.ts:238 - HybridStrategy
+\bin\lib\index.ts:239 - createStrategy
+\bin\lib\index.ts:240 - createStrategies
+\bin\lib\index.ts:241 - getAvailableStrategies
+\bin\lib\index.ts:242 - isStrategyAvailable
+\bin\lib\index.ts:247 - HybridStrategyOptions
+\bin\lib\index.ts:248 - StrategyConfig
+\bin\lib\index.ts:249 - StrategyType
+\bin\lib\index.ts:254 - IAgent
+\bin\lib\index.ts:255 - AgentConfig
+\bin\lib\index.ts:256 - AgentContext
+\bin\lib\index.ts:257 - AgentResult
+\bin\lib\index.ts:258 - AgentFactory
+\bin\lib\index.ts:261 - AgentFactoryRegistry
+\bin\lib\index.ts:262 - EzPlannerAgent
+\bin\lib\index.ts:263 - EzRoadmapperAgent
+\bin\lib\index.ts:264 - EzExecutorAgent
+\bin\lib\index.ts:265 - EzPhaseResearcherAgent
+\bin\lib\index.ts:266 - EzProjectResearcherAgent
+\bin\lib\index.ts:267 - EzVerifierAgent
+\bin\lib\index.ts:268 - registerDefaultAgents
+\bin\lib\index.ts:269 - getRegisteredAgents
+\bin\lib\index.ts:270 - isAgentRegistered
+\bin\lib\index.ts:275 - ContextManagerFacadeOptions
+\bin\lib\index.ts:276 - FacadeCompressionStats
+\bin\lib\index.ts:277 - FacadeScoringStats
+\bin\lib\index.ts:278 - SkillResolverFacadeOptions
+\bin\lib\index.ts:279 - SkillResolutionResult
+\bin\lib\index.ts:280 - SkillExecutionWrapper
+\bin\lib\index.ts:283 - ContextManagerFacade
+\bin\lib\index.ts:284 - SkillResolverFacade
+\bin\lib\index.ts:11 - SessionErrorDetails
+\bin\lib\index.ts:22 - SessionErrorOptions
+\bin\lib\index.ts:32 - SessionError
+\bin\lib\index.ts:62 - SessionNotFoundError
+\bin\lib\index.ts:80 - SessionChainError
+\bin\lib\index.ts:98 - SessionExportError
+\bin\lib\index.ts:118 - SessionImportError
+\bin\lib\index.ts:22 - map
+\bin\lib\index.ts:32 - flatMap
+\bin\lib\index.ts:42 - mapObject
+\bin\lib\index.ts:57 - filter
+\bin\lib\index.ts:67 - filterObject
+\bin\lib\index.ts:85 - compact
+\bin\lib\index.ts:94 - unique
+\bin\lib\index.ts:104 - uniqueBy
+\bin\lib\index.ts:125 - reduce
+\bin\lib\index.ts:136 - reduceRight
+\bin\lib\index.ts:147 - reduceObject
+\bin\lib\index.ts:166 - take
+\bin\lib\index.ts:176 - drop
+\bin\lib\index.ts:186 - takeWhile
+\bin\lib\index.ts:201 - dropWhile
+\bin\lib\index.ts:217 - chunk
+\bin\lib\index.ts:231 - flatten
+\bin\lib\index.ts:240 - zip
+\bin\lib\index.ts:10 - Predicate
+\bin\lib\index.ts:11 - Transform
+\bin\lib\index.ts:12 - Reducer
+\bin\lib\index.ts:31 - pipe
+\bin\lib\index.ts:80 - compose
+\bin\lib\index.ts:111 - tap
+\bin\lib\index.ts:133 - curry
+\bin\lib\index.ts:170 - partial
+\bin\lib\index.ts:10 - UnaryFunction
+\bin\lib\index.ts:11 - AnyFunction
+\bin\lib\index.ts:36 - createCache
+\bin\lib\index.ts:110 - memoize
+\bin\lib\index.ts:160 - memoizeAsync
+\bin\lib\index.ts:209 - debounce
+\bin\lib\index.ts:248 - throttle
+\bin\lib\index.ts:11 - CacheOptions
+\bin\lib\index.ts:16 - Cache
+\bin\lib\index.ts:25 - MemoizedFunction
+\bin\lib\index.ts:35 - update
+\bin\lib\index.ts:52 - updateDeep
+\bin\lib\index.ts:93 - merge
+\bin\lib\index.ts:104 - mergeDeep
+\bin\lib\index.ts:122 - omit
+\bin\lib\index.ts:144 - pick
+\bin\lib\index.ts:171 - append
+\bin\lib\index.ts:182 - prepend
+\bin\lib\index.ts:200 - remove
+\bin\lib\index.ts:219 - set
+\bin\lib\index.ts:231 - insert
+\bin\lib\index.ts:243 - replace
+\bin\lib\index.ts:254 - sort
+\bin\lib\index.ts:264 - reverse
+\bin\lib\index.ts:286 - lens
+\bin\lib\index.ts:309 - over
+\bin\lib\index.ts:324 - view
+\bin\lib\index.ts:10 - DeepPartial
+\bin\lib\index.ts:14 - ImmutableUpdate
+\bin\lib\init.ts:269 - cmdInitExecutePhase
+\bin\lib\init.ts:348 - cmdInitPlanPhase
+\bin\lib\init.ts:434 - cmdInitNewProject
+\bin\lib\init.ts:520 - cmdInitNewMilestone
+\bin\lib\init.ts:557 - cmdInitQuick
+\bin\lib\init.ts:612 - cmdInitResume
+\bin\lib\init.ts:652 - cmdInitVerifyWork
+\bin\lib\init.ts:687 - cmdInitPhaseOp
+\bin\lib\init.ts:776 - cmdInitTodos
+\bin\lib\init.ts:813 - cmdInitMilestoneOp
+\bin\lib\init.ts:885 - cmdInitMapCodebase
+\bin\lib\init.ts:926 - cmdInitProgress
+\bin\lib\lock-logger.ts:225 - default
+\bin\lib\lock-logger.ts:227 - LockData (used in module)
+\bin\lib\lock-logger.ts:227 - LockResult (used in module)
+\bin\lib\lock-state.ts:22 - LockConfig (used in module)
+\bin\lib\lock-state.ts:28 - LockStatus (used in module)
+\bin\lib\lock-state.ts:50 - UpdateResult (used in module)
+\bin\lib\lock-state.ts:56 - ReconcileResult (used in module)
+\bin\lib\lockfile-validator.ts:16 - PackageManagerType (used in module)
+\bin\lib\lockfile-validator.ts:18 - LockfileValidationResult (used in module)
+\bin\lib\lockfile-validator.ts:27 - LockfileConfig (used in module)
+\bin\lib\lockfile-validator.ts:237 - default
+\bin\lib\log-rotation.ts:46 - rotateLogs (used in module)
+\bin\lib\log-rotation.ts:22 - RotationResult (used in module)
+\bin\lib\log-rotation.ts:87 - default
+\bin\lib\memory-compression.ts:311 - default
+\bin\lib\memory-compression.ts:314 - CompressionOptions (used in module)
+\bin\lib\memory-compression.ts:315 - CompressionResult (used in module)
+\bin\lib\memory-compression.ts:316 - CompressionStats (used in module)
+\bin\lib\memory-compression.ts:317 - BatchCompressionResult (used in module)
+\bin\lib\memory-compression.ts:318 - SessionManager (used in module)
+\bin\lib\memory-compression.ts:319 - Session (used in module)
+\bin\lib\memory-compression.ts:320 - SessionMeta (used in module)
+\bin\lib\package-manager-detector.ts:28 - DetectionSource (used in module)
+\bin\lib\package-manager-detector.ts:30 - DetectionConfidence (used in module)
+\bin\lib\package-manager-detector.ts:42 - PackageManagerConfig (used in module)
+\bin\lib\package-manager-detector.ts:48 - PackageManagerDetectorConfig (used in module)
+\bin\lib\package-manager-detector.ts:250 - default (used in module)
+\bin\lib\package-manager-executor.ts:28 - PackageManagerType (used in module)
+\bin\lib\package-manager-executor.ts:47 - ExecutorConfig (used in module)
+\bin\lib\package-manager-executor.ts:58 - PackageManagerError (used in module)
+\bin\lib\package-manager-executor.ts:438 - default
+\bin\lib\package-manager-service.ts:27 - ServiceConfig (used in module)
+\bin\lib\package-manager-service.ts:31 - PackageManagerInfo (used in module)
+\bin\lib\package-manager-service.ts:38 - InitializeOptions (used in module)
+\bin\lib\package-manager-service.ts:48 - PackageManagerService (used in module)
+\bin\lib\package-manager-service.ts:228 - default
+\bin\lib\package-manager.ts:17 - PackageManager
+\bin\lib\phase.ts:62 - phasesList
+\bin\lib\phase.ts:142 - phaseNextDecimal
+\bin\lib\phase.ts:234 - findPhaseCmd
+\bin\lib\phase.ts:247 - getArchivedPhasesCmd
+\bin\lib\phase.ts:28 - PhaseListOptions (used in module)
+\bin\lib\phase.ts:37 - PhaseCommandInfo
+\bin\lib\phase.ts:50 - PhaseInfo
+\bin\lib\planning-write.ts:11 - PlanningWriteOptions (used in module)
+\bin\lib\planning-write.ts:145 - default
+\bin\lib\project-reporter.ts:603 - Structure (used in module)
+\bin\lib\project-reporter.ts:603 - Stack (used in module)
+\bin\lib\project-reporter.ts:603 - TechDebt (used in module)
+\bin\lib\project-reporter.ts:603 - Archetype (used in module)
+\bin\lib\project-reporter.ts:603 - Module (used in module)
+\bin\lib\project-reporter.ts:603 - Directory (used in module)
+\bin\lib\project-reporter.ts:603 - File (used in module)
+\bin\lib\project-reporter.ts:603 - Finding (used in module)
+\bin\lib\quality-gate.ts:71 - AuditEntry (used in module)
+\bin\lib\quality-metrics.ts:91 - QualityMetrics
+\bin\lib\recovery-manager.ts:126 - default
+\bin\lib\release-validator.ts:90 - hasHighEntropy
+\bin\lib\release-validator.ts:111 - runSecurityGates (used in module)
+\bin\lib\release-validator.ts:300 - validateRollbackContent (used in module)
+\bin\lib\release-validator.ts:337 - loadChecklistState (used in module)
+\bin\lib\release-validator.ts:350 - markManualItemComplete (used in module)
+\bin\lib\release-validator.ts:368 - getChecklist (used in module)
+\bin\lib\release-validator.ts:383 - runChecklist (used in module)
+\bin\lib\release-validator.ts:527 - validateRelease (used in module)
+\bin\lib\release-validator.ts:572 - formatValidation (used in module)
+\bin\lib\retry.ts:97 - isRetryableError (used in module)
+\bin\lib\retry.ts:116 - classifyError (used in module)
+\bin\lib\retry.ts:133 - default
+\bin\lib\safe-exec.ts:71 - SafeExecOptions (used in module)
+\bin\lib\safe-exec.ts:192 - default
+\bin\lib\security-errors.ts:53 - SecurityScanError (used in module)
+\bin\lib\security-errors.ts:92 - default
+\bin\lib\session-export.ts:15 - ExportResult (used in module)
+\bin\lib\session-export.ts:22 - FileExportResult (used in module)
+\bin\lib\session-export.ts:28 - SessionManagerLike (used in module)
+\bin\lib\session-import.ts:17 - ImportOptions (used in module)
+\bin\lib\session-import.ts:21 - ImportResult (used in module)
+\bin\lib\session-import.ts:27 - ValidationResult (used in module)
+\bin\lib\session-import.ts:32 - SessionData (used in module)
+\bin\lib\session-import.ts:39 - SessionManagerLike (used in module)
+\bin\lib\session-manager.ts:28 - SessionHistoryEntry (used in module)
+\bin\lib\session-manager.ts:190 - default
+\bin\lib\skill-context.ts:27 - ScopeValue (used in module)
+\bin\lib\skill-context.ts:32 - ModeValue (used in module)
+\bin\lib\skill-context.ts:37 - StackConfig (used in module)
+\bin\lib\skill-context.ts:46 - ConstraintsConfig (used in module)
+\bin\lib\skill-context.ts:80 - CONTEXT_SCHEMA (used in module)
+\bin\lib\skill-matcher.ts:27 - SKILL_LIMITS (used in module)
+\bin\lib\skill-registry.ts:75 - SkillParameter (used in module)
+\bin\lib\skill-registry.ts:372 - LazySkillRegistry
+\bin\lib\skill-resolver.ts:81 - ResolveResult (used in module)
+\bin\lib\skill-resolver.ts:181 - ConflictType (used in module)
+\bin\lib\skill-versioning.ts:268 - updateSkill
+\bin\lib\skill-versioning.ts:338 - formatChangelogEntry (used in module)
+\bin\lib\skill-versioning.ts:395 - inferCategory (used in module)
+\bin\lib\skill-versioning.ts:413 - getPreviousVersion (used in module)
+\bin\lib\skill-versioning.ts:37 - ParsedVersion (used in module)
+\bin\lib\skill-versioning.ts:46 - ResolutionContext (used in module)
+\bin\lib\skill-versioning.ts:56 - ChangelogChanges (used in module)
+\bin\lib\stack-detector.ts:19 - PackageManifests (used in module)
+\bin\lib\stack-detector.ts:23 - Dependencies (used in module)
+\bin\lib\stack-detector.ts:27 - StackResult (used in module)
+\bin\lib\stack-detector.ts:38 - ConfigFile (used in module)
+\bin\lib\stack-detector.ts:43 - ConfigFiles (used in module)
+\bin\lib\stack-detector.ts:47 - LanguageCounts (used in module)
+\bin\lib\state.ts:44 - extractStateField (used in module)
+\bin\lib\state.ts:59 - replaceStateField (used in module)
+\bin\lib\task-formatter.ts:21 - TaskArgs (used in module)
+\bin\lib\task-formatter.ts:33 - ExtractedTask (used in module)
+\bin\lib\task-formatter.ts:41 - ValidationResult (used in module)
+\bin\lib\task-formatter.ts:275 - default
+\bin\lib\tech-debt-analyzer.ts:16 - DebtMarkerPattern (used in module)
+\bin\lib\tech-debt-analyzer.ts:22 - DebtMarker (used in module)
+\bin\lib\tech-debt-analyzer.ts:32 - DependencyRisk (used in module)
+\bin\lib\tech-debt-analyzer.ts:42 - TechDebtFinding (used in module)
+\bin\lib\tech-debt-analyzer.ts:52 - TechDebtSummary (used in module)
+\bin\lib\tech-debt-analyzer.ts:59 - FileTechDebt (used in module)
+\bin\lib\temp-file.ts:300 - default
+\bin\lib\template.ts:50 - cmdTemplateSelect
+\bin\lib\template.ts:103 - cmdTemplateFill
+\bin\lib\test-utils.ts:36 - createTempDir
+\bin\lib\test-utils.ts:44 - cleanupTempDir
+\bin\lib\test-utils.ts:57 - test
+\bin\lib\test-utils.ts:78 - getTestStats
+\bin\lib\test-utils.ts:85 - resetTestCounters
+\bin\lib\test-utils.ts:95 - runTests
+\bin\lib\test-utils.ts:128 - runTestsWithCounters
+\bin\lib\test-utils.ts:13 - TestCounters (used in module)
+\bin\lib\test-utils.ts:20 - TestStats (used in module)
+\bin\lib\tier-manager.ts:147 - getTier (used in module)
+\bin\lib\tier-manager.ts:159 - getAllTiers (used in module)
+\bin\lib\tier-manager.ts:168 - isValidTier (used in module)
+\bin\lib\tier-manager.ts:177 - getTierIndex (used in module)
+\bin\lib\tier-manager.ts:187 - isPromotion (used in module)
+\bin\lib\tier-manager.ts:196 - getPreviousTier (used in module)
+\bin\lib\tier-manager.ts:210 - getGitStrategy (used in module)
+\bin\lib\tier-manager.ts:246 - getReleaseBranchName (used in module)
+\bin\lib\tier-manager.ts:257 - getHotfixBranchName (used in module)
+\bin\lib\tier-manager.ts:272 - checkCoverage (used in module)
+\bin\lib\tier-manager.ts:292 - getFeatureFlagConfig (used in module)
+\bin\lib\tier-manager.ts:317 - buildReleaseConfig (used in module)
+\bin\lib\tier-manager.ts:348 - loadCurrentTier (used in module)
+\bin\lib\tier-manager.ts:363 - saveCurrentTier (used in module)
+\bin\lib\tier-manager.ts:394 - validateRelease (used in module)
+\bin\lib\tier-manager.ts:17 - TierId (used in module)
+\bin\lib\tier-manager.ts:19 - TierDefinition (used in module)
+\bin\lib\tier-manager.ts:30 - TierWithId (used in module)
+\bin\lib\tier-manager.ts:34 - GitStrategy (used in module)
+\bin\lib\tier-manager.ts:42 - CoverageCheck (used in module)
+\bin\lib\tier-manager.ts:49 - FeatureFlagConfig (used in module)
+\bin\lib\tier-manager.ts:58 - ReleaseConfig (used in module)
+\bin\lib\tier-manager.ts:82 - ReleaseValidationResult (used in module)
+\bin\lib\tier-manager.ts:91 - ReleaseChecks (used in module)
+\bin\lib\tier-manager.ts:432 - default
+\bin\lib\timeout-exec.ts:23 - TimeoutExecOptions (used in module)
+\bin\lib\timeout-exec.ts:28 - TimeoutExecResult
+\bin\lib\tradeoff-analyzer.ts:22 - TradeOffOption (used in module)
+\bin\lib\tradeoff-analyzer.ts:32 - TradeOffContext (used in module)
+\bin\lib\tradeoff-analyzer.ts:43 - ReversibilityResult (used in module)
+\bin\lib\tradeoff-analyzer.ts:49 - TradeOffAnalysisOptions (used in module)
+\bin\lib\url-fetch.ts:23 - URLValidationResult (used in module)
+\bin\lib\url-fetch.ts:31 - FetchResult (used in module)
+\bin\lib\verify.ts:136 - cmdVerifySummary
+\bin\lib\verify.ts:238 - cmdVerifyPlanStructure
+\bin\lib\verify.ts:305 - cmdVerifyPhaseCompleteness
+\bin\lib\verify.ts:364 - cmdVerifyReferences
+\bin\lib\verify.ts:415 - cmdVerifyCommits
+\bin\lib\verify.ts:457 - cmdVerifyArtifacts
+\bin\lib\verify.ts:519 - cmdVerifyKeyLinks
+\bin\lib\verify.ts:586 - cmdValidateConsistency
+\bin\lib\verify.ts:718 - cmdValidateHealth
+\tests\helpers\index.ts:24 - TestFixture
+\tests\helpers\index.ts:27 - TestContext
+\tests\helpers\index.ts:30 - MockFactory
+\tests\helpers\index.ts:34 - AgentBuilder
+\tests\helpers\index.ts:35 - PhaseBuilder
+\tests\helpers\index.ts:36 - SkillBuilder
+\tests\helpers\index.ts:37 - SessionBuilder
+\tests\helpers\index.ts:41 - AssertionHelper
+\tests\helpers\index.ts:45 - createTestFile
+\tests\helpers\index.ts:46 - createTestDirectory
+\tests\helpers\index.ts:47 - runCommand
+\tests\helpers\index.ts:48 - assertFileExists
+\tests\helpers\index.ts:49 - assertFileNotExists
+\tests\helpers\index.ts:50 - assertFileContains
+\tests\helpers\index.ts:51 - assertFileNotContains
+\tests\helpers\index.ts:52 - readFileContent
+\tests\helpers\index.ts:53 - deletePath
+\tests\helpers\index.ts:54 - isDirectoryEmpty
+\tests\helpers\index.ts:55 - waitForCondition
+\tests\helpers\index.ts:56 - generateUniqueId
+\tests\helpers\index.ts:61 - runEzTools
+\tests\helpers\index.ts:62 - createTempProject
+\tests\helpers\index.ts:63 - createTempGitProject
+\tests\helpers\index.ts:64 - cleanup
+\tests\helpers\index.ts:65 - EZ_TOOLS_PATH_CONST
+\tests\helpers\index.ts:66 - EzToolsResult
+\tests\types\type-utils.ts:41 - assertType
+\tests\types\type-utils.ts:53 - expectType
+\tests\types\type-utils.ts:15 - IsExact (used in module)
+\tests\types\type-utils.ts:23 - AssertTrue (used in module)
+\tests\types\type-utils.ts:31 - AssertFalse
+\tests\types\type-utils.ts:60 - Optional
+\tests\types\type-utils.ts:67 - Required
+\tests\types\type-utils.ts:74 - Readonly
+\tests\types\type-utils.ts:81 - Pick
+\tests\types\type-utils.ts:88 - Omit
+\tests\types\type-utils.ts:95 - Extract
+\tests\types\type-utils.ts:100 - Exclude (used in module)
+\tests\types\type-utils.ts:105 - ReturnType (used in module)
+\tests\types\type-utils.ts:112 - Parameters (used in module)
+\tests\types\type-utils.ts:119 - FirstParameter
+\tests\types\type-utils.ts:124 - Async
+\tests\types\type-utils.ts:131 - ArrayElement
+\tests\types\type-utils.ts:136 - ValueOf
+\tests\types\type-utils.ts:141 - KeyOf
+\tests\types\type-utils.ts:146 - DeepPartial (used in module)
+\tests\types\type-utils.ts:153 - DeepReadonly (used in module)
+\tests\types\type-utils.ts:161 - AssertEqual
+\tests\types\type-utils.ts:166 - AssertExtends
+\tests\utils\TestConfig.ts:29 - TestConfig (used in module)
+\tests\utils\TestRunner.ts:31 - TestResult (used in module)
+\tests\utils\TestRunner.ts:41 - SuiteResult (used in module)
+\tests\utils\TestRunner.ts:51 - TestFn (used in module)
+\tests\utils\TestRunner.ts:56 - SetupFn (used in module)
+\tests\utils\TestRunner.ts:58 - TestRunner
+\bin\lib\adapters\BaseAdapter.ts:25 - HttpsRequestOptions (used in module)
+\bin\lib\adapters\index.ts:24 - BaseAdapter
+\bin\lib\adapters\index.ts:41 - ValidationResult
+\bin\lib\analytics\analytics-reporter.ts:161 - generateReport (used in module)
+\bin\lib\analytics\analytics-reporter.ts:173 - saveReport (used in module)
+\bin\lib\analytics\analytics-reporter.ts:12 - AnalyticsReportOptions (used in module)
+\bin\lib\analytics\analytics-reporter.ts:35 - AnalyticsReport (used in module)
+\bin\lib\analytics\analytics-reporter.ts:55 - AnalyticsReporter (used in module)
+\bin\lib\analytics\cohort-analyzer.ts:172 - defineCohort (used in module)
+\bin\lib\analytics\cohort-analyzer.ts:184 - calculateRetention (used in module)
+\bin\lib\analytics\cohort-analyzer.ts:12 - Cohort (used in module)
+\bin\lib\analytics\cohort-analyzer.ts:28 - RetentionPeriod (used in module)
+\bin\lib\analytics\cohort-analyzer.ts:40 - RetentionResult (used in module)
+\bin\lib\analytics\cohort-analyzer.ts:52 - Period (used in module)
+\bin\lib\analytics\cohort-analyzer.ts:57 - CohortAnalyzer (used in module)
+\bin\lib\analytics\funnel-analyzer.ts:197 - trackStep (used in module)
+\bin\lib\analytics\funnel-analyzer.ts:208 - analyzeFunnel (used in module)
+\bin\lib\analytics\funnel-analyzer.ts:32 - FunnelStep (used in module)
+\bin\lib\analytics\funnel-analyzer.ts:42 - DropOffAnalysis (used in module)
+\bin\lib\analytics\funnel-analyzer.ts:56 - FunnelAnalysisResult (used in module)
+\bin\lib\analytics\funnel-analyzer.ts:65 - FunnelAnalyzer (used in module)
+\bin\lib\commands\current-timestamp.command.ts:7 - TimestampFormat (used in module)
+\bin\lib\commands\current-timestamp.command.ts:9 - CurrentTimestampOptions (used in module)
+\bin\lib\commands\current-timestamp.command.ts:17 - CurrentTimestampCommand
+\bin\lib\commands\generate-slug.command.ts:7 - GenerateSlugOptions (used in module)
+\bin\lib\commands\generate-slug.command.ts:15 - GenerateSlugCommand
+\bin\lib\commands\list-todos.command.ts:11 - TodoEntry (used in module)
+\bin\lib\commands\list-todos.command.ts:19 - ListTodosOptions (used in module)
+\bin\lib\commands\list-todos.command.ts:27 - ListTodosCommand
+\bin\lib\commands\resolve-model.command.ts:8 - ResolveModelOptions (used in module)
+\bin\lib\commands\resolve-model.command.ts:16 - ResolveModelCommand
+\bin\lib\commands\verify-path.command.ts:9 - VerifyPathOptions (used in module)
+\bin\lib\commands\verify-path.command.ts:17 - VerifyPathCommand
+\bin\lib\deploy\deploy-audit-log.ts:92 - writeAuditLog (used in module)
+\bin\lib\deploy\deploy-audit-log.ts:12 - DeployAuditEntry (used in module)
+\bin\lib\deploy\deploy-audit-log.ts:27 - DeployAuditLog (used in module)
+\bin\lib\deploy\deploy-detector.ts:13 - DetectionResult (used in module)
+\bin\lib\deploy\deploy-detector.ts:31 - DeployDetector (used in module)
+\bin\lib\deploy\deploy-env-manager.ts:138 - getEnvConfig (used in module)
+\bin\lib\deploy\deploy-env-manager.ts:12 - EnvConfig (used in module)
+\bin\lib\deploy\deploy-env-manager.ts:33 - ValidationResult (used in module)
+\bin\lib\deploy\deploy-env-manager.ts:40 - DeployEnvManager (used in module)
+\bin\lib\deploy\deploy-health-check.ts:111 - checkHealth (used in module)
+\bin\lib\deploy\deploy-health-check.ts:12 - HealthResult (used in module)
+\bin\lib\deploy\deploy-health-check.ts:26 - HealthCheckResult (used in module)
+\bin\lib\deploy\deploy-health-check.ts:35 - DeployHealthCheck (used in module)
+\bin\lib\deploy\deploy-pre-flight.ts:68 - runPreFlight (used in module)
+\bin\lib\deploy\deploy-pre-flight.ts:11 - PreFlightResult (used in module)
+\bin\lib\deploy\deploy-pre-flight.ts:22 - DeployPreFlight (used in module)
+\bin\lib\deploy\deploy-rollback.ts:79 - rollback (used in module)
+\bin\lib\deploy\deploy-rollback.ts:11 - RollbackResult (used in module)
+\bin\lib\deploy\deploy-rollback.ts:18 - DeployRollback (used in module)
+\bin\lib\deploy\deploy-runner.ts:113 - run (used in module)
+\bin\lib\deploy\deploy-runner.ts:11 - DeployOptions (used in module)
+\bin\lib\deploy\deploy-runner.ts:21 - DeployResult (used in module)
+\bin\lib\deploy\deploy-runner.ts:28 - DeployRunner (used in module)
+\bin\lib\deploy\deploy-status.ts:92 - pollStatus (used in module)
+\bin\lib\deploy\deploy-status.ts:9 - StatusResult (used in module)
+\bin\lib\deploy\deploy-status.ts:19 - PollOptions (used in module)
+\bin\lib\deploy\deploy-status.ts:26 - DeployStatus (used in module)
+\bin\lib\facades\ContextManagerFacade.ts:365 - default
+\bin\lib\facades\SkillResolverFacade.ts:490 - default
+\bin\lib\finops\budget-enforcer.ts:145 - checkBudget (used in module)
+\bin\lib\finops\budget-enforcer.ts:156 - enforce (used in module)
+\bin\lib\finops\budget-enforcer.ts:35 - BudgetEnforcer (used in module)
+\bin\lib\finops\cost-reporter.ts:156 - generateReport (used in module)
+\bin\lib\finops\cost-reporter.ts:168 - saveReport (used in module)
+\bin\lib\finops\cost-reporter.ts:12 - CostReportOptions (used in module)
+\bin\lib\finops\cost-reporter.ts:16 - CostTrend (used in module)
+\bin\lib\finops\cost-reporter.ts:21 - CostRecommendation (used in module)
+\bin\lib\finops\cost-reporter.ts:28 - CostReport (used in module)
+\bin\lib\finops\cost-reporter.ts:39 - CostReporter (used in module)
+\bin\lib\finops\finops-analyzer.ts:148 - analyzeCosts (used in module)
+\bin\lib\finops\finops-analyzer.ts:11 - ResourceData (used in module)
+\bin\lib\finops\finops-analyzer.ts:18 - RightsizingRecommendation (used in module)
+\bin\lib\finops\finops-analyzer.ts:26 - CostAnalysis (used in module)
+\bin\lib\finops\finops-analyzer.ts:34 - CostTrend (used in module)
+\bin\lib\finops\finops-analyzer.ts:41 - FinopsAnalyzer (used in module)
+\bin\lib\finops\spot-manager.ts:156 - analyzeWorkload (used in module)
+\bin\lib\finops\spot-manager.ts:11 - WorkloadCharacteristics (used in module)
+\bin\lib\finops\spot-manager.ts:20 - SuitabilityAnalysis (used in module)
+\bin\lib\finops\spot-manager.ts:25 - WorkloadRecommendation (used in module)
+\bin\lib\finops\spot-manager.ts:35 - SpotRecommendations (used in module)
+\bin\lib\finops\spot-manager.ts:43 - SpotManager (used in module)
+\bin\lib\gates\gate-01-requirement.ts:20 - requirementSchema (used in module)
+\bin\lib\gates\gate-01-requirement.ts:36 - taskSchema (used in module)
+\bin\lib\gates\gate-01-requirement.ts:48 - phaseSchema (used in module)
+\bin\lib\gates\gate-01-requirement.ts:60 - gateContextSchema (used in module)
+\bin\lib\gates\gate-01-requirement.ts:72 - GivenWhenThenResult (used in module)
+\bin\lib\gates\gate-01-requirement.ts:84 - GateError (used in module)
+\bin\lib\gates\gate-01-requirement.ts:94 - GateResult (used in module)
+\bin\lib\gates\gate-02-architecture.ts:22 - fileSchema (used in module)
+\bin\lib\gates\gate-02-architecture.ts:36 - componentSchema (used in module)
+\bin\lib\gates\gate-02-architecture.ts:50 - skillRecommendationSchema (used in module)
+\bin\lib\gates\gate-02-architecture.ts:66 - gateContextSchema (used in module)
+\bin\lib\gates\gate-02-architecture.ts:107 - GateError (used in module)
+\bin\lib\gates\gate-02-architecture.ts:115 - GateResult (used in module)
+\bin\lib\gates\gate-03-code.ts:126 - countLines (used in module)
+\bin\lib\gates\gate-03-code.ts:173 - checkNestingDepth (used in module)
+\bin\lib\gates\gate-03-code.ts:201 - checkParameterList (used in module)
+\bin\lib\gates\gate-03-code.ts:19 - codeFileSchema (used in module)
+\bin\lib\gates\gate-03-code.ts:44 - codeMetricsSchema (used in module)
+\bin\lib\gates\gate-03-code.ts:64 - gateContextSchema (used in module)
+\bin\lib\gates\gate-03-code.ts:108 - GateError (used in module)
+\bin\lib\gates\gate-03-code.ts:116 - GateResult (used in module)
+\bin\lib\gates\gate-04-security.ts:262 - analyzeSecurityFile (used in module)
+\bin\lib\gates\gate-04-security.ts:21 - codeFileSchema (used in module)
+\bin\lib\gates\gate-04-security.ts:33 - envConfigSchema (used in module)
+\bin\lib\gates\gate-04-security.ts:47 - authConfigSchema (used in module)
+\bin\lib\gates\gate-04-security.ts:67 - gateContextSchema (used in module)
+\bin\lib\gates\gate-04-security.ts:85 - SECURITY_ANTI_PATTERNS (used in module)
+\bin\lib\gates\gate-04-security.ts:103 - SECRET_PATTERNS (used in module)
+\bin\lib\gates\gate-04-security.ts:121 - SQL_INJECTION_PATTERNS (used in module)
+\bin\lib\gates\gate-04-security.ts:139 - GateError (used in module)
+\bin\lib\gates\gate-04-security.ts:147 - GateResult (used in module)
+\bin\lib\perf\perf-analyzer.ts:12 - PerfAnalysisOptions (used in module)
+\bin\lib\perf\perf-analyzer.ts:28 - PerfAnalysisResult (used in module)
+\bin\lib\perf\perf-analyzer.ts:41 - PerfAnalyzer
+\bin\lib\perf\perf-baseline.ts:111 - saveBaseline (used in module)
+\bin\lib\perf\perf-baseline.ts:121 - loadBaseline (used in module)
+\bin\lib\perf\perf-baseline.ts:12 - BaselineMetadata (used in module)
+\bin\lib\perf\perf-baseline.ts:24 - BaselineMetrics (used in module)
+\bin\lib\perf\perf-baseline.ts:30 - PerfBaseline (used in module)
+\bin\lib\perf\perf-reporter.ts:151 - generateReport (used in module)
+\bin\lib\perf\perf-reporter.ts:162 - saveReport (used in module)
+\bin\lib\perf\perf-reporter.ts:12 - PerfResults (used in module)
+\bin\lib\perf\perf-reporter.ts:28 - ReportSummary (used in module)
+\bin\lib\perf\perf-reporter.ts:40 - PerfReport (used in module)
+\bin\lib\perf\perf-reporter.ts:57 - PerfReporter (used in module)
+\bin\lib\perf\regression-detector.ts:123 - detectRegressions (used in module)
+\bin\lib\perf\regression-detector.ts:12 - RegressionFinding (used in module)
+\bin\lib\perf\regression-detector.ts:44 - RegressionDetector (used in module)
+\bin\lib\repositories\config.repository.ts:17 - ConfigEntity (used in module)
+\bin\lib\services\git.service.ts:15 - GitResult (used in module)
+\bin\lib\services\git.service.ts:21 - GitCommitOptions (used in module)
+\bin\lib\services\index.ts:13 - OperationHandler
+\bin\lib\services\milestone.service.ts:12 - MilestonePhaseFilter (used in module)
+\bin\lib\services\OperationHandler.ts:26 - OperationOptions (used in module)
+\bin\lib\services\phase.service.ts:19 - PhaseSearchResult (used in module)
+\bin\lib\services\phase.service.ts:34 - ArchivedPhaseDir (used in module)
+\bin\lib\services\roadmap.service.ts:12 - RoadmapPhaseResult (used in module)
+\bin\lib\services\roadmap.service.ts:20 - MilestoneInfo (used in module)
+\bin\lib\strategies\HybridStrategy.ts:230 - default
+\bin\lib\strategies\RankByRelevanceStrategy.ts:305 - default
+\bin\lib\strategies\StrategyFactory.ts:166 - default
+\bin\lib\strategies\SummarizeStrategy.ts:275 - default
+\bin\lib\strategies\TruncateStrategy.ts:181 - default
+\tests\fixtures\test-project\pages\index.tsx:1 - default
+\tests\fixtures\test-project\src\complex.ts:2 - complexFunction
+\tests\fixtures\test-project\src\deprecated-file.ts:2 - old
+\tests\fixtures\test-project\src\fixme-file.ts:2 - broken
+\tests\fixtures\test-project\src\index.ts:1 - app
+\tests\fixtures\test-project\src\large-file.ts:601 - large
+\tests\fixtures\test-project\src\simple.ts:1 - simple
+\tests\fixtures\test-project\src\todo-file.ts:2 - todo
+\tests\fixtures\test-project\src\xxx-file.ts:2 - slow
+\tests\fixtures\test-project\pages\auth\login.tsx:1 - default
+\tests\fixtures\test-project\pages\dashboard\index.tsx:1 - default
+\tests\fixtures\test-project\src\components\Button.tsx:1 - Button
+\tests\fixtures\test-project\src\models\user.ts:1 - user
+\tests\fixtures\test-project\src\services\api.ts:1 - api

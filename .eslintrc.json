@@ -22,9 +22,11 @@
     "@typescript-eslint/no-unused-vars": ["error", { "argsIgnorePattern": "^_" }],
 
     "complexity": ["error", { "max": 10 }],
-    "max-depth": ["error", { "max": 4 }],
+    "max-depth": ["error", { "max": 3 }],
     "max-lines-per-function": ["warn", { "max": 50 }],
-    "max-params": ["error", { "max": 5 }],
+    "max-params": ["error", { "max": 4 }],
+    "max-lines": ["warn", { "max": 300 }],
+    "max-statements": ["warn", { "max": 50 }],
 
     "sonarjs/cognitive-complexity": ["error", 15],
     "sonarjs/no-duplicated-branches": "error",
