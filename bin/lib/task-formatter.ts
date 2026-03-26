@@ -69,9 +69,7 @@ function parseTaskMarkdown(taskMarkdown: string | null | undefined): TaskArgs | 
   while ((match = argPattern.exec(argsString)) !== null) {
     const [, key, doubleQuoted, singleQuoted, unquoted] = match;
     // Use whichever quote style matched, or unquoted value
-    const value = doubleQuoted !== undefined ? doubleQuoted
-      : singleQuoted !== undefined ? singleQuoted
-      : unquoted;
+    const value = doubleQuoted ?? singleQuoted ?? unquoted;
     if (value !== undefined) {
       args[key] = value;
     }
@@ -79,7 +77,7 @@ function parseTaskMarkdown(taskMarkdown: string | null | undefined): TaskArgs | 
 
   // Handle nested prompt content (multiline strings in quotes)
   const promptMatch = taskMarkdown.match(/prompt\s*=\s*"([\s\S]*?)"/);
-  if (promptMatch) {
+  if (promptMatch && promptMatch[1]) {
     args.prompt = promptMatch[1];
   }
 
@@ -214,8 +212,8 @@ export function extractTasksFromMarkdown(markdown: string | null | undefined): E
   // Try code block format first
   while ((match = codeBlockRegex.exec(markdown)) !== null) {
     const full = match[0];
-    const argsString = match[1];
-    const position = match.index;
+    const argsString = match[1] ?? '';
+    const position = match.index ?? 0;
 
     if (!processedPositions.has(position)) {
       processedPositions.add(position);
@@ -231,8 +229,8 @@ export function extractTasksFromMarkdown(markdown: string | null | undefined): E
   inlineRegex.lastIndex = 0;
   while ((match = inlineRegex.exec(markdown)) !== null) {
     const full = match[0];
-    const argsString = match[1];
-    const position = match.index;
+    const argsString = match[1] ?? '';
+    const position = match.index ?? 0;
 
     // Check if this position is inside a code block
     const beforeText = markdown.substring(0, position);
@@ -268,9 +266,7 @@ function parseArgsString(argsString: string): TaskArgs {
 
   while ((argMatch = argPattern.exec(argsString)) !== null) {
     const [, key, doubleQuoted, singleQuoted, unquoted] = argMatch;
-    args[key] = doubleQuoted !== undefined ? doubleQuoted
-      : singleQuoted !== undefined ? singleQuoted
-      : unquoted?.trim();
+    args[key] = doubleQuoted ?? singleQuoted ?? unquoted?.trim();
   }
 
   return args;
