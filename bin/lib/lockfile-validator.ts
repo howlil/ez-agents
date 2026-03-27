@@ -1,4 +1,4 @@
-/**
+﻿/**
  * Lockfile Validator — Validate package manager lockfiles
  *
  * Validates lockfile integrity for npm, yarn, and pnpm:
@@ -9,7 +9,7 @@
 
 import { readFileSync, existsSync } from 'fs';
 import { join } from 'path';
-import { defaultLogger as logger } from './logger.js';
+import { defaultLogger as logger } from './logger/index.js';
 
 // ─── Type Definitions ────────────────────────────────────────────────────────
 

@@ -18,7 +18,7 @@
  */
 
 import { LogExecution } from '../decorators/index.js';
-import { FileOperations } from '../file-operations.js';
+import { fileOperations } from '../file/index.js';
 import * as path from 'path';
 
 /**

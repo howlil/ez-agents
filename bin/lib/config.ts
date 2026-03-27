@@ -1,11 +1,11 @@
-/**
+﻿/**
  * Config — Planning config CRUD operations
  */
 
 import * as fs from 'fs';
 import * as path from 'path';
 import { output, error } from './core.js';
-import { safePlanningWriteSync } from './planning-write.js';
+import { safePlanningWriteSync } from './planning/index.js';
 
 const VALID_CONFIG_KEYS = new Set([
   'mode', 'granularity', 'parallelization', 'commit_docs', 'model_profile',
@@ -140,7 +140,7 @@ export function ensureConfigSection(cwd: string, raw?: boolean): void {
       }
     }
   } catch (err) {
-    const { defaultLogger: logger } = require('./logger.js');
+    const { defaultLogger: logger } = require('./logger/index.js');
     logger.warn('Malformed global defaults, using hardcoded defaults', { path: globalDefaultsPath, error: err instanceof Error ? err.message : 'Unknown' });
   }
 

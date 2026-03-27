@@ -1,4 +1,4 @@
-/**
+﻿/**
  * Truncate Strategy
  *
  * Simple length-based truncation strategy for context compression.
@@ -13,7 +13,7 @@
  */
 
 import { LogExecution } from '../decorators/LogExecution.js';
-import { defaultLogger as logger } from '../logger.js';
+import { defaultLogger as logger } from '../logger/index.js';
 import type { CompressionStrategy, CompressionOptions, CompressionResult } from './CompressionStrategy.js';
 
 /**

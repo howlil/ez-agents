@@ -19,7 +19,7 @@ import { SummarizeStrategy } from './SummarizeStrategy.js';
 import { TruncateStrategy } from './TruncateStrategy.js';
 import { RankByRelevanceStrategy } from './RankByRelevanceStrategy.js';
 import { HybridStrategy, type HybridStrategyOptions } from './HybridStrategy.js';
-import { ContextRelevanceScorer } from '../context-relevance-scorer.js';
+import { ContextRelevanceScorer } from '../context/index.js';
 
 /**
  * Strategy configuration options

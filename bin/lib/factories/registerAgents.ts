@@ -12,7 +12,7 @@ import { EzExecutorAgent } from './EzExecutorAgent.js';
 import { EzPhaseResearcherAgent } from './EzPhaseResearcherAgent.js';
 import { EzProjectResearcherAgent } from './EzProjectResearcherAgent.js';
 import { EzVerifierAgent } from './EzVerifierAgent.js';
-import { defaultLogger as logger } from '../logger.js';
+import { defaultLogger as logger } from '../logger/index.js';
 
 /**
  * Register all default agent types with the registry

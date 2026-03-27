@@ -1,4 +1,4 @@
-/**
+﻿/**
  * Chat Handler
  *
  * Pure function factory for handling chat requests.
@@ -19,7 +19,7 @@
  * ```
  */
 
-import { adapterLogger, createTraceContext, type TraceContext } from '../../logger.js';
+import { adapterLogger, createTraceContext, type TraceContext } from '../../logger/index.js';
 import { httpsRequest } from './httpsRequest.js';
 import type {
   Message,

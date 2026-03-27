@@ -10,13 +10,13 @@ import * as fs from 'fs';
 import * as path from 'path';
 import { fileURLToPath } from 'url';
 import { output, error } from './lib/core.js';
-import { extractFrontmatter } from './lib/frontmatter.js';
-import { cmdVerifyArtifacts, cmdVerifyKeyLinks, cmdVerifyPhaseCompleteness, cmdValidateHealth } from './lib/verify.js';
-import { roadmapAnalyze, roadmapGetPhase, roadmapUpdatePhaseStatus, roadmapUpdatePlanProgress } from './lib/roadmap.js';
-import { stateLoad, stateUpdate } from './lib/state.js';
-import { cmdInitNewProject, cmdInitNewMilestone, cmdInitPhaseOp, cmdInitProgress, cmdInitQuick, cmdInitVerifyWork, cmdInitMapCodebase, cmdInitResume, cmdInitPlanPhase, cmdInitExecutePhase } from './lib/init.js';
+import { extractFrontmatter } from './lib/planning/index.js';
+import { cmdVerifyArtifacts, cmdVerifyKeyLinks, cmdVerifyPhaseCompleteness, cmdValidateHealth } from './lib/workflow/index.js';
+import { roadmapAnalyze, roadmapGetPhase, roadmapUpdatePhaseStatus, roadmapUpdatePlanProgress } from './lib/phase/index.js';
+import { stateLoad, stateUpdate } from './lib/state/index.js';
+import { cmdInitNewProject, cmdInitNewMilestone, cmdInitPhaseOp, cmdInitProgress, cmdInitQuick, cmdInitVerifyWork, cmdInitMapCodebase, cmdInitResume, cmdInitPlanPhase, cmdInitExecutePhase } from './lib/init/index.js';
 import { configGet, configSet } from './lib/config.js';
-import CostTracker from './lib/cost-tracker.js';
+import CostTracker from './lib/cost/index.js';
 import {
   cmdGenerateSlug,
   cmdCurrentTimestamp,
@@ -31,9 +31,9 @@ import {
   cmdTodoComplete,
   cmdScaffold,
   cmdStats
-} from './lib/commands.js';
-import { milestoneComplete, requirementsMarkComplete } from './lib/milestone.js';
-import { phaseComplete } from './lib/phase.js';
+} from './lib/init/index.js';
+import { milestoneComplete, requirementsMarkComplete } from './lib/phase/index.js';
+import { phaseComplete } from './lib/phase/index.js';
 import { deploy } from '../commands/deploy.js';
 import { healthCheck } from '../commands/health-check.js';
 import { rollback } from '../commands/rollback.js';

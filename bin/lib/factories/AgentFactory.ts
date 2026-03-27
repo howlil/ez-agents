@@ -13,7 +13,7 @@
  */
 
 import { LogExecution } from '../decorators/LogExecution.js';
-import { defaultLogger as logger } from '../logger.js';
+import { defaultLogger as logger } from '../logger/index.js';
 import type { IAgent, AgentConfig, AgentFactory } from './types.js';
 
 /**

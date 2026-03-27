@@ -24,7 +24,7 @@ import type {
   HttpsRequestOptions
 } from './ModelProviderAdapter.js';
 import type { ToolCall } from '../assistant-adapter.js';
-import { createTraceContext, type TraceContext } from '../logger.js';
+import { createTraceContext, type TraceContext } from '../logger/index.js';
 
 /**
  * Claude Adapter class

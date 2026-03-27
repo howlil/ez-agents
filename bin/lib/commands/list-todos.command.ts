@@ -6,7 +6,7 @@ import * as fs from 'fs';
 import * as path from 'path';
 import { BaseCommand, type CommandResult } from './index.js';
 import { toPosixPath } from '../core.js';
-import { defaultLogger as logger } from '../logger.js';
+import { defaultLogger as logger } from '../logger/index.js';
 
 export interface TodoEntry {
   file: string;

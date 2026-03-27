@@ -13,7 +13,7 @@
  */
 
 import type { ToolCall } from '../assistant-adapter.js';
-import type { TraceContext } from '../logger.js';
+import type { TraceContext } from '../logger/index.js';
 
 /**
  * Message interface for chat conversations

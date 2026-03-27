@@ -7,7 +7,7 @@
  * Usage: npm run check:complexity
  */
 
-import { CodeComplexityAnalyzer, type ComplexityIssue } from '../bin/lib/code-complexity-analyzer.js';
+import { CodeComplexityAnalyzer, type ComplexityIssue } from '../bin/lib/analyzer/index.js';
 import { fileURLToPath } from 'url';
 import path from 'path';
 

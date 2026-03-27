@@ -4,7 +4,7 @@
  */
 
 import { execSync } from 'child_process';
-import { executeProcess } from '../process-executor.js';
+import { executeProcess } from '../executor/index.js';
 
 /**
  * Deploy options

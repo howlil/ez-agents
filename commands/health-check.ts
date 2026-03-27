@@ -1,5 +1,4 @@
-#!/usr/bin/env node
-
+﻿
 /**
  * Health Check Command (Phase 19 Placeholder)
  *
@@ -12,7 +11,7 @@
  * - Service dependency verification
  */
 
-import { Logger } from '../bin/lib/logger.js';
+import { Logger } from '../bin/lib/logger/index.js';
 
 interface HealthCheck {
   name: string;
@@ -51,7 +50,7 @@ class HealthCheckCommand {
 
     this.logger.info('Results:');
     this.checks.forEach(check => {
-      const icon = check.status === 'PASS' ? '✓' : '✗';
+      const icon = check.status === 'PASS' ? 'âœ“' : 'âœ—';
       this.logger.info(`  ${icon} ${check.name}: ${check.status}`);
     });
 

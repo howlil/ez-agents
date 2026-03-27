@@ -18,12 +18,12 @@
  */
 
 import { LogExecution } from '../decorators/LogExecution.js';
-import { defaultLogger as logger } from '../logger.js';
+import { defaultLogger as logger } from '../logger/index.js';
 import type { CompressionStrategy, CompressionOptions, CompressionResult } from './CompressionStrategy.js';
 import { SummarizeStrategy } from './SummarizeStrategy.js';
 import { TruncateStrategy } from './TruncateStrategy.js';
 import { RankByRelevanceStrategy } from './RankByRelevanceStrategy.js';
-import { ContextRelevanceScorer } from '../context-relevance-scorer.js';
+import { ContextRelevanceScorer } from '../context/index.js';
 
 /**
  * Options for configuring HybridStrategy

@@ -19,7 +19,7 @@
 import * as fs from 'node:fs';
 import * as path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { LogExecution } from '../bin/lib/decorators/LogExecution.js';
+import { LogExecution } from '../bin/lib/decorators/index.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -246,7 +246,7 @@ function generateRecommendations(hotPaths: HotPath[]): Recommendation[] {
 async function importProfilingResults(): Promise<any[]> {
   try {
     // Dynamic import to avoid circular dependencies
-    const module = await import('../bin/lib/decorators/LogExecution.js');
+    const module = await import('../bin/lib/decorators/index.js');
     if (module.getProfilingResults) {
       return module.getProfilingResults();
     }

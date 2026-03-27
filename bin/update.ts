@@ -16,7 +16,7 @@ import { execSync } from 'child_process';
 import * as path from 'path';
 import * as fs from 'fs';
 import { fileURLToPath } from 'url';
-import { BaseCliHandler } from './lib/base-cli-handler.js';
+import { BaseCliHandler } from './lib/cli/index.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const PACKAGE_NAME = 'ez-agents';

@@ -18,7 +18,7 @@
  * ```
  */
 
-import { defaultLogger as logger } from '../logger.js';
+import { defaultLogger as logger } from '../logger/index.js';
 import type { CacheResultOptions, CacheEntry } from './types.js';
 
 /**

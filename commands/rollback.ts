@@ -1,5 +1,4 @@
-#!/usr/bin/env node
-
+﻿
 /**
  * Rollback Command (Phase 19 Placeholder)
  *
@@ -13,7 +12,7 @@
  * - Rollback validation
  */
 
-import { Logger } from '../bin/lib/logger.js';
+import { Logger } from '../bin/lib/logger/index.js';
 
 interface RollbackStep {
   name: string;

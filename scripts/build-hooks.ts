@@ -11,8 +11,8 @@
 import * as fs from 'fs';
 import * as path from 'path';
 import { fileURLToPath } from 'url';
-import { BaseCliHandler } from '../bin/lib/base-cli-handler.js';
-import { FileOperations } from '../bin/lib/file-operations.js';
+import { BaseCliHandler } from '../bin/lib/cli/index.js';
+import { fileOperations } from '../bin/lib/file/index.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 

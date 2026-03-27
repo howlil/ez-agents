@@ -17,7 +17,7 @@
  * ```
  */
 
-import { defaultLogger as logger } from '../logger.js';
+import { defaultLogger as logger } from '../logger/index.js';
 import type { LogExecutionOptions } from './types.js';
 
 /**

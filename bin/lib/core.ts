@@ -1,13 +1,13 @@
-/**
+﻿/**
  * Core — Shared utilities, constants, and internal helpers
  */
 
 import * as fs from 'fs';
 import * as path from 'path';
 import * as os from 'os';
-import { safeExec } from './safe-exec.js';
-import { auditExec } from './audit-exec.js';
-import { defaultLogger as logger } from './logger.js';
+import { safeExec } from './executor/index.js';
+import { auditExec } from './executor/index.js';
+import { defaultLogger as logger } from './logger/index.js';
 
 /** Normalize a relative path to always use forward slashes (cross-platform). */
 function toPosixPath(p: string): string {

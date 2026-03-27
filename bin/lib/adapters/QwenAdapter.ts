@@ -22,7 +22,7 @@ import type {
   TokenUsage,
   HttpsRequestOptions
 } from './ModelProviderAdapter.js';
-import { createTraceContext, type TraceContext } from '../logger.js';
+import { createTraceContext, type TraceContext } from '../logger/index.js';
 
 /**
  * Qwen Adapter class

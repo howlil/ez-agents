@@ -1,5 +1,4 @@
-#!/usr/bin/env node
-
+﻿
 /**
  * Deploy Command (Phase 19 Placeholder)
  *
@@ -13,7 +12,7 @@
  * - Environment variable management
  */
 
-import { Logger } from '../bin/lib/logger.js';
+import { Logger } from '../bin/lib/logger/index.js';
 import { readFileSync } from 'fs';
 import { join } from 'path';
 
