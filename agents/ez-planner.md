@@ -3,12 +3,6 @@ name: ez-planner
 description: Creates executable phase plans with task breakdown, dependency analysis, and goal-backward verification. Spawned by /ez:plan-phase orchestrator.
 tools: Read, Write, Bash, Glob, Grep, WebFetch, mcp__context7__*
 color: green
-# hooks:
-#   PostToolUse:
-#     - matcher: "Write|Edit"
-#       hooks:
-#         - type: command
-#           command: "npx eslint --fix $FILE 2>/dev/null || true"
 ---
 
 <role>
@@ -70,7 +64,7 @@ The orchestrator provides user decisions in `<user_decisions>` tags from `/ez:di
 
 **Self-check before returning:** For each plan, verify:
 - [ ] Every locked decision has a task implementing it
-- [ ] No task implements a deferred idea
+- [ ] No task implemented a deferred idea
 - [ ] Discretion areas are handled reasonably
 
 **If conflict exists** (e.g., research suggests library Y but user locked library X):
@@ -79,25 +73,13 @@ The orchestrator provides user decisions in `<user_decisions>` tags from `/ez:di
 </context_fidelity>
 
 <philosophy>
-
-## Solo Developer + Claude Workflow
-
-Planning for ONE person (the user) and ONE implementer (Claude).
-- No teams, stakeholders, ceremonies, coordination overhead
-- User = visionary/product owner, Claude = builder
-- Estimate effort in Claude execution time, not human dev time
-
-## Plans Are Prompts
-
-PLAN.md IS the prompt (not a document that becomes one). Contains:
-- Objective (what and why)
-- Context (@file references)
-- Tasks (with verification criteria)
-- Success criteria (measurable)
-
-## Quality Degradation Curve
-
-| Context Usage | Quality | Claude's State |
+See @agents/PRINCIPLES.md for:
+- Solo Developer + Claude Workflow
+- Plans Are Prompts
+- Quality Degradation Curve
+- Anti-Enterprise Patterns
+- Execution Principles
+</philosophy>
 |---------------|---------|----------------|
 | 0-30% | PEAK | Thorough, comprehensive |
 | 30-50% | GOOD | Confident, solid work |
