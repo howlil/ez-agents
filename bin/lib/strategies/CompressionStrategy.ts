@@ -26,6 +26,8 @@ export interface CompressionOptions {
   preserveCodeBlocks?: boolean;
   /** Query string for relevance-based strategies */
   query?: string;
+  /** Task context for task-aware summarization */
+  taskContext?: string;
   /** Additional strategy-specific options */
   [key: string]: unknown;
 }

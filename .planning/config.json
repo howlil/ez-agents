@@ -10,5 +10,26 @@
     "verifier": true,
     "nyquist_validation": true,
     "auto_advance": true
+  },
+  "context_slicing": {
+    "enabled": true,
+    "tokenBudget": 8000,
+    "minScore": 0.3,
+    "maxFiles": 15,
+    "summarizationThreshold": 0.5,
+    "cache": {
+      "enabled": true,
+      "ttl": 300000,
+      "maxSize": 100
+    },
+    "tierAllocation": {
+      "hot": 0.7,
+      "warm": 0.2,
+      "cold": 0.1
+    },
+    "metrics": {
+      "enabled": true,
+      "granularity": "per-phase"
+    }
   }
 }

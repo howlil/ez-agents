@@ -147,15 +147,16 @@ export class SummarizeStrategy implements CompressionStrategy {
   }
 
   /**
-   * Summarize content using section-based approach
+   * Summarize content using section-based approach with task awareness
    * @param content - Content to summarize
-   * @param options - Compression options
+   * @param options - Compression options including taskContext
    * @returns Summarized content
    * @private
    */
   private _summarize(content: string, options: CompressionOptions): string {
     const maxTokens = options.maxTokens ?? 4000;
     const targetRatio = options.targetCompressionRatio ?? 0.5;
+    const taskContext = options.taskContext ?? '';
 
     // Estimate characters per token (conservative estimate)
     const charsPerToken = 4;
@@ -170,7 +171,8 @@ export class SummarizeStrategy implements CompressionStrategy {
     const sections = this._splitIntoSections(content);
 
     // Prioritize sections (keep first and last, summarize middle)
-    const result = this._prioritizeSections(sections, maxChars, targetRatio);
+    // If taskContext is provided, prioritize sections matching task keywords
+    const result = this._prioritizeSections(sections, maxChars, targetRatio, taskContext);
 
     return result;
   }
@@ -192,10 +194,16 @@ export class SummarizeStrategy implements CompressionStrategy {
    * @param sections - Array of content sections
    * @param maxChars - Maximum characters allowed
    * @param targetRatio - Target compression ratio
+   * @param taskContext - Optional task context for relevance scoring
    * @returns Prioritized and summarized content
    * @private
    */
-  private _prioritizeSections(sections: string[], maxChars: number, targetRatio: number): string {
+  private _prioritizeSections(
+    sections: string[],
+    maxChars: number,
+    targetRatio: number,
+    taskContext: string = ''
+  ): string {
     if (sections.length === 0) {
       return '';
     }
@@ -206,24 +214,58 @@ export class SummarizeStrategy implements CompressionStrategy {
     // Keep last section (conclusion) if different from first
     const lastSection = sections.length > 1 ? sections[sections.length - 1] ?? '' : '';
 
-    // Summarize middle sections
+    // Score middle sections by relevance to task context
     const middleSections = sections.slice(1, sections.length - 1);
-    const middleContent = middleSections.join('\n\n');
+    let scoredSections: Array<{ section: string; score: number }> = [];
+
+    if (taskContext) {
+      // Score sections by task relevance
+      const taskKeywords = taskContext.toLowerCase().split(/\s+/).filter(w => w.length > 3);
+      scoredSections = middleSections.map(section => {
+        const sectionLower = section.toLowerCase();
+        const score = taskKeywords.reduce((acc, keyword) => {
+          const regex = new RegExp(`\\b${keyword}\\b`, 'gi');
+          const matches = sectionLower.match(regex);
+          return acc + (matches ? matches.length : 0);
+        }, 0);
+        return { section, score };
+      });
+
+      // Sort by score (highest first)
+      scoredSections.sort((a, b) => b.score - a.score);
+    }
 
     // Calculate space allocation
     const reservedForFirstLast = firstSection.length + lastSection.length;
     const spaceForMiddle = Math.max(0, maxChars - reservedForFirstLast);
 
-    // Truncate or summarize middle content
-    let processedMiddle = middleContent;
-    if (middleContent.length > spaceForMiddle) {
-      // Simple truncation with ellipsis
-      const truncatePoint = this._findTruncatePoint(middleContent, spaceForMiddle);
-      processedMiddle = middleContent.slice(0, truncatePoint) + '\n\n[... middle content summarized ...]';
+    // Build middle content from scored sections (or original if no task context)
+    let middleContent = '';
+    if (taskContext && scoredSections.length > 0) {
+      // Take highest-scored sections first
+      for (const { section } of scoredSections) {
+        if (middleContent.length + section.length <= spaceForMiddle) {
+          middleContent += section + '\n\n';
+        } else {
+          // Truncate this section to fit
+          const remaining = spaceForMiddle - middleContent.length;
+          if (remaining > 0) {
+            middleContent += section.slice(0, remaining) + '\n\n[... summarized ...]';
+          }
+          break;
+        }
+      }
+    } else {
+      // Fallback: use original approach
+      middleContent = middleSections.join('\n\n');
+      if (middleContent.length > spaceForMiddle) {
+        const truncatePoint = this._findTruncatePoint(middleContent, spaceForMiddle);
+        middleContent = middleContent.slice(0, truncatePoint) + '\n\n[... middle content summarized ...]';
+      }
     }
 
     // Combine sections
-    const result = [firstSection, processedMiddle, lastSection].filter(Boolean).join('\n\n');
+    const result = [firstSection, middleContent.trim(), lastSection].filter(Boolean).join('\n\n');
 
     // Final size check
     if (result.length > maxChars) {

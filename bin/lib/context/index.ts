@@ -9,6 +9,19 @@
 export { ContextOptimizer } from './context-optimizer.js';
 export type { ContextSource, ScoredFile, ContextResult, ContextOptions } from './context-optimizer.js';
 
+// Context slicer
+export { ContextSlicer, ContextTier } from './context-slicer.js';
+export type {
+  SlicedContextResult,
+  SlicerConfig,
+  SliceOptions,
+  TieredSources
+} from './context-slicer.js';
+
+// Token tracker
+export { TokenTracker } from './token-tracker.js';
+export type { TokenUsage, PhaseTokenSummary } from './token-tracker.js';
+
 // Errors
 export * from './context-errors.js';
 

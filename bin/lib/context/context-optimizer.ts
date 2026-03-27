@@ -94,6 +94,14 @@ export interface ContextOptions {
 }
 
 /**
+ * Cached context entry for TTL-based caching
+ */
+interface CachedContext {
+  timestamp: number;
+  result: ContextResult;
+}
+
+/**
  * ContextOptimizer - Single-pass context optimization with transparent reasoning
  *
  * Replaces 6 separate classes with unified optimizer:
@@ -103,16 +111,21 @@ export interface ContextOptions {
  * - Token budget enforcement
  * - Transparent scoring reasoning
  * - Structured LLM-friendly output
+ * - In-memory TTL caching (5min expiry, 100 entries, LRU eviction)
  */
 export class ContextOptimizer {
   private readonly cwd: string;
   private readonly fileAccess: FileAccessService;
   private readonly enabled: boolean;
+  private readonly cache: Map<string, CachedContext>;
+  private readonly cacheTTL: number = 300000; // 5 minutes
+  private readonly cacheMaxSize: number = 100;
 
   constructor(cwd?: string) {
     this.cwd = cwd || process.cwd();
     this.fileAccess = new FileAccessService();
     this.enabled = isEnabled();
+    this.cache = new Map();
   }
 
   /**
@@ -149,6 +162,13 @@ export class ContextOptimizer {
       maxTokens,
       includeReasoning = true,
     } = options;
+
+    // Check cache before processing
+    const cacheKey = this.generateCacheKey(files, task);
+    const cached = this.getFromCache(cacheKey);
+    if (cached) {
+      return cached;
+    }
 
     try {
       // SINGLE PASS: Read + score + filter in one operation
@@ -213,7 +233,7 @@ export class ContextOptimizer {
       const optimizedSize = context.length;
       const totalTokens = finalFiles.reduce((sum, f) => sum + f.tokenCount, 0);
 
-      return {
+      const result: ContextResult = {
         context,
         sources: finalFiles.map((f) => ({
           type: 'file' as const,
@@ -233,6 +253,11 @@ export class ContextOptimizer {
         },
         warnings,
       };
+
+      // Cache result before returning
+      this.addToCache(cacheKey, result);
+
+      return result;
     } catch (error) {
       console.error('[ContextOptimizer] Optimization failed:', error);
       throw error;
@@ -376,6 +401,58 @@ export class ContextOptimizer {
       },
       warnings: ['Using legacy fallback (optimization disabled)'],
     };
+  }
+
+  /**
+   * Get from cache with TTL check (in-memory only)
+   *
+   * @param key - Cache key
+   * @returns Cached result or null if not found/expired
+   */
+  private getFromCache(key: string): ContextResult | null {
+    const cached = this.cache.get(key);
+    if (!cached) return null;
+
+    // TTL check (5-minute expiry)
+    if (Date.now() - cached.timestamp > this.cacheTTL) {
+      this.cache.delete(key);
+      return null;
+    }
+
+    return cached.result;
+  }
+
+  /**
+   * Add to cache with LRU eviction (in-memory Map, max 100 entries)
+   *
+   * @param key - Cache key
+   * @param result - Result to cache
+   */
+  private addToCache(key: string, result: ContextResult): void {
+    // LRU eviction (remove oldest entry if at capacity)
+    if (this.cache.size >= this.cacheMaxSize) {
+      const oldestKey = this.cache.keys().next().value;
+      if (oldestKey) {
+        this.cache.delete(oldestKey);
+      }
+    }
+
+    this.cache.set(key, {
+      timestamp: Date.now(),
+      result
+    });
+  }
+
+  /**
+   * Generate cache key from files and task
+   *
+   * @param files - File patterns
+   * @param task - Task description
+   * @returns Cache key
+   */
+  private generateCacheKey(files: string[], task: string): string {
+    const hash = this.simpleHash(files.join(',') + task);
+    return `context:${hash}`;
   }
 }
 
