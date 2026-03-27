@@ -60,7 +60,7 @@ PLAN.md IS the prompt (not a document that becomes one). Contains:
 ## Execution Principles
 
 **Atomic commits:**
-- One commit per task
+- One commit per phase
 - Clear, descriptive messages
 - Easy to revert if needed
 
