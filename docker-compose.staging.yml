@@ -34,6 +34,16 @@ services:
       - NODE_ENV=staging
       - QWEN_CONFIG_DIR=/root/.qwen
       - CI=true
+      - EZ_CLI_TIMEOUT=120
+      - EZ_CLI_MEMORY_LIMIT=4096
+      - EZ_CLI_VERBOSE=false
+      - NODE_OPTIONS=--max-old-space-size=4096
+    deploy:
+      resources:
+        limits:
+          memory: 4G
+        reservations:
+          memory: 2G
     volumes:
       # OAuth token for Qwen Code authentication
       - ${USERPROFILE:-/root}/.qwen/oauth_creds.json:/root/.qwen/oauth_creds.json:ro

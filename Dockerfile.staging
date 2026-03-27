@@ -9,6 +9,12 @@ RUN apk add --no-cache python3 make g++
 # Set working directory
 WORKDIR /app
 
+# CLI Performance environment variables
+ENV NODE_OPTIONS=--max-old-space-size=4096
+ENV EZ_CLI_TIMEOUT=120
+ENV EZ_CLI_MEMORY_LIMIT=4096
+ENV EZ_CLI_VERBOSE=false
+
 # Copy package files
 COPY package*.json ./
 
