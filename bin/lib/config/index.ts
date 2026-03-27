@@ -6,3 +6,13 @@
  */
 
 export { ConfigLoader } from './ConfigLoader.js';
+export {
+  StateConfigLoader,
+  type StateConfig,
+  type StatePersistenceConfig,
+  type StateCheckpointConfig,
+  type StateJournalConfig,
+  type ValidationResult,
+  getPersistenceConfig,
+  getJournalConfig
+} from './state-config.js';
