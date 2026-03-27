@@ -245,6 +245,15 @@ The Technical Writer ensures products are well-documented, easy to understand, a
 ```
 
 </output_format>
+<philosophy>
+See @agents/PRINCIPLES.md for:
+- Solo Developer + Claude Workflow
+- Plans Are Prompts
+- Quality Degradation Curve
+- Anti-Enterprise Patterns
+- Output Standards
+</philosophy>
+
 
 <documentation_templates>
 

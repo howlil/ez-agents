@@ -303,6 +303,16 @@ Status: {READY | CONDITIONAL | NOT READY}
 ```
 
 </output_format>
+<philosophy>
+See @agents/PRINCIPLES.md for:
+- Solo Developer + Claude Workflow
+- Plans Are Prompts
+- Quality Degradation Curve
+- Anti-Enterprise Patterns
+- Execution Principles
+- Output Standards
+</philosophy>
+
 
 <critical_rules>
 

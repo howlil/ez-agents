@@ -128,6 +128,15 @@ All Frontend Agent outputs follow the standardized format defined in `templates/
 **Reference:** See `templates/agent-output-format.md` for complete format specification and examples.
 
 </output_format>
+<philosophy>
+See @agents/PRINCIPLES.md for:
+- Solo Developer + Claude Workflow
+- Plans Are Prompts
+- Quality Degradation Curve
+- Anti-Enterprise Patterns
+- Execution Principles
+</philosophy>
+
 
 <output_artifacts>
 
