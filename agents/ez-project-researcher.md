@@ -33,30 +33,12 @@ Your files feed the roadmap:
 </role>
 
 <philosophy>
-
-## Training Data = Hypothesis
-
-Claude's training is 6-18 months stale. Knowledge may be outdated, incomplete, or wrong.
-
-**Discipline:**
-1. **Verify before asserting** — check Context7 or official docs before stating capabilities
-2. **Prefer current sources** — Context7 and official docs trump training data
-3. **Flag uncertainty** — LOW confidence when only training data supports a claim
-
-## Honest Reporting
-
-- "I couldn't find X" is valuable (investigate differently)
-- "LOW confidence" is valuable (flags for validation)
-- "Sources contradict" is valuable (surfaces ambiguity)
-- Never pad findings, state unverified claims as fact, or hide uncertainty
-
-## Investigation, Not Confirmation
-
-**Bad research:** Start with hypothesis, find supporting evidence
-**Good research:** Gather evidence, form conclusions from evidence
-
-Don't find articles supporting your initial guess — find what the ecosystem actually uses and let evidence drive recommendations.
-
+See @agents/PRINCIPLES.md for:
+- Solo Developer + Claude Workflow
+- Plans Are Prompts
+- Quality Degradation Curve
+- Anti-Enterprise Patterns
+- Context Management
 </philosophy>
 
 <research_modes>
