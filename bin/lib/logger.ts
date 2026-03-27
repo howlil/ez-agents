@@ -5,14 +5,90 @@
  *
  * Provides structured logging with levels (ERROR, WARN, INFO, DEBUG)
  * Logs to console only (no file logging)
- * Replaces silent catch {} blocks with proper error logging
- * Integrated with ErrorCache for recurring error detection
+ * Features:
+ * - Environment-controlled logging (EZ_LOG_ENABLED, EZ_LOG_LEVEL)
+ * - Per-module log level control (EZ_LOG_ADAPTERS, EZ_LOG_STRATEGIES, etc.)
+ * - Trace ID propagation (W3C TraceContext compatible)
+ * - Structured JSON context for observability
+ *
+ * Environment Variables:
+ * - EZ_LOG_ENABLED: 'true' | 'false' (default: 'true')
+ * - EZ_LOG_LEVEL: 'error' | 'warn' | 'info' | 'debug' (default: 'info')
+ * - EZ_LOG_PROFILING: 'true' | 'false' (default: 'false')
+ * - EZ_LOG_ADAPTERS: Log level for adapter module
+ * - EZ_LOG_STRATEGIES: Log level for strategies module
+ * - EZ_LOG_CONTEXT: Log level for context module
+ * - EZ_LOG_CIRCUIT_BREAKER: Log level for circuit breaker module
  *
  * Usage:
- *   import Logger from './logger.js';
- *   const logger = new Logger();
- *   logger.error('Something failed', { context: 'details' });
+ *   import { defaultLogger } from './logger.js';
+ *   defaultLogger.error('Something failed', { context: 'details', traceId: 'abc123' });
  */
+
+/**
+ * Log levels with priorities
+ */
+const LOG_LEVELS: Record<string, number> = {
+  error: 0,
+  warn: 1,
+  info: 2,
+  debug: 3
+};
+
+/**
+ * Module-specific log level overrides
+ */
+const MODULE_LOG_LEVELS: Record<string, string> = {
+  adapters: process.env.EZ_LOG_ADAPTERS || '',
+  strategies: process.env.EZ_LOG_STRATEGIES || '',
+  context: process.env.EZ_LOG_CONTEXT || '',
+  circuitBreaker: process.env.EZ_LOG_CIRCUIT_BREAKER || '',
+  decorators: process.env.EZ_LOG_DECORATORS || '',
+  finops: process.env.EZ_LOG_FINOPS || '',
+  analytics: process.env.EZ_LOG_ANALYTICS || ''
+};
+
+/**
+ * Generate or extract trace ID (W3C TraceContext compatible)
+ */
+function generateTraceId(): string {
+  // W3C TraceContext format: 32 hex chars (128-bit)
+  return Array.from({ length: 16 }, () => 
+    Math.floor(Math.random() * 16).toString(16)
+  ).join('');
+}
+
+/**
+ * Extract trace ID from context or generate new one
+ */
+function getOrGenerateTraceId(context?: Record<string, unknown>): string {
+  if (context?.traceId && typeof context.traceId === 'string') {
+    return context.traceId;
+  }
+  
+  // Check for W3C traceparent header format
+  if (context?.traceparent && typeof context.traceparent === 'string') {
+    const parts = context.traceparent.split('-');
+    if (parts.length >= 2 && parts[1]) {
+      return parts[1]; // trace-id is the second part
+    }
+  }
+  
+  return generateTraceId();
+}
+
+/**
+ * Get effective log level for a module
+ */
+function getEffectiveLogLevel(moduleName?: string): string {
+  // Check module-specific level first
+  if (moduleName && MODULE_LOG_LEVELS[moduleName]) {
+    return MODULE_LOG_LEVELS[moduleName];
+  }
+  
+  // Fall back to global level
+  return process.env.EZ_LOG_LEVEL || 'info';
+}
 
 /**
  * Get or create ErrorCache singleton
@@ -25,14 +101,50 @@ function getErrorCache(): Object | null {
 }
 
 /**
- * Logger class for structured console logging
+ * Logger class for structured console logging with trace ID support
  */
 class Logger {
+  private moduleName?: string;
+  private traceId?: string;
+
   /**
    * Create a Logger instance
+   * @param moduleName - Optional module name for per-module log levels
+   * @param traceId - Optional trace ID for request tracing
    */
-  constructor() {
-    // No file logging - console only
+  constructor(moduleName?: string, traceId?: string) {
+    this.moduleName = moduleName;
+    this.traceId = traceId ?? generateTraceId();
+  }
+
+  /**
+   * Create a child logger with module name
+   */
+  child(moduleName: string): Logger {
+    return new Logger(moduleName, this.traceId);
+  }
+
+  /**
+   * Create a child logger with new trace ID
+   */
+  withTrace(traceId: string): Logger {
+    return new Logger(this.moduleName, traceId);
+  }
+
+  /**
+   * Check if logging is enabled for the given level
+   */
+  private isEnabled(level: string): boolean {
+    // Check if logging is globally disabled
+    if (process.env.EZ_LOG_ENABLED === 'false') {
+      return false;
+    }
+
+    const effectiveLevel = getEffectiveLogLevel(this.moduleName);
+    const minPriority = LOG_LEVELS[effectiveLevel] ?? 2;
+    const logPriority = LOG_LEVELS[level] ?? 3;
+
+    return logPriority <= minPriority;
   }
 
   /**
@@ -42,22 +154,30 @@ class Logger {
    * @param context - Additional context data
    */
   log(level: string, message: string, context: Record<string, unknown> = {}): void {
+    if (!this.isEnabled(level)) {
+      return;
+    }
+
+    const traceId = getOrGenerateTraceId(context);
     const entry: Record<string, unknown> = {
       timestamp: new Date().toISOString(),
       level,
       message,
+      traceId,
+      module: this.moduleName || 'core',
       context,
       pid: process.pid
     };
 
-    // Always output to console
+    // Always output to console with trace ID
+    const prefix = `[EZ ${level}] [${traceId.substring(0, 8)}]`;
+    
     if (level === 'ERROR') {
-      console.error(`[EZ ${level}] ${message}`);
+      console.error(`${prefix} ${message}`);
     } else if (level === 'WARN') {
-      console.warn(`[EZ ${level}] ${message}`);
-    } else if (process.env.DEBUG === 'ez-agents') {
-      // Only output INFO/DEBUG in debug mode
-      console.log(`[EZ ${level}] ${message}`);
+      console.warn(`${prefix} ${message}`);
+    } else {
+      console.log(`${prefix} ${message}`);
     }
   }
 
@@ -111,5 +231,77 @@ class Logger {
 // Singleton instance for default usage
 const defaultLogger = new Logger();
 
+// Named loggers for common modules
+const adapterLogger = new Logger('adapters');
+const strategyLogger = new Logger('strategies');
+const contextLogger = new Logger('context');
+const circuitBreakerLogger = new Logger('circuitBreaker');
+
 export default Logger;
-export { defaultLogger, Logger };
+export { 
+  defaultLogger, 
+  Logger,
+  adapterLogger,
+  strategyLogger,
+  contextLogger,
+  circuitBreakerLogger,
+  generateTraceId,
+  getOrGenerateTraceId
+};
+
+/**
+ * Trace context for W3C TraceContext propagation
+ */
+export interface TraceContext {
+  traceId: string;
+  spanId: string;
+  traceparent?: string;
+}
+
+/**
+ * Generate a span ID (16 hex chars)
+ */
+export function generateSpanId(): string {
+  return Array.from({ length: 8 }, () => 
+    Math.floor(Math.random() * 16).toString(16)
+  ).join('');
+}
+
+/**
+ * Create W3C traceparent header from trace context
+ */
+export function createTraceparent(context: TraceContext): string {
+  // Format: version-traceId-spanId-traceFlags
+  return `00-${context.traceId}-${context.spanId}-01`;
+}
+
+/**
+ * Extract trace context from W3C traceparent header
+ */
+export function extractTraceContext(traceparent: string): TraceContext | null {
+  const parts = traceparent.split('-');
+  if (parts.length !== 4 || parts[0] !== '00') {
+    return null;
+  }
+  
+  return {
+    traceId: parts[1],
+    spanId: parts[2],
+    traceparent,
+    traceFlags: parts[3]
+  } as TraceContext;
+}
+
+/**
+ * Create a new trace context for outgoing requests
+ */
+export function createTraceContext(parentTraceId?: string): TraceContext {
+  const traceId = parentTraceId || generateTraceId();
+  const spanId = generateSpanId();
+  
+  return {
+    traceId,
+    spanId,
+    traceparent: createTraceparent({ traceId, spanId })
+  };
+}

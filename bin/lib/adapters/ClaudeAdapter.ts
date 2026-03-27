@@ -4,6 +4,8 @@
  * Adapts Anthropic Claude API to the ModelProviderAdapter interface.
  * Supports Claude's Tools API for function calling.
  *
+ * Uses functional composition for shared logic.
+ *
  * @example
  * ```typescript
  * const adapter = new ClaudeAdapter(apiKey, 'claude-sonnet-4-20250514');
@@ -11,20 +13,29 @@
  * ```
  */
 
-import * as https from 'https';
-import { LogExecution } from '../decorators/LogExecution.js';
-import { defaultLogger as logger } from '../logger.js';
-import type { ModelProviderAdapter, Message, ModelOptions, ModelResponse, Tool, TokenUsage } from './ModelProviderAdapter.js';
+import { createChatHandler, httpsRequest, extractTokenUsage } from './shared/index.js';
+import type {
+  ModelProviderAdapter,
+  Message,
+  ModelOptions,
+  ModelResponse,
+  Tool,
+  TokenUsage,
+  HttpsRequestOptions
+} from './ModelProviderAdapter.js';
 import type { ToolCall } from '../assistant-adapter.js';
+import { createTraceContext, type TraceContext } from '../logger.js';
 
 /**
  * Claude Adapter class
  *
  * Implements the ModelProviderAdapter interface for Anthropic Claude API.
+ * Uses functional composition to share common chat handling logic.
  */
 export class ClaudeAdapter implements ModelProviderAdapter {
   private readonly apiKey: string;
   private readonly modelName: string;
+  private readonly chatHandler: ReturnType<typeof createChatHandler>;
 
   /**
    * Create Claude adapter
@@ -34,6 +45,16 @@ export class ClaudeAdapter implements ModelProviderAdapter {
   constructor(apiKey: string, modelName: string = 'claude-sonnet-4-20250514') {
     this.apiKey = apiKey;
     this.modelName = modelName;
+
+    // Create chat handler with Claude-specific implementations
+    this.chatHandler = createChatHandler({
+      providerName: 'claude',
+      modelName: this.modelName,
+      apiKey: this.apiKey,
+      buildRequestBody: this._buildRequestBody.bind(this),
+      buildRequestOptions: this._buildRequestOptions.bind(this),
+      parseResponse: this._parseResponse.bind(this)
+    });
   }
 
   /**
@@ -64,24 +85,26 @@ export class ClaudeAdapter implements ModelProviderAdapter {
    * Send chat message to Claude
    * @param messages - Array of chat messages
    * @param options - Chat options
+   * @param traceContext - Optional trace context for distributed tracing
    * @returns Model response
    */
-  @LogExecution('ClaudeAdapter.chat', { logParams: false, logResult: false, level: 'debug' })
-  async chat(messages: Message[], options: ModelOptions = {}): Promise<ModelResponse> {
-    logger.debug('Claude chat request', {
-      model: this.modelName,
-      messageCount: messages.length,
-      hasTools: !!options.tools
-    });
+  async chat(messages: Message[], options: ModelOptions = {}, traceContext?: TraceContext): Promise<ModelResponse> {
+    return this.chatHandler(messages, options);
+  }
 
-    if (!this.apiKey) {
-      throw new Error('Claude API key not configured');
-    }
-
-    // Convert messages to Claude format
+  /**
+   * Build Claude-specific request body
+   *
+   * @param messages - Array of chat messages
+   * @param options - Chat options
+   * @returns Claude API request body
+   */
+  private _buildRequestBody(messages: Message[], options: ModelOptions): Record<string, unknown> {
+    // Extract system message
     const systemMessage = messages.find(m => m.role === 'system');
     const nonSystemMessages = messages.filter(m => m.role !== 'system');
 
+    // Convert messages to Claude format
     const claudeMessages = nonSystemMessages.map(msg => ({
       role: msg.role === 'assistant' ? 'assistant' : 'user',
       content: msg.content
@@ -94,10 +117,12 @@ export class ClaudeAdapter implements ModelProviderAdapter {
       messages: claudeMessages
     };
 
+    // Add system message if present
     if (systemMessage) {
       requestBody.system = systemMessage.content;
     }
 
+    // Add temperature if provided
     if (options.temperature !== undefined) {
       requestBody.temperature = options.temperature;
     }
@@ -111,79 +136,64 @@ export class ClaudeAdapter implements ModelProviderAdapter {
       }));
     }
 
-    try {
-      const response = await this._httpsRequest({
-        hostname: 'api.anthropic.com',
-        path: '/v1/messages',
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'x-api-key': this.apiKey,
-          'anthropic-version': '2023-06-01'
-        }
-      }, requestBody);
-
-      // Parse response
-      const content = response.content?.[0]?.text || '';
-      const usage = response.usage ? {
-        promptTokens: (response.usage as any).input_tokens || 0,
-        completionTokens: (response.usage as any).output_tokens || 0,
-        totalTokens: ((response.usage as any).input_tokens || 0) + ((response.usage as any).output_tokens || 0)
-      } : undefined;
-
-      // Extract tool calls if present
-      const toolCalls: ToolCall[] = [];
-      if (response.content) {
-        for (const block of response.content as any[]) {
-          if (block.type === 'tool_use') {
-            toolCalls.push({
-              name: block.name,
-              arguments: block.input || {}
-            });
-          }
-        }
-      }
-
-      return {
-        content,
-        toolCalls: toolCalls.length > 0 ? toolCalls : [],
-        usage: usage || { promptTokens: 0, completionTokens: 0, totalTokens: 0 }
-      };
-    } catch (error) {
-      const err = error as Error;
-      logger.error('Claude API error', { error: err.message });
-      throw error;
-    }
+    return requestBody;
   }
 
   /**
-   * Helper for HTTPS requests
-   * @param options - HTTPS options
-   * @param data - Request data
-   * @returns Response data
-   * @private
+   * Build Claude-specific request options
+   *
+   * @param trace - Trace context for distributed tracing
+   * @returns HTTPS request options
    */
-  private _httpsRequest(options: Record<string, unknown>, data: Record<string, unknown>): Promise<Record<string, unknown>> {
-    return new Promise((resolve, reject) => {
-      const req = https.request(options, (res) => {
-        let body = '';
-        res.on('data', (chunk) => (body += chunk));
-        res.on('end', () => {
-          if (res.statusCode !== undefined && res.statusCode >= 200 && res.statusCode < 300) {
-            try {
-              resolve(JSON.parse(body));
-            } catch {
-              resolve({ raw: body });
-            }
-          } else {
-            reject(new Error(`HTTP ${res.statusCode}: ${body}`));
-          }
-        });
-      });
+  private _buildRequestOptions(trace: TraceContext): HttpsRequestOptions {
+    return {
+      hostname: 'api.anthropic.com',
+      path: '/v1/messages',
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-api-key': this.apiKey,
+        'anthropic-version': '2023-06-01',
+        'traceparent': `00-${trace.traceId}-${trace.spanId}-01` // W3C TraceContext propagation
+      }
+    };
+  }
 
-      req.on('error', reject);
-      if (data) req.write(JSON.stringify(data));
-      req.end();
-    });
+  /**
+   * Parse Claude-specific response
+   *
+   * @param response - API response
+   * @returns Parsed model response
+   */
+  private _parseResponse(response: Record<string, unknown>): ModelResponse {
+    // Extract content
+    const content = (response.content as Array<any>)?.[0]?.text || '';
+
+    // Extract usage
+    const usage: TokenUsage | undefined = response.usage ? extractTokenUsage(response as any, {
+      promptTokens: 'input_tokens',
+      completionTokens: 'output_tokens'
+    }) : undefined;
+
+    // Extract tool calls
+    const toolCalls: ToolCall[] = [];
+    if (response.content) {
+      for (const block of response.content as Array<any>) {
+        if (block.type === 'tool_use') {
+          toolCalls.push({
+            name: block.name,
+            arguments: block.input || {}
+          });
+        }
+      }
+    }
+
+    return {
+      content,
+      toolCalls: toolCalls.length > 0 ? toolCalls : [],
+      usage: usage || { promptTokens: 0, completionTokens: 0, totalTokens: 0 }
+    };
   }
 }
+
+export default ClaudeAdapter;

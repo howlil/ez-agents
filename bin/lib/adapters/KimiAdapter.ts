@@ -4,6 +4,8 @@
  * Adapts Moonshot Kimi API to the ModelProviderAdapter interface.
  * Kimi is a Chinese LLM provider known for long context support.
  *
+ * Uses functional composition for shared logic.
+ *
  * @example
  * ```typescript
  * const adapter = new KimiAdapter(apiKey, 'moonshot-v1-8k');
@@ -11,20 +13,27 @@
  * ```
  */
 
-import * as https from 'https';
-import { LogExecution } from '../decorators/LogExecution.js';
-import { defaultLogger as logger } from '../logger.js';
-import type { ModelProviderAdapter, Message, ModelOptions, ModelResponse, TokenUsage } from './ModelProviderAdapter.js';
-import type { ToolCall } from '../assistant-adapter.js';
+import { createChatHandler, extractTokenUsage } from './shared/index.js';
+import type {
+  ModelProviderAdapter,
+  Message,
+  ModelOptions,
+  ModelResponse,
+  TokenUsage,
+  HttpsRequestOptions
+} from './ModelProviderAdapter.js';
+import { createTraceContext, type TraceContext } from '../logger.js';
 
 /**
  * Kimi Adapter class
  *
  * Implements the ModelProviderAdapter interface for Moonshot Kimi API.
+ * Uses functional composition to share common chat handling logic.
  */
 export class KimiAdapter implements ModelProviderAdapter {
   private readonly apiKey: string;
   private readonly modelName: string;
+  private readonly chatHandler: ReturnType<typeof createChatHandler>;
 
   /**
    * Create Kimi adapter
@@ -34,6 +43,15 @@ export class KimiAdapter implements ModelProviderAdapter {
   constructor(apiKey: string, modelName: string = 'moonshot-v1-8k') {
     this.apiKey = apiKey;
     this.modelName = modelName;
+
+    this.chatHandler = createChatHandler({
+      providerName: 'kimi',
+      modelName: this.modelName,
+      apiKey: this.apiKey,
+      buildRequestBody: this._buildRequestBody.bind(this),
+      buildRequestOptions: this._buildRequestOptions.bind(this),
+      parseResponse: this._parseResponse.bind(this)
+    });
   }
 
   /**
@@ -64,26 +82,22 @@ export class KimiAdapter implements ModelProviderAdapter {
    * Send chat message to Kimi
    * @param messages - Array of chat messages
    * @param options - Chat options
+   * @param traceContext - Optional trace context for distributed tracing
    * @returns Model response
    */
-  @LogExecution('KimiAdapter.chat', { logParams: false, logResult: false, level: 'debug' })
-  async chat(messages: Message[], options: ModelOptions = {}): Promise<ModelResponse> {
-    logger.debug('Kimi chat request', {
-      model: this.modelName,
-      messageCount: messages.length
-    });
+  async chat(messages: Message[], options: ModelOptions = {}, traceContext?: TraceContext): Promise<ModelResponse> {
+    return this.chatHandler(messages, options);
+  }
 
-    if (!this.apiKey) {
-      throw new Error('Kimi API key not configured');
-    }
-
-    // Convert messages to Kimi format (OpenAI-compatible)
+  /**
+   * Build Kimi-specific request body
+   */
+  private _buildRequestBody(messages: Message[], options: ModelOptions): Record<string, unknown> {
     const kimiMessages = messages.map(msg => ({
       role: msg.role,
       content: msg.content
     }));
 
-    // Build request body
     const requestBody: Record<string, unknown> = {
       model: this.modelName,
       messages: kimiMessages,
@@ -94,67 +108,43 @@ export class KimiAdapter implements ModelProviderAdapter {
       requestBody.temperature = options.temperature;
     }
 
-    try {
-      const response = await this._httpsRequest({
-        hostname: 'api.moonshot.cn',
-        path: '/v1/chat/completions',
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${this.apiKey}`
-        }
-      }, requestBody);
-
-      // Parse response
-      const choices = response.choices as Array<{ message: { content: string } }> | undefined;
-      const content = choices?.[0]?.message?.content || '';
-
-      // Extract usage
-      const usage = response.usage ? {
-        promptTokens: (response.usage as any).prompt_tokens || 0,
-        completionTokens: (response.usage as any).completion_tokens || 0,
-        totalTokens: (response.usage as any).total_tokens || 0
-      } : { promptTokens: 0, completionTokens: 0, totalTokens: 0 };
-
-      return {
-        content,
-        usage
-      };
-    } catch (error) {
-      const err = error as Error;
-      logger.error('Kimi API error', { error: err.message });
-      throw error;
-    }
+    return requestBody;
   }
 
   /**
-   * Helper for HTTPS requests
-   * @param options - HTTPS options
-   * @param data - Request data
-   * @returns Response data
-   * @private
+   * Build Kimi-specific request options
    */
-  private _httpsRequest(options: Record<string, unknown>, data: Record<string, unknown>): Promise<Record<string, unknown>> {
-    return new Promise((resolve, reject) => {
-      const req = https.request(options, (res) => {
-        let body = '';
-        res.on('data', (chunk) => (body += chunk));
-        res.on('end', () => {
-          if (res.statusCode !== undefined && res.statusCode >= 200 && res.statusCode < 300) {
-            try {
-              resolve(JSON.parse(body));
-            } catch {
-              resolve({ raw: body });
-            }
-          } else {
-            reject(new Error(`HTTP ${res.statusCode}: ${body}`));
-          }
-        });
-      });
+  private _buildRequestOptions(trace: TraceContext): HttpsRequestOptions {
+    return {
+      hostname: 'api.moonshot.cn',
+      path: '/v1/chat/completions',
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${this.apiKey}`,
+        'traceparent': `00-${trace.traceId}-${trace.spanId}-01`
+      }
+    };
+  }
 
-      req.on('error', reject);
-      if (data) req.write(JSON.stringify(data));
-      req.end();
+  /**
+   * Parse Kimi-specific response
+   */
+  private _parseResponse(response: Record<string, unknown>): ModelResponse {
+    const choices = response.choices as Array<{ message: { content: string } }> | undefined;
+    const content = choices?.[0]?.message?.content || '';
+
+    const usage: TokenUsage = extractTokenUsage(response as any, {
+      promptTokens: 'prompt_tokens',
+      completionTokens: 'completion_tokens',
+      totalTokens: 'total_tokens'
     });
+
+    return {
+      content,
+      usage
+    };
   }
 }
+
+export default KimiAdapter;

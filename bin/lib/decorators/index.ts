@@ -14,3 +14,4 @@ export type {
   ValidateInputOptions,
   CacheEntry
 } from './types.js';
+"export { getProfilingResults, exportProfilingResults } from './LogExecution.js';" 
