@@ -39,6 +39,7 @@ describe('StateConflictLog', () => {
 
   beforeEach(() => {
     log = new StateConflictLog(90);
+    log.reset(); // Reset log for clean test state
   });
 
   afterEach(() => {
