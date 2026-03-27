@@ -12,7 +12,7 @@
 import * as path from 'path';
 import * as fs from 'fs';
 import { createTempProject, cleanup } from '../helpers/index.js';
-import CrashRecovery from '../../bin/lib/crash-recovery.js';
+import CrashRecovery from '../../bin/lib/recovery/crash-recovery.js';
 
 describe('CrashRecovery', () => {
   let tmpDir, cr;

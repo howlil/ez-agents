@@ -10,7 +10,7 @@
 import * as path from 'path';
 import * as fs from 'fs';
 import { createTempProject, cleanup } from '../helpers/index.js';
-import CostAlerts, { THRESHOLDS } from '../../bin/lib/cost-alerts.js';
+import CostAlerts, { THRESHOLDS } from '../../bin/lib/cost/cost-alerts.js';
 
 describe('CostAlerts (COST-02)', () => {
   let tmpDir, alerts;

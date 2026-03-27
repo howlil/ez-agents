@@ -4,7 +4,7 @@ import * as fs from 'fs';
 import * as os from 'os';
 import * as path from 'path';
 
-import { createTempFile, cleanupTemp } from '../../bin/lib/temp-file.js';
+import { createTempFile, cleanupTemp } from '../../bin/lib/file/temp-file.js';
 
 const tempDirs: string[] = [];
 

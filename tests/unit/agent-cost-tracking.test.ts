@@ -10,7 +10,7 @@
 import * as path from 'path';
 import * as fs from 'fs';
 import { createTempProject, cleanup } from '../helpers/index.js';
-import CostTracker from '../../bin/lib/cost-tracker.js';
+import CostTracker from '../../bin/lib/cost/cost-tracker.js';
 
 describe('CostTracker - Per-Agent Tracking (COST-01)', () => {
   let tmpDir, ct;

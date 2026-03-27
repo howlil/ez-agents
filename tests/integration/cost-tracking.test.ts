@@ -10,7 +10,7 @@
 import * as path from 'path';
 import * as fs from 'fs';
 
-import CostTracker from '../../bin/lib/cost-tracker.js';
+import CostTracker from '../../bin/lib/cost/cost-tracker.js';
 import CostAlerts from '../../bin/lib/cost-alerts.js';
 
 describe('Cost Tracking Integration (COST-01, COST-02, COST-03)', () => {

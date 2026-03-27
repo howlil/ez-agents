@@ -9,7 +9,7 @@ import * as fs from 'fs';
 import * as path from 'path';
 
 import { createTempGitProject, cleanup } from '../helpers/index.js';
-import { BackupService } from '../../bin/lib/backup-service.js';
+import { BackupService } from '../../bin/lib/recovery/backup-service.js';
 
 describe('BackupService', () => {
   let tmpDir: string;
