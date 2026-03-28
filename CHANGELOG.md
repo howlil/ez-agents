@@ -6,6 +6,16 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ---
 
+## [5.0.2] - 2026-03-29
+
+### 🐛 Bug Fixes
+
+- **updater**: Fixed `npm install` command to use scoped package name `@howlil/ez-agents`
+  - Changed `PACKAGE_NAME` in `bin/update.ts` from `'ez-agents'` to `'@howlil/ez-agents'`
+  - Fixes 404 error when running `ez-agents-update`
+
+---
+
 ## [5.0.1] - 2026-03-29
 
 ### 🐛 Bug Fixes

@@ -19,7 +19,7 @@ import { fileURLToPath } from 'url';
 import { BaseCliHandler } from './lib/cli/index.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
-const PACKAGE_NAME = 'ez-agents';
+const PACKAGE_NAME = '@howlil/ez-agents';
 const REPO_URL = 'https://github.com/howlil/ez-agents.git';
 
 // ─── Updater Class ───────────────────────────────────────────────────────────
