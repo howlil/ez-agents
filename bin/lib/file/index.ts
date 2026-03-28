@@ -41,4 +41,5 @@ export {
 } from './fs-utils.js';
 
 // Re-export for backward compatibility
+export { FileOperations } from './file-operations.js';
 export { fileOperations } from './file-operations.js';
