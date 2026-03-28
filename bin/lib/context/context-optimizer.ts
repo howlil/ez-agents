@@ -46,6 +46,7 @@ export interface ContextSource {
     matchDensity: number;
     pathBonus: number;
   };
+  summarized?: boolean;
 }
 
 /**
@@ -313,12 +314,16 @@ export class ContextOptimizer {
     const taskKeywords = task.toLowerCase().split(/\s+/).filter((word) => word.length > 3);
     const contentLower = content.toLowerCase();
 
+    // Escape special regex characters in keywords
+    const escapeRegex = (str: string): string => str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+
     // Count keyword matches
     const matchedKeywords: string[] = [];
     let totalMatches = 0;
 
     for (const keyword of taskKeywords) {
-      const regex = new RegExp(`\\b${keyword}\\b`, 'gi');
+      const escapedKeyword = escapeRegex(keyword);
+      const regex = new RegExp(`\\b${escapedKeyword}\\b`, 'gi');
       const matches = contentLower.match(regex);
       if (matches) {
         matchedKeywords.push(keyword);
