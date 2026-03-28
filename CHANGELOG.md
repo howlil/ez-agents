@@ -6,6 +6,21 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ---
 
+## [5.0.1] - 2026-03-29
+
+### 🐛 Bug Fixes
+
+- **installer**: Fixed `ENOENT` error when installing globally on Windows
+  - Install script now correctly resolves package root by walking up directory tree to find `package.json`
+  - Fixes issue where `commands/ez` folder could not be found when running from `dist/bin/install.js`
+  - Affects all global installations (`--global` / `-g` flag and interactive "All" option)
+
+**Fix details:**
+- Changed `src` path resolution in `bin/install.ts` from `path.join(__dirname, '..')` to dynamic package root detection
+- Ensures `commands/ez` and other source folders are found regardless of whether running from development or installed context
+
+---
+
 ## [5.0.0] - 2026-03-28
 
 ### 🎉 Major Release: Complete TypeScript & OOP Transformation

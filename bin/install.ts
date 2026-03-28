@@ -2549,7 +2549,20 @@ function install(isGlobal: boolean, runtime = 'claude'): { settingsPath: string 
   const isQwen = runtime === 'qwen';
   const isKimi = runtime === 'kimi';
   const dirName = getDirName(runtime);
-  const src = path.join(__dirname, '..');
+  
+  // Resolve package root by finding directory containing package.json
+  // This works whether running from dist/bin/ (installed) or bin/ (development)
+  let pkgRoot = path.join(__dirname, '..');
+  while (!fs.existsSync(path.join(pkgRoot, 'package.json'))) {
+    const parent = path.dirname(pkgRoot);
+    if (parent === pkgRoot) {
+      // Reached filesystem root, fallback to __dirname
+      pkgRoot = path.join(__dirname, '..');
+      break;
+    }
+    pkgRoot = parent;
+  }
+  const src = pkgRoot;
 
   // Get the target directory based on runtime and install type
   const targetDir = isGlobal
