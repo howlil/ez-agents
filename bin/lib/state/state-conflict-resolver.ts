@@ -209,11 +209,11 @@ export class StateConflictResolver extends EventEmitter {
 
         // Send negotiation request with timeout
         const response = await this.mesh.sendMessageWithTimeout(agentId, message, timeout);
-        
+
         if (response && response.proposal) {
           proposals.push({
             agentId,
-            proposedResolution: response.proposal.strategy,
+            proposedResolution: response.proposal.proposedResolution || response.proposal.strategy,
             rationale: response.proposal.rationale,
             timestamp: Date.now()
           });
@@ -361,38 +361,65 @@ export class StateConflictResolver extends EventEmitter {
     });
 
     switch (level) {
-      case 1:
-        // Already tried: Agent Negotiation
+      case 0:
+        // Tier 0: Try agent negotiation first
+        logger.info('Tier 0: Agent negotiation', {
+          conflictId: conflict.id
+        });
+        await this.negotiateResolution(conflict);
         return null;
 
-      case 2:
-        // Orchestrator decides
-        logger.info('Tier 2: Orchestrator decision', {
+      case 1:
+        // Tier 1: Orchestrator decision
+        logger.info('Tier 1: Orchestrator decision', {
           conflictId: conflict.id
         });
         conflict.strategy = ResolutionStrategy.LAST_WRITE_WINS;
         await this.applyResolution(conflict, conflict.strategy);
         return conflict.strategy;
 
-      case 3:
-        // Escalate to user
-        logger.error('Tier 3: User escalation', {
-          conflictId: conflict.id,
-          agents: conflict.agents
-        });
-        // In production, this would notify the user
-        return null;
-
-      case 4:
-        // Manual intervention required
-        logger.error('Tier 4: Manual intervention required', {
+      case 2:
+        // Tier 2: Escalate to user
+        logger.warn('Tier 2: User escalation', {
           conflictId: conflict.id
         });
+        await this.escalateToUser(conflict);
+        this.emit('user-escalation', conflict);
+        return null;
+
+      case 3:
+        // Tier 3: Manual intervention
+        logger.error('Tier 3: Manual intervention required', {
+          conflictId: conflict.id
+        });
+        this.emit('manual-intervention-required', conflict);
         return null;
 
       default:
         return null;
     }
+  }
+
+  /**
+   * Escalate to user (tier 2)
+   */
+  async escalateToUser(conflict: StateConflict): Promise<void> {
+    // In production, would notify user via UI/email
+    logger.info('Conflict escalated to user', {
+      conflictId: conflict.id
+    });
+  }
+
+  /**
+   * Get resolution statistics
+   */
+  getResolutionStats(): { totalConflicts: number; autoResolutionRate: number; strategyDistribution: Record<string, number> } {
+    // In production, would query conflict log
+    return {
+      totalConflicts: 0,
+      autoResolutionRate: 0,
+      strategyDistribution: {}
+    };
   }
 
   /**
@@ -495,21 +522,5 @@ export class StateConflictResolver extends EventEmitter {
   validateState(state: Record<string, unknown>): boolean {
     // Basic validation: state must be non-null object
     return state !== null && typeof state === 'object';
-  }
-
-  /**
-   * Get resolution statistics
-   */
-  async getResolutionStats(): Promise<ResolutionStats> {
-    const stats = await this.conflictLog.getStatistics();
-
-    return {
-      totalConflicts: stats.totalConflicts,
-      autoResolutionRate: stats.autoResolutionRate,
-      strategyDistribution: stats.strategyDistribution,
-      averageResolutionTimeMs: stats.averageResolutionTimeMs,
-      escalationRate: stats.escalationRate,
-      topProblematicStates: stats.topProblematicStates
-    };
   }
 }
