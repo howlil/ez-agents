@@ -63,3 +63,34 @@ jobs:
           flags: unittests
           fail_ci_if_error: false
         if: always()
+
+  critical-path-tests:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    needs: test
+
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build hooks
+        run: npm run build:hooks
+
+      - name: Run critical path tests
+        run: npm test -- tests/critical-paths/
+
+      - name: Upload critical path results
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: critical-path-results
+          path: tests/critical-paths/results/
+          retention-days: 7
