@@ -85,7 +85,21 @@ ez-agents --help
 
 Answer questions about what you're building. EZ Agents generates requirements and a roadmap.
 
-### 4. Execute Phases
+### 4. Product Discovery (NEW - Product Thinking)
+
+```bash
+# Validate problem, define metrics, prioritize features
+/ez:product-discovery
+
+# Output:
+# - User Personas & Journey Maps
+# - Validated Problem Statement
+# - North Star Metric + HEART Metrics
+# - RICE-scored feature prioritization
+# - MVP Plan with Build-Measure-Learn
+```
+
+### 5. Execute Phases
 
 ```bash
 # ⚡ FAST PATH: Single command for all phases (recommended)
@@ -112,9 +126,9 @@ Answer questions about what you're building. EZ Agents generates requirements an
 
 ## Architecture
 
-### OOP Refactoring (v6.0.0)
+### TypeScript & OOP Refactoring (v5.0.0)
 
-This codebase has been refactored to use object-oriented patterns (v6.0.0):
+This codebase has been fully migrated to TypeScript with object-oriented patterns (v5.0.0):
 
 - [Architecture Overview](docs/architecture/OVERVIEW.md)
 - [Design Patterns](docs/patterns/README.md)
@@ -432,11 +446,17 @@ flowchart TB
 
 ## Commands
 
+### Product Discovery (NEW)
+
+| Command | Description | Time |
+|---------|-------------|------|
+| `/ez:product-discovery` | **NEW** — Validate problem, define metrics, prioritize features (RICE), create MVP plan | 30-60 min |
+
 ### Core Workflow
 
 | Command | Description | Time |
 |---------|-------------|------|
-| `/ez:new-project` | Initialize project: answer questions, generate requirements and roadmap | 10 min |
+| `/ez:new-project` | Initialize project: answer questions, **product discovery**, generate requirements and roadmap | 10 min |
 | `/ez:run-phase [N]` | **Recommended:** Run all phases iteratively with pause points. Use `--yolo` for fully autonomous | 35-55 min/phase |
 | `/ez:quick` | Small task without full phase workflow (bug fixes, config changes) | 5-10 min |
 
