@@ -6,6 +6,30 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ---
 
+## [5.0.6] - 2026-03-29
+
+### 🛡️ Security Fixes
+
+- **regex**: Resolved ReDoS and regex vulnerabilities in parsing code
+  - Fixed catastrophic backtracking in nested tag removal (`workflow-versioning.ts`)
+  - Fixed global regex `lastIndex` bug causing missed requirement completions (`milestone.ts`)
+  - Simplified secret detection patterns to prevent backtracking (`gate-04-security.ts`)
+  - Replaced inefficient `[\s\S]*?` with bounded character class (`state.ts`)
+  - Added `escapeRegex()` for dynamic keyword matching (`context-relevance-scorer.ts`)
+  - Added `escapeRegex()` for term shortener patterns (`prompt-compressor.ts`)
+
+### 🔍 Technical Details
+
+**Files Modified:**
+- `bin/lib/workflow/workflow-versioning.ts` - ReDoS fix with tempered greedy token
+- `bin/lib/phase/milestone.ts` - Global regex state bug fix
+- `bin/lib/gates/gate-04-security.ts` - Simplified secret patterns
+- `bin/lib/state/state.ts` - Efficient section parsing
+- `bin/lib/context/context-relevance-scorer.ts` - Input escaping
+- `bin/lib/prompt/prompt-compressor.ts` - Input escaping
+
+---
+
 ## [5.0.5] - 2026-03-29
 
 ### 🐛 Bug Fixes
