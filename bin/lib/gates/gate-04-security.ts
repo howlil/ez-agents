@@ -99,17 +99,18 @@ export const SECURITY_ANTI_PATTERNS = {
 
 /**
  * Patterns for detecting hardcoded secrets
+ * Simplified patterns to avoid catastrophic backtracking
  */
 export const SECRET_PATTERNS = {
-  /** Generic API key patterns */
+  /** Generic API key patterns - simplified to avoid nested optional quantifiers */
   apiKey: {
-    pattern: /['"]?(?:api[_-]?key|apikey|API[_-]?KEY)[_]?[A-Z]*['"]?\s*[:=]\s*['"][a-zA-Z0-9_\-]{16,}['"]/gi,
+    pattern: /(?:['"]?(?:api_key|api-key|apikey|API_KEY|API-KEY|APIKEY)['"]?\s*[:=]\s*['"][a-zA-Z0-9_\-]{16,}['"])/gi,
     message: 'Hardcoded API key detected. Use environment variables (e.g., process.env.API_KEY).',
     severity: 'error',
   },
-  /** Password patterns */
+  /** Password patterns - simplified and bounded */
   password: {
-    pattern: /['"]?(?:password|passwd|pwd|PASSWORD|PASSWD)[_]?[A-Z]*['"]?\s*[:=]\s*['"][^'"]{4,}['"]/g,
+    pattern: /(?:['"]?(?:password|passwd|pwd|PASSWORD|PASSWD|PWD)['"]?\s*[:=]\s*['"][^'"]{4,80}['"])/gi,
     message: 'Hardcoded password detected. Use environment variables or secrets manager.',
     severity: 'error',
   },

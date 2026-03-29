@@ -485,9 +485,17 @@ changelog:
   
   /**
    * Remove deprecated section
+   * Uses non-greedy matching with negative lookahead to avoid ReDoS
    */
   removeSection: (content: string, sectionName: string): string => {
-    const sectionPattern = new RegExp(`<${sectionName}>[\\s\\S]*?<\\/${sectionName}>`, 'gi');
+    // Escape special regex characters in section name
+    const escapedName = sectionName.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    // Use tempered greedy token to avoid catastrophic backtracking
+    // Matches: <tag>...content...</tag> without allowing nested tags of same name
+    const sectionPattern = new RegExp(
+      `<${escapedName}>(?:(?!<${escapedName}>).)*?<\\/${escapedName}>`,
+      'gis'
+    );
     return content.replace(sectionPattern, '');
   }
 };

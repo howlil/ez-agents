@@ -160,7 +160,8 @@ export function stateGet(cwd: string, section?: string, raw?: boolean): void {
     }
 
     // Check for ## Section
-    const sectionPattern = new RegExp(`##\\s*${fieldEscaped}\\s*\n([\\s\\S]*?)(?=\\n##|$)`, 'i');
+    // Use [^#] with lookahead for # to avoid catastrophic backtracking from [\s\S]*?
+    const sectionPattern = new RegExp(`##\\s*${fieldEscaped}\\s*\n([^#]*(?:#(?!#)[^#]*)*)(?=\n##|$)`, 'i');
     const sectionMatch = content.match(sectionPattern);
     if (sectionMatch) {
       output({ [section]: sectionMatch[1]!.trim() }, raw, sectionMatch[1]!.trim());

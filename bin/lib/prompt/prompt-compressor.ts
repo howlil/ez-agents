@@ -17,6 +17,7 @@
  */
 
 import { createHash } from 'crypto';
+import { escapeRegex } from '../core.js';
 
 /**
  * Compression result with detailed metrics
@@ -465,7 +466,8 @@ export class PromptCompressor {
     for (const [full, short] of Object.entries(termShorteners)) {
       // Only replace if the shortened version saves tokens
       if (full.length > short.length + 2) {
-        const regex = new RegExp(`\\b${full}\\b`, 'gi');
+        const escapedFull = escapeRegex(full);
+        const regex = new RegExp(`\\b${escapedFull}\\b`, 'gi');
         result = result.replace(regex, short);
       }
     }

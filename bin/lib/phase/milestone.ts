@@ -96,20 +96,17 @@ export function requirementsMarkComplete(cwd: string, reqIdsRaw: string[], raw?:
     const reqEscaped = escapeRegex(reqId);
 
     // Update checkbox: - [ ] **REQ-ID** → - [x] **REQ-ID**
-    const checkboxPattern = new RegExp(`(-\\s*\\[)[ ](\\]\\s*\\*\\*${reqEscaped}\\*\\*)`, 'gi');
+    // Note: Don't use global flag to avoid lastIndex state issues
+    const checkboxPattern = new RegExp(`(-\\s*\\[)[ ](\\]\\s*\\*\\*${reqEscaped}\\*\\*)`, 'i');
     if (checkboxPattern.test(reqContent)) {
       reqContent = reqContent.replace(checkboxPattern, '$1x$2');
       found = true;
     }
 
     // Update traceability table: | REQ-ID | Phase N | Pending | → | REQ-ID | Phase N | Complete |
-    const tablePattern = new RegExp(`(\\|\\s*${reqEscaped}\\s*\\|[^|]+\\|)\\s*Pending\\s*(\\|)`, 'gi');
+    const tablePattern = new RegExp(`(\\|\\s*${reqEscaped}\\s*\\|[^|]+\\|)\\s*Pending\\s*(\\|)`, 'i');
     if (tablePattern.test(reqContent)) {
-      // Re-read since test() advances lastIndex for global regex
-      reqContent = reqContent.replace(
-        new RegExp(`(\\|\\s*${reqEscaped}\\s*\\|[^|]+\\|)\\s*Pending\\s*(\\|)`, 'gi'),
-        '$1 Complete $2'
-      );
+      reqContent = reqContent.replace(tablePattern, '$1 Complete $2');
       found = true;
     }
 

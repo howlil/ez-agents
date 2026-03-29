@@ -7,6 +7,8 @@
  * - Relationship to current task
  */
 
+import { escapeRegex } from '../core.js';
+
 /**
  * Scoring weights configuration
  */
@@ -172,7 +174,8 @@ export class ContextRelevanceScorer {
     const matchedKeywords: string[] = [];
 
     for (const keyword of taskKeywords) {
-      const regex = new RegExp(`\\b${keyword}\\b`, 'gi');
+      const escapedKeyword = escapeRegex(keyword);
+      const regex = new RegExp(`\\b${escapedKeyword}\\b`, 'gi');
       const matches = contentLower.match(regex);
       if (matches && matches.length > 0) {
         matchCount += matches.length;
